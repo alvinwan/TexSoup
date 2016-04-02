@@ -60,10 +60,6 @@ class TexNode(object):
                 str(cmd.update(operator='end', params=cmd.params[0])), '', 1)
         return stripped
 
-    def splitByCommand(self, tex, cmd):
-        """Split a latex file by a specific command"""
-        pass
-
     #####################
     # Tree Abstractions #
     #####################
@@ -91,10 +87,17 @@ class TexNode(object):
         ... ''')
         []
         """
-        return []
+        return list(Command.fromLatexIter(tex))
 
     def __getattr__(self, attr, *default):
-        """Check source for attributes"""
+        r"""Check if requested attribute is an available latex operator
+
+        >>> tbf = TexSoup('\\textbf{Hey}').textbf
+        >>> tbf.string
+        'Hey'
+        >>> tbf
+        \textbf{Hey}
+        """
         pass
 
     ###################
@@ -142,72 +145,102 @@ class Command(object):
         return self
 
     def __iter__(self):
+        r"""Provide iterable for simultaneous assignments.
+
+        >>> name, string = Command.fromLatex('\\textbf{Hello}')
+        >>> name
+        'textbf'
+        >>> string
+        'Hello'
+        """
         params = [p for p in self.params if p.strip().startswith('{')]
-        return iter((self.operator, params[0] if params else None))
+        return iter((self.operator, params[0][1:-1] if params else None))
 
     def __repr__(self):
         return str(self)
 
     def __str__(self):
-        """
-        >>> cmd = Command.fromLatex(r'\\item[2.]{hello there}')
+        r"""
+        >>> cmd = Command.fromLatex('\\item[2.]{hello there}')
         >>> cmd.operator, cmd.params
         ('item', ['[2.]', '{hello there}'])
         >>> cmd.tex = None
         >>> cmd
-        \\item[2.]{hello there}
+        \item[2.]{hello there}
         """
         if self.tex:
             return self.tex
-        return '\\%s%s' % (self.operator, ''.join(self.params))
+        return r'\%s%s' % (self.operator, ''.join(self.params))
 
     @staticmethod
     def fromLatex(tex):
-        """Converts single tex command into Command object
+        r"""Converts single tex command into Command object
 
-        >>> Command.fromLatex(r'\\hoho haha')
-        \\hoho
-        >>> Command.fromLatex(r'\\hoho{haha}[hehe] huehue')
-        \\hoho{haha}[hehe]
-        >>> cmd = Command.fromLatex(r'\\answer{You \\textbf{so?}}{Grrr.}')
+        >>> Command.fromLatex('\hoho haha')
+        \hoho
+        >>> Command.fromLatex('\hoho{haha}[hehe] huehue')
+        \hoho{haha}[hehe]
+        >>> cmd = Command.fromLatex(r'\answer{You \textbf{so?}}{Grrr.}')
         >>> cmd.operator, cmd.params
-        ('answer', ['{You \\\\textbf{so?}}', '{Grrr.}'])
+        ('answer', ['{You \\textbf{so?}}', '{Grrr.}'])
         >>> cmd
-        \\answer{You \\textbf{so?}}{Grrr.}
+        \answer{You \textbf{so?}}{Grrr.}
         """
-        ntex = '\\'
-        delimiters = {}
-        operator, param, params = '', '', []
-        is_operator, is_param = True, False
-        for c in '\\'.join(tex.split('\\')[1:]):
+        try:
+            return next(Command.fromLatexIter(tex, 1))
+        except:
+            return Command('', '', '')
 
+    @staticmethod
+    def fromLatexIter(tex, num_iters=-1):
+        r"""Returns a generator over commands in a latex string
+
+        >>> cmds = Command.fromLatexIter('\hoho haha')
+        >>> next(cmds)
+        \hoho
+        >>> next(cmds)
+        haha
+        """
+        ntex, delimiters, params = '\\', {}, []
+        operator, param, is_operator, is_param = '', '', False, False
+        for c in tex:
             # Test if parameter is started
             if c in Command.delimiters:
-                delimiters.setdefault(c, 0)
-                delimiters[c] += 1
-                if is_operator: is_operator = False
-                is_param = True
+                delimiters[c] = delimiters.get(c, 0) + 1
+                is_operator, is_param = False, True
 
             # Test if parameter is terminated
             if c in Command.delimiters.values():
                 delimiters[Command.rdelimiters[c]] -= 1
                 if delimiters[Command.rdelimiters[c]] == 0:
-                    is_param = False
                     params.append(param+c)
-                    param = ''
-                    ntex += c
+                    param, ntex, is_param = '', ntex+c, False
                     continue
 
             # Close if space reached and all parameters closed
-            if not any(delimiters.values()) and c in {' ', '\\'}:
-                break
+            if c == '\\' and not any(delimiters.values()) and not is_operator:
+                is_operator = True
+                if params:
+                    yield Command(operator, params, ntex)
+                    ntex, delimiters, params = c.strip(), {}, []
+                    operator, param, is_operator, is_param = '', '', False, False
+                continue
+            elif not any(delimiters.values()) and c in {' ', '\\'}:
+                yield Command(operator, params, ntex)
+                ntex, delimiters, params = c.strip(), {}, []
+                operator, param, is_operator, is_param = '', '', False, False
+                if c == '\\':
+                    is_operator = True
+                num_iters -= 1
+                if num_iters == 0: break
+                continue
 
             # Append to string
             if is_operator:     operator += c
             elif is_param:      param += c
             ntex += c
 
-        return Command(operator, params, ntex)
+        yield Command(operator, params, ntex)
 
 if __name__ == '__main__':
     import doctest
