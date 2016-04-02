@@ -16,7 +16,7 @@ def TexSoup(tex):
 class TexNode(object):
     """Abstraction for Latex source"""
 
-    def __init__(self, tex=''):
+    def __init__(self, tex='', command=None):
         """
         Construct TexNode object, by running several initializations:
         - parse the current command name, string, and options
@@ -26,7 +26,7 @@ class TexNode(object):
         :param str tex: original tex
         """
         self.tex = tex
-        self.command = self.parseFirstCommand(tex)
+        self.command = command or self.parseFirstCommand(tex)
         self.name, self.string = self.command
         self.innerTex = self.stripCommand(tex, self.command)
         self.branches = self.parseBranches(self.innerTex)
@@ -47,10 +47,10 @@ class TexNode(object):
     def stripCommand(tex, cmd):
         r"""Strip a tag from the provided tex, only from the beginning and end.
 
-        >>> TexNode.stripCommand('\\section{b}\\item y',
-        ... Command.fromLatex('\\section{b}'))
+        >>> TexNode.stripCommand('\section{b}\item y',
+        ... Command.fromLatex('\section{b}'))
         '\\item y'
-        >>> TexNode.stripCommand('\\begin{b}\\begin{b}\\item y\\end{b}\\end{b}',
+        >>> TexNode.stripCommand('\\begin{b}\\begin{b}\item y\end{b}\end{b}',
         ... Command.fromLatex('\\begin{b}'))
         '\\begin{b}\\item y\\end{b}'
         """
@@ -71,7 +71,7 @@ class TexNode(object):
         :param list branches: list of immediate children as TexNode objs
         :return: list of all descendants
         """
-        return sum([b.descendants() for b in branches], []) + branches
+        return sum([b.descendants for b in branches], []) + branches
 
     def parseBranches(self, tex):
         r"""
@@ -85,9 +85,10 @@ class TexNode(object):
         ... \\end{enumerate}
         ... \\section{Yolo}
         ... ''')
-        []
         """
-        return list(Command.fromLatexIter(tex))
+        if not tex:
+            return []
+        return [TexNode(cmd.tex, cmd) for cmd in Command.fromLatexIter(tex)]
 
     def __getattr__(self, attr, *default):
         r"""Check if requested attribute is an available latex operator
@@ -110,7 +111,7 @@ class TexNode(object):
 
     def __str__(self):
         """Display contents"""
-        return self.string
+        return self.string or ''
 
     def __iter__(self):
         """Iterator over children"""
@@ -123,7 +124,7 @@ class TexNode(object):
 class Command(object):
     """Generalized Command object for LaTeX sources"""
 
-    delimiters = {'{': '}', '[': ']'}
+    delimiters = {'{': '}', '[': ']', 'begin': 'end'}
     rdelimiters = dict(p[::-1] for p in delimiters.items())
 
     def __init__(self, operator, params=(), tex=None):
@@ -168,7 +169,7 @@ class Command(object):
         >>> cmd
         \item[2.]{hello there}
         """
-        if self.tex:
+        if self.tex is not None:
             return self.tex
         return r'\%s%s' % (self.operator, ''.join(self.params))
 
