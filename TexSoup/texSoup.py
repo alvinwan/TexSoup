@@ -10,46 +10,27 @@ def TexSoup(tex):
     """
     if tex.strip().startswith('\\begin{document}'):
         return TexNode(tex)
-    return TexNode(tex, name='[document]', string='')
+    return TexNode('\\begin{document}%s\\end{document}' % tex)
 
 
 class TexNode(object):
     """Abstraction for Latex source"""
 
-    __element = re.compile('(?P<name>[\S]+?)\{(?P<string>[\S\s]+?)\}')
+    def __init__(self, tex=''):
+        """
+        Construct TexNode object, by running several initializations:
+        - parse the current command name, string, and options
+        - extract the innerTex
+        - find all branches and descendants
 
-    def __init__(self, tex='', name=None, string=None, options=None,
-        branches=()):
-        """Construct TexNode object
-
-        :param str name: name of latex command
-        :param str string: content of latex command
-        :param str options: options for latex command
         :param str tex: original tex
-        :param list TexNode branches: list of children
         """
         self.tex = tex
-        Command.create(name, string, options, self)
-        self.name, self.string, self.options = command
-        self.innerTex = self.stripCommand(tex, command)
+        self.command = self.parseFirstCommand()
+        self.name, self.string, self.options = self.command
+        self.innerTex = self.stripCommand(tex, self.command)
         self.branches = branches or self.parseBranches(self.innerTex)
         self.descendants = self.expandDescendants(self.branches)
-
-
-    @staticmethod
-    def stripCommand(tex, tag, form='\\%s{%s}'):
-        r"""Strip a tag from the provided tex, only from the beginning and end.
-
-        >>> TOC.stripCommand('\\begin{b}\\item y\\end{b}', 'begin', 'b')
-        '\\item y'
-        >>> TOC.stripCommand('\\begin{b}\\begin{b}\\item y\\end{b}\\end{b}',
-        ... 'begin', 'b')
-        '\\begin{b}\\item y\\end{b}'
-        """
-        stripped = tex.replace(form % tag, '', 1)
-        if name == 'begin':
-            stripped = rreplace(stripped, form % ('end', tag.string), '', 1)
-        return stripped
 
     @staticmethod
     def parseFirstCommand(tex):
@@ -58,16 +39,28 @@ class TexNode(object):
         :return Tag: first tag in the available Tex
 
         >>> TOC.parseTag('\\textbf{hello}\\textbf{yolo}')
-        ('\\textbf', 'hello')
+        \\textbf{hello}
         """
-        match = re.search(TOC.__element, tex)
-        if not match:
-            return '', ''
-        return Tag(match.group('name'), match.group('string'), self)
+        return Command.fromLatex(tex, self)
 
-    def splitByTag(self, tex, tag):
-        """Split a latex file by a specific tag"""
+    @staticmethod
+    def stripCommand(tex, cmd):
+        r"""Strip a tag from the provided tex, only from the beginning and end.
 
+        >>> TOC.stripCommand('\\section{b}\\item y', 'section', 'b')
+        '\\item y'
+        >>> TOC.stripCommand('\\begin{b}\\begin{b}\\item y\\end{b}\\end{b}',
+        ... 'begin', 'b')
+        '\\begin{b}\\item y\\end{b}'
+        """
+        stripped = tex.replace(str(cmd), '', 1)
+        if cmd.name == 'begin':
+            stripped = rreplace(stripped, str(cmd.update(name='end')), '', 1)
+        return stripped
+
+    def splitByCommand(self, tex, cmd):
+        """Split a latex file by a specific command"""
+        pass
 
     #####################
     # Tree Abstractions #
@@ -82,7 +75,7 @@ class TexNode(object):
         """
         return sum([b.descendants() for b in branches], []) + branches
 
-    def parseBranches(self, tex, hierarchy=None):
+    def parseBranches(self, tex):
         r"""
         Parse top level of provided latex
 
@@ -95,8 +88,6 @@ class TexNode(object):
         ... \\section{Yolo}
         ... ''')
         """
-        hierarchy = hierarchy or self.hierarchy
-        tag = self.parseTopTag(tex, hierarchy)
 
     def __getattr__(self, attr, *default):
         """Check source for attributes"""
@@ -123,30 +114,62 @@ class TexNode(object):
 
 
 class Command(object):
-    """command object"""
+    """Generalized Command object for LaTeX sources"""
 
-    def __init__(self, tex=None, name=None, string=None, options=None, toc):
+    delimiters = {'{': '}', '[': ']'}
+
+    def __init__(self, operator, params, node, tex=None):
+        """Initializer for a Command
+
+        :param str operator: The operator
+        :param list params: List of parameters
+        :param TexNode node: a tex node
+        :param str tex: raw tex
+        """
         self.name = name
-        self.string = string
+        self.params = params
+        self.toc = toc
+        self.tex = tex
 
-    def s(self, form='\\%s{%s}'):
-        return form % (self.name, self.string)
-
-    @staticmethod
-    def create(name, string, toc):
-        """Creates tag if name and string are not available"""
-        if not name:
-            return toc.parseFirstCommand(toc.tex)
-        return Tag(name, string, toc)
-
-    def __iter__(self):
-        return iter((name, string))
+    def update(**kwargs):
+        """Set attributes"""
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+        return self
 
     def __repr__(self):
         return str(self)
 
     def __str__(self):
-        return 'Tag(name=%s string=%s)' % self
+        """
+        >>> cmd = Command.fromLatex(r'\\item[2.]{hello there}')
+        >>> cmd.name, cmd.params
+        ('item', ['[2.]', '{hello there}'])
+        >>> cmd.tex = None
+        >>> cmd
+        \\item[2.]{hello there}
+        """
+        if self.tex:
+            return self.tex
+        return '\\%s%s' % (self.name, ''.join(self.params))
+
+    @staticmethod
+    def fromLatex(tex, toc):
+        """Converts single tex command into Command object
+
+        >>> Command.fromLatex()"""
+        string = '\\'
+        delimiters = {}
+        for c in '\\'.join(tex.split('\\')[1:]):
+            if c in self.delimiters:
+                delimiters.setdefault(c, 0)
+                delimiters[c] += 1
+            if c in self.delimiters.values():
+                delimiters[c] -= 1
+            if not any(delimiters.values()) and c == ' ':
+                break
+            string += c
+        return string
 
 if __name__ == '__main__':
     import doctest
