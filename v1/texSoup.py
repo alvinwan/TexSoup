@@ -1,5 +1,5 @@
 import re
-from utils import rreplace
+from .utils import rreplace
 
 
 def TexSoup(tex):
@@ -8,6 +8,7 @@ def TexSoup(tex):
     :param str tex: Latex
     :return: TexNode object
     """
+    tex = str(tex)
     if tex.strip().startswith('\\begin{document}'):
         return TexNode(tex)
     return TexNode('\\begin{document}%s\\end{document}' % tex)
@@ -111,7 +112,7 @@ class TexNode(object):
 
     def __str__(self):
         """Display contents"""
-        return self.string or ''
+        return str(self.command)
 
     def __iter__(self):
         """Iterator over children"""
