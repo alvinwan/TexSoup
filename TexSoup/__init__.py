@@ -1,4 +1,5 @@
-
+import TexSoup
+import _io
 
 def TexSoup(tex):
     """
@@ -13,36 +14,21 @@ def TexSoup(tex):
 class TexNode(object):
     """Abstraction for Tex source"""
 
-    def __init__(self, source):
+    def __init__(self, source, name='[tex]', arguments=()):
         """Creates TexNode object
 
         :param source: Tex source
         """
-        assert source, 'Source cannot be empty.'
-        self.__source = source
+        assert hasattr(source, '__iter__'), 'TexNode source must be iterable.'
+        self.source = source
+        if isinstance(source, _io.TextIOWrapper):
+            self.source = '\n'.join(source)
+        self.name = name
+        self.arguments = arguments or []
 
     ##############
     # PROPERTIES #
     ##############
-
-    @property
-    def command(self):
-        """Returns command"""
-        return next(parser.buffer(self))
-
-    @property
-    def name(self):
-        """Returns name of command"""
-        return self.command[1:].split('{')[0]
-
-    @property
-    def string(self):
-        """Returns string of command"""
-        return self.command[:-1].split('{')[1]
-
-    def arg(self, i):
-        """Returns arg of index i"""
-        raise NotImplementedError()
 
     @property
     def contents(self):
@@ -52,24 +38,24 @@ class TexNode(object):
     @property
     def children(self):
         """Returns all immediate children of this TeX element"""
-        return parser.buffer(self, start=1, recursive=False)
+        return TexSoup.parser.buffer(self, start=1)
 
     @property
     def descendants(self):
         """Returns all descendants of this TeX element."""
-        return parser.buffer(self, start=1)
+        return TexSoup.parser.buffer(self, start=1)
 
     ##########
     # SEARCH #
     ##########
 
-    def find_all(name=None, attrs={}):
+    def find_all(self, name=None, attrs={}):
         """Return all descendant nodes matching criteria, naively."""
         for descendant in self.descendants:
             if self.__match(name, attrs):
                 yield descendant
 
-    def find(name=None, attrs={}):
+    def find(self, name=None, attrs={}):
         """Return first descendant node matching criteria"""
         try:
             return next(self.find_all(name, attrs))
@@ -84,6 +70,12 @@ class TexNode(object):
                 return False
         return True
 
+    def __str__(self):
+        return self.source
+
+    def __repr__(self):
+        return self.source
+
     def __getattr__(self, attr, default=None):
         """Convert all invalid attributes into basic find operation."""
-        return self.find(attr, *default) or default
+        return self.find(attr) or default

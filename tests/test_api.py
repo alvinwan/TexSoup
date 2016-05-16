@@ -1,19 +1,5 @@
-from TexSoup import TexSoup
+from config import *
 import pytest
-import os
-
-def seed(path):
-    """Filepath relative to test directory"""
-    return os.path.join(os.path.split(os.path.realpath(__file__))[0], path)
-
-############
-# FIXTURES #
-############
-
-@pytest.fixture(scope='function')
-def chikin():
-    """Instance of the chikin tex file"""
-    return TexSoup(open(seed('samples/chikin.tex')))
 
 ##############
 # NAVIGATION #
@@ -42,6 +28,6 @@ def test_navigation_descendants(chikin):
 
 def test_find_by_command(chikin):
     """Find all LaTeX blocks that match a command"""
-    sections = chikin.find_all('section')
+    sections = list(chikin.find_all('section'))
     assert sections[0] == '\section{Chikin Tales}'
     assert sections[1] == '\section{Chikin Scream}'
