@@ -43,15 +43,21 @@ def parse(iterator):
         if i == '\\':
             yield parsers['command'](iterator)
             continue
-        yield parsers['text'](iterator)
+        text = parsers['text'](iterator)
+        if text.source:
+            yield text
 
 ###########
 # PARSERS #
 ###########
 
+# Specific Parsers
+
 @to_navigable_iterator
 def parse_command(iterator):
     """Parses and returns command, advancing iterator to end of command.
+
+    **WARNING** Cannot detect nested braces.
 
     >>> print(parse_command('\command text'))
     \command
@@ -63,14 +69,14 @@ def parse_command(iterator):
     assert next(iterator) == '\\', 'Command must begin with "\\"'
     command = parse_until_terminate(iterator, COMMAND_TERMINATORS)
     node = TexNode('\\' + command, command)
-    # cannot detect nested braces
     while iterator.peek() in {'{', '['}:
         arg = parse_until_terminate(iterator, {'}', ']'})
-        node.source += {'}': '%s}', ']': '%s]'}[next(iterator)] % arg
-        node.arguments.append(arg)
+        arg = {'}': '%s}', ']': '%s]'}[next(iterator)] % arg
+        node.source += arg
+        node.arguments.append(arg[1:-1])
     if command == 'begin':
-        iterator.backward(6)
-        return parsers['begin'](iterator)
+        node.name = node.arguments[0]
+        return parsers['begin'](iterator, node)
     return node
 
 @to_navigable_iterator
@@ -85,25 +91,52 @@ def parse_text(iterator):
     >>> parse_text(ni)
     'line2'
     """
-    return parse_until_terminate(iterator, TEXT_TERMINATORS, -1)
+    string = parse_until_terminate(iterator, TEXT_TERMINATORS, -1)
+    return TexNode(string, 'text', arguments=(string,))
+
+# Body parsers
+# Invoked by parse_command after the command has been removed and identified
 
 @to_navigable_iterator
-def parse_until_terminate(iterator, terminators, backward=0, required=()):
+def parse_begin(iterator, env):
+    """Parse environments of the form \begin{env} ... \end{env}
+
+    **WARNING** Cannot detect nested environments.
+
+    :param iterator iterator: an iterator beginning with the body of the
+        environment, after the \begin{env} command.
+    :param (string, TexNode) environment: the name of the environment
+        (e.g., itemize) or a TexNode containing the source and name
+    """
+    string = parse_until_terminate(iterator,
+        required={'\end{%s}' % env.name}, inclusive=True)
+    env.source += string
+    return env
+
+# Generic Parsers
+
+@to_navigable_iterator
+def parse_until_terminate(iterator, optional=set(), backward=0, required=set(),
+    inclusive=False):
     """Return iterator up until a terminator. The terminator may be multiple
     characters long.
 
     :param iterator iterator: iterator over all characters
     :param set terminators: set of terminators
     :param int backward: number of steps to retrace, after parsing text
+    :param bool inclusive: including the terminator or not
 
     >>> s = NavigableIterator('command text')
     >>> parse_until_terminate(s, COMMAND_TERMINATORS)
     'command'
     >>> next(s)
     ' '
-    >>> parse_until_terminate('nono\end{itemize}hoho', {'\end{itemize}'})
+    >>> parse_until_terminate('nono\end{itemize}hoho',
+    ...     required={'\end{itemize}'})
     'nono'
     """
+    assert optional or required, 'Either indicate optinal terminators or required terminators.'
+    terminators = optional | required
     result, prefix, trie, terminated = '', '', Trie(terminators), False
     for c in iterator:
         if c in terminators or prefix in trie:
@@ -114,12 +147,13 @@ def parse_until_terminate(iterator, terminators, backward=0, required=()):
             result += prefix
             prefix = ''
     if not terminated and required:
-        raise EOFError('Expecting a %s .' % str(required))
+        raise EOFError('Expecting %s' % str(required))
     iterator.backward(backward+1)
-    return result
+    return result + prefix if inclusive else result
 
 parsers = {
     'terminate': parse_until_terminate,
     'command': parse_command,
-    'text': parse_text
+    'text': parse_text,
+    'begin': parse_begin
 }

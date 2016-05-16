@@ -1,4 +1,4 @@
-import TexSoup
+import itertools
 import _io
 
 def TexSoup(tex):
@@ -14,7 +14,7 @@ def TexSoup(tex):
 class TexNode(object):
     """Abstraction for Tex source"""
 
-    def __init__(self, source, name='[tex]', arguments=()):
+    def __init__(self, source, command='[tex]', name='', arguments=()):
         """Creates TexNode object
 
         :param source: Tex source
@@ -23,7 +23,8 @@ class TexNode(object):
         self.source = source
         if isinstance(source, _io.TextIOWrapper):
             self.source = '\n'.join(source)
-        self.name = name
+        self.name = name or command
+        self.command = command
         self.arguments = arguments or []
 
     ##############
@@ -38,12 +39,16 @@ class TexNode(object):
     @property
     def children(self):
         """Returns all immediate children of this TeX element"""
-        return TexSoup.parser.buffer(self, start=1)
+        from TexSoup import parser
+        return parser.buffer(self, start=1)
 
     @property
     def descendants(self):
-        """Returns all descendants of this TeX element."""
-        return TexSoup.parser.buffer(self, start=1)
+        """Returns all descendants for this TeX element."""
+        c = list(self.children)
+        return [c[0].descendants] + c[1:]
+        # return itertools.chain(self.children,
+        #     *[c.descendants for c in self.children])
 
     ##########
     # SEARCH #
@@ -52,7 +57,7 @@ class TexNode(object):
     def find_all(self, name=None, attrs={}):
         """Return all descendant nodes matching criteria, naively."""
         for descendant in self.descendants:
-            if self.__match(name, attrs):
+            if descendant.__match(name, attrs):
                 yield descendant
 
     def find(self, name=None, attrs={}):
@@ -74,7 +79,8 @@ class TexNode(object):
         return self.source
 
     def __repr__(self):
-        return self.source
+        return '<TexNode name:%s command:%s args:%d>' % (
+            self.name, self.command, len(self.arguments))
 
     def __getattr__(self, attr, default=None):
         """Convert all invalid attributes into basic find operation."""
