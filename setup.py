@@ -32,7 +32,7 @@ setup(
     packages = ['TexSoup'],
     cmdclass = {'test': PyTest},
     tests_require = ['pytest'],
-    install_requires = ['marisa_trie'],
+    install_requires = [],
     download_url = 'https://github.com/alvinwan/TexSoup/archive/%s.zip' % VERSION,
     classifiers = [
         "Topic :: Utilities",

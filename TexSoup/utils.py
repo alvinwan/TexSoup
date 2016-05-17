@@ -15,18 +15,18 @@ import functools
 # Decorators #
 ##############
 
-def to_navigable_iterator(f, i=0):
+def to_buffer(f, i=0):
     """
     Decorator converting all strings and iterators/iterables into
-    NavigableIterators.
+    Buffers.
 
     :param int i: index of iterator argument. Used only if not a kwarg.
     """
     @functools.wraps(f)
     def wrap(*args, **kwargs):
         iterator = kwargs.get('iterator', args[i])
-        if not isinstance(iterator, NavigableIterator):
-            iterator = NavigableIterator(iterator)
+        if not isinstance(iterator, Buffer):
+            iterator = Buffer(iterator)
         if 'iterator' in kwargs:
             kwargs['iterator'] = iterator
         else:
@@ -39,33 +39,39 @@ def to_navigable_iterator(f, i=0):
 # Generalized Utilities #
 #########################
 
-class NavigableIterator:
+class Buffer:
     """Converts string or iterable into a navigable iterator of strings
 
     >>> def naturals(i):
     ...   while True:
     ...     yield str(i)
     ...     i += 1
-    >>> ni = NavigableIterator(naturals(0))
-    >>> next(ni)
+    >>> b1 = Buffer(naturals(0))
+    >>> next(b1)
     '0'
-    >>> ni.forward()
+    >>> b1.forward()
     '1'
-    >>> ni.backward(2)
+    >>> b1.endswith('1')
+    True
+    >>> b1.backward(2)
     '01'
-    >>> ni.peek()
+    >>> b1.peek()
     '0'
-    >>> ni.peek(2)
+    >>> b1.peek(2)
     '01'
-    >>> ni[2:4]
+    >>> b1.startswith('01')
+    True
+    >>> b1[2:4]
     '23'
-    >>> ni2 = NavigableIterator(naturals(0), coerce=int)
-    >>> ni2.forward(3)
+    >>> b2 = Buffer(naturals(0), coerce=int)
+    >>> b2.forward(3)
     12
+    >>> Buffer('asdf')[:10]
+    'asdf'
     """
 
     def __init__(self, iterator, coerce=str):
-        """Initialization for NavigableIterator
+        """Initialization for Buffer
 
         :param iterator: iterator or iterable
         :param func coerce: optional coercion to datatype (cannot be changed)
@@ -75,6 +81,18 @@ class NavigableIterator:
         self.__queue = []
         self.__i = 0
         self.__coerce = coerce
+
+    def startswith(self, s):
+        """
+        Check if iterator starts with s, beginning from the current position
+        """
+        return self.peek(len(s)) == s
+
+    def endswith(self, s):
+        """
+        Check if iterator ends with s, ending at current position
+        """
+        return self.peek(-len(s)) == s
 
     def forward(self, j=1):
         """Move forward by j steps."""
@@ -92,7 +110,9 @@ class NavigableIterator:
         return self[self.__i:self.__i+j]
 
     def peek(self, j=1):
-        """Peek at the next value(s), without advancing the NavigableIterator"""
+        """Peek at the next value(s), without advancing the Buffer"""
+        if j < 0:
+            return self[self.__i+j:self.__i]
         return self[self.__i:self.__i+j]
 
     def __next__(self):
@@ -103,10 +123,30 @@ class NavigableIterator:
         return self.__queue[self.__i-1]
 
     def __getitem__(self, i):
-        """Supports indexing list"""
+        """Supports indexing list
+
+        >>> b = Buffer('asdf')
+        >>> b[5]
+        Traceback (most recent call last):
+            ...
+        IndexError: list index out of range
+        >>> b[0]
+        'a'
+        >>> b[1:3]
+        'sd'
+        >>> b[1:]
+        'sdf'
+        >>> b[:3]
+        'asd'
+        >>> b[:]
+        'asdf'
+        """
         j, old = i.stop if not isinstance(i, int) else i, self.__i
-        while self.__i <= j:
-            next(self)
+        while j is None or self.__i <= j:
+            try:
+                next(self)
+            except StopIteration:
+                break
         self.__i = old
         return self.__coerce(''.join(map(str, self.__queue[i])))
 

@@ -126,16 +126,20 @@ class Arg(object):
         return self.value[i]
 
     @classmethod
+    def delims(cls):
+        """Returns delimiters"""
+        return cls.fmt.split('%s')
+
+    @classmethod
     def __is__(cls, s):
         """Test if string matches format."""
-        sides = cls.fmt.split('%s')
-        return s.startswith(sides[0]) and s.endswith(sides[1])
+        return s.startswith(cls.delims()[0]) and s.endswith(cls.delims()[1])
 
     @classmethod
     def __strip__(cls, s):
         """Strip string of format."""
         sides = cls.fmt.split('%s')
-        return s[len(sides[0]):-len(sides[1])]
+        return s[len(cls.delims()[0]):-len(cls.delims()[1])]
 
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__,
