@@ -1,4 +1,19 @@
+"""
+Utils for TexSoup
+---
+
+This file consists of various utilities for TexSoup, split into 2 categories by
+function:
+
+1. Decorators
+2. Generalized utilities
+"""
+
 import functools
+
+##############
+# Decorators #
+##############
 
 def to_navigable_iterator(f, i=0):
     """
@@ -19,6 +34,10 @@ def to_navigable_iterator(f, i=0):
             args[i] = iterator
         return f(*args, **kwargs)
     return wrap
+
+#########################
+# Generalized Utilities #
+#########################
 
 class NavigableIterator:
     """Converts string or iterable into a navigable iterator
@@ -74,80 +93,3 @@ class NavigableIterator:
 
     def __iter__(self):
         return self
-
-class Arguments(list):
-    """List data structure, supporting additional ops for command arguments
-
-    Use regular indexing to access the argument value. Use parentheses, like
-    a method invocation, to access a dictionary of all information related
-    to the argument. Use dot notation with args.tex<index> to access the
-    stringified argument.
-
-    >>> args = Arguments('{arg0}', '[arg1]', '{arg2}')
-    >>> args[2]
-    'arg2'
-    >>> args(2)['type']
-    'required'
-    >>> args(2)['value']
-    'arg2'
-    >>> args.append('[arg3]')
-    >>> args[3]
-    'arg3'
-    >>> len(args)
-    4
-    >>> args.tex1
-    '[arg1]'
-    >>> args.tex2
-    '{arg2}'
-    """
-
-    def __init__(self, *args):
-        """Append all arguments to list"""
-        self.__types = []
-        for arg in args:
-            self.append(arg)
-
-    def append(self, value):
-        """Append a value to the list"""
-        if not isinstance(value, (str, int)) or value == '':
-            raise TypeError('Invalid item type for argument.')
-        delimiter = self.str_to_type(value)
-        if delimiter is None:
-            raise TypeError('Malformed argument. Must either be in brackets or curly braces.')
-        self.__types.append(delimiter)
-        list.append(self, value[1:-1])
-
-    def __call__(self, i):
-        """
-        Access more information about an argument using function-call syntax.
-        """
-        return {'type': self.__types[i], 'value': self[i] }
-
-    def __getattr__(self, i):
-        """Use dot notation to access stringified arguments."""
-        if i[:3] == 'tex' and i[3:].isnumeric():
-            i = int(i[3:])
-            return self.type_to_str(self.__types[i], self[i])
-        return list.__getattr__(self, i)
-
-    @staticmethod
-    def str_to_type(s):
-        """Converts string to type"""
-        if not isinstance(s, str):
-            raise TypeError('Invalid string provied to str_to_type.')
-        try:
-            return {
-                '{': 'required',
-                '[': 'optional'
-            }[s[0]]
-        except KeyError:
-            return None
-
-    @staticmethod
-    def type_to_str(t, string):
-        """Converts type to string"""
-        if t == 'required':
-            return '{%s}' % string
-        if t == 'optional':
-            return '[%s]' % string
-        raise TypeError('Invalid type. Must be either optional or required.')
