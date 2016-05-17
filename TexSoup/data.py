@@ -162,9 +162,7 @@ class TexArgs(list):
     """List data structure, supporting additional ops for command arguments
 
     Use regular indexing to access the argument value. Use parentheses, like
-    a method invocation, to access a dictionary of all information related
-    to the argument. Use dot notation with args.tex<index> to access the
-    stringified argument.
+    a method invocation, to access an Arg object.
 
     >>> args = TexArgs(RArg('arg0'), '[arg1]', '{arg2}')
     >>> args
