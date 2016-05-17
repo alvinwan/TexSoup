@@ -24,7 +24,7 @@ def buffer(source, start=0):
     :param int start: number of parsed commands to skip
     :return generator: TexNodes for each command
     """
-    generator = parse(source.source)
+    generator = parse(source.inner_source)
     for _ in range(start):
         next(generator)
     for node in generator:
@@ -73,7 +73,7 @@ def parse_command(iterator):
         arg = parse_until_terminate(iterator, {'}', ']'})
         arg = {'}': '%s}', ']': '%s]'}[next(iterator)] % arg
         node.source += arg
-        node.arguments.append(arg[1:-1])
+        node.arguments.append(arg)
     if command == 'begin':
         node.name = node.arguments[0]
         return parsers['begin'](iterator, node)

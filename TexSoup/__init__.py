@@ -1,5 +1,6 @@
 import itertools
 import _io
+from utils import Arguments
 
 def TexSoup(tex):
     """
@@ -25,7 +26,7 @@ class TexNode(object):
             self.source = '\n'.join(source)
         self.name = name or command
         self.command = command
-        self.arguments = arguments or []
+        self.arguments = Arguments(*arguments)
 
     ##############
     # PROPERTIES #
@@ -45,10 +46,22 @@ class TexNode(object):
     @property
     def descendants(self):
         """Returns all descendants for this TeX element."""
-        c = list(self.children)
-        return [c[0].descendants] + c[1:]
+        # print(list(self.children)[0])
+        print(list(self.children)[0].source)
+        # print(list(list(self.children)[0].children)[0])
+        # raise UserWarning(list(self.children)[0].descendants)
+        return self.children
+        # return [c[0].descendants] + c[1:]
         # return itertools.chain(self.children,
         #     *[c.descendants for c in self.children])
+
+    @property
+    def inner_source(self):
+        """
+        Extracts inner source from provided source. Removes current command
+        from source.
+        """
+        
 
     ##########
     # SEARCH #
