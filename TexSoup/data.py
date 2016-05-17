@@ -1,3 +1,12 @@
+"""
+Tex Data Structures
+---
+
+Includes the data structures that users will interface with, in addition to
+internally used data structures.
+"""
+__all__ = ['TexNode', 'TexCmd', 'Arg', 'OArg', 'RArg', 'TexArgs']
+
 #############
 # Interface #
 #############
@@ -5,16 +14,12 @@
 class TexNode(object):
     """Main abstraction for Tex source, a tree node"""
 
-    def __init__(self, cmd, name='', args=()):
+    def __init__(self, cmd):
         """Creates TexNode object
 
         :param TexCmd cmd: a LaTeX command
-        :param str name: name of command
-        :param TexArgs args: arguments for the LaTeX command
         """
         self.cmd = command
-        self.name = name
-        self.args = TexArgs(*arguments)
 
     @property
     def contents(self):
@@ -60,7 +65,7 @@ class TexNode(object):
     def __repr__(self):
         """Interpreter representation"""
         return '<TexNode name:%s args:%d>' % (
-            self.name, len(self.args))
+            self.cmd.name, len(self.cmd.args))
 
     def __getattr__(self, attr, default=None):
         """Convert all invalid attributes into basic find operation."""
@@ -90,6 +95,8 @@ class TexCmd(object):
         return '\\%s%s' % (self.name, self.args)
 
     def __repr__(self):
+        if not self.args:
+            return "TexCmd('%s')" % self.name
         return "TexCmd('%s', %s)" % (self.name, repr(self.args))
 
 #############
@@ -118,6 +125,18 @@ class Arg(object):
     def __getitem__(self, i):
         return self.value[i]
 
+    @classmethod
+    def __is__(cls, s):
+        """Test if string matches format."""
+        sides = cls.fmt.split('%s')
+        return s.startswith(sides[0]) and s.endswith(sides[1])
+
+    @classmethod
+    def __strip__(cls, s):
+        """Strip string of format."""
+        sides = cls.fmt.split('%s')
+        return s[len(sides[0]):-len(sides[1])]
+
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__,
             ', '.join(map(repr, self.exprs)))
@@ -131,33 +150,13 @@ class OArg(Arg):
     fmt = '[%s]'
     type = 'optional'
 
-    @staticmethod
-    def __is__(s):
-        """Test if string matches format."""
-        return s[0] == '[' and s[-1] == ']'
-
-    @staticmethod
-    def __strip__(s):
-        """Strip string of format."""
-        return s[1:-1]
-
 class RArg(Arg):
     """Required argument."""
 
     fmt = '{%s}'
     type = 'required'
 
-    @staticmethod
-    def __is__(s):
-        """Test if string matches format."""
-        return s[0] == '{' and s[-1] == '}'
-
-    @staticmethod
-    def __strip__(s):
-        """Strip string of format."""
-        return s[1:-1]
-
-args = [OArg, RArg]
+args = (OArg, RArg)
 
 class TexArgs(list):
     """List data structure, supporting additional ops for command arguments
@@ -167,15 +166,17 @@ class TexArgs(list):
     to the argument. Use dot notation with args.tex<index> to access the
     stringified argument.
 
-    >>> args = TexArgs('{arg0}', '[arg1]', '{arg2}')
+    >>> args = TexArgs(RArg('arg0'), '[arg1]', '{arg2}')
+    >>> args
+    RArg('arg0'), OArg('arg1'), RArg('arg2')
     >>> args(2)
     RArg('arg2')
     >>> args[2]
     'arg2'
     >>> args(2).type
     'required'
-    >>> args(2).value
-    'arg2'
+    >>> str(args(2))
+    '{arg2}'
     >>> args.append('[arg3]')
     >>> args(3)
     OArg('arg3')
@@ -200,13 +201,6 @@ class TexArgs(list):
         Access more information about an argument using function-call syntax.
         """
         return self.__args[i]
-
-    def __getattr__(self, i):
-        """Use dot notation to access stringified arguments."""
-        if i[:3] == 'tex' and i[3:].isnumeric():
-            i = int(i[3:])
-            return str(self(i))
-        return list.__getattr__(self, i)
 
     def __str__(self):
         """Stringifies a list of arguments.

@@ -8,7 +8,7 @@ Main file consisting of
 import itertools
 import _io
 from reader import tex_read
-from data import TexNode
+from data import *
 
 def TexSoup(tex):
     """
