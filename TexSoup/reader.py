@@ -57,16 +57,12 @@ def next_token(line):
     >>> print(next_token(Buffer('.}')))
     .
     >>> next_token(b)
-    Traceback (most recent call last):
-        ...
-    StopIteration
     """
-    while True:
+    while line.hasNext():
         for name, f in tokenizers:
             token = f(line)
             if token is not None:
                 return token
-    return None
 
 @to_buffer
 def tokenize_line(line):
@@ -142,9 +138,8 @@ def tokenize_string(line, delimiters=ALL_TOKENS):
     for c in line:
         if c in delimiters:  # assumes all tokens are single characters
             line.backward(1)
-            break
-        else:
-            result += c
+            return result
+        result += c
     return result
 
 ##########
@@ -156,3 +151,4 @@ def tex_read(src):
 
     :param Buffer src: a buffer of tokens
     """
+    

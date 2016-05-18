@@ -82,6 +82,10 @@ class Buffer:
         self.__i = 0
         self.__coerce = coerce
 
+    def hasNext(self):
+        """Returns whether or not there is another element."""
+        return bool(self.peek())
+
     def startswith(self, s):
         """
         Check if iterator starts with s, beginning from the current position
