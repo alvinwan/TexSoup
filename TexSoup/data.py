@@ -117,6 +117,11 @@ class Arg(object):
     def parse(s):
         if isinstance(s, args):
             return s
+        if isinstance(s, (list, tuple)):
+            for arg in args:
+                if [s[0], s[-1]] == arg.delims():
+                    return arg(*s[1:-1])
+            raise TypeError('Malformed argument. First and last elements must match a valid argument format: %s' % s)
         for arg in args:
             if arg.__is__(s):
                 return arg(arg.__strip__(s))

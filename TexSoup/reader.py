@@ -2,12 +2,15 @@ from utils import to_buffer, Buffer
 import functools
 import itertools
 import data
+from data import *
 
 __all__ = ['read_line', 'read_lines']
 
 WHITESPACE = {' ', '\t', '\r', '\n'}
 COMMAND_TOKENS = {'\\'}
-ARG_TOKENS = set(itertools.chain(*[arg.delims() for arg in data.args]))
+ARG_START_TOKENS = {arg.delims()[0] for arg in data.args}
+ARG_END_TOKENS = {arg.delims()[1] for arg in data.args}
+ARG_TOKENS = ARG_START_TOKENS | ARG_END_TOKENS
 ALL_TOKENS = COMMAND_TOKENS | ARG_TOKENS
 
 #######################
@@ -17,6 +20,8 @@ ALL_TOKENS = COMMAND_TOKENS | ARG_TOKENS
 def read_line(line):
     r"""Read a single line
 
+    >>> read_line(r'\textbf{Do play \textit{nice}.}')
+    TexCmd('textbf', RArg('Do play ', TexCmd('textit', RArg('nice')), '.'))
     >>> print(read_line(r'\textbf{Do play \textit{nice}.}'))
     \textbf{Do play \textit{nice}.}
     """
@@ -47,7 +52,7 @@ def next_token(line):
     :param (str, iterator, Buffer) line: LaTeX to process
     :return str: the token
 
-    >>> b = Buffer(r'\textbf{Do play \textit{nice}.}')
+    >>> b = Buffer(r'\textbf{Do play\textit{nice}.}')
     >>> print(next_token(b), next_token(b), next_token(b), next_token(b))
     \ textbf { Do play
     >>> print(next_token(b), next_token(b), next_token(b), next_token(b))
@@ -151,4 +156,23 @@ def tex_read(src):
 
     :param Buffer src: a buffer of tokens
     """
-    
+    c = next(src)
+    if c == '\\':
+        expr = TexCmd(next(src))
+        if src.peek() in ARG_START_TOKENS:
+            # only takes the first argument
+            expr.args.append(tex_read(src))
+        return expr
+    if c in ARG_END_TOKENS:
+        return c
+    if c in ARG_START_TOKENS:
+        content = [c]
+        while src.hasNext():
+            if src.peek() in ARG_END_TOKENS:
+                content.append(next(src))
+                break
+            elif src.peek() in ALL_TOKENS:
+                content.append(tex_read(src))
+            else:
+                content.append(next(src))
+        return Arg.parse(content)
