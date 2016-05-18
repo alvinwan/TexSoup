@@ -1,6 +1,7 @@
-from reader import *
-from data import *
-
+from .reader import *
+from .data import *
+from .utils import *
+import itertools
 
 def read(tex):
     """Read and parse all LaTeX source
@@ -8,7 +9,10 @@ def read(tex):
     :param str tex: LaTeX source
     :return TexEnv: the global environment
     """
-    buf, children = Buffer(itertools.chain(*tokenize_lines(lines))), []
+    tex = tex.strip().splitlines()
+    buf, children = Buffer(itertools.chain(*tokenize_lines(tex))), []
     while buf.hasNext():
-        children.append(read_tex(buf))
+        content = read_tex(buf)
+        if content is not None:
+            children.append(content)
     return TexEnv('[tex]', children)

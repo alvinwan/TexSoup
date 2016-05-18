@@ -1,8 +1,8 @@
-from utils import to_buffer, Buffer
+from .utils import to_buffer, Buffer
 import functools
 import itertools
-import data
-from data import *
+from . import data
+from .data import *
 
 __all__ = ['read_line', 'read_lines', 'tokenize_line', 'tokenize_lines',
     'read_tex']
@@ -170,13 +170,18 @@ def read_tex(src):
         while src.peek() in ARG_START_TOKENS:
             expr.args.append(read_tex(src))
         if mode == 'begin':
-            children = []
+            contents = []
             while src.hasNext() and not src.startswith('\\end{%s}' % expr.name):
                 if src.peek() in ALL_TOKENS:
-                    children.append(read_tex(src))
+                    contents.append(read_tex(src))
                 else:
-                    children.append(next(src))
-            expr.children.extend(children)
+                    contents.append(next(src))
+            if not src.startswith('\\end{%s}' % expr.name):
+                raise EOFError('Expecting \\end{%s}. Instead got %s' % (
+                    expr.name, src.peek((0, 5))))
+            else:
+                src.forward(5)
+            expr.addContents(*contents)
         return expr
     if c in ARG_END_TOKENS:
         return c

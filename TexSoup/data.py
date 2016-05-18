@@ -5,6 +5,8 @@ Tex Data Structures
 Includes the data structures that users will interface with, in addition to
 internally used data structures.
 """
+import itertools
+
 __all__ = ['TexNode', 'TexCmd', 'TexEnv', 'Arg', 'OArg', 'RArg', 'TexArgs']
 
 #############
@@ -22,12 +24,23 @@ class TexNode(object):
         :param (TexCmd, TexEnv) expr: a LaTeX expression, either a singleton
             command or an environment containing other commands
         """
+        assert isinstance(expr, (TexCmd, TexEnv)), 'Created from TexExpr'
+        super().__init__()
         self.expr = expr
 
     @property
+    def name(self):
+        return self.expr.name
+
+    @property
+    def tokens(self):
+        """Returns generator of all tokens, for this Tex element"""
+        return self.expr.tokens
+
+    @property
     def contents(self):
-        """Returns a list of all children, of this TeX element"""
-        return list(self.children)
+        """Returns a generator of all contents, for this TeX element"""
+        return self.expr.contents
 
     @property
     def children(self):
@@ -35,17 +48,24 @@ class TexNode(object):
         for child in self.expr.children:
             if isinstance(child, (TexEnv, TexCmd)):
                 yield TexNode(child)
-            yield child
+            else:
+                yield child
 
     @property
     def descendants(self):
         """Returns all descendants for this TeX element."""
+        return self.__descendants()
+
+    def __descendants(self):
+        """Implementation for descendants, hacky workaround for __getattr__
+        issues.
+        """
         return itertools.chain(self.children,
             *[c.descendants for c in self.children])
 
     def find_all(self, name=None, attrs={}):
         """Return all descendant nodes matching criteria, naively."""
-        for descendant in self.descendants:
+        for descendant in self.__descendants():
             if descendant.__match__(name, attrs):
                 yield descendant
 
@@ -70,18 +90,49 @@ class TexNode(object):
 
     def __repr__(self):
         """Interpreter representation"""
-        return '<TexNode name:%s args:%d>' % (
-            self.expr.name, len(self.expr.args))
+        return '<TexNode %s...>' % str(self.expr)[:20]
 
     def __getattr__(self, attr, default=None):
         """Convert all invalid attributes into basic find operation."""
         return self.find(attr) or default
 
 ###############
-# Environment #
+# Expressions #
 ###############
 
-class TexEnv(object):
+class TexExpr(object):
+    """General TeX expression abstract"""
+
+    def __init__(self, name, contents=[], args=()):
+        self.name = name
+        self.args = TexArgs(*args)
+        self._contents = contents
+
+    def addContents(self, *contents):
+        self._contents.extend(contents)
+
+    @property
+    def contents(self):
+        """Returns all tokenized chunks for a particular expression."""
+        raise NotImplementedError()
+
+    @property
+    def tokens(self):
+        """Further breaks down all tokens for a particular expression into
+        words and other expressions."""
+        for content in self.contents:
+            if isinstance(str, content):
+                for word in content.split():
+                    yield word
+            yield content
+
+    @property
+    def children(self):
+        """Returns all child expressions for a particular expression."""
+        return filter(lambda x: isinstance(x, (TexEnv, TexCmd)), self.contents)
+
+
+class TexEnv(TexExpr):
     r"""Abstraction for a LaTeX command, denoted by \begin{env} and \end{env}.
     Contains three attributes: (1) the environment name itself, (2) the
     environment arguments, whether optional or required, and (3) the
@@ -96,28 +147,29 @@ class TexEnv(object):
     0 & 0 & * \\
     1 & 1 & * \\
     \end{tabular}
+    >>> len(list(t.children))
+    0
     """
 
-    def __init__(self, name, children=[], args=()):
-        self.name = name
-        self.args = TexArgs(*args)
-        self.children = children
+    def __init__(self, name, contents=[], args=()):
+        super().__init__(name, contents, args)
+
+    @property
+    def contents(self):
+        return self._contents
 
     def __str__(self):
         return '\\begin{%s}%s\n%s\n\\end{%s}' % (
-            self.name, self.args, '\n'.join(map(str, self.children)), self.name)
+            self.name, self.args, '\n'.join(map(str, self._contents)), self.name)
 
     def __repr__(self):
         if not self.args:
             return "TexEnv('%s')" % self.name
         return "TexEnv('%s', %s, %s)" % (self.name,
-            repr(self.children), repr(self.args))
+            repr(self._contents), repr(self.args))
 
-###########
-# Command #
-###########
 
-class TexCmd(object):
+class TexCmd(TexExpr):
     r"""Abstraction for a LaTeX command. Contains two attributes: (1) the
     command name itself and (2) the command arguments, whether optional or
     required.
@@ -127,11 +179,22 @@ class TexCmd(object):
     TexCmd('textbf', [RArg('big ', TexCmd('textit', [RArg('slant')]), '.')])
     >>> print(t)
     \textbf{big \textit{slant}.}
+    >>> children = list(map(str, t.children))
+    >>> len(children)
+    1
+    >>> print(children[0])
+    \textit{slant}
     """
 
     def __init__(self, name, args=()):
-        self.name = name
-        self.args = TexArgs(*args)
+        super().__init__(name, [], args)
+
+    @property
+    def contents(self):
+        """All contents of command arguments"""
+        for arg in self.args:
+            for expr in arg:
+                yield expr
 
     def __str__(self):
         return '\\%s%s' % (self.name, self.args)
@@ -149,10 +212,16 @@ class Arg(object):
     """LaTeX command argument"""
 
     def __init__(self, *exprs):
+        """Initialize argument using list of expressions.
+
+        :param [str, TexCmd, TexEnv] exprs: Tex expressions contained in the
+            argument. Can be other commands or environments, or even strings.
+        """
         self.exprs = exprs
 
     @property
     def value(self):
+        """Argument value, without format."""
         return ''.join(map(str, self.exprs))
 
     @staticmethod
@@ -175,6 +244,7 @@ class Arg(object):
         raise TypeError('Malformed argument. Must be an Arg or a string in either brackets or curly braces.')
 
     def __getitem__(self, i):
+        """Retrieve an argument's value"""
         return self.value[i]
 
     @classmethod
@@ -193,11 +263,17 @@ class Arg(object):
         sides = cls.fmt.split('%s')
         return s[len(cls.delims()[0]):-len(cls.delims()[1])]
 
+    def __iter__(self):
+        """Iterator iterates over all argument contents."""
+        return iter(self.exprs)
+
     def __repr__(self):
+        """Makes argument display-friendly."""
         return '%s(%s)' % (self.__class__.__name__,
             ', '.join(map(repr, self.exprs)))
 
     def __str__(self):
+        """Stringifies argument value."""
         return self.fmt % self.value
 
 class OArg(Arg):
@@ -256,6 +332,10 @@ class TexArgs(list):
         """
         return self.__args[i]
 
+    def __iter__(self):
+        """Iterator iterates over all argument objects."""
+        return iter(self.__args)
+
     def __str__(self):
         """Stringifies a list of arguments.
 
@@ -265,7 +345,7 @@ class TexArgs(list):
         return ''.join(map(str, self.__args))
 
     def __repr__(self):
-        """Stringifies a list of arguments.
+        """Makes list of arguments command-line friendly.
 
         >>> TexArgs('{a}', '[b]', '{c}')
         [RArg('a'), OArg('b'), RArg('c')]

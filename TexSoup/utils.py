@@ -92,13 +92,13 @@ class Buffer:
         """
         Check if iterator starts with s, beginning from the current position
         """
-        return self.peek((0, len(s))) == s
+        return self.peek((0, len(s))).startswith(s)
 
     def endswith(self, s):
         """
         Check if iterator ends with s, ending at current position
         """
-        return self.peek((-len(s), 0)) == s
+        return self.peek((-len(s), 0)).endswith(s)
 
     def forward(self, j=1):
         """Move forward by j steps."""

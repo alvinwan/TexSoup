@@ -10,7 +10,7 @@ Main file, containing most commonly used elements of TexSoup
 
 import itertools
 import _io
-from tex import *
+from .tex import *
 
 def TexSoup(tex):
     """
