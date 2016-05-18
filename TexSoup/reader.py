@@ -18,27 +18,22 @@ ALL_TOKENS = COMMAND_TOKENS | ARG_TOKENS
 #######################
 
 def read_line(line):
-    r"""Read a single line
+    r"""Read first expression from a single line
 
     >>> read_line(r'\textbf{Do play \textit{nice}.}')
     TexCmd('textbf', RArg('Do play ', TexCmd('textit', RArg('nice')), '.'))
-    >>> print(read_line(r'\textbf{Do play \textit{nice}.}'))
-    \textbf{Do play \textit{nice}.}
+    >>> print(read_line(r'\newcommand{solution}[1]{{\color{blue} #1}}'))
+    \newcommand{solution}[1]{{\color{blue} #1}}
     """
     return tex_read(Buffer(tokenize_line(line)))
 
 def read_lines(*lines):
-    r"""Read multiple lines
+    r"""Read first expression from multiple lines
 
-    >>> print(read_lines('\begin{itemize}', '\item text1', '\item text2',
-    ... '\item text3', '\end{itemize}'))
+    >>> print(read_lines(r'\begin{', 'itemize}'))
     \begin{itemize}
-    \item text1
-    \item text2
-    \item text3
-    \end{itemize}
     """
-    return tex_read(Buffer(tokenize_lines(lines)))
+    return tex_read(Buffer(itertools.chain(*tokenize_lines(lines))))
 
 #############
 # Tokenizer #
@@ -159,8 +154,7 @@ def tex_read(src):
     c = next(src)
     if c == '\\':
         expr = TexCmd(next(src))
-        if src.peek() in ARG_START_TOKENS:
-            # only takes the first argument
+        while src.peek() in ARG_START_TOKENS:
             expr.args.append(tex_read(src))
         return expr
     if c in ARG_END_TOKENS:

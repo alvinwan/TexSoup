@@ -115,6 +115,11 @@ class Arg(object):
 
     @staticmethod
     def parse(s):
+        """Parse a string or list and return an Argument object
+
+        :param (str, list) s: Either a string or a list, where the first and
+            last elements are valid argument delimiters.
+        """
         if isinstance(s, args):
             return s
         if isinstance(s, (list, tuple)):
