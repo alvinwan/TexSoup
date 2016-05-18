@@ -58,6 +58,8 @@ class Buffer:
     >>> b1.peek()
     '0'
     >>> b1.peek(2)
+    '1'
+    >>> b1.peek((0, 2))
     '01'
     >>> b1.startswith('01')
     True
@@ -90,13 +92,13 @@ class Buffer:
         """
         Check if iterator starts with s, beginning from the current position
         """
-        return self.peek(len(s)) == s
+        return self.peek((0, len(s))) == s
 
     def endswith(self, s):
         """
         Check if iterator ends with s, ending at current position
         """
-        return self.peek(-len(s)) == s
+        return self.peek((-len(s), 0)) == s
 
     def forward(self, j=1):
         """Move forward by j steps."""
@@ -113,11 +115,11 @@ class Buffer:
         self.__i -= j
         return self[self.__i:self.__i+j]
 
-    def peek(self, j=1):
+    def peek(self, j=(0, 1)):
         """Peek at the next value(s), without advancing the Buffer"""
-        if j < 0:
-            return self[self.__i+j:self.__i]
-        return self[self.__i:self.__i+j]
+        if isinstance(j, int):
+            return self[self.__i+j]
+        return self[self.__i + j[0]:self.__i + j[1]]
 
     def __next__(self):
         """Implements next."""

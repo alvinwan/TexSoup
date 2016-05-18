@@ -5,21 +5,24 @@ Tex Data Structures
 Includes the data structures that users will interface with, in addition to
 internally used data structures.
 """
-__all__ = ['TexNode', 'TexCmd', 'Arg', 'OArg', 'RArg', 'TexArgs']
+__all__ = ['TexNode', 'TexCmd', 'TexEnv', 'Arg', 'OArg', 'RArg', 'TexArgs']
 
 #############
 # Interface #
 #############
 
 class TexNode(object):
-    """Main abstraction for Tex source, a tree node"""
+    """Main abstraction for Tex source, a tree node representing both Tex
+    environments and Tex commands.
+    """
 
-    def __init__(self, cmd):
+    def __init__(self, expr):
         """Creates TexNode object
 
-        :param TexCmd cmd: a LaTeX command
+        :param (TexCmd, TexEnv) expr: a LaTeX expression, either a singleton
+            command or an environment containing other commands
         """
-        self.cmd = command
+        self.expr = expr
 
     @property
     def contents(self):
@@ -29,7 +32,10 @@ class TexNode(object):
     @property
     def children(self):
         """Returns all immediate children of this TeX element"""
-        return self.cmd.children
+        for child in self.expr.children:
+            if isinstance(child, (TexEnv, TexCmd)):
+                yield TexNode(child)
+            yield child
 
     @property
     def descendants(self):
@@ -60,16 +66,52 @@ class TexNode(object):
 
     def __str__(self):
         """Stringified command"""
-        return str(self.cmd)
+        return str(self.expr)
 
     def __repr__(self):
         """Interpreter representation"""
         return '<TexNode name:%s args:%d>' % (
-            self.cmd.name, len(self.cmd.args))
+            self.expr.name, len(self.expr.args))
 
     def __getattr__(self, attr, default=None):
         """Convert all invalid attributes into basic find operation."""
         return self.find(attr) or default
+
+###############
+# Environment #
+###############
+
+class TexEnv(object):
+    r"""Abstraction for a LaTeX command, denoted by \begin{env} and \end{env}.
+    Contains three attributes: (1) the environment name itself, (2) the
+    environment arguments, whether optional or required, and (3) the
+    environment's contents.
+
+    >>> t = TexEnv('tabular', ['0 & 0 & * \\\\', '1 & 1 & * \\\\'],
+    ...     [RArg('c | c c')])
+    >>> t
+    TexEnv('tabular', ['0 & 0 & * \\\\', '1 & 1 & * \\\\'], [RArg('c | c c')])
+    >>> print(t)
+    \begin{tabular}{c | c c}
+    0 & 0 & * \\
+    1 & 1 & * \\
+    \end{tabular}
+    """
+
+    def __init__(self, name, children=[], args=()):
+        self.name = name
+        self.args = TexArgs(*args)
+        self.children = children
+
+    def __str__(self):
+        return '\\begin{%s}%s\n%s\n\\end{%s}' % (
+            self.name, self.args, '\n'.join(map(str, self.children)), self.name)
+
+    def __repr__(self):
+        if not self.args:
+            return "TexEnv('%s')" % self.name
+        return "TexEnv('%s', %s, %s)" % (self.name,
+            repr(self.children), repr(self.args))
 
 ###########
 # Command #
@@ -80,14 +122,14 @@ class TexCmd(object):
     command name itself and (2) the command arguments, whether optional or
     required.
 
-    >>> t = TexCmd('textbf', RArg('big ', TexCmd('textit', RArg('slant')), '.'))
+    >>> t = TexCmd('textbf',[RArg('big ',TexCmd('textit',[RArg('slant')]),'.')])
     >>> t
-    TexCmd('textbf', RArg('big ', TexCmd('textit', RArg('slant')), '.'))
+    TexCmd('textbf', [RArg('big ', TexCmd('textit', [RArg('slant')]), '.')])
     >>> print(t)
     \textbf{big \textit{slant}.}
     """
 
-    def __init__(self, name, *args):
+    def __init__(self, name, args=()):
         self.name = name
         self.args = TexArgs(*args)
 
@@ -180,7 +222,7 @@ class TexArgs(list):
 
     >>> args = TexArgs(RArg('arg0'), '[arg1]', '{arg2}')
     >>> args
-    RArg('arg0'), OArg('arg1'), RArg('arg2')
+    [RArg('arg0'), OArg('arg1'), RArg('arg2')]
     >>> args(2)
     RArg('arg2')
     >>> args[2]
@@ -226,6 +268,6 @@ class TexArgs(list):
         """Stringifies a list of arguments.
 
         >>> TexArgs('{a}', '[b]', '{c}')
-        RArg('a'), OArg('b'), RArg('c')
+        [RArg('a'), OArg('b'), RArg('c')]
         """
-        return ', '.join(map(repr, self.__args))
+        return '[%s]' % ', '.join(map(repr, self.__args))

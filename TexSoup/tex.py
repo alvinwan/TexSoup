@@ -1,8 +1,14 @@
+from reader import *
+from data import *
 
-################
-# Environments #
-################
 
-class Frame(object):
-    """LaTeX environment binding variables to values."""
-    pass
+def read(tex):
+    """Read and parse all LaTeX source
+
+    :param str tex: LaTeX source
+    :return TexEnv: the global environment
+    """
+    buf, children = Buffer(itertools.chain(*tokenize_lines(lines))), []
+    while buf.hasNext():
+        children.append(read_tex(buf))
+    return TexEnv('[tex]', children)

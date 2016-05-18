@@ -2,22 +2,24 @@
 TexSoup
 ---
 
-Main file consisting of
+Main file, containing most commonly used elements of TexSoup
+
+@author: Alvin Wan
+@site: alvinwan.com
 """
 
 import itertools
 import _io
-from reader import tex_read
-from data import *
+from tex import *
 
 def TexSoup(tex):
     """
-    At a high-level, parses provided Tex into navigable, searchable structure.
+    At a high-level, parses provided Tex into a navigable, searchable structure.
     This is accomplished in two steps:
-    1. Tex is parsed.
+    1. Tex is parsed, cleaned, and packaged.
     2. Structure fed to TexNodes for a searchable, coder-friendly interface.
 
     :param (iterable, string) tex: the Tex source
     :return TexNode: object representing tex document
     """
-    return TexNode(tex_read(tex))
+    return TexNode(read(tex))

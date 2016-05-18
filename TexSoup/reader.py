@@ -4,7 +4,8 @@ import itertools
 import data
 from data import *
 
-__all__ = ['read_line', 'read_lines']
+__all__ = ['read_line', 'read_lines', 'tokenize_line', 'tokenize_lines',
+    'read_tex']
 
 WHITESPACE = {' ', '\t', '\r', '\n'}
 COMMAND_TOKENS = {'\\'}
@@ -21,19 +22,22 @@ def read_line(line):
     r"""Read first expression from a single line
 
     >>> read_line(r'\textbf{Do play \textit{nice}.}')
-    TexCmd('textbf', RArg('Do play ', TexCmd('textit', RArg('nice')), '.'))
+    TexCmd('textbf', [RArg('Do play ', TexCmd('textit', [RArg('nice')]), '.')])
     >>> print(read_line(r'\newcommand{solution}[1]{{\color{blue} #1}}'))
     \newcommand{solution}[1]{{\color{blue} #1}}
     """
-    return tex_read(Buffer(tokenize_line(line)))
+    return read_tex(Buffer(tokenize_line(line)))
 
 def read_lines(*lines):
     r"""Read first expression from multiple lines
 
-    >>> print(read_lines(r'\begin{', 'itemize}'))
-    \begin{itemize}
+    >>> print(read_lines(r'\begin{tabular}{c c}', '0 & 1 \\\\',
+    ...     '\end{tabular}'))
+    \begin{tabular}{c c}
+    0 & 1 \\
+    \end{tabular}
     """
-    return tex_read(Buffer(itertools.chain(*tokenize_lines(lines))))
+    return read_tex(Buffer(itertools.chain(*tokenize_lines(lines))))
 
 #############
 # Tokenizer #
@@ -72,6 +76,8 @@ def tokenize_line(line):
 
     >>> print(*tokenize_line(r'\textbf{Do play \textit{nice}.}'))
     \ textbf { Do play  \ textit { nice } . }
+    >>> print(*tokenize_line(r'\begin{tabular} 0 & 1 \\ 2 & 0 \end{tabular}'))
+    \ begin { tabular }  0 & 1 \\ 2 & 0  \ end { tabular }
     """
     token = next_token(line)
     while token is not None:
@@ -103,7 +109,7 @@ def token(name):
 
 @token('command')
 def tokenize_command(line):
-    """Process command
+    """Process command, but ignore line breaks. (double backslash)
 
     :param Buffer line: iterator over line, with current position
     """
@@ -133,6 +139,8 @@ def tokenize_string(line, delimiters=ALL_TOKENS):
     'hello again'
     >>> print(b.peek())
     \
+    >>> print(tokenize_string(Buffer('0 & 1 \\\\\command')))
+    0 & 1 \\
     """
     result = ''
     for c in line:
@@ -140,22 +148,35 @@ def tokenize_string(line, delimiters=ALL_TOKENS):
             line.backward(1)
             return result
         result += c
+        if line.peek((0, 2)) == '\\\\':
+            result += line.forward(2)
     return result
 
 ##########
 # Mapper #
 ##########
 
-def tex_read(src):
+def read_tex(src):
     r"""Read next expression from buffer
 
     :param Buffer src: a buffer of tokens
     """
     c = next(src)
     if c == '\\':
-        expr = TexCmd(next(src))
+        if src.peek() == 'begin':
+            mode, expr = next(src), TexEnv(Arg.parse(src.forward(3)).value)
+        else:
+            mode, expr = 'command', TexCmd(next(src))
         while src.peek() in ARG_START_TOKENS:
-            expr.args.append(tex_read(src))
+            expr.args.append(read_tex(src))
+        if mode == 'begin':
+            children = []
+            while src.hasNext() and not src.startswith('\\end{%s}' % expr.name):
+                if src.peek() in ALL_TOKENS:
+                    children.append(read_tex(src))
+                else:
+                    children.append(next(src))
+            expr.children.extend(children)
         return expr
     if c in ARG_END_TOKENS:
         return c
@@ -166,7 +187,7 @@ def tex_read(src):
                 content.append(next(src))
                 break
             elif src.peek() in ALL_TOKENS:
-                content.append(tex_read(src))
+                content.append(read_tex(src))
             else:
                 content.append(next(src))
         return Arg.parse(content)
