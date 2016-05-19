@@ -106,3 +106,10 @@ TexCmd('section', [RArg('textbf')])
 >>> print(expr)
 \section{textbf}
 ```
+
+# Examples
+
+See the `examples/` folder for example scripts and usages for TexSoup.
+
+- [Count References](https://github.com/alvinwan/TexSoup/blob/master/examples/count_references.py)
+- [Solution Length](https://github.com/alvinwan/TexSoup/blob/master/examples/solution_length.py)
