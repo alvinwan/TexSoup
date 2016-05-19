@@ -58,7 +58,7 @@ class Buffer:
     >>> b1.peek()
     '0'
     >>> b1.peek(2)
-    '1'
+    '2'
     >>> b1.peek((0, 2))
     '01'
     >>> b1.startswith('01')

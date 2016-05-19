@@ -1,6 +1,6 @@
-from .reader import *
-from .data import *
-from .utils import *
+from TexSoup.reader import *
+from TexSoup.data import *
+from TexSoup.utils import *
 import itertools
 
 def read(tex):

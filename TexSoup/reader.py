@@ -1,8 +1,8 @@
-from .utils import to_buffer, Buffer
+from TexSoup.utils import to_buffer, Buffer
+from TexSoup.data import *
+import TexSoup.data as data
 import functools
 import itertools
-from . import data
-from .data import *
 
 __all__ = ['read_line', 'read_lines', 'tokenize_line', 'tokenize_lines',
     'read_tex']

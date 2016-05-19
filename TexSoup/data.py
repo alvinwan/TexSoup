@@ -33,6 +33,22 @@ class TexNode(object):
         return self.expr.name
 
     @property
+    def args(self):
+        return self.expr.args
+
+    @property
+    def parent(self):
+        return self.expr.parent
+
+    @property
+    def string(self):
+        """Returns 'string' content, which is valid if and only if (1) the
+        expression is a TexCmd and (2) the command has only one argument.
+        """
+        if isinstance(self.expr, TexCmd) and len(self.expr.args) == 1:
+            return str(self.expr.args[0])
+
+    @property
     def tokens(self):
         """Returns generator of all tokens, for this Tex element"""
         return self.expr.tokens
@@ -90,7 +106,7 @@ class TexNode(object):
 
     def __repr__(self):
         """Interpreter representation"""
-        return '<TexNode %s...>' % str(self.expr)[:20]
+        return str(self)
 
     def __getattr__(self, attr, default=None):
         """Convert all invalid attributes into basic find operation."""
@@ -107,6 +123,10 @@ class TexExpr(object):
         self.name = name
         self.args = TexArgs(*args)
         self._contents = contents or []
+
+        for content in contents:
+            if isinstance(content, (TexEnv, TexCmd)):
+                content.parent = self
 
     def addContents(self, *contents):
         self._contents.extend(contents)
@@ -170,7 +190,7 @@ class TexEnv(TexExpr):
 
     def __str__(self):
         return '\\begin{%s}%s\n%s\n\\end{%s}' % (
-            self.name, self.args, '', self.name)
+            self.name, self.args,'\n'.join(map(str, self._contents)), self.name)
 
     def __repr__(self):
         if not self.args:
