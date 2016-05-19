@@ -2,6 +2,9 @@ import sys
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
 
+with open('requirements.txt') as f:
+    install_requires = [l.strip() for l in f if l.strip()]
+
 class PyTest(TestCommand):
 
     user_options = [('pytest-args=', 'a', "Arguments to pass to py.test")]
@@ -31,8 +34,8 @@ setup(
     url = "https://github.com/alvinwan/TexSoup",
     packages = ['TexSoup'],
     cmdclass = {'test': PyTest},
-    tests_require = ['pytest'],
-    install_requires = [],
+    tests_require = ['pytest', 'coverage', 'coveralls'],
+    install_requires = install_requires,
     download_url = 'https://github.com/alvinwan/TexSoup/archive/%s.zip' % VERSION,
     classifiers = [
         "Topic :: Utilities",

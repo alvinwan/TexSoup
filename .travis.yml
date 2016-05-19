@@ -1,0 +1,15 @@
+language: python
+
+sudo: false
+
+python:
+  - "3.4.2"
+
+install:
+  - python3 setup.py install
+
+script:
+  - coverage run setup.py test
+
+after_success:
+  - coveralls
