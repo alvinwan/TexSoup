@@ -81,22 +81,34 @@ class TexNode(object):
         return itertools.chain(self.contents,
             *[c.descendants for c in self.children])
 
-    def find_all(self, name=None, attrs={}):
+    def find_all(self, name=None, **attrs):
         """Return all descendant nodes matching criteria, naively."""
         for descendant in self.__descendants():
             if hasattr(descendant, '__match__') and \
                 descendant.__match__(name, attrs):
                 yield descendant
 
-    def find(self, name=None, attrs={}):
+    def find(self, name=None, **attrs):
         """Return first descendant node matching criteria"""
         try:
-            return next(self.find_all(name, attrs))
+            return next(self.find_all(name, **attrs))
         except StopIteration:
             return None
 
+    def count(self, name=None, **attrs):
+        """Return number of descendants matching criteria"""
+        return len(list(self.find_all(name, **attrs)))
+
     def __match__(self, name=None, attrs={}):
-        """Check if given attributes match current object"""
+        r"""Check if given attributes match current object
+
+        >>> from TexSoup import TexSoup
+        >>> soup = TexSoup(r'\ref{hello}\ref{hello}\ref{hello}\ref{nono}')
+        >>> soup.count(r'\ref{hello}')
+        3
+        """
+        if '{' in name or '[' in name:
+            return str(self) == name
         attrs['name'] = name
         for k, v in attrs.items():
             if getattr(self, k) != v:

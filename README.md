@@ -5,12 +5,20 @@ however, TexSoup is modeled after an interpreter, providing a set of Pythonic
 structures for processing environments, commands, and arguments in anticipation
 of integration with a CAS.
 
+# Installation
+
+Just install via pip.
+
+```
+pip install texsoup
+```
+
 # Soup
 
 There is one main utility, `TexSoup`, which translates any LaTeX string or
 iterator into a soupified object.
 
-## Starting with TexSoup
+## Basic Usage
 
 You have two options. Either give (1) a file buffer (`open('file.tex')`) or (2) a string.
 
@@ -66,12 +74,29 @@ life & common
 [\item red lemon, \item life]
 ```
 
+## Search
+
+For (slightly) more advanced searches, include arguments. For example, to
+search for all references to a particular label, search for `ref{<label>}`. This
+way you can count the number of times a particular label is referenced.
+
+```
+>>> soup = TexSoup("""
+... \section{Heading}\label{Section:Heading}
+...
+... Some text about the \ref{Section:Heading} heading goes here. Yet another
+... sentence about the \ref{Section:Heading} heading.
+... """)
+>>> soup.count('\ref{Section:Heading}')
+2
+```
+
 # Parser
 
 There is one main utility, `read`, which translates any LaTeX string or iterator
 into a Python abstraction.
 
-## Starting with the Parser
+## Basic Usage
 
 ```
 >>> from TexSoup import read
