@@ -26,7 +26,7 @@ setup(
     version = VERSION,
     author = "Alvin Wan",
     author_email = 'hi@alvinwan.com',
-    description = ("parses valid LaTeX and provides variety of Beautiful-Soup-esque methods and Pythonic idioms for iterating and searching the parse tree"),
+    description = ("parses valid LaTeX and provides variety of Beautiful-Soup-esque methods and Pythonic idioms for iterating over and searching the parse tree"),
     license = "BSD",
     url = "https://github.com/alvinwan/TexSoup",
     packages = ['TexSoup'],
@@ -36,5 +36,8 @@ setup(
     download_url = 'https://github.com/alvinwan/TexSoup/archive/%s.zip' % VERSION,
     classifiers = [
         "Topic :: Utilities",
+        "Intended Audience :: Developers",
+        "Programming Language :: Python :: 3",
+        "Topic :: Software Development :: Libraries",
     ],
 )

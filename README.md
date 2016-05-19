@@ -5,6 +5,8 @@ however, TexSoup is modeled after an interpreter, providing a set of Pythonic
 structures for processing environments, commands, and arguments in anticipation
 of integration with a CAS.
 
+created by [Alvin Wan](alvinwan.com)
+
 # Installation
 
 Just install via pip.
