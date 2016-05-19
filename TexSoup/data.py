@@ -103,10 +103,10 @@ class TexNode(object):
 class TexExpr(object):
     """General TeX expression abstract"""
 
-    def __init__(self, name, contents=[], args=()):
+    def __init__(self, name, contents=(), args=()):
         self.name = name
         self.args = TexArgs(*args)
-        self._contents = contents
+        self._contents = contents or []
 
     def addContents(self, *contents):
         self._contents.extend(contents)
@@ -151,16 +151,26 @@ class TexEnv(TexExpr):
     0
     """
 
-    def __init__(self, name, contents=[], args=()):
+    def __init__(self, name, contents=(), args=(), preserve_whitespace=False):
+        """Initialization for Tex environment.
+
+        :param str name: name of environment
+        :param list contents: list of contents
+        :param list args: list of Tex Arguments
+        :param bool preserve_whitespace: If false, elements containing only
+            whitespace will be removed from contents.
+        """
         super().__init__(name, contents, args)
 
     @property
     def contents(self):
-        return self._contents
+        for content in self._contents:
+            if not isinstance(content, str) or bool(content.strip()):
+                yield content
 
     def __str__(self):
         return '\\begin{%s}%s\n%s\n\\end{%s}' % (
-            self.name, self.args, '\n'.join(map(str, self._contents)), self.name)
+            self.name, self.args, '', self.name)
 
     def __repr__(self):
         if not self.args:

@@ -9,7 +9,8 @@ def read(tex):
     :param str tex: LaTeX source
     :return TexEnv: the global environment
     """
-    tex = tex.strip().splitlines()
+    if isinstance(tex, str):
+        tex = tex.strip().splitlines()
     buf, children = Buffer(itertools.chain(*tokenize_lines(tex))), []
     while buf.hasNext():
         content = read_tex(buf)

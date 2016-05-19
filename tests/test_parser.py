@@ -25,10 +25,13 @@ def test_commands_envs_only():
     \end{itemize}
     """)
     children = list(soup.children)
+    assert len(children) == 3
     assert str(children[0]) == '\section{Chikin Tales}'
     assert str(children[1]) == '\subsection{Chikin Fly}'
-    assert children[2].name == 'itemize'
-    assert len(children) == 3
+    itemize = children[2]
+    assert itemize.name == 'itemize'
+    items = list(itemize.children)
+    assert len(items) == 2
 
 
 def test_commands_envs_text():
@@ -48,6 +51,9 @@ def test_commands_envs_text():
     """)
     assert len(list(soup.children)) == 1
     doc = next(soup.children)
-    contents = list(doc.contents)
-    assert len(list(doc.children)) == 3
+    assert doc.name == 'document'
+    contents, children = list(doc.contents), list(doc.children)
+    assert str(children[0]) == '\section{Chikin Tales}'
+    assert str(children[1]) == '\subsection{Chikin Fly}'
+    assert len(children) == 3
     assert len(contents) == 4
