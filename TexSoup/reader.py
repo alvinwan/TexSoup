@@ -163,7 +163,10 @@ def read_tex(src):
     """
     c = next(src)
     if c == '\\':
-        if src.peek() == 'begin':
+        if src.peek().startswith('item '):
+            mode, expr = 'command', TexCmd('item', (),
+                ' '.join(next(src).split(' ')[1:]))
+        elif src.peek() == 'begin':
             mode, expr = next(src), TexEnv(Arg.parse(src.forward(3)).value)
         else:
             mode, expr = 'command', TexCmd(next(src))

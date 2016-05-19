@@ -56,16 +56,18 @@ class TexNode(object):
     @property
     def contents(self):
         """Returns a generator of all contents, for this TeX element"""
-        return self.expr.contents
+        for child in self.expr.contents:
+            if isinstance(child, (TexEnv, TexCmd)):
+                yield TexNode(child)
+            else:
+                yield child
 
     @property
     def children(self):
         """Returns all immediate children of this TeX element"""
         for child in self.expr.children:
-            if isinstance(child, (TexEnv, TexCmd)):
-                yield TexNode(child)
-            else:
-                yield child
+            child.parent = self
+            yield TexNode(child)
 
     @property
     def descendants(self):
@@ -76,13 +78,14 @@ class TexNode(object):
         """Implementation for descendants, hacky workaround for __getattr__
         issues.
         """
-        return itertools.chain(self.children,
+        return itertools.chain(self.contents,
             *[c.descendants for c in self.children])
 
     def find_all(self, name=None, attrs={}):
         """Return all descendant nodes matching criteria, naively."""
         for descendant in self.__descendants():
-            if descendant.__match__(name, attrs):
+            if hasattr(descendant, '__match__') and \
+                descendant.__match__(name, attrs):
                 yield descendant
 
     def find(self, name=None, attrs={}):
@@ -216,8 +219,9 @@ class TexCmd(TexExpr):
     \textit{slant}
     """
 
-    def __init__(self, name, args=()):
+    def __init__(self, name, args=(), extra=''):
         super().__init__(name, [], args)
+        self.extra = extra
 
     @property
     def contents(self):
@@ -225,8 +229,12 @@ class TexCmd(TexExpr):
         for arg in self.args:
             for expr in arg:
                 yield expr
+        if self.extra:
+            yield self.extra
 
     def __str__(self):
+        if self.extra:
+            return '\\%s%s %s' % (self.name, self.args, self.extra)
         return '\\%s%s' % (self.name, self.args)
 
     def __repr__(self):

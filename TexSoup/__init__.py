@@ -64,6 +64,6 @@ def TexSoup(tex):
     >>> soup.item
     \item red lemon
     >>> list(soup.find_all('item'))
-    ['\item red lemon', '\item life']
+    [\item red lemon, \item life]
     """
     return TexNode(read(tex))

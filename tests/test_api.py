@@ -15,19 +15,19 @@ def test_navigation_attributes(chikin):
 def test_navigation_parent(chikin):
     """Test parent navigation"""
     assert chikin.section.parent.name == 'document'
-    assert chikin.subsection.parent.name == 'section'
-    assert chikin.subsection.parent.string == 'Chikin Tales'
+    assert chikin.subsection.parent.name == 'document'
 
 def test_navigation_children(chikin):
     """Test identification of all children"""
     assert len(list(chikin.children)) == 2
     docclass, document = chikin.children
     assert document.name == 'document'
-    assert len(list(chikin.document.children)) == 2
+    assert len(list(chikin.document.children)) == 7
 
 def test_navigation_descendants(chikin):
     """Test identification of all descendants"""
-    assert len(list(chikin.descendants)) == 15
+    print(list(chikin.descendants))
+    assert len(list(chikin.descendants)) == 28
 
 ##########
 # SEARCH #
