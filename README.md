@@ -1,5 +1,8 @@
 # TexSoup
 
+[![Coverage Status](https://coveralls.io/repos/github/alvinwan/TexSoup/badge.svg?branch=master)](https://coveralls.io/github/alvinwan/TexSoup?branch=master)
+<img src="https://travis-ci.org/alvinwan/TexSoup.svg" alt="build:passed">
+
 Parses valid LaTeX and provides a variety of BeautifulSoup-esque methods and Pythonic idioms for iterating and searching the parse tree. Unlike BeautifulSoup
 however, TexSoup is modeled after an interpreter, providing a set of Pythonic
 structures for processing environments, commands, and arguments in anticipation
