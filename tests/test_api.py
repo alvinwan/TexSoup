@@ -47,3 +47,14 @@ def test_find_by_command(chikin):
     sections = list(chikin.find_all('section'))
     assert str(sections[0]) == '\section{Chikin Tales}'
     assert str(sections[1]) == '\section{Chikin Scream}'
+
+
+################
+# MODIFICATION #
+################
+
+
+def test_delete(chikin):
+    """Delete an element from the parse tree."""
+    chikin.section.delete()
+    assert 'Chikin Tales' not in repr(chikin)

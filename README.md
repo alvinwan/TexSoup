@@ -95,6 +95,17 @@ way you can count the number of times a particular label is referenced.
 2
 ```
 
+## Modification
+
+Additionally, modify the TeX parse tree in place, to generate new LaTeX.
+
+```
+>>> soup = TexSoup("""\textbf{'Hello'}\textit{'Y'}O\textit{'U'}""")
+>>> soup.textbf.delete()
+>>> 'Hello' not in repr(soup)
+True
+```
+
 # Parser
 
 There is one main utility, `read`, which translates any LaTeX string or iterator

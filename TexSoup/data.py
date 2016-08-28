@@ -100,6 +100,14 @@ class TexNode(object):
         """Return number of descendants matching criteria"""
         return len(list(self.find_all(name, **attrs)))
 
+    def delete(self):
+        """Delete this node from the parse tree tree."""
+        self.parent.remove(self)
+
+    def remove(self, node):
+        """Remove a provided expression from its list of contents."""
+        self.expr.remove(node.expr)
+
     def __match__(self, name=None, attrs={}):
         r"""Check if given attributes match current object
 
@@ -132,6 +140,7 @@ class TexNode(object):
 # Expressions #
 ###############
 
+
 class TexExpr(object):
     """General TeX expression abstract"""
 
@@ -146,6 +155,10 @@ class TexExpr(object):
 
     def addContents(self, *contents):
         self._contents.extend(contents)
+
+    def remove(self, expr):
+        """Remove a provided expression from its list of contents."""
+        self._contents.remove(expr)
 
     @property
     def contents(self):
@@ -261,6 +274,7 @@ class TexCmd(TexExpr):
 #############
 # Arguments #
 #############
+
 
 class Arg(object):
     """LaTeX command argument"""
