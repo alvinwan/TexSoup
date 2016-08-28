@@ -3,6 +3,7 @@ from TexSoup.data import *
 from TexSoup.utils import *
 import itertools
 
+
 def read(tex):
     """Read and parse all LaTeX source
 

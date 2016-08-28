@@ -7,6 +7,7 @@ tests_require = ['pytest', 'coverage == 3.7.1', 'coveralls == 0.5']
 with open('requirements.txt') as f:
     install_requires = [l.strip() for l in f if l.strip()]
 
+
 class PyTest(TestCommand):
 
     user_options = [('pytest-args=', 'a', "Arguments to pass to py.test")]

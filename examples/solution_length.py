@@ -15,6 +15,7 @@ after installing TexSoup.
 
 from TexSoup import TexSoup
 
+
 def sollen(tex, command):
     r"""Measure solution length
 
@@ -26,5 +27,6 @@ def sollen(tex, command):
     return sum(len(a.string) for a in TexSoup(tex).find_all(command))
 
 if __name__ == '__main__':
-    print('Solution length:',
+    print(
+        'Solution length:',
         sollen(open(input('Tex file:').strip()), input('Solution command:')))

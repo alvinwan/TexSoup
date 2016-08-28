@@ -86,7 +86,7 @@ class TexNode(object):
         """Return all descendant nodes matching criteria, naively."""
         for descendant in self.__descendants():
             if hasattr(descendant, '__match__') and \
-                descendant.__match__(name, attrs):
+                    descendant.__match__(name, attrs):
                 yield descendant
 
     def find(self, name=None, **attrs):
@@ -102,11 +102,21 @@ class TexNode(object):
 
     def delete(self):
         """Delete this node from the parse tree tree."""
-        self.parent.remove(self)
+        self.parent.removeChild(self)
 
-    def remove(self, node):
-        """Remove a provided expression from its list of contents."""
-        self.expr.remove(node.expr)
+    def replace(self, *nodes):
+        """Replace this node in the parse tree with the provided node(s)."""
+        self.parent.replaceChild(self, *nodes)
+
+    def removeChild(self, node):
+        """Remove a node from its list of contents."""
+        self.expr.removeContent(node.expr)
+
+    def replaceChild(self, child, *nodes):
+        """Replace provided node with node(s)."""
+        self.expr.addContentsAt(
+            self.expr.removeContent(child.expr),
+            *nodes)
 
     def __match__(self, name=None, attrs={}):
         r"""Check if given attributes match current object
@@ -156,9 +166,19 @@ class TexExpr(object):
     def addContents(self, *contents):
         self._contents.extend(contents)
 
-    def remove(self, expr):
-        """Remove a provided expression from its list of contents."""
+    def addContentsAt(self, i, *contents):
+        self._contents = self._contents[:i] + \
+                         list(contents) + \
+                         self._contents[i:]
+
+    def removeContent(self, expr):
+        """Remove a provided expression from its list of contents.
+
+        :return: index of the expression removed
+        """
+        index = self._contents.index(expr)
         self._contents.remove(expr)
+        return index
 
     @property
     def contents(self):
@@ -305,11 +325,13 @@ class Arg(object):
             for arg in args:
                 if [s[0], s[-1]] == arg.delims():
                     return arg(*s[1:-1])
-            raise TypeError('Malformed argument. First and last elements must match a valid argument format: %s' % s)
+            raise TypeError('Malformed argument. First and last elements must '
+                            'match a valid argument format: %s' % s)
         for arg in args:
             if arg.__is__(s):
                 return arg(arg.__strip__(s))
-        raise TypeError('Malformed argument. Must be an Arg or a string in either brackets or curly braces.')
+        raise TypeError('Malformed argument. Must be an Arg or a string in '
+                        'either brackets or curly braces.')
 
     def __getitem__(self, i):
         """Retrieve an argument's value"""
@@ -344,11 +366,13 @@ class Arg(object):
         """Stringifies argument value."""
         return self.fmt % self.value
 
+
 class OArg(Arg):
     """Optional argument."""
 
     fmt = '[%s]'
     type = 'optional'
+
 
 class RArg(Arg):
     """Required argument."""
@@ -357,6 +381,7 @@ class RArg(Arg):
     type = 'required'
 
 args = (OArg, RArg)
+
 
 class TexArgs(list):
     """List data structure, supporting additional ops for command arguments

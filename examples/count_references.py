@@ -15,6 +15,7 @@ after installing TexSoup.
 
 from TexSoup import TexSoup
 
+
 def count(tex):
     """Extract all labels, then count the number of times each is referenced in
     the provided file. Does not follow \includes.
