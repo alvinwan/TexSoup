@@ -57,3 +57,15 @@ def test_commands_envs_text():
     assert str(children[1]) == '\subsection{Chikin Fly}'
     assert len(children) == 3
     assert len(contents) == 4
+
+
+def test_text_preserved():
+    """Tests that the parser preserves regular non-expression text."""
+    soup = TexSoup(r"""
+    \Question \textbf{Question Title}
+
+    Here is what chickens do:
+
+    \sol{They fly!}
+    """)
+    assert 'Here is what chickens do:' in str(soup)

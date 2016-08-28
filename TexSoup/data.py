@@ -13,6 +13,7 @@ __all__ = ['TexNode', 'TexCmd', 'TexEnv', 'Arg', 'OArg', 'RArg', 'TexArgs']
 # Interface #
 #############
 
+
 class TexNode(object):
     """Main abstraction for Tex source, a tree node representing both Tex
     environments and Tex commands.
@@ -204,7 +205,7 @@ class TexEnv(TexExpr):
                 yield content
 
     def __str__(self):
-        contents = '\n'.join(map(str, self._contents))'
+        contents = '\n'.join(map(str, self._contents))
         if self.name == '[tex]':
             return contents
         return '\\begin{%s}%s\n%s\n\\end{%s}' % (

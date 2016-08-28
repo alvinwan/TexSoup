@@ -1,10 +1,9 @@
 from config import *
-import pytest
-import os
 
 ##############
 # NAVIGATION #
 ##############
+
 
 def test_navigation_attributes(chikin):
     """Test navigation with attributes by dot notation"""
@@ -12,10 +11,12 @@ def test_navigation_attributes(chikin):
     assert chikin.section.name == 'section'
     assert chikin.section.string == 'Chikin Tales'
 
+
 def test_navigation_parent(chikin):
     """Test parent navigation"""
     assert chikin.section.parent.name == 'document'
     assert chikin.subsection.parent.name == 'document'
+
 
 def test_navigation_children(chikin):
     """Test identification of all children"""
@@ -23,6 +24,7 @@ def test_navigation_children(chikin):
     docclass, document = chikin.children
     assert document.name == 'document'
     assert len(list(chikin.document.children)) == 7
+
 
 def test_navigation_descendants(chikin):
     """Test identification of all descendants"""
@@ -33,10 +35,12 @@ def test_navigation_descendants(chikin):
 # SEARCH #
 ##########
 
+
 def test_find_basic(chikin):
     """Find all LaTeX commands"""
     document = chikin.find('document')
     assert document.name == 'document'
+
 
 def test_find_by_command(chikin):
     """Find all LaTeX blocks that match a command"""

@@ -12,6 +12,7 @@ import itertools
 import _io
 from TexSoup.tex import *
 
+
 def TexSoup(tex):
     r"""
     At a high-level, parses provided Tex into a navigable, searchable structure.

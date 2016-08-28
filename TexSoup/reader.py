@@ -18,6 +18,7 @@ ALL_TOKENS = COMMAND_TOKENS | ARG_TOKENS
 # Convenience Methods #
 #######################
 
+
 def read_line(line):
     r"""Read first expression from a single line
 
@@ -27,6 +28,7 @@ def read_line(line):
     \newcommand{solution}[1]{{\color{blue} #1}}
     """
     return read_tex(Buffer(tokenize_line(line)))
+
 
 def read_lines(*lines):
     r"""Read first expression from multiple lines
@@ -42,6 +44,7 @@ def read_lines(*lines):
 #############
 # Tokenizer #
 #############
+
 
 @to_buffer
 def next_token(line):
@@ -68,6 +71,7 @@ def next_token(line):
             if token is not None:
                 return token
 
+
 @to_buffer
 def tokenize_line(line):
     r"""Generator for LaTeX tokens on a single line, ignoring comments.
@@ -84,6 +88,7 @@ def tokenize_line(line):
         yield token
         token = next_token(line)
 
+
 def tokenize_lines(lines):
     """Generator for LaTeX tokens across multiple lines, ignoring comments.
 
@@ -97,6 +102,7 @@ def tokenize_lines(lines):
 
 tokenizers = []
 
+
 def token(name):
     """Marker for a token
 
@@ -107,6 +113,7 @@ def token(name):
         return f
     return wrap
 
+
 @token('command')
 def tokenize_command(line):
     """Process command, but ignore line breaks. (double backslash)
@@ -115,6 +122,7 @@ def tokenize_command(line):
     """
     if line.peek() == '\\':
         return next(line)
+
 
 @token('argument')
 def tokenize_argument(line):
@@ -125,6 +133,7 @@ def tokenize_argument(line):
     for delim in ARG_TOKENS:
         if line.startswith(delim):
             return line.forward(len(delim))
+
 
 @token('string')
 def tokenize_string(line, delimiters=ALL_TOKENS):
@@ -155,6 +164,7 @@ def tokenize_string(line, delimiters=ALL_TOKENS):
 ##########
 # Mapper #
 ##########
+
 
 def read_tex(src):
     r"""Read next expression from buffer
@@ -199,3 +209,4 @@ def read_tex(src):
             else:
                 content.append(next(src))
         return Arg.parse(content)
+    return c
