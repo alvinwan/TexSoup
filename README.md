@@ -104,6 +104,10 @@ Additionally, modify the TeX parse tree in place, to generate new LaTeX.
 >>> soup.textbf.delete()
 >>> 'Hello' not in repr(soup)
 True
+>>> soup.textit.replace('S')
+>>> soup.textit.replace('U', 'P')
+>>> str(soup)
+SOUP
 ```
 
 # Parser

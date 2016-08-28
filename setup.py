@@ -28,19 +28,21 @@ class PyTest(TestCommand):
 VERSION = '0.0.2'
 
 setup(
-    name = "TexSoup",
-    version = VERSION,
-    author = "Alvin Wan",
-    author_email = 'hi@alvinwan.com',
-    description = ("parses valid LaTeX and provides variety of Beautiful-Soup-esque methods and Pythonic idioms for iterating over and searching the parse tree"),
-    license = "BSD",
-    url = "https://github.com/alvinwan/TexSoup",
-    packages = ['TexSoup'],
-    cmdclass = {'test': PyTest},
-    tests_require = tests_require,
-    install_requires = install_requires + tests_require,
-    download_url = 'https://github.com/alvinwan/TexSoup/archive/%s.zip' % VERSION,
-    classifiers = [
+    name="TexSoup",
+    version=VERSION,
+    author="Alvin Wan",
+    author_email='hi@alvinwan.com',
+    description=("parses valid LaTeX and provides variety of Beautiful-Soup-"
+                 "esque methods and Pythonic idioms for iterating over and "
+                 "searching the parse tree"),
+    license="BSD",
+    url="https://github.com/alvinwan/TexSoup",
+    packages=['TexSoup'],
+    cmdclass={'test': PyTest},
+    tests_require=tests_require,
+    install_requires=install_requires + tests_require,
+    download_url='https://github.com/alvinwan/TexSoup/archive/%s.zip' % VERSION,
+    classifiers=[
         "Topic :: Utilities",
         "Intended Audience :: Developers",
         "Programming Language :: Python :: 3",
