@@ -116,6 +116,14 @@ class TexNode(object):
         """Replace this node in the parse tree with the provided node(s)."""
         self.parent.replaceChild(self, *nodes)
 
+    def addChildren(self, *nodes):
+        """Add a node to its list of children."""
+        self.expr.addContents(*nodes)
+
+    def addChildrenAt(self, i, *nodes):
+        """Add a node to its list of children, inserted at position i."""
+        self.expr.addContentsAt(i, *nodes)
+
     def removeChild(self, node):
         """Remove a node from its list of contents."""
         self.expr.removeContent(node.expr)

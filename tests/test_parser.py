@@ -120,4 +120,3 @@ def test_commands_without_arguments():
     assert soup[0].name.strip() == 'Question'
     assert len(list(soup.children)) == 5
     assert list(soup.children)[0].name.strip() == 'Question'
-    assert len(list(soup.find_all('Question'))) == 2
