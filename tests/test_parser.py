@@ -1,6 +1,11 @@
 from TexSoup import TexSoup
 
 
+###############
+# BASIC TESTS #
+###############
+
+
 def test_commands_only():
     """Tests that parser for commands-only string works."""
     soup = TexSoup(r"""
@@ -59,6 +64,11 @@ def test_commands_envs_text():
     assert len(contents) == 4
 
 
+#########
+# CASES #
+#########
+
+
 def test_text_preserved():
     """Tests that the parser preserves regular non-expression text."""
     soup = TexSoup(r"""
@@ -69,3 +79,19 @@ def test_text_preserved():
     \sol{They fly!}
     """)
     assert 'Here is what chickens do:' in str(soup)
+
+
+def test_commands_without_arguments():
+    """Tests that commands without arguments are parsed correctly."""
+    soup = TexSoup(r"""
+    \Question \textbf{Question Title}
+
+    Here is what chickens do:
+
+    \sol{They fly!}
+    """)
+    assert len(list(soup.contents)) == 4
+    assert soup[0].name.strip() == 'Question'
+    assert len(list(soup.children)) == 3
+    assert list(soup.children)[0].name.strip() == 'Question'
+    assert len(list(soup.find_all('Question'))) == 1

@@ -134,6 +134,12 @@ class TexNode(object):
                 return False
         return True
 
+    def __getitem__(self, item):
+        return list(self.contents)[item]
+
+    def __iter__(self):
+        return self.contents
+
     def __str__(self):
         """Stringified command"""
         return str(self.expr)
@@ -155,7 +161,7 @@ class TexExpr(object):
     """General TeX expression abstract"""
 
     def __init__(self, name, contents=(), args=()):
-        self.name = name
+        self.name = name.strip()
         self.args = TexArgs(*args)
         self._contents = contents or []
 
