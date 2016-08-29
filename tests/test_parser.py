@@ -81,6 +81,29 @@ def test_text_preserved():
     assert 'Here is what chickens do:' in str(soup)
 
 
+def test_command_name_parse():
+    """Tests that the name of a command is parsed correctly.
+
+    Arguments can be separated from a command name by at most one line break
+    and any other whitespace.
+    """
+    with_space_not_arg = TexSoup(r"""\Question (10 points)""")
+    assert with_space_not_arg.Question is not None
+    assert with_space_not_arg.Question.extra == '(10 points)'
+
+    with_linebreak_not_arg = TexSoup(r"""\Question
+(10 points)""")
+    assert with_linebreak_not_arg.Question is not None
+    assert with_linebreak_not_arg.Question.extra == ''
+
+    with_space_with_arg = TexSoup(r"""\section {hula}""")
+    assert with_space_with_arg.section.string == 'hula'
+
+    with_linebreak_with_arg = TexSoup(r"""\section
+{hula}""")
+    assert with_linebreak_with_arg.section.string == 'hula'
+
+
 def test_commands_without_arguments():
     """Tests that commands without arguments are parsed correctly."""
     soup = TexSoup(r"""
@@ -89,9 +112,12 @@ def test_commands_without_arguments():
     Here is what chickens do:
 
     \sol{They fly!}
+
+    \Question
+    \textbf{Question 2 Title}
     """)
-    assert len(list(soup.contents)) == 4
+    assert len(list(soup.contents)) == 6
     assert soup[0].name.strip() == 'Question'
-    assert len(list(soup.children)) == 3
+    assert len(list(soup.children)) == 5
     assert list(soup.children)[0].name.strip() == 'Question'
-    assert len(list(soup.find_all('Question'))) == 1
+    assert len(list(soup.find_all('Question'))) == 2

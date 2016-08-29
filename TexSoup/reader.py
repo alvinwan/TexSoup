@@ -179,7 +179,12 @@ def read_tex(src):
         elif src.peek() == 'begin':
             mode, expr = next(src), TexEnv(Arg.parse(src.forward(3)).value)
         else:
-            mode, expr = 'command', TexCmd(next(src))
+            mode, candidate = 'command', next(src)
+            if ' ' in candidate:
+                tokens = candidate.split(' ')
+                expr = TexCmd(tokens[0], (), ' '.join(tokens[1:]))
+            else:
+                expr = TexCmd(candidate)
         while src.peek() in ARG_START_TOKENS:
             expr.args.append(read_tex(src))
         if mode == 'begin':

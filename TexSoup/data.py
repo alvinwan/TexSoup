@@ -42,6 +42,14 @@ class TexNode(object):
         return self.expr.parent
 
     @property
+    def extra(self):
+        """Extra string not a part of the expression name.
+
+        This typically only occurs after an \item or similar LaTeX command.
+        """
+        return self.expr.extra
+
+    @property
     def string(self):
         """Returns 'string' content, which is valid if and only if (1) the
         expression is a TexCmd and (2) the command has only one argument.
