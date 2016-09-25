@@ -66,13 +66,13 @@ def TexSoup(tex):
     \item red lemon
     >>> list(soup.find_all('item'))
     [\item red lemon, \item life]
-    >>> soup = TexSoup(r'''\textbf{'Hello'}\textit{'Y'}O\textit{'U'}''')
+    >>> soup = TexSoup(r'''\textbf{'Hello'}\textit{'Y'}\textit{'U'}P''')
     >>> soup.textbf.delete()
     >>> 'Hello' not in repr(soup)
     True
     >>> soup.textit.replace('S')
     >>> soup.textit.replace('U', 'P')
-    >>> repr(soup).replace('\n', '')
+    >>> str(soup)
     'SOUP'
     """
     return TexNode(read(tex))

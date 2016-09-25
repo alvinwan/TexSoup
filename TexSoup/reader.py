@@ -7,7 +7,6 @@ import itertools
 __all__ = ['read_line', 'read_lines', 'tokenize_line', 'tokenize_lines',
     'read_tex']
 
-WHITESPACE = {' ', '\t', '\r', '\n'}
 COMMAND_TOKENS = {'\\'}
 ARG_START_TOKENS = {arg.delims()[0] for arg in data.args}
 ARG_END_TOKENS = {arg.delims()[1] for arg in data.args}
@@ -199,7 +198,7 @@ def read_tex(src):
                     expr.name, src.peek((0, 5))))
             else:
                 src.forward(5)
-            expr.addContents(*contents)
+            expr.add_contents(*contents)
         return expr
     if c in ARG_END_TOKENS:
         return c

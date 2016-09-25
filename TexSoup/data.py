@@ -110,28 +110,28 @@ class TexNode(object):
 
     def delete(self):
         """Delete this node from the parse tree tree."""
-        self.parent.removeChild(self)
+        self.parent.remove_child(self)
 
     def replace(self, *nodes):
         """Replace this node in the parse tree with the provided node(s)."""
-        self.parent.replaceChild(self, *nodes)
+        self.parent.replace_child(self, *nodes)
 
-    def addChildren(self, *nodes):
+    def add_children(self, *nodes):
         """Add a node to its list of children."""
-        self.expr.addContents(*nodes)
+        self.expr.add_contents(*nodes)
 
-    def addChildrenAt(self, i, *nodes):
+    def add_children_at(self, i, *nodes):
         """Add a node to its list of children, inserted at position i."""
-        self.expr.addContentsAt(i, *nodes)
+        self.expr.add_contents_at(i, *nodes)
 
-    def removeChild(self, node):
+    def remove_child(self, node):
         """Remove a node from its list of contents."""
-        self.expr.removeContent(node.expr)
+        self.expr.remove_content(node.expr)
 
-    def replaceChild(self, child, *nodes):
+    def replace_child(self, child, *nodes):
         """Replace provided node with node(s)."""
-        self.expr.addContentsAt(
-            self.expr.removeContent(child.expr),
+        self.expr.add_contents_at(
+            self.expr.remove_content(child.expr),
             *nodes)
 
     def __match__(self, name=None, attrs={}):
@@ -185,15 +185,15 @@ class TexExpr(object):
             if isinstance(content, (TexEnv, TexCmd)):
                 content.parent = self
 
-    def addContents(self, *contents):
+    def add_contents(self, *contents):
         self._contents.extend(contents)
 
-    def addContentsAt(self, i, *contents):
+    def add_contents_at(self, i, *contents):
         self._contents = self._contents[:i] + \
                          list(contents) + \
                          self._contents[i:]
 
-    def removeContent(self, expr):
+    def remove_content(self, expr):
         """Remove a provided expression from its list of contents.
 
         :return: index of the expression removed
@@ -252,6 +252,7 @@ class TexEnv(TexExpr):
             whitespace will be removed from contents.
         """
         super().__init__(name, contents, args)
+        self.preserve_whitespace = preserve_whitespace
 
     @property
     def contents(self):
@@ -260,7 +261,7 @@ class TexEnv(TexExpr):
                 yield content
 
     def __str__(self):
-        contents = '\n'.join(map(str, self._contents))
+        contents = ''.join(map(str, self._contents))
         if self.name == '[tex]':
             return contents
         return '\\begin{%s}%s\n%s\n\\end{%s}' % (
@@ -372,7 +373,6 @@ class Arg(object):
     @classmethod
     def __strip__(cls, s):
         """Strip string of format."""
-        sides = cls.fmt.split('%s')
         return s[len(cls.delims()[0]):-len(cls.delims()[1])]
 
     def __iter__(self):

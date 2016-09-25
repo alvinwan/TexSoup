@@ -120,3 +120,13 @@ def test_commands_without_arguments():
     assert soup[0].name.strip() == 'Question'
     assert len(list(soup.children)) == 5
     assert list(soup.children)[0].name.strip() == 'Question'
+
+
+def test_unlabeled_environment():
+    """Tests that unlabeled environment is parsed and recognized.
+
+    Check that the environment is recognized not as an argument but as an
+    unalabeled environment.
+    """
+    soup = TexSoup(r"""{\color{blue} \textbf{This} \textit{is} some text.}""")
+    assert len(list(soup.contents)) == 1, 'Environment not recognized.'
