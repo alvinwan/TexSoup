@@ -261,7 +261,7 @@ class TexEnv(TexExpr):
                 yield content
 
     def __str__(self):
-        contents = ''.join(map(str, self._contents))
+        contents = '\n'.join(map(str, self._contents))
         if self.name == '[tex]':
             return contents
         return '\\begin{%s}%s\n%s\n\\end{%s}' % (
