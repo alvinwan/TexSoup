@@ -155,11 +155,12 @@ def tokenize_math(line):
     '$$\\min_x$$'
     """
     result = ''
-    if line.startswith('$$'):
-        result += line.forward(2)
-        while line.peek((0, 2)) != '$$':
+    if line.startswith('$'):
+        starter = '$$' if line.startswith('$$') else '$'
+        result += line.forward(len(starter))
+        while line.peek((0, len(starter))) != starter:
             result += next(line)
-        result += line.forward(2)
+        result += line.forward(len(starter))
         return result
 
 
@@ -201,8 +202,9 @@ def read_tex(src):
     :param Buffer src: a buffer of tokens
     """
     c = next(src)
-    if c.startswith('$$'):
-        return TexEnv('$$', [c[2:-2]], nobegin=True)
+    if c.startswith('$'):
+        name = '$$' if c.startswith('$$') else '$'
+        return TexEnv(name, [c[len(name):-len(name)]], nobegin=True)
     if c == '\\':
         if src.peek().startswith('item '):
             mode, expr = 'command', TexCmd('item', (),
@@ -220,6 +222,8 @@ def read_tex(src):
             expr.args.append(read_tex(src))
         if mode == 'begin':
             read_env(src, expr)
+        if src.startswith('$'):
+            expr.add_contents(read_tex(src))
         return expr
     if c in ARG_END_TOKENS:
         return c

@@ -310,6 +310,10 @@ class TexCmd(TexExpr):
         if self.extra:
             yield self.extra
 
+    def add_contents(self, *contents):
+        """Amend extra instead of contents, as commands do not have contents."""
+        self.extra += ' '.join([str(c) for c in contents])
+
     def __str__(self):
         if self.extra:
             return '\\%s%s %s' % (self.name, self.args, self.extra)

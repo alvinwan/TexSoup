@@ -148,3 +148,14 @@ def test_ignore_environment():
     assert verbatim.startswith('    '), 'Whitespace not preserved.'
     assert str(list(soup.children)[2]) == \
         '$$\min_x \|Ax - b\|_2^2 + \lambda \|x\|_1^2$$'
+
+
+def test_inline_math():
+    """Tests that inline math is rendered correctly."""
+    soup = TexSoup("""
+    \begin{itemize}
+    \item This $e^{i\pi} = -1$
+    \end{itemize}""")
+    assert '$e^{i\pi} = -1$' in str(soup), 'Math environment not intact.'
+    assert str(soup.item).endswith('$e^{i\pi} = -1$'), \
+        'Inline environment not associated with correct expression.'
