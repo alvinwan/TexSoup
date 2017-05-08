@@ -101,14 +101,28 @@ class Buffer:
         return self.peek((-len(s), 0)).endswith(s)
 
     def forward(self, j=1):
-        """Move forward by j steps."""
+        """Move forward by j steps.
+
+        >>> b = Buffer('abcdef')
+        >>> b.forward(3)
+        'abc'
+        >>> b.forward(-2)
+        'bc'
+        """
         if j < 0:
             return self.backward(-j)
         self.__i += j
         return self[self.__i-j:self.__i]
 
     def backward(self, j=1):
-        """Move backward by j steps."""
+        """Move backward by j steps.
+
+        >>> b = Buffer('abcdef')
+        >>> b.backward(-3)
+        'abc'
+        >>> b.backward(2)
+        'bc'
+        """
         if j < 0:
             return self.forward(-j)
         assert self.__i - j >= 0, 'Cannot move more than %d backward' % self.__i

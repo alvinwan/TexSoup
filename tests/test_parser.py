@@ -179,3 +179,13 @@ def test_unclosed_math_environments():
 
     with pytest.raises(EOFError):
         TexSoup(r"""$\min_x \|Xw-y\|_2^2""")
+
+
+def test_arg_parse():
+    """Test arg parsing errors."""
+    from TexSoup.data import Arg
+    with pytest.raises(TypeError):
+        Arg.parse(('{', ']'))
+
+    with pytest.raises(TypeError):
+        Arg.parse('(]')

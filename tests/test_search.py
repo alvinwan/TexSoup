@@ -24,6 +24,7 @@ def test_commands_without_arguments():
     \textbf{Question 2 Title}
     """)
     assert len(list(soup.find_all('Question'))) == 2
+    assert soup.find('section') is None
 
 
 def test_commands_without_arguments_searchable():

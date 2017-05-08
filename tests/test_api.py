@@ -57,18 +57,24 @@ def test_find_by_command(chikin):
 def test_delete(chikin):
     """Delete an element from the parse tree."""
     chikin.section.delete()
-    assert 'Chikin Tales' not in repr(chikin)
+    assert 'Chikin Tales' not in str(chikin)
 
 
 def test_replace_single(chikin):
     """Replace an element in the parse tree"""
     chikin.section.replace(chikin.subsection)
-    assert 'Chikin Tales' not in repr(chikin)
+    assert 'Chikin Tales' not in str(chikin)
     assert len(list(chikin.find_all('subsection'))) == 4
 
 
 def test_replace_multiple(chikin):
     """Replace an element in the parse tree"""
     chikin.section.replace(chikin.subsection, chikin.subsection)
-    assert 'Chikin Tales' not in repr(chikin)
+    assert 'Chikin Tales' not in str(chikin)
     assert len(list(chikin.find_all('subsection'))) == 5
+
+
+def test_add_children(chikin):
+    """Add a child to the parse tree"""
+    chikin.section.add_children('asdfghjkl')
+    assert 'asdfghjkl' in str(chikin.section)
