@@ -158,8 +158,11 @@ def tokenize_math(line):
     if line.startswith('$'):
         starter = '$$' if line.startswith('$$') else '$'
         result += line.forward(len(starter))
-        while line.peek((0, len(starter))) != starter:
+        while line.hasNext() and line.peek((0, len(starter))) != starter:
             result += next(line)
+        if not line.startswith(starter):
+            raise EOFError('Expecting %s. Instead got %s' % (
+                starter, line.peek((0, 5))))
         result += line.forward(len(starter))
         return result
 
@@ -225,8 +228,6 @@ def read_tex(src):
         if src.startswith('$'):
             expr.add_contents(read_tex(src))
         return expr
-    if c in ARG_END_TOKENS:
-        return c
     if c in ARG_START_TOKENS:
         return read_arg(src, c)
     return c

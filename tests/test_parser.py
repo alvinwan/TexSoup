@@ -1,4 +1,5 @@
 from TexSoup import TexSoup
+import pytest
 
 
 ###############
@@ -159,3 +160,22 @@ def test_inline_math():
     assert '$e^{i\pi} = -1$' in str(soup), 'Math environment not intact.'
     assert str(soup.item).endswith('$e^{i\pi} = -1$'), \
         'Inline environment not associated with correct expression.'
+
+
+##########
+# ERRORS #
+##########
+
+
+def test_unclosed_environments():
+    """Tests that unclosed environment results in error."""
+    with pytest.raises(EOFError):
+        TexSoup(r"""\begin{itemize}\item haha""")
+
+
+def test_unclosed_math_environments():
+    with pytest.raises(EOFError):
+        TexSoup(r"""$$\min_x \|Xw-y\|_2^2""")
+
+    with pytest.raises(EOFError):
+        TexSoup(r"""$\min_x \|Xw-y\|_2^2""")
