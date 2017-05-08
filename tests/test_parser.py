@@ -126,7 +126,25 @@ def test_unlabeled_environment():
     """Tests that unlabeled environment is parsed and recognized.
 
     Check that the environment is recognized not as an argument but as an
-    unalabeled environment.
+    unlabeled environment.
     """
     soup = TexSoup(r"""{\color{blue} \textbf{This} \textit{is} some text.}""")
     assert len(list(soup.contents)) == 1, 'Environment not recognized.'
+
+
+def test_ignore_environment():
+    """Tests that "ignore" environments are preserved (e.g., math, verbatim)."""
+    soup = TexSoup(r"""
+    \begin{equation}\min_x \|Ax - b\|_2^2\end{equation}
+    \begin{verbatim}
+    \min_x \|Ax - b\|_2^2 + \lambda \|x\|_2^2
+    \end{verbatim}
+    $$\min_x \|Ax - b\|_2^2 + \lambda \|x\|_1^2$$
+    """)
+    verbatim = list(list(soup.children)[1].contents)[0]
+    assert len(list(soup.contents)) == 3, 'Special environments not recognized.'
+    assert str(list(soup.children)[0]) == \
+           '\\begin{equation}\n\min_x \|Ax - b\|_2^2\n\\end{equation}'
+    assert verbatim.startswith('    '), 'Whitespace not preserved.'
+    assert str(list(soup.children)[2]) == \
+        '$$\min_x \|Ax - b\|_2^2 + \lambda \|x\|_1^2$$'

@@ -242,7 +242,8 @@ class TexEnv(TexExpr):
     0
     """
 
-    def __init__(self, name, contents=(), args=(), preserve_whitespace=False):
+    def __init__(self, name, contents=(), args=(), preserve_whitespace=False,
+                 nobegin=False):
         """Initialization for Tex environment.
 
         :param str name: name of environment
@@ -250,9 +251,11 @@ class TexEnv(TexExpr):
         :param list args: list of Tex Arguments
         :param bool preserve_whitespace: If false, elements containing only
             whitespace will be removed from contents.
+        :param bool nobegin: Disable \begin{...} notation.
         """
         super().__init__(name, contents, args)
         self.preserve_whitespace = preserve_whitespace
+        self.nobegin = nobegin
 
     @property
     def contents(self):
@@ -264,6 +267,9 @@ class TexEnv(TexExpr):
         contents = '\n'.join(map(str, self._contents))
         if self.name == '[tex]':
             return contents
+        if self.nobegin:
+            return '%s%s%s' % (
+                self.name, contents, self.name)
         return '\\begin{%s}%s\n%s\n\\end{%s}' % (
             self.name, self.args, contents, self.name)
 
