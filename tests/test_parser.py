@@ -162,6 +162,18 @@ def test_inline_math():
         'Inline environment not associated with correct expression.'
 
 
+def test_escaped_characters():
+    """Tests that special characters are escaped properly.
+
+    Formerly, escaped characters would be rendered as latex commands.
+    """
+    soup = TexSoup("""
+    \begin{itemize}
+    \item Ice cream costs \$4-\$5 around here.
+    \end{itemize}""")
+    assert '\\$4-\\$5' in str(soup), 'Escaped characters not properly rendered.'
+
+
 ##########
 # ERRORS #
 ##########

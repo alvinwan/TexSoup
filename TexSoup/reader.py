@@ -129,7 +129,7 @@ def tokenize_command(line):
 
     :param Buffer line: iterator over line, with current position
     """
-    if line.peek() == '\\':
+    if line.peek() == '\\' and line.peek(1) not in ALL_TOKENS:
         return next(line)
 
 
@@ -185,7 +185,9 @@ def tokenize_string(line, delimiters=ALL_TOKENS):
     """
     result = ''
     for c in line:
-        if c in delimiters:  # assumes all tokens are single characters
+        if c == '\\' and line.peek() in delimiters:
+            c += next(line)
+        elif c in delimiters:  # assumes all tokens are single characters
             line.backward(1)
             return result
         result += c
