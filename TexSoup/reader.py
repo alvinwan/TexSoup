@@ -4,8 +4,7 @@ import TexSoup.data as data
 import functools
 import itertools
 
-__all__ = ['read_line', 'read_lines', 'tokenize_line', 'tokenize_lines',
-    'read_tex']
+__all__ = ['tokenize', 'read_tex']
 
 COMMAND_TOKENS = {'\\'}
 MATH_TOKENS = {'$'}
@@ -14,34 +13,8 @@ ARG_END_TOKENS = {arg.delims()[1] for arg in data.args}
 ARG_TOKENS = ARG_START_TOKENS | ARG_END_TOKENS
 ALL_TOKENS = COMMAND_TOKENS | ARG_TOKENS | MATH_TOKENS
 SKIP_ENVS = ('verbatim', 'equation', 'lstlisting')
+PUNCTUATION_COMMANDS = ('right', 'left')
 
-
-#######################
-# Convenience Methods #
-#######################
-
-
-def read_line(line):
-    r"""Read first expression from a single line
-
-    >>> read_line(r'\textbf{Do play \textit{nice}.}')
-    TexCmd('textbf', [RArg('Do play ', TexCmd('textit', [RArg('nice')]), '.')])
-    >>> print(read_line(r'\newcommand{solution}[1]{{\color{blue} #1}}'))
-    \newcommand{solution}[1]{{\color{blue} #1}}
-    """
-    return read_tex(Buffer(tokenize_line(line)))
-
-
-def read_lines(*lines):
-    r"""Read first expression from multiple lines
-
-    >>> print(read_lines(r'\begin{tabular}{c c}', '0 & 1 \\\\',
-    ...     '\end{tabular}'))
-    \begin{tabular}{c c}
-    0 & 1 \\
-    \end{tabular}
-    """
-    return read_tex(Buffer(itertools.chain(*tokenize_lines(lines))))
 
 #############
 # Tokenizer #
@@ -49,11 +22,11 @@ def read_lines(*lines):
 
 
 @to_buffer
-def next_token(line):
+def next_token(text):
     r"""Returns the next possible token, advancing the iterator to the next
     position to start processing from.
 
-    :param (str, iterator, Buffer) line: LaTeX to process
+    :param (str, iterator, Buffer) text: LaTeX to process
     :return str: the token
 
     >>> b = Buffer(r'\textbf{Do play\textit{nice}.}   $$\min_w \|w\|_2^2$$')
@@ -71,38 +44,30 @@ def next_token(line):
     '$$\\min_w \\|w\\|_2^2$$'
     >>> next_token(b)
     """
-    while line.hasNext():
+    while text.hasNext():
         for name, f in tokenizers:
-            token = f(line)
+            token = f(text)
             if token is not None:
                 return token
 
 
 @to_buffer
-def tokenize_line(line):
-    r"""Generator for LaTeX tokens on a single line, ignoring comments.
+def tokenize(text):
+    r"""Generator for LaTeX tokens on text, ignoring comments.
 
-    :param (str, iterator, Buffer) line: LaTeX to process
+    :param (str, iterator, Buffer) text: LaTeX to process
 
-    >>> print(*tokenize_line(r'\textbf{Do play \textit{nice}.}'))
+    >>> print(*tokenize(r'\textbf{Do play \textit{nice}.}'))
     \ textbf { Do play  \ textit { nice } . }
-    >>> print(*tokenize_line(r'\begin{tabular} 0 & 1 \\ 2 & 0 \end{tabular}'))
+    >>> print(*tokenize(r'\begin{tabular} 0 & 1 \\ 2 & 0 \end{tabular}'))
     \ begin { tabular }  0 & 1 \\ 2 & 0  \ end { tabular }
-    >>> print(*tokenize_line(r'$$\min_x \|Xw-y\|_2^2$$'))
+    >>> print(*tokenize(r'$$\min_x \|Xw-y\|_2^2$$'))
     $$\min_x \|Xw-y\|_2^2$$
     """
-    token = next_token(line)
+    token = next_token(text)
     while token is not None:
         yield token
-        token = next_token(line)
-
-
-def tokenize_lines(lines):
-    """Generator for LaTeX tokens across multiple lines, ignoring comments.
-
-    :param list lines: list of strings or iterator over strings
-    """
-    return map(tokenize_line, lines)
+        token = next_token(text)
 
 
 ##########
@@ -123,52 +88,67 @@ def token(name):
     return wrap
 
 
+@token('punctuation_command')
+def tokenize_punctuation_command(text):
+    """Process command that augments or modifies punctuation.
+
+    This is important to the tokenization of a string, as opening or closing
+    punctuation is not supposed to match.
+
+    :param Buffer text: iterator over text, with current position
+    """
+    if text.peek() == '\\':
+        for string in PUNCTUATION_COMMANDS:
+            if text.peek((1, len(string) + 1)) == string:
+                return text.forward(len(string) + 3)
+
+
 @token('command')
-def tokenize_command(line):
+def tokenize_command(text):
     """Process command, but ignore line breaks. (double backslash)
 
-    :param Buffer line: iterator over line, with current position
+    :param Buffer text: iterator over line, with current position
     """
-    if line.peek() == '\\' and line.peek(1) not in ALL_TOKENS:
-        return next(line)
+    if text.peek() == '\\' and text.peek(1) not in ALL_TOKENS:
+        return next(text)
 
 
 @token('argument')
-def tokenize_argument(line):
+def tokenize_argument(text):
     """Process both optional and required arguments.
 
-    :param Buffer line: iterator over line, with current position
+    :param Buffer text: iterator over line, with current position
     """
     for delim in ARG_TOKENS:
-        if line.startswith(delim):
-            return line.forward(len(delim))
+        if text.startswith(delim):
+            return text.forward(len(delim))
 
 
 @token('math')
-def tokenize_math(line):
+def tokenize_math(text):
     r"""Prevents math from being tokenized.
 
-    :param Buffer line: iterator over line, with current position
+    :param Buffer text: iterator over line, with current position
 
     >>> b = Buffer('$$\min_x$$ \command')
     >>> tokenize_math(b)
     '$$\\min_x$$'
     """
     result = ''
-    if line.startswith('$'):
-        starter = '$$' if line.startswith('$$') else '$'
-        result += line.forward(len(starter))
-        while line.hasNext() and line.peek((0, len(starter))) != starter:
-            result += next(line)
-        if not line.startswith(starter):
+    if text.startswith('$'):
+        starter = '$$' if text.startswith('$$') else '$'
+        result += text.forward(len(starter))
+        while text.hasNext() and text.peek((0, len(starter))) != starter:
+            result += next(text)
+        if not text.startswith(starter):
             raise EOFError('Expecting %s. Instead got %s' % (
-                starter, line.peek((0, 5))))
-        result += line.forward(len(starter))
+                starter, text.peek((0, 5))))
+        result += text.forward(len(starter))
         return result
 
 
 @token('string')
-def tokenize_string(line, delimiters=ALL_TOKENS):
+def tokenize_string(text, delimiters=ALL_TOKENS):
     r"""Process a string of text
 
     :param Buffer line: iterator over line, with current position
@@ -184,15 +164,15 @@ def tokenize_string(line, delimiters=ALL_TOKENS):
     0 & 1 \\
     """
     result = ''
-    for c in line:
-        if c == '\\' and line.peek() in delimiters:
-            c += next(line)
+    for c in text:
+        if c == '\\' and text.peek() in delimiters:
+            c += next(text)
         elif c in delimiters:  # assumes all tokens are single characters
-            line.backward(1)
+            text.backward(1)
             return result
         result += c
-        if line.peek((0, 2)) == '\\\\':
-            result += line.forward(2)
+        if text.peek((0, 2)) == '\\\\':
+            result += text.forward(2)
     return result
 
 
@@ -213,15 +193,16 @@ def read_tex(src):
     if c == '\\':
         if src.peek().startswith('item '):
             mode, expr = 'command', TexCmd('item', (),
-                ' '.join(next(src).split(' ')[1:]))
+                ' '.join(next(src).split(' ')[1:]).strip())
         elif src.peek() == 'begin':
             mode, expr = next(src), TexEnv(Arg.parse(src.forward(3)).value)
         else:
-            mode, candidate = 'command', next(src)
-            if ' ' in candidate:
-                tokens = candidate.split(' ')
-                expr = TexCmd(tokens[0], (), ' '.join(tokens[1:]))
-            else:
+            mode, candidate, expr = 'command', next(src), None
+            for i, c in enumerate(candidate):
+                if c.isspace():
+                    expr = TexCmd(candidate[:i], (), candidate[i+1:])
+                    break
+            if not expr:
                 expr = TexCmd(candidate)
         while src.peek() in ARG_START_TOKENS:
             expr.args.append(read_tex(src))
@@ -230,6 +211,8 @@ def read_tex(src):
         if src.startswith('$'):
             expr.add_contents(read_tex(src))
         return expr
+    if c.startswith('\\'):
+        return TexCmd(c[1:])
     if c in ARG_START_TOKENS:
         return read_arg(src, c)
     return c
