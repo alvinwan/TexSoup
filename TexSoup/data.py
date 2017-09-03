@@ -212,7 +212,7 @@ class TexExpr(object):
         """Further breaks down all tokens for a particular expression into
         words and other expressions."""
         for content in self.contents:
-            if isinstance(str, content):
+            if isinstance(content, str):
                 for word in content.split():
                     yield word
             yield content
