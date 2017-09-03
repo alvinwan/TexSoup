@@ -1,7 +1,6 @@
 from TexSoup.reader import *
 from TexSoup.data import *
 from TexSoup.utils import *
-import itertools
 
 
 def read(tex):
@@ -11,8 +10,8 @@ def read(tex):
     :return TexEnv: the global environment
     """
     if isinstance(tex, str):
-        tex = tex.strip().splitlines()
-    buf, children = Buffer(itertools.chain(*tokenize_lines(tex))), []
+        tex = tex.strip()
+    buf, children = Buffer(tokenize(tex)), []
     while buf.hasNext():
         content = read_tex(buf)
         if content is not None:

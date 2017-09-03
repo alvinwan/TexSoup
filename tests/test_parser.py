@@ -145,8 +145,8 @@ def test_ignore_environment():
     verbatim = list(list(soup.children)[1].contents)[0]
     assert len(list(soup.contents)) == 3, 'Special environments not recognized.'
     assert str(list(soup.children)[0]) == \
-           '\\begin{equation}\n\min_x \|Ax - b\|_2^2\n\\end{equation}'
-    assert verbatim.startswith('    '), 'Whitespace not preserved.'
+           '\\begin{equation}\min_x \|Ax - b\|_2^2\\end{equation}'
+    assert verbatim.startswith('\n    '), 'Whitespace not preserved.'
     assert str(list(soup.children)[2]) == \
         '$$\min_x \|Ax - b\|_2^2 + \lambda \|x\|_1^2$$'
 
@@ -169,9 +169,50 @@ def test_escaped_characters():
     """
     soup = TexSoup("""
     \begin{itemize}
-    \item Ice cream costs \$4-\$5 around here.
+    \item Ice cream costs \$4-\$5 around here. \}\]\{\[
     \end{itemize}""")
+    assert str(soup.item) == r'\item Ice cream costs \$4-\$5 around here. ' \
+                             r'\}\]\{\['
     assert '\\$4-\\$5' in str(soup), 'Escaped characters not properly rendered.'
+
+
+##############
+# FORMATTING #
+##############
+
+
+def test_basic_whitespace():
+    """Tests that basic text maintains whitespace."""
+    soup = TexSoup("""
+    Here is some text
+    with a line break
+    and awko      taco spacing
+    """)
+    assert len(str(soup).split('\n')) == 3, 'Line breaks not persisted.'
+
+
+def test_whitespace_in_command():
+    """Tests that whitespace in commands are maintained."""
+    soup = TexSoup(r"""
+    \begin{article}
+    \title {This title contains    a space}
+    \section {This title contains
+    line break}
+    \end{article}
+    """)
+    assert '    ' in soup.article.title.string
+    assert '\n' in soup.article.section.string
+
+
+def test_math_environment_whitespace():
+    """Tests that math environments are untouched."""
+    soup = TexSoup("""$$\lambda
+    \Sigma$$ But don't mind me \$3.00""")
+    children, contents = list(soup.children), list(soup.contents)
+    assert '\n' in str(children[0]), 'Whitesapce not preserved in math env.'
+    assert len(children) == 1 and children[0].name == '$$', 'Math env wrong'
+    assert '\$' in contents[1], 'Dollar sign not escaped!'
+
 
 
 ##########
@@ -186,6 +227,7 @@ def test_unclosed_environments():
 
 
 def test_unclosed_math_environments():
+    """Tests that unclosed math environment results in error."""
     with pytest.raises(EOFError):
         TexSoup(r"""$$\min_x \|Xw-y\|_2^2""")
 

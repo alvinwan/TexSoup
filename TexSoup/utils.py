@@ -15,6 +15,7 @@ import functools
 # Decorators #
 ##############
 
+
 def to_buffer(f, i=0):
     """
     Decorator converting all strings and iterators/iterables into
@@ -38,6 +39,7 @@ def to_buffer(f, i=0):
 #########################
 # Generalized Utilities #
 #########################
+
 
 class Buffer:
     """Converts string or iterable into a navigable iterator of strings

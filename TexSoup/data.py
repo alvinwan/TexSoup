@@ -229,10 +229,10 @@ class TexEnv(TexExpr):
     environment arguments, whether optional or required, and (3) the
     environment's contents.
 
-    >>> t = TexEnv('tabular', ['0 & 0 & * \\\\', '1 & 1 & * \\\\'],
+    >>> t = TexEnv('tabular', ['\n0 & 0 & * \\\\\n1 & 1 & * \\\\\n'],
     ...     [RArg('c | c c')])
     >>> t
-    TexEnv('tabular', ['0 & 0 & * \\\\', '1 & 1 & * \\\\'], [RArg('c | c c')])
+    TexEnv('tabular', ['\n0 & 0 & * \\\\\n1 & 1 & * \\\\\n'], [RArg('c | c c')])
     >>> print(t)
     \begin{tabular}{c | c c}
     0 & 0 & * \\
@@ -270,7 +270,7 @@ class TexEnv(TexExpr):
         if self.nobegin:
             return '%s%s%s' % (
                 self.name, contents, self.name)
-        return '\\begin{%s}%s\n%s\n\\end{%s}' % (
+        return '\\begin{%s}%s%s\\end{%s}' % (
             self.name, self.args, contents, self.name)
 
     def __repr__(self):

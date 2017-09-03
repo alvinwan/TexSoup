@@ -8,8 +8,6 @@ Main file, containing most commonly used elements of TexSoup
 @site: alvinwan.com
 """
 
-import itertools
-import _io
 from TexSoup.tex import *
 
 
