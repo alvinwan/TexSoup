@@ -13,6 +13,7 @@ ARG_END_TOKENS = {arg.delims()[1] for arg in data.args}
 ARG_TOKENS = ARG_START_TOKENS | ARG_END_TOKENS
 ALL_TOKENS = COMMAND_TOKENS | ARG_TOKENS | MATH_TOKENS
 SKIP_ENVS = ('verbatim', 'equation', 'lstlisting')
+PUNCTUATION_COMMANDS = ('right', 'left')
 
 
 #############
@@ -85,6 +86,21 @@ def token(name):
         tokenizers.append((name, f))
         return f
     return wrap
+
+
+@token('punctuation_command')
+def tokenize_punctuation_command(text):
+    """Process command that augments or modifies punctuation.
+
+    This is important to the tokenization of a string, as opening or closing
+    punctuation is not supposed to match.
+
+    :param Buffer text: iterator over text, with current position
+    """
+    if text.peek() == '\\':
+        for string in PUNCTUATION_COMMANDS:
+            if text.peek((1, len(string) + 1)) == string:
+                return text.forward(len(string) + 3)
 
 
 @token('command')
@@ -195,6 +211,8 @@ def read_tex(src):
         if src.startswith('$'):
             expr.add_contents(read_tex(src))
         return expr
+    if c.startswith('\\'):
+        return TexCmd(c[1:])
     if c in ARG_START_TOKENS:
         return read_arg(src, c)
     return c
