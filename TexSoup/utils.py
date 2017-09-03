@@ -22,6 +22,15 @@ def to_buffer(f, i=0):
     Buffers.
 
     :param int i: index of iterator argument. Used only if not a kwarg.
+
+    >>> f = to_buffer(lambda x: x[:])
+    >>> f('asdf')
+    'asdf'
+    >>> g = to_buffer(lambda x: x)
+    >>> g('').hasNext()
+    False
+    >>> next(g('asdf'))
+    'a'
     """
     @functools.wraps(f)
     def wrap(*args, **kwargs):

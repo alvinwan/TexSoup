@@ -1,6 +1,7 @@
 from TexSoup.reader import *
 from TexSoup.data import *
 from TexSoup.utils import *
+import itertools
 
 
 def read(tex):
@@ -11,6 +12,8 @@ def read(tex):
     """
     if isinstance(tex, str):
         tex = tex.strip()
+    else:
+        tex = itertools.chain(*tex)
     buf, children = Buffer(tokenize(tex)), []
     while buf.hasNext():
         content = read_tex(buf)

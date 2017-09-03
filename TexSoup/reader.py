@@ -112,7 +112,7 @@ def tokenize_argument(text):
 def tokenize_math(text):
     r"""Prevents math from being tokenized.
 
-    :param Buffer line: iterator over line, with current position
+    :param Buffer text: iterator over line, with current position
 
     >>> b = Buffer('$$\min_x$$ \command')
     >>> tokenize_math(b)
@@ -181,11 +181,12 @@ def read_tex(src):
         elif src.peek() == 'begin':
             mode, expr = next(src), TexEnv(Arg.parse(src.forward(3)).value)
         else:
-            mode, candidate = 'command', next(src)
-            if ' ' in candidate:
-                tokens = candidate.split(' ')
-                expr = TexCmd(tokens[0], (), ' '.join(tokens[1:]))
-            else:
+            mode, candidate, expr = 'command', next(src), None
+            for i, c in enumerate(candidate):
+                if c.isspace():
+                    expr = TexCmd(candidate[:i], (), candidate[i+1:])
+                    break
+            if not expr:
                 expr = TexCmd(candidate)
         while src.peek() in ARG_START_TOKENS:
             expr.args.append(read_tex(src))

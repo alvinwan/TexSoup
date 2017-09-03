@@ -95,7 +95,7 @@ def test_command_name_parse():
     with_linebreak_not_arg = TexSoup(r"""\Question
 (10 points)""")
     assert with_linebreak_not_arg.Question is not None
-    assert with_linebreak_not_arg.Question.extra == ''
+    assert with_linebreak_not_arg.Question.extra == '(10 points)'
 
     with_space_with_arg = TexSoup(r"""\section {hula}""")
     assert with_space_with_arg.section.string == 'hula'
@@ -141,14 +141,16 @@ def test_ignore_environment():
     \min_x \|Ax - b\|_2^2 + \lambda \|x\|_2^2
     \end{verbatim}
     $$\min_x \|Ax - b\|_2^2 + \lambda \|x\|_1^2$$
+    $$[0,1)$$
     """)
     verbatim = list(list(soup.children)[1].contents)[0]
-    assert len(list(soup.contents)) == 3, 'Special environments not recognized.'
+    assert len(list(soup.contents)) == 4, 'Special environments not recognized.'
     assert str(list(soup.children)[0]) == \
            '\\begin{equation}\min_x \|Ax - b\|_2^2\\end{equation}'
     assert verbatim.startswith('\n    '), 'Whitespace not preserved.'
     assert str(list(soup.children)[2]) == \
         '$$\min_x \|Ax - b\|_2^2 + \lambda \|x\|_1^2$$'
+    assert str(list(soup.children)[3]) == '$$[0,1)$$'
 
 
 def test_inline_math():
