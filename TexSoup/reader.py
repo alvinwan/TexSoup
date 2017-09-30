@@ -1,4 +1,4 @@
-from TexSoup.utils import to_buffer, Buffer
+from TexSoup.utils import to_buffer, Buffer, TokenWithPosition
 from TexSoup.data import *
 import TexSoup.data as data
 import functools
@@ -45,10 +45,11 @@ def next_token(text):
     >>> next_token(b)
     """
     while text.hasNext():
+        cur_pos = text.position()
         for name, f in tokenizers:
             token = f(text)
             if token is not None:
-                return token
+                return TokenWithPosition(token, cur_pos)
 
 
 @to_buffer

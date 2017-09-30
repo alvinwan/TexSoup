@@ -183,3 +183,27 @@ class Buffer:
 
     def __iter__(self):
         return self
+
+    def position(self):
+        return self.__i
+
+
+class TokenWithPosition(object):
+    def __init__(self, text, position):
+        self.text = text
+        self.position = position
+
+    def __repr__(self):
+        return repr(self.text)
+    
+    def __str__(self):
+        return str(self.text)
+
+    def __getattr__(self, name, default=None):
+        return getattr(self.text, name, default=default)
+
+    def __eq__(self, other):
+        if isinstance(other, TokenWithPosition):
+            return self.text == other.text
+        else:
+            return self.text == other
