@@ -45,11 +45,10 @@ def next_token(text):
     >>> next_token(b)
     """
     while text.hasNext():
-        cur_pos = text.position()
         for name, f in tokenizers:
             token = f(text)
             if token is not None:
-                return TokenWithPosition(token, cur_pos)
+                return token
 
 
 @to_buffer
@@ -135,7 +134,8 @@ def tokenize_math(text):
     >>> tokenize_math(b)
     '$$\\min_x$$'
     """
-    result = ''
+#     result = ''
+    result = TokenWithPosition('', text.position)
     if text.startswith('$'):
         starter = '$$' if text.startswith('$$') else '$'
         result += text.forward(len(starter))
@@ -164,11 +164,12 @@ def tokenize_string(text, delimiters=ALL_TOKENS):
     >>> print(tokenize_string(Buffer('0 & 1 \\\\\command')))
     0 & 1 \\
     """
-    result = ''
+#     result = ''
+    result = TokenWithPosition('', text.position)
     for c in text:
-        if c == '\\' and text.peek() in delimiters:
+        if c == '\\' and str(text.peek()) in delimiters:
             c += next(text)
-        elif c in delimiters:  # assumes all tokens are single characters
+        elif str(c) in delimiters:  # assumes all tokens are single characters
             text.backward(1)
             return result
         result += c
@@ -193,8 +194,8 @@ def read_tex(src):
         return TexEnv(name, [c[len(name):-len(name)]], nobegin=True)
     if c == '\\':
         if src.peek().startswith('item '):
-            mode, expr = 'command', TexCmd('item', (),
-                ' '.join(next(src).split(' ')[1:]).strip())
+            mode, expr = 'command', TexCmd(src.peek()[:4], (),
+                TokenWithPosition.join(next(src).split(' ')[1:], glue=' ').strip())
         elif src.peek() == 'begin':
             mode, expr = next(src), TexEnv(Arg.parse(src.forward(3)).value)
         else:

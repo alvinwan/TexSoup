@@ -73,4 +73,5 @@ def TexSoup(tex):
     >>> ''.join(str(soup).splitlines())
     'SOUP'
     """
-    return TexNode(read(tex))
+    parsed, src = read(tex)
+    return TexNode(parsed, src=src)

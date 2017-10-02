@@ -13,10 +13,10 @@ def read(tex):
     if isinstance(tex, str):
         tex = tex.strip()
     else:
-        tex = itertools.chain(*tex)
+        tex = ''.join(itertools.chain(*tex))
     buf, children = Buffer(tokenize(tex)), []
     while buf.hasNext():
         content = read_tex(buf)
         if content is not None:
             children.append(content)
-    return TexEnv('[tex]', children)
+    return TexEnv('[tex]', children), tex

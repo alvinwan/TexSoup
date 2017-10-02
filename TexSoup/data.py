@@ -6,6 +6,7 @@ Includes the data structures that users will interface with, in addition to
 internally used data structures.
 """
 import itertools
+from .utils import TokenWithPosition, CharToLineOffset
 
 __all__ = ['TexNode', 'TexCmd', 'TexEnv', 'Arg', 'OArg', 'RArg', 'TexArgs']
 
@@ -19,7 +20,7 @@ class TexNode(object):
     environments and Tex commands.
     """
 
-    def __init__(self, expr):
+    def __init__(self, expr, src=None):
         """Creates TexNode object
 
         :param (TexCmd, TexEnv) expr: a LaTeX expression, either a singleton
@@ -28,6 +29,10 @@ class TexNode(object):
         assert isinstance(expr, (TexCmd, TexEnv)), 'Created from TexExpr'
         super().__init__()
         self.expr = expr
+        if not src is None:
+            self.char_to_line = CharToLineOffset(src)
+        else:
+            self.char_to_line = None
 
     @property
     def name(self):
@@ -168,6 +173,11 @@ class TexNode(object):
         """Convert all invalid attributes into basic find operation."""
         return self.find(attr) or default
 
+    def char_pos_to_line(self, char_pos):
+        assert not self.char_to_line is None, 'CharToLineOffset is not initialized! Pass src to TexNode!'
+        return self.char_to_line(char_pos)
+
+
 ###############
 # Expressions #
 ###############
@@ -212,7 +222,7 @@ class TexExpr(object):
         """Further breaks down all tokens for a particular expression into
         words and other expressions."""
         for content in self.contents:
-            if isinstance(content, str):
+            if isinstance(content, TokenWithPosition):
                 for word in content.split():
                     yield word
             yield content
@@ -260,7 +270,7 @@ class TexEnv(TexExpr):
     @property
     def contents(self):
         for content in self._contents:
-            if not isinstance(content, str) or bool(content.strip()):
+            if not isinstance(content, TokenWithPosition) or bool(content.strip()):
                 yield content
 
     def __str__(self):
