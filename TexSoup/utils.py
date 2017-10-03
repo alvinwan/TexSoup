@@ -251,7 +251,6 @@ class Buffer:
         """Implements next."""
         while self.__i >= len(self.__queue):
             self.__queue.append(TokenWithPosition(next(self.__iterator), self.__i))
-#             self.__queue.append(next(self.__iterator))
         self.__i += 1
         return self.__queue[self.__i-1]
 
@@ -283,7 +282,6 @@ class Buffer:
         self.__i = old
         if isinstance(i, int):
             return self.__queue[i]
-#         return ''.join(self.__queue[i])
         return self.__join(self.__queue[i])
 
     def __iter__(self):

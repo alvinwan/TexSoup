@@ -136,7 +136,6 @@ def tokenize_math(text):
     >>> tokenize_math(b)
     '$$\\min_x$$'
     """
-#     result = ''
     result = TokenWithPosition('', text.position)
     if text.startswith('$'):
         starter = '$$' if text.startswith('$$') else '$'
@@ -166,7 +165,6 @@ def tokenize_string(text, delimiters=ALL_TOKENS):
     >>> print(tokenize_string(Buffer('0 & 1 \\\\\command')))
     0 & 1 \\
     """
-#     result = ''
     result = TokenWithPosition('', text.position)
     for c in text:
         if c == '\\' and str(text.peek()) in delimiters:
