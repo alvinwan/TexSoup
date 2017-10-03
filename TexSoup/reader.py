@@ -1,4 +1,4 @@
-from TexSoup.utils import to_buffer, Buffer
+from TexSoup.utils import to_buffer, Buffer, TokenWithPosition
 from TexSoup.data import *
 import TexSoup.data as data
 import functools
@@ -13,7 +13,9 @@ ARG_END_TOKENS = {arg.delims()[1] for arg in data.args}
 ARG_TOKENS = ARG_START_TOKENS | ARG_END_TOKENS
 ALL_TOKENS = COMMAND_TOKENS | ARG_TOKENS | MATH_TOKENS
 SKIP_ENVS = ('verbatim', 'equation', 'lstlisting')
-PUNCTUATION_COMMANDS = ('right', 'left')
+PUNCTUATION_COMMANDS = {command + bracket
+                        for command in ('left', 'right')
+                        for bracket in r'( ) < > \[ ] [ { \{ \} . |'.split(' ') }
 
 
 #############
@@ -100,7 +102,7 @@ def tokenize_punctuation_command(text):
     if text.peek() == '\\':
         for string in PUNCTUATION_COMMANDS:
             if text.peek((1, len(string) + 1)) == string:
-                return text.forward(len(string) + 3)
+                return text.forward(len(string) + 1)
 
 
 @token('command')
@@ -134,7 +136,7 @@ def tokenize_math(text):
     >>> tokenize_math(b)
     '$$\\min_x$$'
     """
-    result = ''
+    result = TokenWithPosition('', text.position)
     if text.startswith('$'):
         starter = '$$' if text.startswith('$$') else '$'
         result += text.forward(len(starter))
@@ -163,11 +165,11 @@ def tokenize_string(text, delimiters=ALL_TOKENS):
     >>> print(tokenize_string(Buffer('0 & 1 \\\\\command')))
     0 & 1 \\
     """
-    result = ''
+    result = TokenWithPosition('', text.position)
     for c in text:
-        if c == '\\' and text.peek() in delimiters:
+        if c == '\\' and str(text.peek()) in delimiters:
             c += next(text)
-        elif c in delimiters:  # assumes all tokens are single characters
+        elif str(c) in delimiters:  # assumes all tokens are single characters
             text.backward(1)
             return result
         result += c
@@ -192,8 +194,8 @@ def read_tex(src):
         return TexEnv(name, [c[len(name):-len(name)]], nobegin=True)
     if c == '\\':
         if src.peek().startswith('item '):
-            mode, expr = 'command', TexCmd('item', (),
-                ' '.join(next(src).split(' ')[1:]).strip())
+            mode, expr = 'command', TexCmd(src.peek()[:4], (),
+                TokenWithPosition.join(next(src).split(' ')[1:], glue=' ').strip())
         elif src.peek() == 'begin':
             mode, expr = next(src), TexEnv(Arg.parse(src.forward(3)).value)
         else:

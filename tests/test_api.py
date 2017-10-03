@@ -1,4 +1,5 @@
 from config import *
+from TexSoup.utils import TokenWithPosition
 
 ##############
 # NAVIGATION #
@@ -30,6 +31,26 @@ def test_navigation_descendants(chikin):
     """Test identification of all descendants"""
     print(list(chikin.descendants))
     assert len(list(chikin.descendants)) == 28
+
+
+def test_navigation_positions(chikin):
+    assert chikin.char_pos_to_line(0) == (0, 0), '\\'
+    assert chikin.char_pos_to_line(1) == (0, 1), 'documentclass'
+    assert chikin.char_pos_to_line(172) == (11, 6), 'waddle'
+
+    assert isinstance(next(next(chikin.itemize.children).tokens), TokenWithPosition)
+
+    # get position of first token
+    waddle_pos = next(next(chikin.itemize.children).tokens).position
+    assert chikin.char_pos_to_line(waddle_pos) == (11, 6)
+
+    # get position of item
+    enumerate_first_item_pos = next(chikin.enumerate.children).name.position
+    assert chikin.char_pos_to_line(enumerate_first_item_pos) == (22, 1)
+
+    # get position of section
+    section_pos = list(chikin.find_all('section'))[1].name.position
+    assert chikin.char_pos_to_line(section_pos) == (15, 1)
 
 ##########
 # SEARCH #
