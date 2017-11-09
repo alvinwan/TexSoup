@@ -216,6 +216,13 @@ def test_math_environment_whitespace():
     assert '\$' in contents[1], 'Dollar sign not escaped!'
 
 
+def test_math_environment_escape():
+    """Tests $ escapes in math environment."""
+    soup = TexSoup("$ \$ $")
+    contents = list(soup.contents)
+    assert '\$' in contents[0][0], 'Dollar sign not escaped!'
+
+
 def test_punctuation_command_structure():
     """Tests that commands for punctuation work."""
     soup = TexSoup(r"""\right. \right[ \right( \right|""")
