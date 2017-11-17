@@ -13,9 +13,13 @@ ARG_END_TOKENS = {arg.delims()[1] for arg in data.args}
 ARG_TOKENS = ARG_START_TOKENS | ARG_END_TOKENS
 ALL_TOKENS = COMMAND_TOKENS | ARG_TOKENS | MATH_TOKENS
 SKIP_ENVS = ('verbatim', 'equation', 'lstlisting')
+BRACKETS_DELIMITERS = {'(', ')', '<', '>', '\[', '[', ']', '{',
+                       '\{', '\}', '.' '|', '\langle', '\rangle',
+                       '\lfloor', '\rfloor', '\lceil', '\rceil',
+                       r'\ulcorner', r'\urcorner', '\lbrack', '\rbrack'}
 PUNCTUATION_COMMANDS = {command + bracket
                         for command in ('left', 'right')
-                        for bracket in r'( ) < > \[ ] [ { \{ \} . |'.split(' ') }
+                        for bracket in BRACKETS_DELIMITERS}
 
 
 #############
