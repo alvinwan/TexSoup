@@ -136,11 +136,19 @@ def tokenize_math(text):
     >>> tokenize_math(b)
     '$$\\min_x$$'
     """
+
+    def escaped_dollar():
+        return text.peek() == '$' and result[-1] == '\\'
+
+    def end_detected():
+        return (text.peek((0, len(starter))) == starter
+                and not escaped_dollar())
+
     result = TokenWithPosition('', text.position)
     if text.startswith('$'):
         starter = '$$' if text.startswith('$$') else '$'
         result += text.forward(len(starter))
-        while text.hasNext() and text.peek((0, len(starter))) != starter:
+        while text.hasNext() and not end_detected():
             result += next(text)
         if not text.startswith(starter):
             raise EOFError('Expecting %s. Instead got %s' % (
