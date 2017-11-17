@@ -119,6 +119,26 @@ def tokenize_command(text):
         return next(text)
 
 
+@token('line_comment')
+def tokenize_line_comment(text):
+    r"""Process a line comment
+
+    :param Buffer text: iterator over line, with current position
+
+    >>> tokenize_line_comment(Buffer('hello %world'))
+    >>> tokenize_line_comment(Buffer('%hello world'))
+    '%hello world'
+    >>> tokenize_line_comment(Buffer('%hello\n world'))
+    '%hello'
+    """
+    result = TokenWithPosition('', text.position)
+    if text.peek() == '%':
+        result += text.forward(1)
+        while text.peek() != '\n' and text.hasNext():
+            result += text.forward(1)
+        return result
+
+
 @token('argument')
 def tokenize_argument(text):
     """Process both optional and required arguments.
@@ -165,7 +185,7 @@ def tokenize_math(text):
 def tokenize_string(text, delimiters=ALL_TOKENS):
     r"""Process a string of text
 
-    :param Buffer line: iterator over line, with current position
+    :param Buffer text: iterator over line, with current position
 
     >>> tokenize_string(Buffer('hello'))
     'hello'

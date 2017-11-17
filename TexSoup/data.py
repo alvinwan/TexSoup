@@ -369,7 +369,10 @@ class Arg(object):
                 if [s[0], s[-1]] == arg.delims():
                     return arg(*s[1:-1])
             raise TypeError('Malformed argument. First and last elements must '
-                            'match a valid argument format:', s)
+                            'match a valid argument format. In this case, TexSoup'
+                            ' could not find matching punctuation for: %s.\n'
+                            'Common issues include: Unescaped special characters,'
+                            ' mistyped closing punctuation, misalignment.' % (str(s)))
         for arg in args:
             if arg.__is__(s):
                 return arg(arg.__strip__(s))
