@@ -9,7 +9,7 @@ install:
   - python3 setup.py install
 
 script:
-  - coverage run setup.py test
+  - py.test --cov
 
 after_success:
-  - coveralls
+  - CI=true TRAVIS=true coveralls

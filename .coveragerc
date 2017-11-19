@@ -1,8 +1,6 @@
 [run]
-branch = True
 include = TexSoup/*
-omit =
-    *__init__.py
+omit = tests/*
 
 [report]
 # Regexes for lines to exclude from consideration
