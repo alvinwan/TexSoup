@@ -127,6 +127,10 @@ class TexNode(object):
 
     def add_children_at(self, i, *nodes):
         """Add a node to its list of children, inserted at position i."""
+        assert isinstance(i, int), (
+            'Provided index "%s" is not an integer! Did you switch your '
+            'arguments? The first argument to `add_children_at` is the '
+            'index.' % str(i))
         self.expr.add_contents_at(i, *nodes)
 
     def remove_child(self, node):
@@ -159,6 +163,11 @@ class TexNode(object):
         return list(self.contents)[item]
 
     def __iter__(self):
+        """
+        >>> node = TexNode(TexEnv('lstlisting', ('hai', 'there')))
+        >>> list(node)
+        ['hai', 'there']
+        """
         return self.contents
 
     def __str__(self):
@@ -199,9 +208,8 @@ class TexExpr(object):
         self._contents.extend(contents)
 
     def add_contents_at(self, i, *contents):
-        self._contents = self._contents[:i] + \
-                         list(contents) + \
-                         self._contents[i:]
+        for j, content in enumerate(contents):
+            self._contents.insert(i + j, content)
 
     def remove_content(self, expr):
         """Remove a provided expression from its list of contents.
@@ -220,7 +228,12 @@ class TexExpr(object):
     @property
     def tokens(self):
         """Further breaks down all tokens for a particular expression into
-        words and other expressions."""
+        words and other expressions.
+
+        >>> tex = TexEnv('lstlisting', ('var x = 10',))
+        >>> list(tex.tokens)
+        ['var x = 10']
+        """
         for content in self.contents:
             if isinstance(content, TokenWithPosition):
                 for word in content.split():
@@ -340,7 +353,14 @@ class TexCmd(TexExpr):
 
 
 class Arg(object):
-    """LaTeX command argument"""
+    """LaTeX command argument
+
+    >>> arg = Arg('huehue')
+    >>> arg[0]
+    'h'
+    >>> arg[1:]
+    'uehue'
+    """
 
     def __init__(self, *exprs):
         """Initialize argument using list of expressions.

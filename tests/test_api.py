@@ -99,3 +99,9 @@ def test_add_children(chikin):
     """Add a child to the parse tree"""
     chikin.section.add_children('asdfghjkl')
     assert 'asdfghjkl' in str(chikin.section)
+
+def test_add_children_at(chikin):
+    """Add a child to the parse tree at a specific position"""
+    chikin.add_children_at(0, 'asdfghjkl')
+    assert 'asdfghjkl' in str(chikin)
+    assert str(chikin[0]) == 'asdfghjkl'
