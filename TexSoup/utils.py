@@ -85,7 +85,8 @@ class TokenWithPosition(str):
         return hash(self.text)
 
     def __add__(self, other):
-        """
+        """Implements addition in the form of TextWithPosition(...) + (obj).
+
         >>> t1 = TokenWithPosition('as', 0) + TokenWithPosition('df', 1)
         >>> str(t1)
         'asdf'
@@ -105,7 +106,12 @@ class TokenWithPosition(str):
                                      self.position)
 
     def __radd__(self, other):
-        """
+        """Implements addition in the form of (obj) + TextWithPosition(...).
+
+        Note that if the first element is TokenWithPosition,
+        TokenWithPosition(...).__add__(...) will be used. As a result, we
+        can assume WLOG that `other` is a type other than TokenWithPosition.
+
         >>> t1 = TokenWithPosition('as', 2) + TokenWithPosition('dfg', 2)
         >>> str(t1)
         'asdfg'
@@ -117,12 +123,8 @@ class TokenWithPosition(str):
         >>> t2.position
         0
         """
-        if isinstance(other, TokenWithPosition):
-            return TokenWithPosition(other.text + self.text,
-                                     other.position)
-        else:
-            return TokenWithPosition(other + self.text,
-                                     self.position - len(other))
+        return TokenWithPosition(other + self.text,
+                                 self.position - len(other))
 
     def __iadd__(self, other):
         if isinstance(other, TokenWithPosition):
@@ -148,6 +150,8 @@ class TokenWithPosition(str):
         True
         >>> 'reg' in TokenWithPosition('corgi', 0)
         False
+        >>> TokenWithPosition('rg', 0) in TokenWithPosition('corgi', 0)
+        True
         """
         if isinstance(item, TokenWithPosition):
             return item.text in self.text
@@ -335,6 +339,16 @@ class CharToLineOffset(object):
     to line_no:char_no_in_line.
     This can be very useful if we want to parse LaTeX and
     navigate to some elements in the generated DVI/PDF via SyncTeX.
+
+    >>> clo = CharToLineOffset('''hello
+    ... world
+    ... I scream for ice cream!''')
+    >>> clo(3)
+    (0, 3)
+    >>> clo(6)
+    (1, 0)
+    >>> clo(12)
+    (2, 0)
     """
     def __init__(self, src):
         self.line_break_positions = [i for i, c in enumerate(src) if c == '\n']

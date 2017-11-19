@@ -127,6 +127,10 @@ class TexNode(object):
 
     def add_children_at(self, i, *nodes):
         """Add a node to its list of children, inserted at position i."""
+        assert isinstance(i, int), (
+            'Provided index "%s" is not an integer! Did you switch your '
+            'arguments? The first argument to `add_children_at` is the '
+            'index.' % str(i))
         self.expr.add_contents_at(i, *nodes)
 
     def remove_child(self, node):
@@ -199,9 +203,8 @@ class TexExpr(object):
         self._contents.extend(contents)
 
     def add_contents_at(self, i, *contents):
-        self._contents = self._contents[:i] + \
-                         list(contents) + \
-                         self._contents[i:]
+        for j, content in enumerate(contents):
+            self._contents.insert(i + j, content)
 
     def remove_content(self, expr):
         """Remove a provided expression from its list of contents.
@@ -340,7 +343,14 @@ class TexCmd(TexExpr):
 
 
 class Arg(object):
-    """LaTeX command argument"""
+    """LaTeX command argument
+
+    >>> arg = Arg('huehue')
+    >>> arg[0]
+    'h'
+    >>> arg[1:]
+    'uehue'
+    """
 
     def __init__(self, *exprs):
         """Initialize argument using list of expressions.
