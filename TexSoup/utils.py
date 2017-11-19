@@ -50,16 +50,24 @@ def to_buffer(f, i=0):
 #########################
 
 
-class TokenWithPosition(object):
-    def __init__(self, text, position):
+class TokenWithPosition(str):
+    """Enhanced string object with knowledge of global position."""
+
+    def __new__(cls, text, position):
+        """Initializer for pseudo-string object.
+
+        :param text: The original string
+        :param position: Position in the original buffer
+        """
+        self = str.__new__(cls, text)
         if isinstance(text, TokenWithPosition):
             self.text, self.position = text.text, text.position
         else:
             self.text = text
             self.position = position
+        return self
 
     def __repr__(self):
-#         return '{}:{}'.format(self.position, repr(self.text))
         return repr(self.text)
 
     def __str__(self):
