@@ -163,6 +163,11 @@ class TexNode(object):
         return list(self.contents)[item]
 
     def __iter__(self):
+        """
+        >>> node = TexNode(TexEnv('lstlisting', ('hai', 'there')))
+        >>> list(node)
+        ['hai', 'there']
+        """
         return self.contents
 
     def __str__(self):
@@ -223,7 +228,12 @@ class TexExpr(object):
     @property
     def tokens(self):
         """Further breaks down all tokens for a particular expression into
-        words and other expressions."""
+        words and other expressions.
+
+        >>> tex = TexEnv('lstlisting', ('var x = 10',))
+        >>> list(tex.tokens)
+        ['var x = 10']
+        """
         for content in self.contents:
             if isinstance(content, TokenWithPosition):
                 for word in content.split():
