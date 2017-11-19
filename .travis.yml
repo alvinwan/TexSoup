@@ -5,6 +5,9 @@ sudo: false
 python:
   - "3.4.2"
 
+install:
+  - pip install pytest pytest-cov coverage==3.7.1 coveralls==1.1
+
 script:
   - py.test --cov
 
