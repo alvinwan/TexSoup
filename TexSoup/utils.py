@@ -16,12 +16,10 @@ import functools, bisect
 ##############
 
 
-def to_buffer(f, i=0):
+def to_buffer(f):
     """
     Decorator converting all strings and iterators/iterables into
     Buffers.
-
-    :param int i: index of iterator argument. Used only if not a kwarg.
 
     >>> f = to_buffer(lambda x: x[:])
     >>> f('asdf')
@@ -34,15 +32,10 @@ def to_buffer(f, i=0):
     """
     @functools.wraps(f)
     def wrap(*args, **kwargs):
-        iterator = kwargs.get('iterator', args[i])
+        iterator = kwargs.get('iterator', args[0])
         if not isinstance(iterator, Buffer):
             iterator = Buffer(iterator)
-        if 'iterator' in kwargs:
-            kwargs['iterator'] = iterator
-        else:
-            args = list(args)
-            args[i] = iterator
-        return f(*args, **kwargs)
+        return f(iterator, *args[1:], **kwargs)
     return wrap
 
 #########################
@@ -77,6 +70,12 @@ class TokenWithPosition(str):
         return getattr(self.text, name)
 
     def __eq__(self, other):
+        """
+        >>> TokenWithPosition('asdf', 0) == TokenWithPosition('asdf', 2)
+        True
+        >>> TokenWithPosition('asdf', 0) == TokenWithPosition('asd', 0)
+        False
+        """
         if isinstance(other, TokenWithPosition):
             return self.text == other.text
         else:
@@ -86,6 +85,18 @@ class TokenWithPosition(str):
         return hash(self.text)
 
     def __add__(self, other):
+        """
+        >>> t1 = TokenWithPosition('as', 0) + TokenWithPosition('df', 1)
+        >>> str(t1)
+        'asdf'
+        >>> t1.position
+        0
+        >>> t2 = TokenWithPosition('as', 1) + 'df'
+        >>> str(t2)
+        'asdf'
+        >>> t2.position
+        1
+        """
         if isinstance(other, TokenWithPosition):
             return TokenWithPosition(self.text + other.text,
                                      self.position)
@@ -94,6 +105,18 @@ class TokenWithPosition(str):
                                      self.position)
 
     def __radd__(self, other):
+        """
+        >>> t1 = TokenWithPosition('as', 2) + TokenWithPosition('dfg', 2)
+        >>> str(t1)
+        'asdfg'
+        >>> t1.position
+        2
+        >>> t2 = 'as' + TokenWithPosition('dfg', 2)
+        >>> str(t2)
+        'asdfg'
+        >>> t2.position
+        0
+        """
         if isinstance(other, TokenWithPosition):
             return TokenWithPosition(other.text + self.text,
                                      other.position)
@@ -120,11 +143,21 @@ class TokenWithPosition(str):
         return bool(self.text)
 
     def __contains__(self, item):
+        """
+        >>> 'rg' in TokenWithPosition('corgi', 0)
+        True
+        >>> 'reg' in TokenWithPosition('corgi', 0)
+        False
+        """
         if isinstance(item, TokenWithPosition):
             return item.text in self.text
         return item in self.text
 
     def __iter__(self):
+        """
+        >>> list(TokenWithPosition('asdf', 0))
+        ['a', 's', 'd', 'f']
+        """
         return iter(self.__iter())
 
     def __iter(self):
@@ -156,10 +189,6 @@ class TokenWithPosition(str):
         stripped = self.text.strip()
         offset = self.text.find(stripped)
         return TokenWithPosition(stripped, self.position + offset)
-
-
-def identity(x):
-    return x
 
 
 class Buffer:
@@ -301,12 +330,12 @@ class Buffer:
 
 
 class CharToLineOffset(object):
-    '''
+    """
     Utility to convert absolute position in the source file
     to line_no:char_no_in_line.
     This can be very useful if we want to parse LaTeX and
     navigate to some elements in the generated DVI/PDF via SyncTeX.
-    '''
+    """
     def __init__(self, src):
         self.line_break_positions = [i for i, c in enumerate(src) if c == '\n']
         self.src_len = len(src)
