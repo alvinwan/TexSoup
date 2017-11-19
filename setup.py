@@ -2,9 +2,8 @@ import sys
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
 
-tests_require = ['pytest', 'coverage == 3.7.1', 'coveralls == 1.1']
+tests_require = ['pytest', 'pytest-cov==2.5.1', 'coverage == 3.7.1', 'coveralls == 1.1']
 install_requires = []
-
 
 class PyTest(TestCommand):
 
