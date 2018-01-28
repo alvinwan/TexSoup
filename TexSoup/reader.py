@@ -266,8 +266,9 @@ def read_env(src, expr, whitespace=''):
     while src.hasNext() and not src.startswith('\\end{%s}' % expr.name):
         contents.append(read_tex(src))
     if not src.startswith('\\end{%s}' % expr.name):
-        raise EOFError('Expecting \\end{%s}. Instead got %s' % (
-            expr.name, src.peek((0, 5))))
+        end = src.peek((0, 5))
+        explanation = 'Instead got %s' % end if end else 'Reached end of file.'
+        raise EOFError('Expecting \\end{%s}. %s' % (expr.name, explanation))
     else:
         src.forward(4)
     expr.add_contents(*contents)
