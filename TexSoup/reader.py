@@ -248,8 +248,6 @@ def read_math_env(src, expr, whitespace=''):
     :param whitespace str: temporary prefix for skip_envs
     """
     content = whitespace + src.forward_until({expr.name})
-    while src.peek(-1) == '\\':
-        content += src.forward_until(expr.name)
     if not src.startswith(expr.name):
         end = src.peek()
         explanation = 'Instead got %s' % end if end else 'Reached end of file.'

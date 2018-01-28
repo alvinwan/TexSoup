@@ -127,6 +127,15 @@ class TokenWithPosition(str):
                                  self.position - len(other))
 
     def __iadd__(self, other):
+        """Implements addition in the form of TextWithPosition(...) += ...
+
+        >>> t1 = TokenWithPosition('as', 0)
+        >>> t1 += 'df'
+        >>> str(t1)
+        'asdf'
+        >>> t1.position
+        0
+        """
         if isinstance(other, TokenWithPosition):
             self.text += other.text
         else:
@@ -169,6 +178,16 @@ class TokenWithPosition(str):
             yield TokenWithPosition(c, self.position + i)
 
     def __getitem__(self, i):
+        """Access characters in object just as with strings.
+
+        >>> t1 = TokenWithPosition('asdf', 2)
+        >>> t1[0]
+        'a'
+        >>> t1[-1]
+        'f'
+        >>> t1[:]
+        'asdf'
+        """
         if isinstance(i, int):
             start = i
         else:
@@ -277,6 +296,10 @@ class Buffer:
         'abc'
         >>> b.forward_until({'f'})
         'de'
+        >>> b.forward_until('ambiguousstring')
+        Traceback (most recent call last):
+        ...
+        UserWarning: forward_until accepts a set of strs, not a str
         """
         c = ''
         if isinstance(matches, str):
@@ -295,10 +318,14 @@ class Buffer:
         'abc'
         >>> b.forward_until_not(set('de'))
         'de'
+        >>> b.forward_until_not('ambiguousstring')
+        Traceback (most recent call last):
+        ...
+        UserWarning: forward_until_not accepts a set strs, not a str
         """
         c = ''
         if isinstance(matches, str):
-            raise UserWarning('forward_until accepts a set of strs, not a str')
+            raise UserWarning('forward_until_not accepts a set strs, not a str')
         while self.hasNext() and any(self.startswith(s) for s in matches):
             c += self.forward(1)
         return c
