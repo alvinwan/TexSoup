@@ -181,6 +181,12 @@ def test_math_environment_weirdness():
     assert '$' in str(next(soup2.a.contents)), 'Math env not found in begin env'
 
 
+def test_item_parsing():
+    """Tests that item parsing is valid."""
+    soup = TexSoup(r"""\item aaa {\bbb} ccc""")
+    assert str(soup.item) == r'\item aaa {\bbb} ccc'
+
+
 ##############
 # FORMATTING #
 ##############
