@@ -88,14 +88,14 @@ def test_command_name_parse():
     Arguments can be separated from a command name by at most one line break
     and any other whitespace.
     """
-    with_space_not_arg = TexSoup(r"""\Question (10 points)""")
-    assert with_space_not_arg.Question is not None
-    assert with_space_not_arg.Question.extra == '(10 points)'
+    with_space_not_arg = TexSoup(r"""\item (10 points)""")
+    assert with_space_not_arg.item is not None
+    assert with_space_not_arg.item.extra == '(10 points)'
 
-    with_linebreak_not_arg = TexSoup(r"""\Question
+    with_linebreak_not_arg = TexSoup(r"""\item
 (10 points)""")
-    assert with_linebreak_not_arg.Question is not None
-    assert with_linebreak_not_arg.Question.extra == '(10 points)'
+    assert with_linebreak_not_arg.item is not None
+    assert with_linebreak_not_arg.item.extra == '(10 points)'
 
     with_space_with_arg = TexSoup(r"""\section {hula}""")
     assert with_space_with_arg.section.string == 'hula'
@@ -229,6 +229,14 @@ def test_punctuation_command_structure():
     \right\langle \right\lfloor \right\lceil \right\ulcorner""")
     assert len(list(soup.contents)) == 8
     assert len(list(soup.children)) == 8
+
+
+def test_non_punctuation_command_structure():
+    """Tests that normal commands do not include punctuation in the command."""
+    soup = TexSoup(r"""\mycommand, hello""")
+    contents = list(soup.contents)
+    assert '\mycommand' == str(contents[0]), \
+        'Comma considered part of the command.'
 
 
 ##########

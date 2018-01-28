@@ -1,8 +1,7 @@
 from TexSoup.utils import to_buffer, Buffer, TokenWithPosition
 from TexSoup.data import *
 import TexSoup.data as data
-import functools
-import itertools
+import string
 
 __all__ = ['tokenize', 'read_tex']
 
@@ -19,7 +18,7 @@ BRACKETS_DELIMITERS = {'(', ')', '<', '>', '\[', '[', ']', '{',
                        r'\ulcorner', r'\urcorner', '\lbrack', '\rbrack'}
 PUNCTUATION_COMMANDS = {command + bracket
                         for command in ('left', 'right')
-                        for bracket in BRACKETS_DELIMITERS}
+                        for bracket in BRACKETS_DELIMITERS.union({'|', '.'})}
 
 
 #############
@@ -37,11 +36,11 @@ def next_token(text):
 
     >>> b = Buffer(r'\textbf{Do play\textit{nice}.}   $$\min_w \|w\|_2^2$$')
     >>> print(next_token(b), next_token(b), next_token(b), next_token(b))
-    \ textbf { Do play
+    \textbf { Do play \textit
     >>> print(next_token(b), next_token(b), next_token(b), next_token(b))
-    \ textit { nice
-    >>> print(next_token(b), next_token(b), next_token(b))
-    } . }
+    { nice } .
+    >>> print(next_token(b))
+    }
     >>> print(next_token(Buffer('.}')))
     .
     >>> next_token(b)
@@ -64,9 +63,9 @@ def tokenize(text):
     :param (str, iterator, Buffer) text: LaTeX to process
 
     >>> print(*tokenize(r'\textbf{Do play \textit{nice}.}'))
-    \ textbf { Do play  \ textit { nice } . }
+    \textbf { Do play  \textit { nice } . }
     >>> print(*tokenize(r'\begin{tabular} 0 & 1 \\ 2 & 0 \end{tabular}'))
-    \ begin { tabular }  0 & 1 \\ 2 & 0  \ end { tabular }
+    \begin { tabular }  0 & 1 \\ 2 & 0  \end { tabular }
     >>> print(*tokenize(r'$$\min_x \|Xw-y\|_2^2$$'))
     $$\min_x \|Xw-y\|_2^2$$
     """
@@ -115,8 +114,12 @@ def tokenize_command(text):
 
     :param Buffer text: iterator over line, with current position
     """
-    if text.peek() == '\\' and text.peek(1) not in ALL_TOKENS:
-        return next(text)
+    if text.peek() == '\\':
+        c = text.forward(1)
+        tokens = string.punctuation + string.whitespace
+        while text.hasNext() and text.peek() not in tokens:
+            c += text.forward(1)
+        return c
 
 
 @token('line_comment')
@@ -224,20 +227,20 @@ def read_tex(src):
     if c.startswith('$'):
         name = '$$' if c.startswith('$$') else '$'
         return TexEnv(name, [c[len(name):-len(name)]], nobegin=True)
-    if c == '\\':
-        if src.peek().startswith('item '):
-            mode, expr = 'command', TexCmd(src.peek()[:4], (),
-                TokenWithPosition.join(next(src).split(' ')[1:], glue=' ').strip())
-        elif src.peek() == 'begin':
-            mode, expr = next(src), TexEnv(Arg.parse(src.forward(3)).value)
+    if c.startswith('\\'):
+        command = TokenWithPosition(c[1:], 0)
+        if command == 'item':
+            mode, expr = 'command', TexCmd(command, (),
+                TokenWithPosition.join(next(src).split(' '), glue=' ').strip())
+        elif command == 'begin':
+            mode, expr = 'begin', TexEnv(Arg.parse(src.forward(3)).value)
         else:
-            mode, candidate, expr = 'command', next(src), None
-            for i, c in enumerate(candidate):
-                if c.isspace():
-                    expr = TexCmd(candidate[:i], (), candidate[i+1:])
-                    break
-            if not expr:
-                expr = TexCmd(candidate)
+            mode, expr = 'command', TexCmd(command)
+
+        # TODO: allow this whitespace between arguments
+        # TODO: allow only one line break
+        src.forward_until_not(set(string.whitespace))
+
         while src.peek() in ARG_START_TOKENS:
             expr.args.append(read_tex(src))
         if mode == 'begin':
@@ -245,8 +248,6 @@ def read_tex(src):
         if src.startswith('$'):
             expr.add_contents(read_tex(src))
         return expr
-    if c.startswith('\\'):
-        return TexCmd(c[1:])
     if c in ARG_START_TOKENS:
         return read_arg(src, c)
     return c
@@ -262,21 +263,15 @@ def read_env(src, expr):
     :param TexExpr expr: expression for the environment
     """
     contents = []
+    if expr.name in SKIP_ENVS:
+        contents = [src.forward_until({'\\end'})]
     while src.hasNext() and not src.startswith('\\end{%s}' % expr.name):
-        if expr.name in SKIP_ENVS:
-            if not contents:
-                contents = [next(src)]
-            else:
-                contents[-1] = contents[-1] + next(src)
-        elif src.peek() in ALL_TOKENS:
-            contents.append(read_tex(src))
-        else:
-            contents.append(next(src))
+        contents.append(read_tex(src))
     if not src.startswith('\\end{%s}' % expr.name):
         raise EOFError('Expecting \\end{%s}. Instead got %s' % (
             expr.name, src.peek((0, 5))))
     else:
-        src.forward(5)
+        src.forward(4)
     expr.add_contents(*contents)
     return expr
 

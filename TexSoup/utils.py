@@ -267,6 +267,42 @@ class Buffer:
         self.__i += j
         return self[self.__i-j:self.__i]
 
+    def forward_until(self, matches):
+        """Forward until one of the provided matches is found.
+
+        :param matches: set of valid strings
+
+        >>> b = Buffer('abcdef')
+        >>> b.forward_until(set('def'))
+        'abc'
+        >>> b.forward_until({'f'})
+        'de'
+        """
+        c = ''
+        if isinstance(matches, str):
+            raise UserWarning('forward_until accepts a set of strs, not a str')
+        while self.hasNext() and self.peek() not in matches:
+            c += self.forward(1)
+        return c
+
+    def forward_until_not(self, matches):
+        """Forward until string no longer matches one of provided matches.
+
+        :param matches: set of valid strings
+
+        >>> b = Buffer('abcdef')
+        >>> b.forward_until_not(set('abc'))
+        'abc'
+        >>> b.forward_until_not(set('de'))
+        'de'
+        """
+        c = ''
+        if isinstance(matches, str):
+            raise UserWarning('forward_until accepts a set of strs, not a str')
+        while self.hasNext() and self.peek() in matches:
+            c += self.forward(1)
+        return c
+
     def backward(self, j=1):
         """Move backward by j steps.
 
