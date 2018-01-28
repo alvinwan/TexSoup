@@ -281,7 +281,7 @@ class Buffer:
         c = ''
         if isinstance(matches, str):
             raise UserWarning('forward_until accepts a set of strs, not a str')
-        while self.hasNext() and self.peek() not in matches:
+        while self.hasNext() and not any(self.startswith(s) for s in matches):
             c += self.forward(1)
         return c
 
@@ -299,7 +299,7 @@ class Buffer:
         c = ''
         if isinstance(matches, str):
             raise UserWarning('forward_until accepts a set of strs, not a str')
-        while self.hasNext() and self.peek() in matches:
+        while self.hasNext() and any(self.startswith(s) for s in matches):
             c += self.forward(1)
         return c
 

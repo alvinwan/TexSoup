@@ -228,32 +228,30 @@ def read_tex(src):
         name = '$$' if c.startswith('$$') else '$'
         return TexEnv(name, [c[len(name):-len(name)]], nobegin=True)
     if c.startswith('\\'):
-        command = TokenWithPosition(c[1:], 0)
+        command = TokenWithPosition(c[1:], src.position)
         if command == 'item':
+            extra = src.forward_until({'\n', '\end', '\item'})
             mode, expr = 'command', TexCmd(command, (),
-                TokenWithPosition.join(next(src).split(' '), glue=' ').strip())
+                TokenWithPosition.join(extra.split(' '), glue=' ').strip())
         elif command == 'begin':
-            mode, expr = 'begin', TexEnv(Arg.parse(src.forward(3)).value)
+            mode, expr, _ = 'begin', TexEnv(src.peek(1)), src.forward(3)
         else:
             mode, expr = 'command', TexCmd(command)
 
         # TODO: allow this whitespace between arguments
         # TODO: allow only one line break
-        src.forward_until_not(set(string.whitespace))
-
+        whitespace = src.forward_until_not(set(string.whitespace))
         while src.peek() in ARG_START_TOKENS:
             expr.args.append(read_tex(src))
         if mode == 'begin':
-            read_env(src, expr)
-        if src.startswith('$'):
-            expr.add_contents(read_tex(src))
+            read_env(src, expr, whitespace=whitespace)  # TODO: hacky fix. use src.backward instead
         return expr
     if c in ARG_START_TOKENS:
         return read_arg(src, c)
     return c
 
 
-def read_env(src, expr):
+def read_env(src, expr, whitespace=''):
     r"""Read the environment from buffer.
 
     Advances the buffer until right after the end of the environment. Adds
@@ -264,7 +262,7 @@ def read_env(src, expr):
     """
     contents = []
     if expr.name in SKIP_ENVS:
-        contents = [src.forward_until({'\\end'})]
+        contents = [whitespace + src.forward_until({'\\end'})]
     while src.hasNext() and not src.startswith('\\end{%s}' % expr.name):
         contents.append(read_tex(src))
     if not src.startswith('\\end{%s}' % expr.name):

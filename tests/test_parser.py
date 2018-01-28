@@ -92,11 +92,6 @@ def test_command_name_parse():
     assert with_space_not_arg.item is not None
     assert with_space_not_arg.item.extra == '(10 points)'
 
-    with_linebreak_not_arg = TexSoup(r"""\item
-(10 points)""")
-    assert with_linebreak_not_arg.item is not None
-    assert with_linebreak_not_arg.item.extra == '(10 points)'
-
     with_space_with_arg = TexSoup(r"""\section {hula}""")
     assert with_space_with_arg.section.string == 'hula'
 
@@ -176,6 +171,14 @@ def test_escaped_characters():
     assert str(soup.item) == r'\item Ice cream costs \$4-\$5 around here. ' \
                              r'\}\]\{\['
     assert '\\$4-\\$5' in str(soup), 'Escaped characters not properly rendered.'
+
+
+def test_math_environment_weirdness():
+    """Tests that math environment interacts correctly with other envs."""
+    soup = TexSoup(r"""\begin{a} \end{a}$ b$""")
+    assert '$' not in str(soup.a), 'Math env snuck into begin env.'
+    soup2 = TexSoup(r"""\begin{a} $ b$ \end{a}""")
+    assert '$' in str(next(soup2.a.contents)), 'Math env not found in begin env'
 
 
 ##############
