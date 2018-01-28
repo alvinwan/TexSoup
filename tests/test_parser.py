@@ -185,6 +185,10 @@ def test_item_parsing():
     """Tests that item parsing is valid."""
     soup = TexSoup(r"""\item aaa {\bbb} ccc""")
     assert str(soup.item) == r'\item aaa {\bbb} ccc'
+    soup2 = TexSoup(r"""\begin{itemize}
+\item hello $\alpha$
+\end{itemize}""")
+    assert str(soup2.item) == r'\item hello $\alpha$'
 
 
 ##############
