@@ -18,6 +18,35 @@ __all__ = ['TexNode', 'TexCmd', 'TexEnv', 'Arg', 'OArg', 'RArg', 'TexArgs']
 class TexNode(object):
     """Main abstraction for Tex source, a tree node representing both Tex
     environments and Tex commands.
+
+    Take the following example. Consider the `\begin{itemize}` environment.
+
+    ```
+    \begin{itemize}
+      Floating text
+      \item outer text
+      \begin{enumerate}
+        \item nested text
+      \end{enumerate}
+    \end{itemize}
+    ```
+
+    Here are its three properties `contents`, `children`, and `descendants`
+    below:
+
+    - `contents`: Anything and everything inside of this command. Everything
+    needed to fully reconstruct the latex.
+
+        ex. `["Floating Text", \item outer text, \begin{enumerate}]`.
+
+    - `children`: Same as contents, but filter out random pieces of text.
+
+        ex. Just `[\item outer text, \begin{enumerate}]`.
+
+    - `descendants`: all children, and all children of all children, and all
+     children of all children of all... etc.
+
+        ex. `[\item outer text, \begin{enumerate}, \item nested text]`
     """
 
     def __init__(self, expr, src=None):
