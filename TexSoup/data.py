@@ -267,7 +267,8 @@ class TexExpr(object):
             if isinstance(content, TokenWithPosition):
                 for word in content.split():
                     yield word
-            yield content
+            else:
+                yield content
 
     @property
     def children(self):
