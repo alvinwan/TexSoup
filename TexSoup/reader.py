@@ -11,7 +11,7 @@ ARG_START_TOKENS = {arg.delims()[0] for arg in data.args}
 ARG_END_TOKENS = {arg.delims()[1] for arg in data.args}
 ARG_TOKENS = ARG_START_TOKENS | ARG_END_TOKENS
 ALL_TOKENS = COMMAND_TOKENS | ARG_TOKENS | MATH_TOKENS
-SKIP_ENVS = ('verbatim', 'equation', 'lstlisting')
+SKIP_ENVS = ('verbatim', 'equation', 'lstlisting', '$', '$$')
 BRACKETS_DELIMITERS = {'(', ')', '<', '>', '\[', '[', ']', '{',
                        '\{', '\}', '.' '|', '\langle', '\rangle',
                        '\lfloor', '\rfloor', '\lceil', '\rceil',
@@ -46,8 +46,7 @@ def next_token(text):
     >>> next_token(b)
     '   '
     >>> next_token(b)
-    '$$\\min_w \\|w\\|_2^2$$'
-    >>> next_token(b)
+    '$$'
     """
     while text.hasNext():
         for name, f in tokenizers:
@@ -66,8 +65,6 @@ def tokenize(text):
     \textbf { Do play  \textit { nice } . }
     >>> print(*tokenize(r'\begin{tabular} 0 & 1 \\ 2 & 0 \end{tabular}'))
     \begin { tabular }  0 & 1 \\ 2 & 0  \end { tabular }
-    >>> print(*tokenize(r'$$\min_x \|Xw-y\|_2^2$$'))
-    $$\min_x \|Xw-y\|_2^2$$
     """
     token = next_token(text)
     while token is not None:
@@ -159,29 +156,16 @@ def tokenize_math(text):
 
     :param Buffer text: iterator over line, with current position
 
+    >>> b = Buffer('$\min_x$ \command')
+    >>> tokenize_math(b)
+    '$'
     >>> b = Buffer('$$\min_x$$ \command')
     >>> tokenize_math(b)
-    '$$\\min_x$$'
+    '$$'
     """
-
-    def escaped_dollar():
-        return text.peek() == '$' and result[-1] == '\\'
-
-    def end_detected():
-        return (text.peek((0, len(starter))) == starter
-                and not escaped_dollar())
-
-    result = TokenWithPosition('', text.position)
-    if text.startswith('$'):
+    if text.startswith('$') and (text.position == 0 or text.peek(-1) != '\\'):
         starter = '$$' if text.startswith('$$') else '$'
-        result += text.forward(len(starter))
-        while text.hasNext() and not end_detected():
-            result += next(text)
-        if not text.startswith(starter):
-            raise EOFError('Expecting %s. Instead got %s' % (
-                starter, text.peek((0, 5))))
-        result += text.forward(len(starter))
-        return result
+        return TokenWithPosition(text.forward(len(starter)), text.position)
 
 
 @token('string')
@@ -226,7 +210,8 @@ def read_tex(src):
     c = next(src)
     if c.startswith('$'):
         name = '$$' if c.startswith('$$') else '$'
-        return TexEnv(name, [c[len(name):-len(name)]], nobegin=True)
+        expr = TexEnv(name, [], nobegin=True)
+        return read_math_env(src, expr)
     if c.startswith('\\'):
         command = TokenWithPosition(c[1:], src.position)
         if command == 'item':
@@ -240,6 +225,7 @@ def read_tex(src):
 
         # TODO: allow this whitespace between arguments
         # TODO: allow only one line break
+        # TODO: should really be handled by tokenizer
         whitespace = src.forward_until_not(set(string.whitespace))
         while src.peek() in ARG_START_TOKENS:
             expr.args.append(read_tex(src))
@@ -251,6 +237,29 @@ def read_tex(src):
     return c
 
 
+def read_math_env(src, expr, whitespace=''):
+    r"""Read the environment from buffer.
+
+    Advances the buffer until right after the end of the environment. Adds
+    parsed content to the expression automatically.
+
+    :param Buffer src: a buffer of tokens
+    :param TexExpr expr: expression for the environment
+    :param whitespace str: temporary prefix for skip_envs
+    """
+    content = whitespace + src.forward_until({expr.name})
+    while src.peek(-1) == '\\':
+        content += src.forward_until(expr.name)
+    if not src.startswith(expr.name):
+        end = src.peek()
+        explanation = 'Instead got %s' % end if end else 'Reached end of file.'
+        raise EOFError('Expecting %s. %s' % (expr.name, explanation))
+    else:
+        src.forward(1)
+    expr.add_contents(content)
+    return expr
+
+
 def read_env(src, expr, whitespace=''):
     r"""Read the environment from buffer.
 
@@ -259,6 +268,7 @@ def read_env(src, expr, whitespace=''):
 
     :param Buffer src: a buffer of tokens
     :param TexExpr expr: expression for the environment
+    :param whitespace str: temporary prefix for skip_envs
     """
     contents = []
     if expr.name in SKIP_ENVS:

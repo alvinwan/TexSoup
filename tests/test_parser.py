@@ -179,6 +179,8 @@ def test_math_environment_weirdness():
     assert '$' not in str(soup.a), 'Math env snuck into begin env.'
     soup2 = TexSoup(r"""\begin{a} $ b$ \end{a}""")
     assert '$' in str(next(soup2.a.contents)), 'Math env not found in begin env'
+    soup3 = TexSoup(r"""\begin{verbatim} $ \end{verbatim}""")
+    assert soup3.verbatim is not None
 
 
 def test_item_parsing():
