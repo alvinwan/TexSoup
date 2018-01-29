@@ -286,47 +286,51 @@ class Buffer:
         self.__i += j
         return self[self.__i-j:self.__i]
 
-    def forward_until(self, matches):
+    def num_forward_until(self, condition):
         """Forward until one of the provided matches is found.
 
         :param matches: set of valid strings
 
         >>> b = Buffer('abcdef')
-        >>> b.forward_until(set('def'))
+        >>> b.num_forward_until(lambda s: s in 'def')
+        3
+        >>> b.forward(3)
         'abc'
-        >>> b.forward_until({'f'})
-        'de'
-        >>> b.forward_until('ambiguousstring')
-        Traceback (most recent call last):
-        ...
-        UserWarning: forward_until accepts a set of strs, not a str
+        >>> b.num_forward_until(lambda s: s in 'g')
+        3
+        >>> b.forward(3)
+        'def'
+        >>> b.num_forward_until(lambda s: s in 'z')
+        0
+        >>> b.backward(6)
+        'abcdef'
+        >>> b.num_forward_until(lambda s: s not in 'abc')
+        3
         """
-        c = ''
-        if isinstance(matches, str):
-            raise UserWarning('forward_until accepts a set of strs, not a str')
-        while self.hasNext() and not any(self.startswith(s) for s in matches):
+        i, c = 0, ''
+        while self.hasNext() and not condition(self.peek()):
             c += self.forward(1)
-        return c
+            i += 1
+        assert self.backward(i) == c
+        return i
 
-    def forward_until_not(self, matches):
-        """Forward until string no longer matches one of provided matches.
+    def forward_until(self, condition):
+        """Forward until one of the provided matches is found.
 
         :param matches: set of valid strings
 
         >>> b = Buffer('abcdef')
-        >>> b.forward_until_not(set('abc'))
+        >>> b.forward_until(lambda s: s in 'def')
         'abc'
-        >>> b.forward_until_not(set('de'))
+        >>> b.forward_until(lambda s: s in 'f')
         'de'
-        >>> b.forward_until_not('ambiguousstring')
-        Traceback (most recent call last):
-        ...
-        UserWarning: forward_until_not accepts a set strs, not a str
+        >>> b.backward(5)
+        'abcde'
+        >>> b.forward_until(lambda s: s not in 'abc')
+        'abc'
         """
         c = ''
-        if isinstance(matches, str):
-            raise UserWarning('forward_until_not accepts a set strs, not a str')
-        while self.hasNext() and any(self.startswith(s) for s in matches):
+        while self.hasNext() and not condition(self.peek()):
             c += self.forward(1)
         return c
 

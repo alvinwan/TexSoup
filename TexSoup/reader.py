@@ -11,7 +11,8 @@ ARG_START_TOKENS = {arg.delims()[0] for arg in data.args}
 ARG_END_TOKENS = {arg.delims()[1] for arg in data.args}
 ARG_TOKENS = ARG_START_TOKENS | ARG_END_TOKENS
 ALL_TOKENS = COMMAND_TOKENS | ARG_TOKENS | MATH_TOKENS
-SKIP_ENVS = ('verbatim', 'equation', 'lstlisting', '$', '$$')
+SKIP_ENVS = ('verbatim', 'equation', 'lstlisting', '$', '$$', 'align',
+             'equation*', 'align*')
 BRACKETS_DELIMITERS = {'(', ')', '<', '>', '\[', '[', ']', '{',
                        '\{', '\}', '.' '|', '\langle', '\rangle',
                        '\lfloor', '\rfloor', '\lceil', '\rceil',
@@ -47,6 +48,9 @@ def next_token(text):
     '   '
     >>> next_token(b)
     '$$'
+    >>> b2 = Buffer(r'\gamma = \beta')
+    >>> print(next_token(b2), next_token(b2), next_token(b2))
+    \gamma  =  \beta
     """
     while text.hasNext():
         for name, f in tokenizers:
@@ -215,7 +219,8 @@ def read_tex(src):
     if c.startswith('\\'):
         command = TokenWithPosition(c[1:], src.position)
         if command == 'item':
-            extra = src.forward_until({'\n', '\end', '\item'})
+            extra = src.forward_until(lambda string: any(
+                [string.startswith(s) for s in {'\n', '\end', '\item'}]))
             mode, expr = 'command', TexCmd(command, (),
                 TokenWithPosition.join(extra.split(' '), glue=' ').strip())
         elif command == 'begin':
@@ -223,21 +228,24 @@ def read_tex(src):
         else:
             mode, expr = 'command', TexCmd(command)
 
-        # TODO: allow this whitespace between arguments
         # TODO: allow only one line break
         # TODO: should really be handled by tokenizer
-        whitespace = src.forward_until_not(set(string.whitespace))
+        candidate_index = src.num_forward_until(lambda s: not s.isspace())
+        src.forward(candidate_index)
+
         while src.peek() in ARG_START_TOKENS:
             expr.args.append(read_tex(src))
+        if not expr.args:
+            src.backward(candidate_index)
         if mode == 'begin':
-            read_env(src, expr, whitespace=whitespace)  # TODO: hacky fix. use src.backward instead
+            read_env(src, expr)
         return expr
     if c in ARG_START_TOKENS:
         return read_arg(src, c)
     return c
 
 
-def read_math_env(src, expr, whitespace=''):
+def read_math_env(src, expr):
     r"""Read the environment from buffer.
 
     Advances the buffer until right after the end of the environment. Adds
@@ -247,7 +255,7 @@ def read_math_env(src, expr, whitespace=''):
     :param TexExpr expr: expression for the environment
     :param whitespace str: temporary prefix for skip_envs
     """
-    content = whitespace + src.forward_until({expr.name})
+    content = src.forward_until(lambda s: s == expr.name)
     if not src.startswith(expr.name):
         end = src.peek()
         explanation = 'Instead got %s' % end if end else 'Reached end of file.'
@@ -258,7 +266,7 @@ def read_math_env(src, expr, whitespace=''):
     return expr
 
 
-def read_env(src, expr, whitespace=''):
+def read_env(src, expr):
     r"""Read the environment from buffer.
 
     Advances the buffer until right after the end of the environment. Adds
@@ -270,7 +278,7 @@ def read_env(src, expr, whitespace=''):
     """
     contents = []
     if expr.name in SKIP_ENVS:
-        contents = [whitespace + src.forward_until({'\\end'})]
+        contents = [src.forward_until(lambda s: s == '\\end')]
     while src.hasNext() and not src.startswith('\\end{%s}' % expr.name):
         contents.append(read_tex(src))
     if not src.startswith('\\end{%s}' % expr.name):
