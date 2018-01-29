@@ -70,8 +70,8 @@ def TexSoup(tex):
     True
     >>> soup.textit.replace('S')
     >>> soup.textit.replace('U', 'P')
-    >>> ''.join(str(soup).splitlines())
-    'SOUP'
+    >>> soup
+    SOUP
     """
     parsed, src = read(tex)
     return TexNode(parsed, src=src)

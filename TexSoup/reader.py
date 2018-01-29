@@ -117,7 +117,7 @@ def tokenize_command(text):
     """
     if text.peek() == '\\':
         c = text.forward(1)
-        tokens = string.punctuation + string.whitespace
+        tokens = set(string.punctuation + string.whitespace) - {'*'}
         while text.hasNext() and text.peek() not in tokens:
             c += text.forward(1)
         return c

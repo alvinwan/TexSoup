@@ -254,11 +254,16 @@ def test_punctuation_command_structure():
 
 
 def test_non_punctuation_command_structure():
-    """Tests that normal commands do not include punctuation in the command."""
+    """Tests that normal commands do not include punctuation in the command.
+
+    However, the asterisk is one exception.
+    """
     soup = TexSoup(r"""\mycommand, hello""")
     contents = list(soup.contents)
     assert '\mycommand' == str(contents[0]), \
         'Comma considered part of the command.'
+    soup2 = TexSoup(r"""\hspace*{0.2in} hello \hspace*{2in} world""")
+    assert len(list(soup2.contents)) == 4, '* not recognized as part of command.'
 
 
 ##########

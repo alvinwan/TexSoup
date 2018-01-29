@@ -108,7 +108,7 @@ Additionally, modify the TeX parse tree in place, to generate new LaTeX.
 True
 >>> soup.textit.replace('S')
 >>> soup.textit.replace('U', 'P')
->>> str(soup)
+>>> soup
 SOUP
 ```
 
