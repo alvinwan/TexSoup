@@ -317,6 +317,10 @@ class Buffer:
     def forward_until(self, condition):
         """Forward until one of the provided matches is found.
 
+        The returned string contains all characters found *before the condition
+        was met. In other words, the condition will be true for the remainder
+        of the buffer.
+
         :param matches: set of valid strings
 
         >>> b = Buffer('abcdef')
@@ -328,6 +332,8 @@ class Buffer:
         'abcde'
         >>> b.forward_until(lambda s: s not in 'abc')
         'abc'
+        >>> b.forward_until(lambda s: s in 'def')
+        ''
         """
         c = ''
         while self.hasNext() and not condition(self.peek()):

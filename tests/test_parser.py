@@ -191,6 +191,29 @@ def test_item_parsing():
 \item hello $\alpha$
 \end{itemize}""")
     assert str(soup2.item) == r'\item hello $\alpha$'
+    soup = TexSoup(r"""\begin{itemize}
+\item
+\item first item
+\item second item
+\item
+
+
+third item
+with third item
+
+floating text
+\end{itemize}""")
+    zeroitem = soup.item.extra
+    assert not zeroitem, \
+        'Zeroth item should not include content, but contains: {}'\
+            .format(zeroitem)
+    thirditem = str(list(soup.find_all('item'))[3])
+    assert 'third item' in thirditem, \
+        'Item does not tolerate starting line breaks (as it should)'
+    assert 'with' in thirditem, \
+        'Item does not tolerate line break in middle (as it should)'
+    assert 'floating' not in thirditem, \
+        'Item should not tolerate multiple line breaks in middle'
 
 
 def test_comment_escaping():

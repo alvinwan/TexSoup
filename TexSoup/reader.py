@@ -199,6 +199,9 @@ def tokenize_string(text, delimiters=ALL_TOKENS):
         result += c
         if text.peek((0, 2)) == '\\\\':
             result += text.forward(2)
+        if text.peek((0, 2)) == '\n\n':
+            result += text.forward(2)
+            return result
     return result
 
 
@@ -222,8 +225,7 @@ def read_tex(src):
     if c.startswith('\\'):
         command = TokenWithPosition(c[1:], src.position)
         if command == 'item':
-            extra = src.forward_until(lambda string: any(
-                [string.startswith(s) for s in {'\n', '\end', '\item'}]))
+            extra = read_item(src)
             mode, expr = 'command', TexCmd(command, (),
                 TokenWithPosition.join(extra.split(' '), glue=' ').strip())
         elif command == 'begin':
@@ -246,6 +248,30 @@ def read_tex(src):
     if c in ARG_START_TOKENS:
         return read_arg(src, c)
     return c
+
+
+def read_item(src):
+    r"""Read the item content.
+
+    There can be any number of whitespace characters between \item and the first
+    non-whitespace character. However, after that first non-whitespace
+    character, the item can only tolerate one successive line break at a time.
+
+    :param Buffer src: a buffer of tokens
+    :return: contents of the item
+    """
+    whitespace = string.whitespace
+    extra = src.forward_until(lambda string: not any(
+        [string.startswith(s) for s in whitespace]))
+    extra += src.forward_until(lambda string: any(
+        [string.startswith(s) for s in ('\end', '\item')]) or
+        string.endswith('\n\n'))
+
+    # TODO hack, since we want to include the last token before a double
+    # line break
+    if src.endswith('\n\n'):
+        extra += src.forward(1)
+    return extra
 
 
 def read_math_env(src, expr):
