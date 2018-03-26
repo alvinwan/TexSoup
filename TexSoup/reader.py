@@ -7,10 +7,11 @@ __all__ = ['tokenize', 'read_tex']
 
 COMMAND_TOKENS = {'\\'}
 MATH_TOKENS = {'$'}
+COMMENT_TOKENS = {'%'}
 ARG_START_TOKENS = {arg.delims()[0] for arg in data.args}
 ARG_END_TOKENS = {arg.delims()[1] for arg in data.args}
 ARG_TOKENS = ARG_START_TOKENS | ARG_END_TOKENS
-ALL_TOKENS = COMMAND_TOKENS | ARG_TOKENS | MATH_TOKENS
+ALL_TOKENS = COMMAND_TOKENS | ARG_TOKENS | MATH_TOKENS | COMMENT_TOKENS
 SKIP_ENVS = ('verbatim', 'equation', 'lstlisting', '$', '$$', 'align',
              'equation*', 'align*')
 BRACKETS_DELIMITERS = {'(', ')', '<', '>', '\[', '[', ']', '{',
@@ -136,7 +137,7 @@ def tokenize_line_comment(text):
     '%hello'
     """
     result = TokenWithPosition('', text.position)
-    if text.peek() == '%':
+    if text.peek() == '%' and text.peek(-1) != '\\':
         result += text.forward(1)
         while text.peek() != '\n' and text.hasNext():
             result += text.forward(1)
@@ -212,6 +213,8 @@ def read_tex(src):
     :param Buffer src: a buffer of tokens
     """
     c = next(src)
+    if c.startswith('%'):
+        return c
     if c.startswith('$'):
         name = '$$' if c.startswith('$$') else '$'
         expr = TexEnv(name, [], nobegin=True)

@@ -193,6 +193,19 @@ def test_item_parsing():
     assert str(soup2.item) == r'\item hello $\alpha$'
 
 
+def test_comment_escaping():
+    """Tests that comments can be escaped properly."""
+    soup = TexSoup(r"""\caption{ 30 \%}""")
+    assert '%' in str(soup.caption), 'Comment not escaped properly'
+
+
+def test_comment_unparsed():
+    """Tests that comments are not parsed."""
+    soup = TexSoup(r"""\caption{30} % \caption{...""")
+    assert '%' not in str(soup.caption)
+
+
+
 ##############
 # FORMATTING #
 ##############
@@ -269,6 +282,18 @@ def test_non_punctuation_command_structure():
 ##########
 # ERRORS #
 ##########
+
+
+def test_unclosed_commands():
+    """Tests that unclosed commands result in an error."""
+    with pytest.raises(TypeError):
+        TexSoup(r"""\textit{hello""")
+
+    with pytest.raises(TypeError):
+        TexSoup(r"""\textit{hello %}""")
+
+    with pytest.raises(TypeError):
+        TexSoup(r"""\textit{hello \\%}""")
 
 
 def test_unclosed_environments():
