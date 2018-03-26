@@ -14,12 +14,13 @@ ARG_TOKENS = ARG_START_TOKENS | ARG_END_TOKENS
 ALL_TOKENS = COMMAND_TOKENS | ARG_TOKENS | MATH_TOKENS | COMMENT_TOKENS
 SKIP_ENVS = ('verbatim', 'equation', 'lstlisting', '$', '$$', 'align',
              'equation*', 'align*')
-BRACKETS_DELIMITERS = {'(', ')', '<', '>', '\[', '[', ']', '{',
+BRACKETS_DELIMITERS = {'(', ')', '<', '>', '\[', '[', ']', '{', '}',
                        '\{', '\}', '.' '|', '\langle', '\rangle',
                        '\lfloor', '\rfloor', '\lceil', '\rceil',
                        r'\ulcorner', r'\urcorner', '\lbrack', '\rbrack'}
+SIZE_PREFIX = ('left', 'right', 'big', 'Big', 'bigg', 'Bigg')
 PUNCTUATION_COMMANDS = {command + bracket
-                        for command in ('left', 'right')
+                        for command in SIZE_PREFIX
                         for bracket in BRACKETS_DELIMITERS.union({'|', '.'})}
 
 

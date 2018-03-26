@@ -284,9 +284,10 @@ def test_math_environment_escape():
 def test_punctuation_command_structure():
     """Tests that commands for punctuation work."""
     soup = TexSoup(r"""\right. \right[ \right( \right|
-    \right\langle \right\lfloor \right\lceil \right\ulcorner""")
-    assert len(list(soup.contents)) == 8
-    assert len(list(soup.children)) == 8
+    \right\langle \right\lfloor \right\lceil \right\ulcorner \big{ \bigg{
+    \Big{ \Bigg}""")
+    assert len(list(soup.contents)) == 12
+    assert len(list(soup.children)) == 12
 
 
 def test_non_punctuation_command_structure():
