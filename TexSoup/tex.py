@@ -11,7 +11,7 @@ def read(tex):
     :return TexEnv: the global environment
     """
     if isinstance(tex, str):
-        tex = tex.strip()
+        tex = tex
     else:
         tex = ''.join(itertools.chain(*tex))
     buf, children = Buffer(tokenize(tex)), []

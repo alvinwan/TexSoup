@@ -227,8 +227,7 @@ def read_tex(src):
         command = TokenWithPosition(c[1:], src.position)
         if command == 'item':
             extra = read_item(src)
-            mode, expr = 'command', TexCmd(command, (),
-                TokenWithPosition.join(extra.split(' '), glue=' ').strip())
+            mode, expr = 'command', TexCmd(command, (), extra)
         elif command == 'begin':
             mode, expr, _ = 'begin', TexEnv(src.peek(1)), src.forward(3)
         else:
@@ -261,17 +260,28 @@ def read_item(src):
     :param Buffer src: a buffer of tokens
     :return: contents of the item
     """
-    whitespace = string.whitespace
-    extra = src.forward_until(lambda string: not any(
-        [string.startswith(s) for s in whitespace]))
-    extra += src.forward_until(lambda string: any(
-        [string.startswith(s) for s in ('\end', '\item')]) or
-        string.endswith('\n\n'))
+    stringify = lambda s: TokenWithPosition.join(s.split(' '), glue=' ')
+
+    def criterion(s):
+        """Catch the first non-whitespace character"""
+        return not any([s.startswith(substr) for substr in string.whitespace])
+
+    last = stringify(src.forward_until(criterion))
+    if last.startswith(' '):
+        last = last[1:]
+    extra = [last]
+
+    while src.hasNext() and not src.startswith('\n\n') and \
+            not src.startswith('\item') and \
+            not src.startswith('\end') and \
+            not (hasattr(last, 'endswith') and last.endswith('\n\n')):
+        last = read_tex(src)
+        extra.append(last)
 
     # TODO hack, since we want to include the last token before a double
     # line break
     if src.endswith('\n\n'):
-        extra += src.forward(1)
+        extra.append(stringify(src.forward(1)))
     return extra
 
 

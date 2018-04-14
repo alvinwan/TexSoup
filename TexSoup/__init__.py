@@ -60,10 +60,18 @@ def TexSoup(tex):
     \end{tabular}
     >>> soup.tabular.args[0]
     'c c'
+    >>> soup.itemize
+    \begin{itemize}
+    \item red lemon
+    \item life
+    \end{itemize}
     >>> soup.item
     \item red lemon
+    ...
     >>> list(soup.find_all('item'))
-    [\item red lemon, \item life]
+    [\item red lemon
+    , \item life
+    ]
     >>> soup = TexSoup(r'''\textbf{'Hello'}\textit{'Y'}O\textit{'U'}''')
     >>> soup.textbf.delete()
     >>> 'Hello' not in repr(soup)

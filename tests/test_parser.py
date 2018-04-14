@@ -90,7 +90,8 @@ def test_command_name_parse():
     """
     with_space_not_arg = TexSoup(r"""\item (10 points)""")
     assert with_space_not_arg.item is not None
-    assert with_space_not_arg.item.extra == '(10 points)'
+    assert len(with_space_not_arg.item.extra) == 1
+    assert with_space_not_arg.item.extra[0] == '(10 points)'
 
     with_space_with_arg = TexSoup(r"""\section {hula}""")
     assert with_space_with_arg.section.string == 'hula'
@@ -155,7 +156,7 @@ def test_inline_math():
     \item This $e^{i\pi} = -1$
     \end{itemize}""")
     assert '$e^{i\pi} = -1$' in str(soup), 'Math environment not intact.'
-    assert str(soup.item).endswith('$e^{i\pi} = -1$'), \
+    assert '$e^{i\pi} = -1$' in str(soup.item), \
         'Inline environment not associated with correct expression.'
 
 
@@ -168,8 +169,8 @@ def test_escaped_characters():
     \begin{itemize}
     \item Ice cream costs \$4-\$5 around here. \}\]\{\[
     \end{itemize}""")
-    assert str(soup.item) == r'\item Ice cream costs \$4-\$5 around here. ' \
-                             r'\}\]\{\['
+    assert str(soup.item).strip() == r'\item Ice cream costs \$4-\$5 around ' \
+                                     r'here. \}\]\{\['
     assert '\\$4-\\$5' in str(soup), 'Escaped characters not properly rendered.'
 
 
@@ -190,10 +191,16 @@ def test_item_parsing():
     soup2 = TexSoup(r"""\begin{itemize}
 \item hello $\alpha$
 \end{itemize}""")
-    assert str(soup2.item) == r'\item hello $\alpha$'
+    assert str(soup2.item).strip() == r'\item hello $\alpha$'
     soup = TexSoup(r"""\begin{itemize}
 \item
 \item first item
+\end{itemize}""")
+    zeroitem = soup.item.extra[0].strip()
+    assert not zeroitem, \
+        'Zeroth item should not include content, but contains: {}'\
+            .format(zeroitem)
+    soup = TexSoup(r"""\begin{itemize}
 \item second item
 \item
 
@@ -203,17 +210,22 @@ with third item
 
 floating text
 \end{itemize}""")
-    zeroitem = soup.item.extra
-    assert not zeroitem, \
-        'Zeroth item should not include content, but contains: {}'\
-            .format(zeroitem)
-    thirditem = str(list(soup.find_all('item'))[3])
+    thirditem = str(list(soup.find_all('item'))[1])
     assert 'third item' in thirditem, \
         'Item does not tolerate starting line breaks (as it should)'
     assert 'with' in thirditem, \
         'Item does not tolerate line break in middle (as it should)'
     assert 'floating' not in thirditem, \
         'Item should not tolerate multiple line breaks in middle'
+    soup = TexSoup(r"""\begin{itemize}
+\item This item contains code!
+\begin{lstlisting}
+Code code code
+\end{lstlisting}
+\item hello
+\end{itemize}""")
+    assert 'Code code code' in str(soup.item.lstlisting), \
+        'Item does not correctly parse contained environments.'
 
 
 def test_comment_escaping():
@@ -227,8 +239,6 @@ def test_comment_unparsed():
     soup = TexSoup(r"""\caption{30} % \caption{...""")
     assert '%' not in str(soup.caption)
 
-
-
 ##############
 # FORMATTING #
 ##############
@@ -241,7 +251,7 @@ def test_basic_whitespace():
     with a line break
     and awko      taco spacing
     """)
-    assert len(str(soup).split('\n')) == 3, 'Line breaks not persisted.'
+    assert len(str(soup).split('\n')) == 5, 'Line breaks not persisted.'
 
 
 def test_whitespace_in_command():

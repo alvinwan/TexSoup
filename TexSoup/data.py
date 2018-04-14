@@ -338,6 +338,10 @@ class TexCmd(TexExpr):
     command name itself and (2) the command arguments, whether optional or
     required.
 
+    :param str name: name of the command, e.g., "textbf"
+    :param list args: Arg objects
+    :param list extra: TexExpr objects
+
     >>> t = TexCmd('textbf',[RArg('big ',TexCmd('textit',[RArg('slant')]),'.')])
     >>> t
     TexCmd('textbf', [RArg('big ', TexCmd('textit', [RArg('slant')]), '.')])
@@ -350,9 +354,9 @@ class TexCmd(TexExpr):
     \textit{slant}
     """
 
-    def __init__(self, name, args=(), extra=''):
+    def __init__(self, name, args=(), extra=()):
         super().__init__(name, [], args)
-        self.extra = extra
+        self.extra = extra if extra else []
 
     @property
     def contents(self):
@@ -361,15 +365,17 @@ class TexCmd(TexExpr):
             for expr in arg:
                 yield expr
         if self.extra:
-            yield self.extra
+            for expr in self.extra:
+                yield expr
 
     def add_contents(self, *contents):
         """Amend extra instead of contents, as commands do not have contents."""
-        self.extra += ' '.join([str(c) for c in contents])
+        self.extra .extend(contents)
 
     def __str__(self):
         if self.extra:
-            return '\\%s%s %s' % (self.name, self.args, self.extra)
+            return '\\%s%s %s' % (self.name, self.args, ''.join(
+                [str(e) for e in self.extra]))
         return '\\%s%s' % (self.name, self.args)
 
     def __repr__(self):
