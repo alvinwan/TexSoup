@@ -59,7 +59,7 @@ With the soupified LaTeX, you can now search and traverse the document tree.
 The below is a demonstration of basic functions that TexSoup provides.
 
 ```
->>> soup.section
+>>> soup.section  # grabs the first `section`
 \section{Hello \textit{world}.}
 >>> soup.section.name
 'section'
