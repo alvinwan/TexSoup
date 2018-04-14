@@ -274,14 +274,10 @@ def read_item(src):
     while src.hasNext() and not src.startswith('\n\n') and \
             not src.startswith('\item') and \
             not src.startswith('\end') and \
-            not (hasattr(last, 'endswith') and last.endswith('\n\n')):
+            not (hasattr(last, 'endswith') and last.endswith('\n\n')
+                 and len(extra) > 1):
         last = read_tex(src)
         extra.append(last)
-
-    # TODO hack, since we want to include the last token before a double
-    # line break
-    if src.endswith('\n\n'):
-        extra.append(stringify(src.forward(1)))
     return extra
 
 
