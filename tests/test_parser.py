@@ -239,6 +239,16 @@ def test_comment_unparsed():
     soup = TexSoup(r"""\caption{30} % \caption{...""")
     assert '%' not in str(soup.caption)
 
+
+def test_items_with_labels():
+    """Items can have labels with square brackets such as in the description
+    environment. See Issue #32."""
+    soup = TexSoup(r"""\begin{description}
+\item[Python] a high-level general-purpose interpreted programming language.
+ \end{description}""")
+    assert "Python" in soup.description.item.args
+
+
 ##############
 # FORMATTING #
 ##############

@@ -226,8 +226,8 @@ def read_tex(src):
     if c.startswith('\\'):
         command = TokenWithPosition(c[1:], src.position)
         if command == 'item':
-            extra = read_item(src)
-            mode, expr = 'command', TexCmd(command, (), extra)
+            extra, arg = read_item(src)
+            mode, expr = 'command', TexCmd(command, arg, extra)
         elif command == 'begin':
             mode, expr, _ = 'begin', TexEnv(src.peek(1)), src.forward(3)
         else:
@@ -257,8 +257,10 @@ def read_item(src):
     non-whitespace character. However, after that first non-whitespace
     character, the item can only tolerate one successive line break at a time.
 
+    \item can also take an argument.
+
     :param Buffer src: a buffer of tokens
-    :return: contents of the item
+    :return: contents of the item and any item arguments
     """
     stringify = lambda s: TokenWithPosition.join(s.split(' '), glue=' ')
 
@@ -266,6 +268,11 @@ def read_item(src):
         """Catch the first non-whitespace character"""
         return not any([s.startswith(substr) for substr in string.whitespace])
 
+    # Item argument such as in description environment
+    arg = []
+    if src.peek() in ARG_START_TOKENS:
+        c = next(src)
+        arg.append(read_arg(src, c))
     last = stringify(src.forward_until(criterion))
     if last.startswith(' '):
         last = last[1:]
@@ -278,7 +285,7 @@ def read_item(src):
                  and len(extra) > 1):
         last = read_tex(src)
         extra.append(last)
-    return extra
+    return extra, arg
 
 
 def read_math_env(src, expr):
