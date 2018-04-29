@@ -242,11 +242,14 @@ def test_comment_unparsed():
 
 def test_multiline_args():
     """Tests that macros with arguments are different lines are parsed
-    properly."""
-    soup = TexSoup(r"""\mytitle{Essay title}\n{Essay subheading.}""")
+    properly. See Issue #31."""
+    soup = TexSoup(r"""\mytitle{Essay title}
+{Essay subheading.}""")
     assert "Essay subheading." in soup.mytitle.args
     # Only one newline allowed
-    soup = TexSoup(r"""\mytitle{Essay title}\n\n{Essay subheading.}""")
+    soup = TexSoup(r"""\mytitle{Essay title}
+
+{Essay subheading.}""")
     assert "Essay subheading." not in soup.mytitle.args
     assert "Essay title" in soup.mytitle.args
 

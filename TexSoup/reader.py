@@ -233,15 +233,14 @@ def read_tex(src):
         else:
             mode, expr = 'command', TexCmd(command)
 
-        # TODO: allow only one line break
         # TODO: should really be handled by tokenizer
         candidate_index = src.num_forward_until(lambda s: not s.isspace())
         src.forward(candidate_index)
 
         line_breaks = 0
-        while (src.peek() in ARG_START_TOKENS or (src.peek() == '\\n')
+        while (src.peek() in ARG_START_TOKENS or (src.peek() == '\n')
                 and line_breaks == 0):
-            if src.peek() == '\\n':
+            if src.peek() == '\n':
                 # Advance buffer if first newline
                 line_breaks += 1
                 next(src)
