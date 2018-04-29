@@ -238,8 +238,16 @@ def read_tex(src):
         candidate_index = src.num_forward_until(lambda s: not s.isspace())
         src.forward(candidate_index)
 
-        while src.peek() in ARG_START_TOKENS:
-            expr.args.append(read_tex(src))
+        line_breaks = 0
+        while (src.peek() in ARG_START_TOKENS or (src.peek() == '\\n')
+                and line_breaks == 0):
+            if src.peek() == '\\n':
+                # Advance buffer if first newline
+                line_breaks += 1
+                next(src)
+            else:
+                line_breaks = 0
+                expr.args.append(read_tex(src))
         if not expr.args:
             src.backward(candidate_index)
         if mode == 'begin':
