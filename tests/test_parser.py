@@ -239,6 +239,21 @@ def test_comment_unparsed():
     soup = TexSoup(r"""\caption{30} % \caption{...""")
     assert '%' not in str(soup.caption)
 
+
+def test_multiline_args():
+    """Tests that macros with arguments are different lines are parsed
+    properly. See Issue #31."""
+    soup = TexSoup(r"""\mytitle{Essay title}
+{Essay subheading.}""")
+    assert "Essay subheading." in soup.mytitle.args
+    # Only one newline allowed
+    soup = TexSoup(r"""\mytitle{Essay title}
+
+{Essay subheading.}""")
+    assert "Essay subheading." not in soup.mytitle.args
+    assert "Essay title" in soup.mytitle.args
+
+
 ##############
 # FORMATTING #
 ##############
