@@ -239,7 +239,7 @@ def test_comment_unparsed():
     soup = TexSoup(r"""\caption{30} % \caption{...""")
     assert '%' not in str(soup.caption)
 
-
+    
 def test_items_with_labels():
     """Items can have labels with square brackets such as in the description
     environment. See Issue #32."""
@@ -247,6 +247,20 @@ def test_items_with_labels():
 \item[Python] a high-level general-purpose interpreted programming language.
  \end{description}""")
     assert "Python" in soup.description.item.args
+
+    
+def test_multiline_args():
+    """Tests that macros with arguments are different lines are parsed
+    properly. See Issue #31."""
+    soup = TexSoup(r"""\mytitle{Essay title}
+{Essay subheading.}""")
+    assert "Essay subheading." in soup.mytitle.args
+    # Only one newline allowed
+    soup = TexSoup(r"""\mytitle{Essay title}
+
+{Essay subheading.}""")
+    assert "Essay subheading." not in soup.mytitle.args
+    assert "Essay title" in soup.mytitle.args
 
 
 ##############
