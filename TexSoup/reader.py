@@ -13,7 +13,9 @@ ARG_END_TOKENS = {arg.delims()[1] for arg in data.args}
 ARG_TOKENS = ARG_START_TOKENS | ARG_END_TOKENS
 ALL_TOKENS = COMMAND_TOKENS | ARG_TOKENS | MATH_TOKENS | COMMENT_TOKENS
 SKIP_ENVS = ('verbatim', 'equation', 'lstlisting', '$', '$$', 'align',
-             'equation*', 'align*')
+             'equation*', 'align*', 'math', 'displaymath', 'split', 'array',
+             'eqnarray', 'multiline', 'gather', 'flalign', 'flalign*',
+             'alignat')
 BRACKETS_DELIMITERS = {'(', ')', '<', '>', '\[', '[', ']', '{', '}',
                        '\{', '\}', '.' '|', '\langle', '\rangle',
                        '\lfloor', '\rfloor', '\lceil', '\rceil',

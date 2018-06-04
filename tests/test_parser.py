@@ -138,9 +138,11 @@ def test_ignore_environment():
     \end{verbatim}
     $$\min_x \|Ax - b\|_2^2 + \lambda \|x\|_1^2$$
     $$[0,1)$$
+    \begin{flalign} will break if TexSoup starts parsing math[ \end{flalign}
+    \begin{align*} hah [ \end{align*}
     """)
     verbatim = list(list(soup.children)[1].contents)[0]
-    assert len(list(soup.contents)) == 4, 'Special environments not recognized.'
+    assert len(list(soup.contents)) == 6, 'Special environments not recognized.'
     assert str(list(soup.children)[0]) == \
            '\\begin{equation}\min_x \|Ax - b\|_2^2\\end{equation}'
     assert verbatim.startswith('\n    '), 'Whitespace not preserved.'
@@ -239,7 +241,7 @@ def test_comment_unparsed():
     soup = TexSoup(r"""\caption{30} % \caption{...""")
     assert '%' not in str(soup.caption)
 
-    
+
 def test_items_with_labels():
     """Items can have labels with square brackets such as in the description
     environment. See Issue #32."""
@@ -248,7 +250,7 @@ def test_items_with_labels():
  \end{description}""")
     assert "Python" in soup.description.item.args
 
-    
+
 def test_multiline_args():
     """Tests that macros with arguments are different lines are parsed
     properly. See Issue #31."""
