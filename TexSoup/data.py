@@ -117,6 +117,14 @@ class TexNode(object):
         """Returns all descendants for this TeX element."""
         return self.__descendants()
 
+    @property
+    def text(self):
+        for descendant in self.contents:
+            if isinstance(descendant, TokenWithPosition):
+                yield descendant
+            elif hasattr(descendant,'text'):
+                yield from descendant.text
+
     def __descendants(self):
         """Implementation for descendants, hacky workaround for __getattr__
         issues.
