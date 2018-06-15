@@ -106,3 +106,13 @@ def test_add_children_at(chikin):
     chikin.add_children_at(0, 'asdfghjkl')
     assert 'asdfghjkl' in str(chikin)
     assert str(chikin[0]) == 'asdfghjkl'
+
+#########
+# TEXT #
+########
+def test_text(chikin):
+    """Get text of document"""
+    text = list(chikin.text)
+    assert 'Chikin Tales' in text
+    assert 'Chikin Fly' in text
+    assert 'waddle\n' in text
