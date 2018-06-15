@@ -1,5 +1,6 @@
 from .config import *
 from TexSoup.utils import TokenWithPosition
+import re
 
 ##############
 # NAVIGATION #
@@ -116,3 +117,18 @@ def test_text(chikin):
     assert 'Chikin Tales' in text
     assert 'Chikin Fly' in text
     assert 'waddle\n' in text
+
+def test_search_regex(chikin):
+    """Find all occurenses of a regex in the document text"""
+    matches = list(chikin.search_regex(r"unless[a-z ]*"))
+    assert len(matches) == 1
+    assert matches[0] == "unless ordered to squat"
+    assert matches[0].position == 341
+
+def test_search_regex_precompiled_pattern(chikin):
+    """Find all occurenses of a regex in the document text"""
+    pattern = re.compile(r"unless[a-z ]*")
+    matches = list(chikin.search_regex(pattern))
+    assert len(matches) == 1
+    assert matches[0] == "unless ordered to squat"
+    assert matches[0].position == 341
