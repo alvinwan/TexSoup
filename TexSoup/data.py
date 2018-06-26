@@ -6,6 +6,7 @@ Includes the data structures that users will interface with, in addition to
 internally used data structures.
 """
 import itertools
+import re
 from .utils import TokenWithPosition, CharToLineOffset
 
 __all__ = ['TexNode', 'TexCmd', 'TexEnv', 'Arg', 'OArg', 'RArg', 'TexArgs']
@@ -145,6 +146,13 @@ class TexNode(object):
             return next(self.find_all(name, **attrs))
         except StopIteration:
             return None
+
+    def search_regex(self, pattern):
+        for node in self.text:
+            for match in re.finditer(pattern, node):
+                body = match.group()   #group() returns the full match
+                start = match.start()
+                yield TokenWithPosition(body, node.position + start)
 
     def count(self, name=None, **attrs):
         """Return number of descendants matching criteria"""
