@@ -335,7 +335,7 @@ class Buffer:
         >>> b.forward_until(lambda s: s in 'def')
         ''
         """
-        c = ''
+        c = TokenWithPosition('', self.peek().position)
         while self.hasNext() and not condition(self.peek()):
             c += self.forward(1)
         return c

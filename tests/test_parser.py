@@ -145,7 +145,10 @@ def test_ignore_environment():
     assert len(list(soup.contents)) == 6, 'Special environments not recognized.'
     assert str(list(soup.children)[0]) == \
            '\\begin{equation}\min_x \|Ax - b\|_2^2\\end{equation}'
-    assert verbatim.startswith('\n    '), 'Whitespace not preserved.'
+
+    # hacky workaround for odd string types
+    assert verbatim[0] == '\n' and verbatim[1:].startswith('   '), \
+        'Whitespace not preserved: {}'.format(verbatim)
     assert str(list(soup.children)[2]) == \
         '$$\min_x \|Ax - b\|_2^2 + \lambda \|x\|_1^2$$'
     assert str(list(soup.children)[3]) == '$$[0,1)$$'
@@ -228,6 +231,11 @@ Code code code
 \end{itemize}""")
     assert 'Code code code' in str(soup.item.lstlisting), \
         'Item does not correctly parse contained environments.'
+    soup = TexSoup(r"""\begin{itemize}
+\item\label{some-label} waddle
+\item plop
+\end{itemize}""")
+    assert str(soup.item.label) == '\label{some-label}'
 
 
 def test_comment_escaping():
