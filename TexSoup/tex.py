@@ -7,7 +7,7 @@ import itertools
 def read(tex):
     """Read and parse all LaTeX source
 
-    :param str tex: LaTeX source
+    :param Union[string, iterable] tex: LaTeX source
     :return TexEnv: the global environment
     """
     if isinstance(tex, str):

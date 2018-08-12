@@ -11,6 +11,7 @@ Main file, containing most commonly used elements of TexSoup
 from TexSoup.tex import *
 
 
+# noinspection PyPep8Naming
 def TexSoup(tex):
     r"""
     At a high-level, parses provided Tex into a navigable, searchable structure.
@@ -18,7 +19,7 @@ def TexSoup(tex):
     1. Tex is parsed, cleaned, and packaged.
     2. Structure fed to TexNodes for a searchable, coder-friendly interface.
 
-    :param (iterable, string) tex: the Tex source
+    :param Union[string, iterable] tex: the Tex source
     :return TexNode: object representing tex document
 
     >>> from TexSoup import TexSoup
@@ -39,7 +40,7 @@ def TexSoup(tex):
     ... Here is the prevalence of each synonym.
     ...
     ... \begin{tabular}{c c}
-    ... red lemon & uncommon \\
+    ... red lemon & uncommon \\ \n
     ... life & common
     ... \end{tabular}
     ...
@@ -55,7 +56,7 @@ def TexSoup(tex):
     'document'
     >>> soup.tabular
     \begin{tabular}{c c}
-    red lemon & uncommon \\
+    red lemon & uncommon \\ \n
     life & common
     \end{tabular}
     >>> soup.tabular.args[0]

@@ -9,7 +9,9 @@ function:
 2. Generalized utilities
 """
 
-import functools, bisect
+import bisect
+import functools
+
 
 ##############
 # Decorators #
@@ -46,6 +48,7 @@ def to_buffer(f):
 class TokenWithPosition(str):
     """Enhanced string object with knowledge of global position."""
 
+    # noinspection PyArgumentList
     def __new__(cls, text, position):
         """Initializer for pseudo-string object.
 
@@ -214,6 +217,7 @@ class TokenWithPosition(str):
         return TokenWithPosition(stripped, self.position + offset)
 
 
+# noinspection PyTypeChecker
 class Buffer:
     """Converts string or iterable into a navigable iterator of strings
 
@@ -256,6 +260,7 @@ class Buffer:
         self.__i = 0
         self.__join = join
 
+    # noinspection PyPep8Naming
     def hasNext(self):
         """Returns whether or not there is another element."""
         return bool(self.peek())
@@ -289,7 +294,7 @@ class Buffer:
     def num_forward_until(self, condition):
         """Forward until one of the provided matches is found.
 
-        :param matches: set of valid strings
+        :param condition: set of valid strings
 
         >>> b = Buffer('abcdef')
         >>> b.num_forward_until(lambda s: s in 'def')
@@ -321,7 +326,7 @@ class Buffer:
         was met. In other words, the condition will be true for the remainder
         of the buffer.
 
-        :param matches: set of valid strings
+        :param condition: set of valid strings
 
         >>> b = Buffer('abcdef')
         >>> b.forward_until(lambda s: s in 'def')

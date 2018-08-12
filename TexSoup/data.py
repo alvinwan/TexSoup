@@ -11,6 +11,7 @@ from .utils import TokenWithPosition, CharToLineOffset
 
 __all__ = ['TexNode', 'TexCmd', 'TexEnv', 'Arg', 'OArg', 'RArg', 'TexArgs']
 
+
 #############
 # Interface #
 #############
@@ -53,13 +54,13 @@ class TexNode(object):
     def __init__(self, expr, src=None):
         """Creates TexNode object
 
-        :param (TexCmd, TexEnv) expr: a LaTeX expression, either a singleton
+        :param Union[TexCmd, TexEnv] expr: a LaTeX expression, either a singleton
             command or an environment containing other commands
         """
         assert isinstance(expr, (TexCmd, TexEnv)), 'Created from TexExpr'
         super().__init__()
         self.expr = expr
-        if not src is None:
+        if src is not None:
             self.char_to_line = CharToLineOffset(src)
         else:
             self.char_to_line = None
@@ -72,6 +73,7 @@ class TexNode(object):
     def args(self):
         return self.expr.args
 
+    # noinspection PyUnresolvedReferences
     @property
     def parent(self):
         return self.expr.parent
@@ -123,7 +125,7 @@ class TexNode(object):
         for descendant in self.contents:
             if isinstance(descendant, TokenWithPosition):
                 yield descendant
-            elif hasattr(descendant,'text'):
+            elif hasattr(descendant, 'text'):
                 yield from descendant.text
 
     def __descendants(self):
@@ -131,7 +133,7 @@ class TexNode(object):
         issues.
         """
         return itertools.chain(self.contents,
-            *[c.descendants for c in self.children])
+                               *[c.descendants for c in self.children])
 
     def find_all(self, name=None, **attrs):
         """Return all descendant nodes matching criteria, naively."""
@@ -150,7 +152,7 @@ class TexNode(object):
     def search_regex(self, pattern):
         for node in self.text:
             for match in re.finditer(pattern, node):
-                body = match.group()   #group() returns the full match
+                body = match.group()  # group() returns the full match
                 start = match.start()
                 yield TokenWithPosition(body, node.position + start)
 
@@ -173,9 +175,9 @@ class TexNode(object):
     def add_children_at(self, i, *nodes):
         """Add a node to its list of children, inserted at position i."""
         assert isinstance(i, int), (
-            'Provided index "%s" is not an integer! Did you switch your '
-            'arguments? The first argument to `add_children_at` is the '
-            'index.' % str(i))
+                'Provided index "%s" is not an integer! Did you switch your '
+                'arguments? The first argument to `add_children_at` is the '
+                'index.' % str(i))
         self.expr.add_contents_at(i, *nodes)
 
     def remove_child(self, node):
@@ -188,7 +190,7 @@ class TexNode(object):
             self.expr.remove_content(child.expr),
             *nodes)
 
-    def __match__(self, name=None, attrs={}):
+    def __match__(self, name=None, attrs=()):
         r"""Check if given attributes match current object
 
         >>> from TexSoup import TexSoup
@@ -228,7 +230,7 @@ class TexNode(object):
         return self.find(attr) or default
 
     def char_pos_to_line(self, char_pos):
-        assert not self.char_to_line is None, 'CharToLineOffset is not initialized! Pass src to TexNode!'
+        assert self.char_to_line is not None, 'CharToLineOffset is not initialized! Pass src to TexNode!'
         return self.char_to_line(char_pos)
 
 
@@ -312,12 +314,12 @@ class TexEnv(TexExpr):
     """
 
     def __init__(self, name, contents=(), args=(), preserve_whitespace=False,
-                 nobegin=False):
+                 nobegin=False, begin=False, end=False):
         """Initialization for Tex environment.
 
         :param str name: name of environment
-        :param list contents: list of contents
-        :param list args: list of Tex Arguments
+        :param iterable contents: list of contents
+        :param iterable args: list of Tex Arguments
         :param bool preserve_whitespace: If false, elements containing only
             whitespace will be removed from contents.
         :param bool nobegin: Disable \begin{...} notation.
@@ -325,6 +327,8 @@ class TexEnv(TexExpr):
         super().__init__(name, contents, args)
         self.preserve_whitespace = preserve_whitespace
         self.nobegin = nobegin
+        self.begin = begin if begin else (self.name if self.nobegin else "\\begin{%s}" % self.name)
+        self.end = end if end else (self.name if self.nobegin else "\\end{%s}" % self.name)
 
     @property
     def contents(self):
@@ -336,17 +340,14 @@ class TexEnv(TexExpr):
         contents = ''.join(map(str, self._contents))
         if self.name == '[tex]':
             return contents
-        if self.nobegin:
+        else:
             return '%s%s%s' % (
-                self.name, contents, self.name)
-        return '\\begin{%s}%s%s\\end{%s}' % (
-            self.name, self.args, contents, self.name)
+                self.begin + str(self.args), contents, self.end)
 
     def __repr__(self):
         if not self.args:
             return "TexEnv('%s')" % self.name
-        return "TexEnv('%s', %s, %s)" % (self.name,
-            repr(self._contents), repr(self.args))
+        return "TexEnv('%s', %s, %s)" % (self.name, repr(self._contents), repr(self.args))
 
 
 class TexCmd(TexExpr):
@@ -386,7 +387,7 @@ class TexCmd(TexExpr):
 
     def add_contents(self, *contents):
         """Amend extra instead of contents, as commands do not have contents."""
-        self.extra .extend(contents)
+        self.extra.extend(contents)
 
     def __str__(self):
         if self.extra:
@@ -399,11 +400,13 @@ class TexCmd(TexExpr):
             return "TexCmd('%s')" % self.name
         return "TexCmd('%s', %s)" % (self.name, repr(self.args))
 
+
 #############
 # Arguments #
 #############
 
 
+# noinspection PyUnresolvedReferences
 class Arg(object):
     """LaTeX command argument
 
@@ -417,7 +420,7 @@ class Arg(object):
     def __init__(self, *exprs):
         """Initialize argument using list of expressions.
 
-        :param [str, TexCmd, TexEnv] exprs: Tex expressions contained in the
+        :param Union[str, TexCmd, TexEnv] exprs: Tex expressions contained in the
             argument. Can be other commands or environments, or even strings.
         """
         self.exprs = exprs
@@ -431,7 +434,7 @@ class Arg(object):
     def parse(s):
         """Parse a string or list and return an Argument object
 
-        :param (str, list) s: Either a string or a list, where the first and
+        :param Union[string, iterable] s: Either a string or a list, where the first and
             last elements are valid argument delimiters.
         """
         if isinstance(s, args):
@@ -477,7 +480,7 @@ class Arg(object):
     def __repr__(self):
         """Makes argument display-friendly."""
         return '%s(%s)' % (self.__class__.__name__,
-            ', '.join(map(repr, self.exprs)))
+                           ', '.join(map(repr, self.exprs)))
 
     def __str__(self):
         """Stringifies argument value."""
@@ -497,6 +500,7 @@ class RArg(Arg):
     fmt = '{%s}'
     type = 'required'
 
+
 args = (OArg, RArg)
 
 
@@ -506,26 +510,27 @@ class TexArgs(list):
     Use regular indexing to access the argument value. Use parentheses, like
     a method invocation, to access an Arg object.
 
-    >>> args = TexArgs(RArg('arg0'), '[arg1]', '{arg2}')
-    >>> args
+    >>> arguments = TexArgs(RArg('arg0'), '[arg1]', '{arg2}')
+    >>> arguments
     [RArg('arg0'), OArg('arg1'), RArg('arg2')]
-    >>> args(2)
+    >>> arguments(2)
     RArg('arg2')
-    >>> args[2]
+    >>> arguments[2]
     'arg2'
-    >>> args(2).type
+    >>> arguments(2).type
     'required'
-    >>> str(args(2))
+    >>> str(arguments(2))
     '{arg2}'
-    >>> args.append('[arg3]')
-    >>> args(3)
+    >>> arguments.append('[arg3]')
+    >>> arguments(3)
     OArg('arg3')
-    >>> len(args)
+    >>> len(arguments)
     4
     """
 
     def __init__(self, *args):
         """Append all arguments to list"""
+        super().__init__()
         self.__args = []
         for arg in args:
             self.append(arg)

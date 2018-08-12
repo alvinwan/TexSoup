@@ -1,26 +1,30 @@
 import sys
 from setuptools import setup
-from setuptools.command.test import test as TestCommand
+from setuptools.command.test import test as test_command
 
 tests_require = ['pytest', 'pytest-cov==2.5.1', 'coverage == 3.7.1', 'coveralls == 1.1']
 install_requires = []
 
-class PyTest(TestCommand):
 
+class PyTest(test_command):
     user_options = [('pytest-args=', 'a', "Arguments to pass to py.test")]
 
-    def initialize_options(self):
-        TestCommand.initialize_options(self)
+    def __init__(self, dist, **kw):
+        super().__init__(dist, **kw)
         self.pytest_args = []
 
+    def initialize_options(self):
+        test_command.initialize_options(self)
+
     def finalize_options(self):
-        TestCommand.finalize_options(self)
+        test_command.finalize_options(self)
 
     def run_tests(self):
         # import here, cause outside the eggs aren't loaded
         import pytest
         errno = pytest.main(self.pytest_args)
         sys.exit(errno)
+
 
 VERSION = '0.1.3'
 
