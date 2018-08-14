@@ -6,17 +6,17 @@ import string
 __all__ = ['tokenize', 'read_tex']
 
 COMMAND_TOKENS = {'\\'}
-MATH_TOKENS = {'$'}
+MATH_TOKENS = {'$', '\[', '\]', '\(', '\)'}
 COMMENT_TOKENS = {'%'}
 ARG_START_TOKENS = {arg.delims()[0] for arg in data.args}
 ARG_END_TOKENS = {arg.delims()[1] for arg in data.args}
 ARG_TOKENS = ARG_START_TOKENS | ARG_END_TOKENS
 ALL_TOKENS = COMMAND_TOKENS | ARG_TOKENS | MATH_TOKENS | COMMENT_TOKENS
-SKIP_ENVS = ('verbatim', 'equation', 'lstlisting', '$', '$$', 'align',
+SKIP_ENVS = ('verbatim', 'equation', 'lstlisting', 'align', 'alignat',
              'equation*', 'align*', 'math', 'displaymath', 'split', 'array',
              'eqnarray', 'multiline', 'gather', 'flalign', 'flalign*',
-             'alignat')
-BRACKETS_DELIMITERS = {'(', ')', '<', '>', '\[', '[', ']', '{', '}',
+             '$', '$$', '\[', '\]', '\(', '\)')
+BRACKETS_DELIMITERS = {'(', ')', '<', '>', '[', ']', '{', '}',
                        '\{', '\}', '.' '|', '\langle', '\rangle',
                        '\lfloor', '\rfloor', '\lceil', '\rceil',
                        r'\ulcorner', r'\urcorner', '\lbrack', '\rbrack'}
@@ -36,7 +36,7 @@ def next_token(text):
     r"""Returns the next possible token, advancing the iterator to the next
     position to start processing from.
 
-    :param (str, iterator, Buffer) text: LaTeX to process
+    :param Union[str, iterator, Buffer] text: LaTeX to process
     :return str: the token
 
     >>> b = Buffer(r'\textbf{Do play\textit{nice}.}   $$\min_w \|w\|_2^2$$')
@@ -67,7 +67,7 @@ def next_token(text):
 def tokenize(text):
     r"""Generator for LaTeX tokens on text, ignoring comments.
 
-    :param (str, iterator, Buffer) text: LaTeX to process
+    :param Union[str, iterator, Buffer] text: LaTeX to process
 
     >>> print(*tokenize(r'\textbf{Do play \textit{nice}.}'))
     \textbf { Do play  \textit { nice } . }
@@ -92,9 +92,11 @@ def token(name):
 
     :param str name: Name of tokenizer
     """
+
     def wrap(f):
         tokenizers.append((name, f))
         return f
+
     return wrap
 
 
@@ -122,7 +124,7 @@ def tokenize_command(text):
     if text.peek() == '\\':
         c = text.forward(1)
         tokens = set(string.punctuation + string.whitespace) - {'*'}
-        while text.hasNext() and text.peek() not in tokens:
+        while text.hasNext() and (c == '\\' or text.peek() not in tokens) and c not in MATH_TOKENS:
             c += text.forward(1)
         return c
 
@@ -177,10 +179,11 @@ def tokenize_math(text):
 
 
 @token('string')
-def tokenize_string(text, delimiters=ALL_TOKENS):
+def tokenize_string(text, delimiters=None):
     r"""Process a string of text
 
     :param Buffer text: iterator over line, with current position
+    :param Union[None, iterable, string] delimiters: defines the delimiters
 
     >>> tokenize_string(Buffer('hello'))
     'hello'
@@ -192,9 +195,11 @@ def tokenize_string(text, delimiters=ALL_TOKENS):
     >>> print(tokenize_string(Buffer('0 & 1 \\\\\command')))
     0 & 1 \\
     """
+    if delimiters is None:
+        delimiters = ALL_TOKENS
     result = TokenWithPosition('', text.position)
     for c in text:
-        if c == '\\' and str(text.peek()) in delimiters:
+        if c == '\\' and str(text.peek()) in delimiters and str(c + text.peek()) not in delimiters:
             c += next(text)
         elif str(c) in delimiters:  # assumes all tokens are single characters
             text.backward(1)
@@ -221,11 +226,23 @@ def read_tex(src):
     c = next(src)
     if c.startswith('%'):
         return c
-    if c.startswith('$'):
+    elif c.startswith('$'):
         name = '$$' if c.startswith('$$') else '$'
         expr = TexEnv(name, [], nobegin=True)
         return read_math_env(src, expr)
-    if c.startswith('\\'):
+    elif c.startswith('\[') or c.startswith("\("):
+        if c.startswith('\['):
+            name = 'displaymath'
+            begin = '\['
+            end = '\]'
+        else:
+            name = "math"
+            begin = "\("
+            end = "\)"
+
+        expr = TexEnv(name, [], nobegin=True, begin=begin, end=end)
+        return read_math_env(src, expr)
+    elif c.startswith('\\'):
         command = TokenWithPosition(c[1:], src.position)
         if command == 'item':
             extra, arg = read_item(src)
@@ -241,7 +258,7 @@ def read_tex(src):
 
         line_breaks = 0
         while (src.peek() in ARG_START_TOKENS or (src.peek() == '\n')
-                and line_breaks == 0):
+               and line_breaks == 0):
             if src.peek() == '\n':
                 # Advance buffer if first newline
                 line_breaks += 1
@@ -305,13 +322,12 @@ def read_math_env(src, expr):
 
     :param Buffer src: a buffer of tokens
     :param TexExpr expr: expression for the environment
-    :param whitespace str: temporary prefix for skip_envs
     """
-    content = src.forward_until(lambda s: s == expr.name)
-    if not src.startswith(expr.name):
+    content = src.forward_until(lambda s: s == expr.end)
+    if not src.startswith(expr.end):
         end = src.peek()
         explanation = 'Instead got %s' % end if end else 'Reached end of file.'
-        raise EOFError('Expecting %s. %s' % (expr.name, explanation))
+        raise EOFError('Expecting %s. %s' % (expr.end, explanation))
     else:
         src.forward(1)
     expr.add_contents(content)
@@ -326,7 +342,6 @@ def read_env(src, expr):
 
     :param Buffer src: a buffer of tokens
     :param TexExpr expr: expression for the environment
-    :param whitespace str: temporary prefix for skip_envs
     """
     contents = []
     if expr.name in SKIP_ENVS:

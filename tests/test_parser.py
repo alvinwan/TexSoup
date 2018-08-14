@@ -137,21 +137,21 @@ def test_ignore_environment():
     \min_x \|Ax - b\|_2^2 + \lambda \|x\|_2^2
     \end{verbatim}
     $$\min_x \|Ax - b\|_2^2 + \lambda \|x\|_1^2$$
-    $$[0,1)$$
+    \[[0,1)\]
     \begin{flalign} will break if TexSoup starts parsing math[ \end{flalign}
     \begin{align*} hah [ \end{align*}
     """)
     verbatim = list(list(soup.children)[1].contents)[0]
     assert len(list(soup.contents)) == 6, 'Special environments not recognized.'
     assert str(list(soup.children)[0]) == \
-           '\\begin{equation}\min_x \|Ax - b\|_2^2\\end{equation}'
+        '\\begin{equation}\min_x \|Ax - b\|_2^2\\end{equation}'
 
     # hacky workaround for odd string types
     assert verbatim[0] == '\n' and verbatim[1:].startswith('   '), \
         'Whitespace not preserved: {}'.format(verbatim)
     assert str(list(soup.children)[2]) == \
         '$$\min_x \|Ax - b\|_2^2 + \lambda \|x\|_1^2$$'
-    assert str(list(soup.children)[3]) == '$$[0,1)$$'
+    assert str(list(soup.children)[3]) == '\[[0,1)\]'
 
 
 def test_inline_math():
@@ -159,9 +159,14 @@ def test_inline_math():
     soup = TexSoup("""
     \begin{itemize}
     \item This $e^{i\pi} = -1$
+    \item How \(e^{i\pi} + 1 = 0\)
+    \item Therefore!
     \end{itemize}""")
     assert '$e^{i\pi} = -1$' in str(soup), 'Math environment not intact.'
-    assert '$e^{i\pi} = -1$' in str(soup.item), \
+    assert '$e^{i\pi} = -1$' in str(list(soup.children)[0]), \
+        'Inline environment not associated with correct expression.'
+    assert '\(e^{i\pi} + 1 = 0\)' in str(soup), 'Math environment not intact.'
+    assert '\(e^{i\pi} + 1 = 0\)' in str(list(soup.children)[1]), \
         'Inline environment not associated with correct expression.'
 
 
@@ -172,10 +177,10 @@ def test_escaped_characters():
     """
     soup = TexSoup("""
     \begin{itemize}
-    \item Ice cream costs \$4-\$5 around here. \}\]\{\[
+    \item Ice cream costs \$4-\$5 around here. \}[\{]
     \end{itemize}""")
     assert str(soup.item).strip() == r'\item Ice cream costs \$4-\$5 around ' \
-                                     r'here. \}\]\{\['
+                                     r'here. \}[\{]'
     assert '\\$4-\\$5' in str(soup), 'Escaped characters not properly rendered.'
 
 
@@ -203,8 +208,8 @@ def test_item_parsing():
 \end{itemize}""")
     zeroitem = soup.item.extra[0].strip()
     assert not zeroitem, \
-        'Zeroth item should not include content, but contains: {}'\
-            .format(zeroitem)
+        'Zeroth item should not include content, but contains: {}' \
+        .format(zeroitem)
     soup = TexSoup(r"""\begin{itemize}
 \item second item
 \item
@@ -312,10 +317,10 @@ def test_math_environment_whitespace():
     soup2 = TexSoup(r"""\gamma = \beta\begin{notescaped}\gamma = \beta\end{notescaped}
 \begin{equation*}\beta = \gamma\end{equation*}""")
     assert str(soup2.find('equation*')) == \
-           r'\begin{equation*}\beta = \gamma\end{equation*}'
+        r'\begin{equation*}\beta = \gamma\end{equation*}'
     assert str(soup2).startswith(r'\gamma = \beta')
     assert str(soup2.notescaped) == \
-           r'\begin{notescaped}\gamma = \beta\end{notescaped}'
+        r'\begin{notescaped}\gamma = \beta\end{notescaped}'
 
 
 def test_math_environment_escape():
