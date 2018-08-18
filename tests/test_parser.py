@@ -44,8 +44,12 @@ def test_commands_envs_text():
     """Tests that parser for commands, environments, and strings work."""
     soup = TexSoup(r"""
     \begin{document}
-    \section{Chikin Tales}
-    \subsection{Chikin Fly}
+    \title{Chikin}
+    \date{\today}
+    \section
+    [Tales]{Chikin Tales}
+    \subsection
+    {Chikin Fly}
 
     Here is what chickens do:
 
@@ -59,10 +63,18 @@ def test_commands_envs_text():
     doc = next(soup.children)
     assert doc.name == 'document'
     contents, children = list(doc.contents), list(doc.children)
-    assert str(children[0]) == '\section{Chikin Tales}'
-    assert str(children[1]) == '\subsection{Chikin Fly}'
-    assert len(children) == 3
-    assert len(contents) == 4
+    assert str(children[0]) == r'\title{Chikin}'
+    assert str(children[1]) == r'\date{\today}'
+    assert str(children[2]) == r'\section[Tales]{Chikin Tales}'
+    assert str(children[3]) == r'\subsection{Chikin Fly}'
+    assert len(children) == 5
+    assert len(contents) == 6
+    everything = list(doc.expr.everything)
+    assert len(everything) == 12
+    arguments = str(doc.section.expr.arguments)
+    assert arguments == "\n    [Tales]{Chikin Tales}"
+    arguments_list = [str(arg) for arg in doc.section.expr.arguments]
+    assert arguments_list == ['\n    ', '[Tales]', '{Chikin Tales}']
 
 
 #########
@@ -224,8 +236,8 @@ def test_item_parsing():
     \end{lstlisting}
     \item hello
     \end{itemize}""")
-    assert 'Code code code' in str(soup.item.lstlisting), \
-        'Item does not correctly parse contained environments.'
+    assert ' Code code code' in str(soup.item.lstlisting), 'Item does not correctly parse contained environments.'
+    assert '\n    Code code code\n    ' in soup.item.lstlisting.expr.everything
     soup = TexSoup(r"""\begin{itemize}
     \item\label{some-label} waddle
     \item plop
