@@ -30,8 +30,10 @@ def count(tex):
     # create dictionary mapping label to number of references
     return dict((label, soup.find_all('\ref{%s}' % label)) for label in labels)
 
+
 if __name__ == '__main__':
     counts = count(open(input('Tex file:').strip()))
+
     if not counts:
         print('No labels found.')
     else:
