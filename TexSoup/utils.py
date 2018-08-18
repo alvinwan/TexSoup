@@ -20,17 +20,7 @@ import functools
 
 def to_buffer(f):
     """
-    Decorator converting all strings and iterators/iterables into
-    Buffers.
-
-    >>> f = to_buffer(lambda x: x[:])
-    >>> f('asdf')
-    'asdf'
-    >>> g = to_buffer(lambda x: x)
-    >>> g('').hasNext()
-    False
-    >>> next(g('asdf'))
-    'a'
+    Decorator converting all strings and iterators/iterables into Buffers.
     """
     @functools.wraps(f)
     def wrap(*args, **kwargs):
@@ -49,7 +39,7 @@ class TokenWithPosition(str):
     """Enhanced string object with knowledge of global position."""
 
     # noinspection PyArgumentList
-    def __new__(cls, text, position):
+    def __new__(cls, text, position=None):
         """Initializer for pseudo-string object.
 
         :param text: The original string
@@ -98,9 +88,11 @@ class TokenWithPosition(str):
         >>> t2 = TokenWithPosition('as', 1) + 'df'
         >>> str(t2)
         'asdf'
-        >>> t2.position
+        >>> t3 = TokenWithPosition(t2)
+        >>> t3.position
         1
         """
+
         if isinstance(other, TokenWithPosition):
             return TokenWithPosition(self.text + other.text,
                                      self.position)
@@ -140,10 +132,10 @@ class TokenWithPosition(str):
         0
         """
         if isinstance(other, TokenWithPosition):
-            self.text += other.text
+            new = TokenWithPosition(self.text + other.text, self.position)
         else:
-            self.text += other
-        return self
+            new = TokenWithPosition(self.text + other, self.position)
+        return new
 
     @classmethod
     def join(cls, tokens, glue=''):
@@ -212,20 +204,26 @@ class TokenWithPosition(str):
         return result
 
     def strip(self, *args, **kwargs):
-        stripped = self.text.strip()
+        stripped = self.text.strip(*args, **kwargs)
+        offset = self.text.find(stripped)
+        return TokenWithPosition(stripped, self.position + offset)
+
+    def lstrip(self, *args, **kwargs):
+        stripped = self.text.lstrip(*args, **kwargs)
+        offset = self.text.find(stripped)
+        return TokenWithPosition(stripped, self.position + offset)
+
+    def rstrip(self, *args, **kwargs):
+        stripped = self.text.rstrip(*args, **kwargs)
         offset = self.text.find(stripped)
         return TokenWithPosition(stripped, self.position + offset)
 
 
-# noinspection PyTypeChecker
+# General Buffer class
 class Buffer:
     """Converts string or iterable into a navigable iterator of strings
 
-    >>> def naturals(i):
-    ...   while True:
-    ...     yield str(i)
-    ...     i += 1
-    >>> b1 = Buffer(naturals(0))
+    >>> b1 = Buffer("012345")
     >>> next(b1)
     '0'
     >>> b1.forward()
@@ -295,22 +293,6 @@ class Buffer:
         """Forward until one of the provided matches is found.
 
         :param condition: set of valid strings
-
-        >>> b = Buffer('abcdef')
-        >>> b.num_forward_until(lambda s: s in 'def')
-        3
-        >>> b.forward(3)
-        'abc'
-        >>> b.num_forward_until(lambda s: s in 'g')
-        3
-        >>> b.forward(3)
-        'def'
-        >>> b.num_forward_until(lambda s: s in 'z')
-        0
-        >>> b.backward(6)
-        'abcdef'
-        >>> b.num_forward_until(lambda s: s not in 'abc')
-        3
         """
         i, c = 0, ''
         while self.hasNext() and not condition(self.peek()):
@@ -327,18 +309,6 @@ class Buffer:
         of the buffer.
 
         :param condition: set of valid strings
-
-        >>> b = Buffer('abcdef')
-        >>> b.forward_until(lambda s: s in 'def')
-        'abc'
-        >>> b.forward_until(lambda s: s in 'f')
-        'de'
-        >>> b.backward(5)
-        'abcde'
-        >>> b.forward_until(lambda s: s not in 'abc')
-        'abc'
-        >>> b.forward_until(lambda s: s in 'def')
-        ''
         """
         c = TokenWithPosition('', self.peek().position)
         while self.hasNext() and not condition(self.peek()):
@@ -361,10 +331,16 @@ class Buffer:
         return self[self.__i:self.__i+j]
 
     def peek(self, j=(0, 1)):
-        """Peek at the next value(s), without advancing the Buffer"""
-        if isinstance(j, int):
-            return self[self.__i+j]
-        return self[self.__i + j[0]:self.__i + j[1]]
+        """
+        Peek at the next value(s), without advancing the Buffer.
+        Return None if index is out of range.
+        """
+        try:
+            if isinstance(j, int):
+                return self[self.__i+j]
+            return self[self.__i + j[0]:self.__i + j[1]]
+        except IndexError:
+            return None
 
     def __next__(self):
         """Implements next."""
@@ -392,7 +368,11 @@ class Buffer:
         >>> b[:]
         'asdf'
         """
-        j, old = i.stop if not isinstance(i, int) else i, self.__i
+        if isinstance(i, int):
+            old, j = self.__i, i
+        else:
+            old, j = self.__i, i.stop
+
         while j is None or self.__i <= j:
             try:
                 next(self)
