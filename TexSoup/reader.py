@@ -8,8 +8,8 @@ __all__ = ['tokenize', 'read_tex']
 COMMAND_TOKENS = {'\\'}
 MATH_TOKENS = {'$', '\[', '\]', '\(', '\)'}
 COMMENT_TOKENS = {'%'}
-ARG_START_TOKENS = {arg.delims()[0] for arg in data.args}
-ARG_END_TOKENS = {arg.delims()[1] for arg in data.args}
+ARG_START_TOKENS = {arg.delims()[0] for arg in data.arg_type}
+ARG_END_TOKENS = {arg.delims()[1] for arg in data.arg_type}
 ARG_TOKENS = ARG_START_TOKENS | ARG_END_TOKENS
 ALL_TOKENS = COMMAND_TOKENS | ARG_TOKENS | MATH_TOKENS | COMMENT_TOKENS
 SKIP_ENVS = ('verbatim', 'equation', 'lstlisting', 'align', 'alignat',
@@ -58,9 +58,9 @@ def next_token(text):
     """
     while text.hasNext():
         for name, f in tokenizers:
-            token = f(text)
-            if token is not None:
-                return token
+            current_token = f(text)
+            if current_token is not None:
+                return current_token
 
 
 @to_buffer
@@ -74,10 +74,10 @@ def tokenize(text):
     >>> print(*tokenize(r'\begin{tabular} 0 & 1 \\ 2 & 0 \end{tabular}'))
     \begin { tabular }  0 & 1 \\ 2 & 0  \end { tabular }
     """
-    token = next_token(text)
-    while token is not None:
-        yield token
-        token = next_token(text)
+    current_token = next_token(text)
+    while current_token is not None:
+        yield current_token
+        current_token = next_token(text)
 
 
 ##########
@@ -110,9 +110,9 @@ def tokenize_punctuation_command(text):
     :param Buffer text: iterator over text, with current position
     """
     if text.peek() == '\\':
-        for string in PUNCTUATION_COMMANDS:
-            if text.peek((1, len(string) + 1)) == string:
-                return text.forward(len(string) + 1)
+        for point in PUNCTUATION_COMMANDS:
+            if text.peek((1, len(point) + 1)) == point:
+                return text.forward(len(point) + 1)
 
 
 @token('command')
@@ -245,28 +245,34 @@ def read_tex(src):
     elif c.startswith('\\'):
         command = TokenWithPosition(c[1:], src.position)
         if command == 'item':
-            extra, arg = read_item(src)
-            mode, expr = 'command', TexCmd(command, arg, extra)
+            extra, arg, stuff = read_item(src)
+            mode, expr = 'command', TexCmd(command, arg, extra, stuff)
         elif command == 'begin':
             mode, expr, _ = 'begin', TexEnv(src.peek(1)), src.forward(3)
         else:
             mode, expr = 'command', TexCmd(command)
 
         # TODO: should really be handled by tokenizer
-        candidate_index = src.num_forward_until(lambda s: not s.isspace())
-        src.forward(candidate_index)
+        stuff_index, candidate_index = 0, src.num_forward_until(lambda s: not s.isspace())
+        while src.peek().isspace():
+            stuff_index += 1
+            expr.stuff.append(read_tex(src))
 
         line_breaks = 0
-        while (src.peek() in ARG_START_TOKENS or (src.peek() == '\n')
-               and line_breaks == 0):
-            if src.peek() == '\n':
-                # Advance buffer if first newline
+        while src.peek() in ARG_START_TOKENS or src.peek().isspace() and line_breaks == 0:
+            space_index = src.num_forward_until(lambda s: not s.isspace())
+            if space_index > 0:
                 line_breaks += 1
-                next(src)
+                if src.peek((0, space_index)).count("\n") <= 1 and src.peek(space_index) in ARG_START_TOKENS:
+                    expr.stuff.append(read_tex(src))
             else:
                 line_breaks = 0
-                expr.args.append(read_tex(src))
+                tex_text = read_tex(src)
+                expr.args.append(tex_text)
+                expr.stuff.append(tex_text)
         if not expr.args:
+            if stuff_index > 0:
+                del expr.stuff[-stuff_index:]
             src.backward(candidate_index)
         if mode == 'begin':
             read_env(src, expr)
@@ -288,30 +294,40 @@ def read_item(src):
     :param Buffer src: a buffer of tokens
     :return: contents of the item and any item arguments
     """
-    stringify = lambda s: TokenWithPosition.join(s.split(' '), glue=' ')
+    def stringify(s):
+        return TokenWithPosition.join(s.split(' '), glue=' ')
 
-    def criterion(s):
+    def forward_until_new(s):
         """Catch the first non-whitespace character"""
-        return not any([s.startswith(substr) for substr in string.whitespace])
+        t = TokenWithPosition('', s.peek().position)
+        while (s.hasNext() and
+                any([s.peek().startswith(substr) for substr in string.whitespace]) and
+                not t.strip(" ").endswith('\n')):
+            t += s.forward(1)
+        return t
 
     # Item argument such as in description environment
     arg = []
+    stuff = []
+    extra = []
+
     if src.peek() in ARG_START_TOKENS:
         c = next(src)
-        arg.append(read_arg(src, c))
-    last = stringify(src.forward_until(criterion))
-    if last.startswith(' '):
-        last = last[1:]
-    extra = [last]
+        a = read_arg(src, c)
+        arg.append(a)
+        stuff.append(a)
+    last = stringify(forward_until_new(src))
+    stuff.append(last)
+    extra.append(last.lstrip(" "))
 
-    while src.hasNext() and not src.startswith('\n\n') and \
-            not src.startswith('\item') and \
-            not src.startswith('\end') and \
-            not (hasattr(last, 'endswith') and last.endswith('\n\n')
-                 and len(extra) > 1):
+    while (src.hasNext() and not str(src).strip(" ").startswith('\n\n') and
+            not src.startswith('\item') and
+            not src.startswith('\end') and
+            not (isinstance(last, TokenWithPosition) and last.strip(" ").endswith('\n\n') and len(extra) > 1)):
         last = read_tex(src)
         extra.append(last)
-    return extra, arg
+        stuff.append(last)
+    return extra, arg, stuff
 
 
 def read_math_env(src, expr):

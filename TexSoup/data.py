@@ -33,20 +33,26 @@ class TexNode(object):
     \end{itemize}
     ```
 
-    Here are its three properties `contents`, `children`, and `descendants`
-    below:
+    Here are its five properties `name`, `everything`, `contents`, `children`, and `descendants` below:
 
-    - `contents`: Anything and everything inside of this command. Everything
-    needed to fully reconstruct the latex.
+    - `name`: The name of the command.
+
+        ex. `title`
+
+    - `contents`: Any non-whitespace contents inside of this command.
 
         ex. `["Floating Text", \item outer text, \begin{enumerate}]`.
+
+    - `everything`: Anything and everything inside of this command.
+        Everything needed to fully reconstruct the latex.
+
+        ex. `["Floating Text", "\n", \item outer text, "\n", \begin{enumerate}]`.
 
     - `children`: Same as contents, but filter out random pieces of text.
 
         ex. Just `[\item outer text, \begin{enumerate}]`.
 
-    - `descendants`: all children, and all children of all children, and all
-     children of all children of all... etc.
+    - `descendants`: all children, and all children of all children, and all children of all children of all... etc.
 
         ex. `[\item outer text, \begin{enumerate}, \item nested text]`
     """
@@ -73,7 +79,7 @@ class TexNode(object):
     def args(self):
         return self.expr.args
 
-    # noinspection PyUnresolvedReferences
+    # Should be set by parent otherwise returns None result
     @property
     def parent(self):
         return self.expr.parent
@@ -242,9 +248,11 @@ class TexNode(object):
 class TexExpr(object):
     """General TeX expression abstract"""
 
-    def __init__(self, name, contents=(), args=()):
+    def __init__(self, name, contents=(), args=(), stuff=()):
         self.name = name.strip()
         self.args = TexArgs(*args)
+        self.stuff = stuff
+        self.parent = self.parent if hasattr(self, 'parent') else None
         self._contents = contents or []
 
         for content in contents:
@@ -271,6 +279,10 @@ class TexExpr(object):
     def contents(self):
         """Returns all tokenized chunks for a particular expression."""
         raise NotImplementedError()
+
+    @property
+    def arguments(self):
+        return AllArgs(self.stuff)
 
     @property
     def tokens(self):
@@ -314,7 +326,7 @@ class TexEnv(TexExpr):
     """
 
     def __init__(self, name, contents=(), args=(), preserve_whitespace=False,
-                 nobegin=False, begin=False, end=False):
+                 nobegin=False, begin=False, end=False, stuff=()):
         """Initialization for Tex environment.
 
         :param str name: name of environment
@@ -324,8 +336,10 @@ class TexEnv(TexExpr):
             whitespace will be removed from contents.
         :param bool nobegin: Disable \begin{...} notation.
         """
-        super().__init__(name, contents, args)
+        super().__init__(name, contents, args, stuff)
         self.preserve_whitespace = preserve_whitespace
+        self.stuff = stuff if stuff else []
+
         self.nobegin = nobegin
         self.begin = begin if begin else (self.name if self.nobegin else "\\begin{%s}" % self.name)
         self.end = end if end else (self.name if self.nobegin else "\\end{%s}" % self.name)
@@ -333,8 +347,13 @@ class TexEnv(TexExpr):
     @property
     def contents(self):
         for content in self._contents:
-            if not isinstance(content, TokenWithPosition) or bool(content.strip()):
+            if not isinstance(content, TokenWithPosition) or bool(content.strip()) or self.preserve_whitespace:
                 yield content
+
+    @property
+    def everything(self):
+        for content in self._contents:
+            yield content
 
     def __str__(self):
         contents = ''.join(map(str, self._contents))
@@ -371,9 +390,10 @@ class TexCmd(TexExpr):
     \textit{slant}
     """
 
-    def __init__(self, name, args=(), extra=()):
-        super().__init__(name, [], args)
+    def __init__(self, name, args=(), extra=(), stuff=()):
+        super().__init__(name, [], args, stuff)
         self.extra = extra if extra else []
+        self.stuff = stuff if stuff else []
 
     @property
     def contents(self):
@@ -406,7 +426,7 @@ class TexCmd(TexExpr):
 #############
 
 
-# noinspection PyUnresolvedReferences
+# A general Argument class
 class Arg(object):
     """LaTeX command argument
 
@@ -437,10 +457,10 @@ class Arg(object):
         :param Union[string, iterable] s: Either a string or a list, where the first and
             last elements are valid argument delimiters.
         """
-        if isinstance(s, args):
+        if isinstance(s, arg_type):
             return s
         if isinstance(s, (list, tuple)):
-            for arg in args:
+            for arg in arg_type:
                 if [s[0], s[-1]] == arg.delims():
                     return arg(*s[1:-1])
             raise TypeError('Malformed argument. First and last elements must '
@@ -448,7 +468,7 @@ class Arg(object):
                             ' could not find matching punctuation for: %s.\n'
                             'Common issues include: Unescaped special characters,'
                             ' mistyped closing punctuation, misalignment.' % (str(s)))
-        for arg in args:
+        for arg in arg_type:
             if arg.__is__(s):
                 return arg(arg.__strip__(s))
         raise TypeError('Malformed argument. Must be an Arg or a string in '
@@ -486,6 +506,8 @@ class Arg(object):
         """Stringifies argument value."""
         return self.fmt % self.value
 
+    fmt = "%s"
+
 
 class OArg(Arg):
     """Optional argument."""
@@ -501,7 +523,7 @@ class RArg(Arg):
     type = 'required'
 
 
-args = (OArg, RArg)
+arg_type = (OArg, RArg)
 
 
 class TexArgs(list):
@@ -566,3 +588,19 @@ class TexArgs(list):
         [RArg('a'), OArg('b'), RArg('c')]
         """
         return '[%s]' % ', '.join(map(repr, self.__args))
+
+
+class AllArgs(list):
+
+    def __init__(self, stuff):
+        super().__init__()
+        self.stuff = stuff
+
+    def __str__(self):
+        return "".join([str(tex) for tex in self.stuff])
+
+    def __repr__(self):
+        return self.stuff
+
+    def __iter__(self):
+        return iter(self.stuff)

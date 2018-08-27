@@ -1,10 +1,14 @@
-from .config import *
 from TexSoup.utils import TokenWithPosition
+from tests.config import chikin
 import re
 
 ##############
 # NAVIGATION #
 ##############
+
+
+if chikin:
+    pass
 
 
 def test_navigation_attributes(chikin):
@@ -52,6 +56,7 @@ def test_navigation_positions(chikin):
     # get position of section
     section_pos = list(chikin.find_all('section'))[1].name.position
     assert chikin.char_pos_to_line(section_pos) == (15, 1)
+
 
 ##########
 # SEARCH #
@@ -108,6 +113,7 @@ def test_add_children_at(chikin):
     assert 'asdfghjkl' in str(chikin)
     assert str(chikin[0]) == 'asdfghjkl'
 
+
 #########
 # TEXT #
 ########
@@ -118,12 +124,14 @@ def test_text(chikin):
     assert 'Chikin Fly' in text
     assert 'waddle\n' in text
 
+
 def test_search_regex(chikin):
     """Find all occurenses of a regex in the document text"""
     matches = list(chikin.search_regex(r"unless[a-z ]*"))
     assert len(matches) == 1
     assert matches[0] == "unless ordered to squat"
     assert matches[0].position == 341
+
 
 def test_search_regex_precompiled_pattern(chikin):
     """Find all occurenses of a regex in the document text"""

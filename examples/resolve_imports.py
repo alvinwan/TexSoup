@@ -40,7 +40,9 @@ def resolve(tex):
 
     return soup
 
+
 if __name__ == '__main__':
     new_soup = resolve(open(input('Source Tex file:').strip()))
+
     with open(input('Destination Tex file:').strip()) as f:
         f.write(repr(new_soup))
