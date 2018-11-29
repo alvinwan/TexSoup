@@ -14,7 +14,8 @@ ARG_TOKENS = ARG_START_TOKENS | ARG_END_TOKENS
 ALL_TOKENS = COMMAND_TOKENS | ARG_TOKENS | MATH_TOKENS | COMMENT_TOKENS
 SKIP_ENVS = ('verbatim', 'equation', 'lstlisting', 'align', 'alignat',
              'equation*', 'align*', 'math', 'displaymath', 'split', 'array',
-             'eqnarray', 'multiline', 'gather', 'flalign', 'flalign*',
+             'eqnarray', 'eqnarray*', 'multline', 'multline*', 'gather',
+             'gather*', 'flalign', 'flalign*',
              '$', '$$', '\[', '\]', '\(', '\)')
 BRACKETS_DELIMITERS = {'(', ')', '<', '>', '[', ']', '{', '}',
                        '\{', '\}', '.' '|', '\langle', '\rangle',
