@@ -298,6 +298,13 @@ def test_multiline_args():
     assert len(list(soup.contents)) == 6
 
 
+def test_nested_commands():
+    """Tests that nested commands are parsed correctly."""
+    soup = TexSoup(r'\emph{Some \textbf{bold} words}')
+    assert soup.textbf is not None
+    assert len(list(soup.emph.contents)) == 3
+
+
 ##############
 # FORMATTING #
 ##############

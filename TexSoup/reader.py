@@ -393,8 +393,6 @@ def read_arg(src, c):
         if src.peek() in ARG_END_TOKENS:
             content.append(next(src))
             break
-        elif src.peek() in ALL_TOKENS:
-            content.append(read_tex(src))
         else:
-            content.append(next(src))
+            content.append(read_tex(src))
     return Arg.parse(content)
