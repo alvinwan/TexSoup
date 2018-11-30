@@ -317,6 +317,10 @@ def read_item(src):
         a = read_arg(src, c)
         arg.append(a)
         stuff.append(a)
+
+    if not src.hasNext():
+        return extra, arg, stuff
+
     last = stringify(forward_until_new(src))
     stuff.append(last)
     extra.append(last.lstrip(" "))

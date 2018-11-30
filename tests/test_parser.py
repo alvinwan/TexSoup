@@ -245,6 +245,12 @@ def test_item_parsing():
     assert str(soup.item.label) == '\label{some-label}'
 
 
+def test_item_argument_parsing():
+    """Tests that item arguments are correctly associated with item."""
+    soup = TexSoup(r"""\item[marker]""")
+    assert str(soup.item) == r'\item[marker]'
+
+
 def test_comment_escaping():
     """Tests that comments can be escaped properly."""
     soup = TexSoup(r"""\caption{ 30 \%}""")
