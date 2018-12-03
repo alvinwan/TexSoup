@@ -196,6 +196,12 @@ def test_math_environment_weirdness():
     assert '$' in str(next(soup.a.contents)), 'Math env not found in begin env'
     soup = TexSoup(r"""\begin{verbatim} $ \end{verbatim}""")
     assert soup.verbatim is not None
+    # GH48
+    soup = TexSoup(r"""a\\$a$""")
+    assert '$' in str(soup), 'Math env not correctly parsed after \\\\'
+    # GH55
+    soup = TexSoup(r"""\begin{env} text\\$formula$ \end{env}""")
+    assert '$' in str(soup.env), 'Math env not correctly parsed after \\\\'
 
 
 def test_item_parsing():

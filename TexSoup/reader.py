@@ -174,7 +174,8 @@ def tokenize_math(text):
     >>> tokenize_math(b)
     '$$'
     """
-    if text.startswith('$') and (text.position == 0 or text.peek(-1) != '\\'):
+    if text.startswith('$') and (
+       text.position == 0 or text.peek(-1) != '\\' or text.endswith(r'\\')):
         starter = '$$' if text.startswith('$$') else '$'
         return TokenWithPosition(text.forward(len(starter)), text.position)
 
