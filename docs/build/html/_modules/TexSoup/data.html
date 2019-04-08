@@ -1,0 +1,1023 @@
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>TexSoup.data &mdash; TexSoup master documentation</title>
+  
+
+  
+  
+    <link rel="apple-touch-icon" sizes="180x180" href="_static/images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="_static/images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="_static/images/favicon-16x16.png">
+    <link rel="manifest" href="_static/images/site.webmanifest">
+    <link rel="mask-icon" href="_static/images/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="theme-color" content="#ffffff">
+  
+  
+  
+    <link rel="canonical" href="http://texsoup.alvinwan.com_modules/TexSoup/data.html"/>
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!-- <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/katex-math.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/css/theme-mod.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+</head>
+<div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="http://texsoup.alvinwan.com" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+        
+          <li>
+            <a href="http://texsoup.alvinwan.com">Home</a>
+          </li>
+        
+          <li class="active">
+            <a href="http://texsoup.alvinwan.org/docs/index.html">Docs</a>
+          </li>
+        
+          <li>
+            <a href="https://github.com/alvinwan/texsoup">Github</a>
+          </li>
+        
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+
+  </div>
+</div>
+
+
+<body class="pytorch-body">
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+
+            
+              
+              
+                <div class="version">
+                  master (0.1.4 )
+                </div>
+              
+            
+
+            
+
+
+  
+
+
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+            
+          </div>
+
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../navigation.html">Navigation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../searching.html">Search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modification.html">Modification</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Notes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../parser.html">Parsing Mechanics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Package Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../main.html">Main Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../data.html">Data Structures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../utils.html">Utilities</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../../index.html">
+          
+            Docs
+          
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="../index.html">Module code</a> &gt;</li>
+        
+          <li><a href="../TexSoup.html">TexSoup</a> &gt;</li>
+        
+      <li>TexSoup.data</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">
+          Shortcuts
+        </div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <h1>Source code for TexSoup.data</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">TexSoup transforms a LaTeX document into a complex tree of various Python</span>
+<span class="sd">objects, but all objects fall into one of the following three categories:</span>
+<span class="sd">``TexNode``, ``TexExpr`` (environments and commands), and ``Arg`` s.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="k">import</span> <span class="n">TokenWithPosition</span><span class="p">,</span> <span class="n">CharToLineOffset</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Union</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;TexNode&#39;</span><span class="p">,</span> <span class="s1">&#39;TexCmd&#39;</span><span class="p">,</span> <span class="s1">&#39;TexEnv&#39;</span><span class="p">,</span> <span class="s1">&#39;Arg&#39;</span><span class="p">,</span> <span class="s1">&#39;OArg&#39;</span><span class="p">,</span> <span class="s1">&#39;RArg&#39;</span><span class="p">,</span> <span class="s1">&#39;TexArgs&#39;</span><span class="p">]</span>
+
+
+<span class="c1">#############</span>
+<span class="c1"># Interface #</span>
+<span class="c1">#############</span>
+
+
+<div class="viewcode-block" id="TexNode"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexNode">[docs]</a><span class="k">class</span> <span class="nc">TexNode</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;A tree node representing an expression in the LaTeX document.</span>
+
+<span class="sd">    Every node in the parse tree is a ``TexNode``, equipped with navigation,</span>
+<span class="sd">    search, and modification utilities.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expr</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates TexNode object</span>
+
+<span class="sd">        :param TexExpr expr: a LaTeX expression, either a singleton</span>
+<span class="sd">            command or an environment containing other commands</span>
+<span class="sd">        :param str src: LaTeX source string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="p">(</span><span class="n">TexCmd</span><span class="p">,</span> <span class="n">TexEnv</span><span class="p">)),</span> <span class="s1">&#39;Created from TexExpr&#39;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expr</span> <span class="o">=</span> <span class="n">expr</span>
+        <span class="k">if</span> <span class="n">src</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">char_to_line</span> <span class="o">=</span> <span class="n">CharToLineOffset</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">char_to_line</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1">#################</span>
+    <span class="c1"># MAGIC METHODS #</span>
+    <span class="c1">#################</span>
+
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert all invalid attributes into basic find operation.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span> <span class="ow">or</span> <span class="n">default</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">contents</span><span class="p">)[</span><span class="n">item</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; node = TexNode(TexEnv(&#39;lstlisting&#39;, (&#39;hai&#39;, &#39;there&#39;)))</span>
+<span class="sd">        &gt;&gt;&gt; list(node)</span>
+<span class="sd">        [&#39;hai&#39;, &#39;there&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">contents</span>
+
+    <span class="k">def</span> <span class="nf">__match__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="p">()):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Check if given attributes match current object</span>
+
+<span class="sd">        &gt;&gt;&gt; from TexSoup import TexSoup</span>
+<span class="sd">        &gt;&gt;&gt; soup = TexSoup(r&#39;\ref{hello}\ref{hello}\ref{hello}\ref{nono}&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; soup.count(r&#39;\ref{hello}&#39;)</span>
+<span class="sd">        3</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s1">&#39;{&#39;</span> <span class="ow">in</span> <span class="n">name</span> <span class="ow">or</span> <span class="s1">&#39;[&#39;</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="n">name</span>
+        <span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">attrs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="o">!=</span> <span class="n">v</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Interpreter representation&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Stringified command&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="p">)</span>
+
+    <span class="c1">##############</span>
+    <span class="c1"># PROPERTIES #</span>
+    <span class="c1">##############</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">args</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">children</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Immediate children of this TeX element that are valid TeX objects.</span>
+
+<span class="sd">        In effect, same as contents, but remove random pieces of text.</span>
+
+<span class="sd">        :return: generator of all children</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+            <span class="n">child</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span>
+            <span class="k">yield</span> <span class="n">TexNode</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">contents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Any non-whitespace contents inside of this TeX element.</span>
+
+<span class="sd">        :return: generator of all contents</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">contents</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="p">(</span><span class="n">TexEnv</span><span class="p">,</span> <span class="n">TexCmd</span><span class="p">)):</span>
+                <span class="k">yield</span> <span class="n">TexNode</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">child</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">descendants</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns all descendants for this TeX element.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__descendants</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">extra</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Extra string not a part of the expression name.</span>
+
+<span class="sd">        This typically only occurs after an \item or similar LaTeX command.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">extra</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="c1"># Should be set by parent otherwise returns None result</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">parent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">parent</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns &#39;string&#39; content, which is valid if and only if (1) the</span>
+<span class="sd">        expression is a TexCmd and (2) the command has only one argument.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="p">,</span> <span class="n">TexCmd</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">text</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">descendant</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">contents</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">descendant</span><span class="p">,</span> <span class="n">TokenWithPosition</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="n">descendant</span>
+            <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">descendant</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">):</span>
+                <span class="k">yield from</span> <span class="n">descendant</span><span class="o">.</span><span class="n">text</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tokens</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns generator of all tokens, for this Tex element&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">tokens</span>
+
+    <span class="c1">##################</span>
+    <span class="c1"># PUBLIC METHODS #</span>
+    <span class="c1">##################</span>
+
+<div class="viewcode-block" id="TexNode.add_children"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexNode.add_children">[docs]</a>    <span class="k">def</span> <span class="nf">add_children</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">nodes</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Add node(s) to this node&#39;s list of children.</span>
+
+<span class="sd">        :param TexNode nodes: List of nodes to add</span>
+
+<span class="sd">        &gt;&gt;&gt; from TexSoup import TexSoup</span>
+<span class="sd">        &gt;&gt;&gt; soup = TexSoup(r&#39;&#39;&#39;</span>
+<span class="sd">        ... \section{Hey}</span>
+<span class="sd">        ... \textbf{Silly}</span>
+<span class="sd">        ... \textit{Willy}&#39;&#39;&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; soup.section</span>
+<span class="sd">        \section{Hey}</span>
+<span class="sd">        &gt;&gt;&gt; soup.section.add_children(soup.textbf, soup.textit)</span>
+<span class="sd">        &gt;&gt;&gt; soup.section</span>
+<span class="sd">        \section{Hey} \textbf{Silly}\textit{Willy}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">add_contents</span><span class="p">(</span><span class="o">*</span><span class="n">nodes</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TexNode.add_children_at"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexNode.add_children_at">[docs]</a>    <span class="k">def</span> <span class="nf">add_children_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="o">*</span><span class="n">nodes</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Add a node to its list of children, inserted at position i.</span>
+
+<span class="sd">        :param int i: Position to add nodes to</span>
+<span class="sd">        :param TexNode nodes: List of nodes to add</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="p">(</span>
+                <span class="s1">&#39;Provided index &quot;</span><span class="si">{}</span><span class="s1">&quot; is not an integer! Did you switch your &#39;</span>
+                <span class="s1">&#39;arguments? The first argument to `add_children_at` is the &#39;</span>
+                <span class="s1">&#39;index.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">add_contents_at</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="o">*</span><span class="n">nodes</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TexNode.char_pos_to_line"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexNode.char_pos_to_line">[docs]</a>    <span class="k">def</span> <span class="nf">char_pos_to_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">char_pos</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Translate character position in the original document to line number.</span>
+
+<span class="sd">        &gt;&gt;&gt; from TexSoup import TexSoup</span>
+<span class="sd">        &gt;&gt;&gt; soup = TexSoup(r&#39;&#39;&#39;</span>
+<span class="sd">        ... \section{Hey}</span>
+<span class="sd">        ... \textbf{Silly}</span>
+<span class="sd">        ... \textit{Willy}&#39;&#39;&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">char_to_line</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s1">&#39;CharToLineOffset is not initialized. Pass src to TexNode &#39;</span>
+            <span class="s1">&#39;constructor&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">char_to_line</span><span class="p">(</span><span class="n">char_pos</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TexNode.count"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexNode.count">[docs]</a>    <span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">attrs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return number of descendants matching criteria&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">attrs</span><span class="p">)))</span></div>
+
+<div class="viewcode-block" id="TexNode.delete"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexNode.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Delete this node from the parse tree tree.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">remove_child</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TexNode.find"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexNode.find">[docs]</a>    <span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">attrs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return first descendant node matching criteria&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">attrs</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="TexNode.find_all"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexNode.find_all">[docs]</a>    <span class="k">def</span> <span class="nf">find_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">attrs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return all descendant nodes matching criteria, naively.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">descendant</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__descendants</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">descendant</span><span class="p">,</span> <span class="s1">&#39;__match__&#39;</span><span class="p">)</span> <span class="ow">and</span> \
+                    <span class="n">descendant</span><span class="o">.</span><span class="n">__match__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="n">descendant</span></div>
+
+<div class="viewcode-block" id="TexNode.remove_child"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexNode.remove_child">[docs]</a>    <span class="k">def</span> <span class="nf">remove_child</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove a node from its list of contents.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">remove_content</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">expr</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TexNode.replace"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexNode.replace">[docs]</a>    <span class="k">def</span> <span class="nf">replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">nodes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Replace this node in the parse tree with the provided node(s).&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">replace_child</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">nodes</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TexNode.replace_child"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexNode.replace_child">[docs]</a>    <span class="k">def</span> <span class="nf">replace_child</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">child</span><span class="p">,</span> <span class="o">*</span><span class="n">nodes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Replace provided node with node(s).&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">add_contents_at</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">remove_content</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">expr</span><span class="p">),</span>
+            <span class="o">*</span><span class="n">nodes</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">search_regex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pattern</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+                <span class="n">body</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>  <span class="c1"># group() returns the full match</span>
+                <span class="n">start</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+                <span class="k">yield</span> <span class="n">TokenWithPosition</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">position</span> <span class="o">+</span> <span class="n">start</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__descendants</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Implementation for descendants, hacky workaround for __getattr__</span>
+<span class="sd">        issues.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">contents</span><span class="p">,</span>
+                               <span class="o">*</span><span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">descendants</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="p">])</span></div>
+
+
+<span class="c1">###############</span>
+<span class="c1"># Expressions #</span>
+<span class="c1">###############</span>
+
+
+<div class="viewcode-block" id="TexExpr"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexExpr">[docs]</a><span class="k">class</span> <span class="nc">TexExpr</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;General TeX expression abstract&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">contents</span><span class="o">=</span><span class="p">(),</span> <span class="n">args</span><span class="o">=</span><span class="p">(),</span> <span class="n">stuff</span><span class="o">=</span><span class="p">()):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">TexArgs</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stuff</span> <span class="o">=</span> <span class="n">stuff</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;parent&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_contents</span> <span class="o">=</span> <span class="n">contents</span> <span class="ow">or</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">content</span> <span class="ow">in</span> <span class="n">contents</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="p">(</span><span class="n">TexEnv</span><span class="p">,</span> <span class="n">TexCmd</span><span class="p">)):</span>
+                <span class="n">content</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">add_contents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">contents</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_contents</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">contents</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">add_contents_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="o">*</span><span class="n">contents</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">content</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">contents</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_contents</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="n">j</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TexExpr.remove_content"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexExpr.remove_content">[docs]</a>    <span class="k">def</span> <span class="nf">remove_content</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove a provided expression from its list of contents.</span>
+
+<span class="sd">        :return: index of the expression removed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contents</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_contents</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">index</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">contents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns all tokenized chunks for a particular expression.&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">AllArgs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stuff</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tokens</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Further breaks down all tokens for a particular expression into</span>
+<span class="sd">        words and other expressions.</span>
+
+<span class="sd">        &gt;&gt;&gt; tex = TexEnv(&#39;lstlisting&#39;, (&#39;var x = 10&#39;,))</span>
+<span class="sd">        &gt;&gt;&gt; list(tex.tokens)</span>
+<span class="sd">        [&#39;var x = 10&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">content</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">contents</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">TokenWithPosition</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">content</span><span class="o">.</span><span class="n">split</span><span class="p">():</span>
+                    <span class="k">yield</span> <span class="n">word</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">content</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">children</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns all child expressions for a particular expression.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="n">TexEnv</span><span class="p">,</span> <span class="n">TexCmd</span><span class="p">)),</span> <span class="bp">self</span><span class="o">.</span><span class="n">contents</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TexEnv"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexEnv">[docs]</a><span class="k">class</span> <span class="nc">TexEnv</span><span class="p">(</span><span class="n">TexExpr</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Abstraction for a LaTeX command, denoted by \begin{env} and \end{env}.</span>
+<span class="sd">    Contains three attributes: (1) the environment name itself, (2) the</span>
+<span class="sd">    environment arguments, whether optional or required, and (3) the</span>
+<span class="sd">    environment&#39;s contents.</span>
+
+<span class="sd">    &gt;&gt;&gt; t = TexEnv(&#39;tabular&#39;, [&#39;\n0 &amp; 0 &amp; * \\\\\n1 &amp; 1 &amp; * \\\\\n&#39;],</span>
+<span class="sd">    ...     [RArg(&#39;c | c c&#39;)])</span>
+<span class="sd">    &gt;&gt;&gt; t</span>
+<span class="sd">    TexEnv(&#39;tabular&#39;, [&#39;\n0 &amp; 0 &amp; * \\\\\n1 &amp; 1 &amp; * \\\\\n&#39;], [RArg(&#39;c | c c&#39;)])</span>
+<span class="sd">    &gt;&gt;&gt; print(t)</span>
+<span class="sd">    \begin{tabular}{c | c c}</span>
+<span class="sd">    0 &amp; 0 &amp; * \\</span>
+<span class="sd">    1 &amp; 1 &amp; * \\</span>
+<span class="sd">    \end{tabular}</span>
+<span class="sd">    &gt;&gt;&gt; len(list(t.children))</span>
+<span class="sd">    0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">contents</span><span class="o">=</span><span class="p">(),</span> <span class="n">args</span><span class="o">=</span><span class="p">(),</span> <span class="n">preserve_whitespace</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">nobegin</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">begin</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">stuff</span><span class="o">=</span><span class="p">()):</span>
+        <span class="sd">&quot;&quot;&quot;Initialization for Tex environment.</span>
+
+<span class="sd">        :param str name: name of environment</span>
+<span class="sd">        :param iterable contents: list of contents</span>
+<span class="sd">        :param iterable args: list of Tex Arguments</span>
+<span class="sd">        :param bool preserve_whitespace: If false, elements containing only</span>
+<span class="sd">            whitespace will be removed from contents.</span>
+<span class="sd">        :param bool nobegin: Disable \begin{...} notation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">contents</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">stuff</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">preserve_whitespace</span> <span class="o">=</span> <span class="n">preserve_whitespace</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stuff</span> <span class="o">=</span> <span class="n">stuff</span> <span class="k">if</span> <span class="n">stuff</span> <span class="k">else</span> <span class="p">[]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">nobegin</span> <span class="o">=</span> <span class="n">nobegin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">begin</span> <span class="o">=</span> <span class="n">begin</span> <span class="k">if</span> <span class="n">begin</span> <span class="k">else</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nobegin</span> <span class="k">else</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">begin{</span><span class="si">%s</span><span class="s2">}&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">end</span> <span class="k">if</span> <span class="n">end</span> <span class="k">else</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nobegin</span> <span class="k">else</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">end{</span><span class="si">%s</span><span class="s2">}&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">contents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">content</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contents</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">TokenWithPosition</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">bool</span><span class="p">(</span><span class="n">content</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">preserve_whitespace</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">content</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">everything</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">content</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contents</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">content</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">contents</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contents</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;[tex]&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">contents</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s%s%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">begin</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">),</span> <span class="n">contents</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;TexEnv(&#39;</span><span class="si">%s</span><span class="s2">&#39;)&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">return</span> <span class="s2">&quot;TexEnv(&#39;</span><span class="si">%s</span><span class="s2">&#39;, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_contents</span><span class="p">),</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TexCmd"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexCmd">[docs]</a><span class="k">class</span> <span class="nc">TexCmd</span><span class="p">(</span><span class="n">TexExpr</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Abstraction for a LaTeX command. Contains two attributes: (1) the</span>
+<span class="sd">    command name itself and (2) the command arguments, whether optional or</span>
+<span class="sd">    required.</span>
+
+<span class="sd">    :param str name: name of the command, e.g., &quot;textbf&quot;</span>
+<span class="sd">    :param list args: Arg objects</span>
+<span class="sd">    :param list extra: TexExpr objects</span>
+
+<span class="sd">    &gt;&gt;&gt; t = TexCmd(&#39;textbf&#39;,[RArg(&#39;big &#39;,TexCmd(&#39;textit&#39;,[RArg(&#39;slant&#39;)]),&#39;.&#39;)])</span>
+<span class="sd">    &gt;&gt;&gt; t</span>
+<span class="sd">    TexCmd(&#39;textbf&#39;, [RArg(&#39;big &#39;, TexCmd(&#39;textit&#39;, [RArg(&#39;slant&#39;)]), &#39;.&#39;)])</span>
+<span class="sd">    &gt;&gt;&gt; print(t)</span>
+<span class="sd">    \textbf{big \textit{slant}.}</span>
+<span class="sd">    &gt;&gt;&gt; children = list(map(str, t.children))</span>
+<span class="sd">    &gt;&gt;&gt; len(children)</span>
+<span class="sd">    1</span>
+<span class="sd">    &gt;&gt;&gt; print(children[0])</span>
+<span class="sd">    \textit{slant}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(),</span> <span class="n">extra</span><span class="o">=</span><span class="p">(),</span> <span class="n">stuff</span><span class="o">=</span><span class="p">()):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">[],</span> <span class="n">args</span><span class="p">,</span> <span class="n">stuff</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extra</span> <span class="o">=</span> <span class="n">extra</span> <span class="k">if</span> <span class="n">extra</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stuff</span> <span class="o">=</span> <span class="n">stuff</span> <span class="k">if</span> <span class="n">stuff</span> <span class="k">else</span> <span class="p">[]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">contents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;All contents of command arguments&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">expr</span> <span class="ow">in</span> <span class="n">arg</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">expr</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">expr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">expr</span>
+
+<div class="viewcode-block" id="TexCmd.add_contents"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexCmd.add_contents">[docs]</a>    <span class="k">def</span> <span class="nf">add_contents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">contents</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Amend extra instead of contents, as commands do not have contents.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extra</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">contents</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="si">%s%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="si">%s%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;TexCmd(&#39;</span><span class="si">%s</span><span class="s2">&#39;)&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">return</span> <span class="s2">&quot;TexCmd(&#39;</span><span class="si">%s</span><span class="s2">&#39;, </span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">))</span></div>
+
+
+<span class="c1">#############</span>
+<span class="c1"># Arguments #</span>
+<span class="c1">#############</span>
+
+
+<span class="c1"># A general Argument class</span>
+<div class="viewcode-block" id="Arg"><a class="viewcode-back" href="../../data.html#TexSoup.data.Arg">[docs]</a><span class="k">class</span> <span class="nc">Arg</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;LaTeX command argument</span>
+
+<span class="sd">    &gt;&gt;&gt; arg = Arg(&#39;huehue&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; arg[0]</span>
+<span class="sd">    &#39;h&#39;</span>
+<span class="sd">    &gt;&gt;&gt; arg[1:]</span>
+<span class="sd">    &#39;uehue&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">exprs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize argument using list of expressions.</span>
+
+<span class="sd">        :param Union[str,TexCmd,TexEnv] exprs: Tex expressions contained in the</span>
+<span class="sd">            argument. Can be other commands or environments, or even strings.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exprs</span> <span class="o">=</span> <span class="n">exprs</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Argument value, without format.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">exprs</span><span class="p">))</span>
+
+<div class="viewcode-block" id="Arg.parse"><a class="viewcode-back" href="../../data.html#TexSoup.data.Arg.parse">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parse a string or list and return an Argument object</span>
+
+<span class="sd">        :param Union[str,iterable] s: Either a string or a list, where the first and</span>
+<span class="sd">            last elements are valid argument delimiters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">arg_type</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">s</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">arg_type</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">==</span> <span class="n">arg</span><span class="o">.</span><span class="n">delims</span><span class="p">():</span>
+                    <span class="k">return</span> <span class="n">arg</span><span class="p">(</span><span class="o">*</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Malformed argument. First and last elements must &#39;</span>
+                            <span class="s1">&#39;match a valid argument format. In this case, TexSoup&#39;</span>
+                            <span class="s1">&#39; could not find matching punctuation for: </span><span class="si">%s</span><span class="s1">.</span><span class="se">\n</span><span class="s1">&#39;</span>
+                            <span class="s1">&#39;Common issues include: Unescaped special characters,&#39;</span>
+                            <span class="s1">&#39; mistyped closing punctuation, misalignment.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">)))</span>
+        <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">arg_type</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">arg</span><span class="o">.</span><span class="n">__is__</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">arg</span><span class="p">(</span><span class="n">arg</span><span class="o">.</span><span class="n">__strip__</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Malformed argument. Must be an Arg or a string in &#39;</span>
+                        <span class="s1">&#39;either brackets or curly braces.&#39;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieve an argument&#39;s value&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Arg.delims"><a class="viewcode-back" href="../../data.html#TexSoup.data.Arg.delims">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">delims</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns delimiters&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">fmt</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__is__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test if string matches format.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">delims</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span> <span class="ow">and</span> <span class="n">s</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">delims</span><span class="p">()[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__strip__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Strip string of format.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">s</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">delims</span><span class="p">()[</span><span class="mi">0</span><span class="p">]):</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">delims</span><span class="p">()[</span><span class="mi">1</span><span class="p">])]</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Iterator iterates over all argument contents.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exprs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Makes argument display-friendly.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">(</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                           <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">repr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">exprs</span><span class="p">)))</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Stringifies argument value.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="n">fmt</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span></div>
+
+
+<div class="viewcode-block" id="OArg"><a class="viewcode-back" href="../../data.html#TexSoup.data.OArg">[docs]</a><span class="k">class</span> <span class="nc">OArg</span><span class="p">(</span><span class="n">Arg</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Optional argument.&quot;&quot;&quot;</span>
+
+    <span class="n">fmt</span> <span class="o">=</span> <span class="s1">&#39;[</span><span class="si">%s</span><span class="s1">]&#39;</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="s1">&#39;optional&#39;</span></div>
+
+
+<div class="viewcode-block" id="RArg"><a class="viewcode-back" href="../../data.html#TexSoup.data.RArg">[docs]</a><span class="k">class</span> <span class="nc">RArg</span><span class="p">(</span><span class="n">Arg</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Required argument.&quot;&quot;&quot;</span>
+
+    <span class="n">fmt</span> <span class="o">=</span> <span class="s1">&#39;{</span><span class="si">%s</span><span class="s1">}&#39;</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="s1">&#39;required&#39;</span></div>
+
+
+<span class="n">arg_type</span> <span class="o">=</span> <span class="p">(</span><span class="n">OArg</span><span class="p">,</span> <span class="n">RArg</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="TexArgs"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexArgs">[docs]</a><span class="k">class</span> <span class="nc">TexArgs</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;List data structure, supporting additional ops for command arguments</span>
+
+<span class="sd">    Use regular indexing to access the argument value. Use parentheses, like</span>
+<span class="sd">    a method invocation, to access an Arg object.</span>
+
+<span class="sd">    &gt;&gt;&gt; arguments = TexArgs(RArg(&#39;arg0&#39;), &#39;[arg1]&#39;, &#39;{arg2}&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; arguments</span>
+<span class="sd">    [RArg(&#39;arg0&#39;), OArg(&#39;arg1&#39;), RArg(&#39;arg2&#39;)]</span>
+<span class="sd">    &gt;&gt;&gt; arguments(2)</span>
+<span class="sd">    RArg(&#39;arg2&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; arguments[2]</span>
+<span class="sd">    &#39;arg2&#39;</span>
+<span class="sd">    &gt;&gt;&gt; arguments(2).type</span>
+<span class="sd">    &#39;required&#39;</span>
+<span class="sd">    &gt;&gt;&gt; str(arguments(2))</span>
+<span class="sd">    &#39;{arg2}&#39;</span>
+<span class="sd">    &gt;&gt;&gt; arguments.append(&#39;[arg3]&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; arguments(3)</span>
+<span class="sd">    OArg(&#39;arg3&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; len(arguments)</span>
+<span class="sd">    4</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Append all arguments to list&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__args</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TexArgs.append"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexArgs.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Append a value to the list&quot;&quot;&quot;</span>
+        <span class="n">arg</span> <span class="o">=</span> <span class="n">Arg</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+        <span class="nb">list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="o">.</span><span class="n">value</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Access more information about an argument using function-call syntax.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Iterator iterates over all argument objects.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__args</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Stringifies a list of arguments.</span>
+
+<span class="sd">        &gt;&gt;&gt; str(TexArgs(&#39;{a}&#39;, &#39;[b]&#39;, &#39;{c}&#39;))</span>
+<span class="sd">        &#39;{a}[b]{c}&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Makes list of arguments command-line friendly.</span>
+
+<span class="sd">        &gt;&gt;&gt; TexArgs(&#39;{a}&#39;, &#39;[b]&#39;, &#39;{c}&#39;)</span>
+<span class="sd">        [RArg(&#39;a&#39;), OArg(&#39;b&#39;), RArg(&#39;c&#39;)]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s1">&#39;[</span><span class="si">%s</span><span class="s1">]&#39;</span> <span class="o">%</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">repr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args</span><span class="p">))</span></div>
+
+
+<span class="k">class</span> <span class="nc">AllArgs</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stuff</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stuff</span> <span class="o">=</span> <span class="n">stuff</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">tex</span><span class="p">)</span> <span class="k">for</span> <span class="n">tex</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stuff</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">stuff</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stuff</span><span class="p">)</span>
+</pre></div>
+
+             </article>
+             
+            </div>
+            <!-- Only change in this file is to change attribution from rtd to pytorch -->
+
+<footer>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Alvin Wan.
+
+    </p>
+  </div>
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/pytorch/pytorch_sphinx_theme">theme</a> provided by <a href="https://pytorch.org">PyTorch</a>.
+      </div>
+     
+
+</footer>
+          </div>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript">
+           var DOCUMENTATION_OPTIONS = {
+               URL_ROOT:'../../',
+               VERSION:'master',
+               LANGUAGE:'None',
+               COLLAPSE_INDEX:false,
+               FILE_SUFFIX:'.html',
+               HAS_SOURCE:  true,
+               SOURCELINK_SUFFIX: '.txt'
+           };
+       </script>
+         <script type="text/javascript" src="../../_static/jquery.js"></script>
+         <script type="text/javascript" src="../../_static/underscore.js"></script>
+         <script type="text/javascript" src="../../_static/doctools.js"></script>
+         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"></script>
+         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"></script>
+         <script type="text/javascript" src="../../_static/katex_autorenderer.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="../../_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="../../_static/js/vendor/bootstrap.min.js"></script>
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+  <!-- Begin Footer -->
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="http://texsoup.alvinwan.com" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+      
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="http://texsoup.alvinwan.com">TexSoup</a></li>
+            
+            <li><a href="https://github.com/alvinwan/texsoup/blob/master/README.md#getting-started">Getting Started</a></li>
+            
+          </ul>
+        </div>
+      
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">Support</li>
+            
+            <li><a href="http://texsoup.alvinwan.org/docs/index.html">Docs</a></li>
+            
+            <li><a href="https://github.com/alvinwan/texsoup/issues">Github Issues</a></li>
+            
+          </ul>
+        </div>
+      
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">Related</li>
+            
+            <li><a href="https://github.com/alvinwan/md2py">Markdown2Python</a></li>
+            
+            <li><a href="https://github.com/alvinwan/tex2py">LaTeX2Python</a></li>
+            
+          </ul>
+        </div>
+      
+      </div>
+    </div>
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">To analyze traffic and optimize your experience, we serve cookies on this site. By clicking or navigating, you agree to allow our usage of cookies. As the current maintainers of this site, Facebook’s Cookies Policy applies. Learn more, including about available controls: <a href="https://www.facebook.com/policies/cookies/">Cookies Policy</a>.</p>
+    <img class="close-button" src="../../_static/images/pytorch-x.svg">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="http://texsoup.alvinwan.com" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+        
+          <li>
+            <a href="http://texsoup.alvinwan.com">Home</a>
+          </li>
+        
+          <li class="active">
+            <a href="http://texsoup.alvinwan.org/docs/index.html">Docs</a>
+          </li>
+        
+          <li>
+            <a href="https://github.com/alvinwan/texsoup">Github</a>
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="../../_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+</body>
+</html>
