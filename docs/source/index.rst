@@ -14,7 +14,7 @@ TexSoup parses valid LaTeX and provides a variety of BeautifulSoup-esque methods
 
    quickstart
    navigation
-   search
+   searching
    modification
 
 
@@ -28,6 +28,7 @@ TexSoup parses valid LaTeX and provides a variety of BeautifulSoup-esque methods
    :maxdepth: 1
    :caption: Package Reference
 
+   main
    data
    utils
 
@@ -35,4 +36,3 @@ Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`

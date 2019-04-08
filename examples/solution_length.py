@@ -19,7 +19,7 @@ from TexSoup import TexSoup
 def sollen(tex, command):
     r"""Measure solution length
 
-    :param Union[str, buffer] tex: the LaTeX source as a string or file buffer
+    :param Union[str,buffer] tex: the LaTeX source as a string or file buffer
     :param str command: the command denoting a solution i.e., if the tex file
         uses '\answer{<answer here>}', then the command is 'answer'.
     :return int: the solution length

@@ -1,14 +1,3 @@
-"""
-Utils for TexSoup
----
-
-This file consists of various utilities for TexSoup, split into 2 categories by
-function:
-
-1. Decorators
-2. Generalized utilities
-"""
-
 import bisect
 import functools
 

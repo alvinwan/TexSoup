@@ -1,3 +1,7 @@
+"""Parsing mechanisms should not be directly invoked publicly, as they are
+subject to change.
+"""
+
 from TexSoup.utils import to_buffer, Buffer, TokenWithPosition
 from TexSoup.data import *
 import TexSoup.data as data
@@ -37,7 +41,7 @@ def next_token(text):
     r"""Returns the next possible token, advancing the iterator to the next
     position to start processing from.
 
-    :param Union[str, iterator, Buffer] text: LaTeX to process
+    :param Union[str,iterator,Buffer] text: LaTeX to process
     :return str: the token
 
     >>> b = Buffer(r'\textbf{Do play\textit{nice}.}   $$\min_w \|w\|_2^2$$')
@@ -68,7 +72,7 @@ def next_token(text):
 def tokenize(text):
     r"""Generator for LaTeX tokens on text, ignoring comments.
 
-    :param Union[str, iterator, Buffer] text: LaTeX to process
+    :param Union[str,iterator,Buffer] text: LaTeX to process
 
     >>> print(*tokenize(r'\textbf{Do play \textit{nice}.}'))
     \textbf { Do play  \textit { nice } . }
@@ -167,10 +171,10 @@ def tokenize_math(text):
 
     :param Buffer text: iterator over line, with current position
 
-    >>> b = Buffer('$\min_x$ \command')
+    >>> b = Buffer(r'$\min_x$ \command')
     >>> tokenize_math(b)
     '$'
-    >>> b = Buffer('$$\min_x$$ \command')
+    >>> b = Buffer(r'$$\min_x$$ \command')
     >>> tokenize_math(b)
     '$$'
     """
@@ -185,16 +189,16 @@ def tokenize_string(text, delimiters=None):
     r"""Process a string of text
 
     :param Buffer text: iterator over line, with current position
-    :param Union[None, iterable, string] delimiters: defines the delimiters
+    :param Union[None,iterable,str] delimiters: defines the delimiters
 
     >>> tokenize_string(Buffer('hello'))
     'hello'
-    >>> b = Buffer('hello again\command')
+    >>> b = Buffer(r'hello again\command')
     >>> tokenize_string(b)
     'hello again'
     >>> print(b.peek())
     \
-    >>> print(tokenize_string(Buffer('0 & 1 \\\\\command')))
+    >>> print(tokenize_string(Buffer(r'0 & 1 \\\command')))
     0 & 1 \\
     """
     if delimiters is None:

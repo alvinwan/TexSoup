@@ -1,11 +1,6 @@
-"""
-TexSoup
----
-
-Main file, containing most commonly used elements of TexSoup
-
-@author: Alvin Wan
-@site: alvinwan.com
+"""TexSoup's main utility is the ``TexSoup`` function. Invoke this function on
+a LaTeX string or file handler to obtain a parse tree with navigation, search,
+and modification utilities.
 """
 
 __version__ = '0.1.4'
@@ -18,11 +13,12 @@ def TexSoup(tex_code):
     r"""
     At a high-level, parses provided Tex into a navigable, searchable structure.
     This is accomplished in two steps:
+
     1. Tex is parsed, cleaned, and packaged.
     2. Structure fed to TexNodes for a searchable, coder-friendly interface.
 
-    :param Union[string, iterable] tex_code: the Tex source
-    :return TexNode: object representing tex document
+    :param Union[str,iterable] tex_code: the Tex source
+    :return: :class:`TexSoup.data.TexNode` object representing tex document
 
     >>> from TexSoup import TexSoup
     >>> soup = TexSoup(r'''

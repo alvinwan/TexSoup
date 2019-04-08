@@ -17,39 +17,10 @@ __all__ = ['TexNode', 'TexCmd', 'TexEnv', 'Arg', 'OArg', 'RArg', 'TexArgs']
 
 
 class TexNode(object):
-    r"""Main abstraction for Tex source.
+    r"""A tree node representing an expression in the LaTeX document.
 
-    This is a tree node representing both Tex environments and Tex commands.
-    Take the following example. Consider the ``\begin{itemize}`` environment::
-
-        \begin{itemize}
-          Floating text
-          \item outer text
-          \begin{enumerate}
-            \item nested text
-          \end{enumerate}
-        \end{itemize}
-
-    Here are its five properties `name`, `everything`, `contents`, `children`,
-    and `descendants` below:
-
-    - `name`: The name of the command. ex. `title`
-
-    - `contents`: Any non-whitespace contents inside of this command.
-
-        ex. `["Floating Text", \item outer text, \begin{enumerate}]`.
-
-    - `everything`: Anything and everything inside of this command. Everything needed to fully reconstruct the latex.
-
-        ex. `["Floating Text", "\n", \item outer text, "\n", \begin{enumerate}]`.
-
-    - `children`: Same as contents, but filter out random pieces of text.
-
-        ex. Just `[\item outer text, \begin{enumerate}]`.
-
-    - `descendants`: all children, and all children of all children, and all children of all children of all... etc.
-
-        ex. `[\item outer text, \begin{enumerate}, \item nested text]`
+    Every node in the parse tree is a ``TexNode``, equipped with navigation,
+    search, and modification utilities.
     """
 
     def __init__(self, expr, src=None):
@@ -66,6 +37,10 @@ class TexNode(object):
             self.char_to_line = CharToLineOffset(src)
         else:
             self.char_to_line = None
+
+    #################
+    # MAGIC METHODS #
+    #################
 
     def __getattr__(self, attr, default=None):
         """Convert all invalid attributes into basic find operation."""
@@ -106,20 +81,32 @@ class TexNode(object):
         """Stringified command"""
         return str(self.expr)
 
+    ##############
+    # PROPERTIES #
+    ##############
+
     @property
     def args(self):
         return self.expr.args
 
     @property
     def children(self):
-        """Returns all immediate children of this TeX element"""
+        """Immediate children of this TeX element that are valid TeX objects.
+
+        In effect, same as contents, but remove random pieces of text.
+
+        :return: generator of all children
+        """
         for child in self.expr.children:
             child.parent = self
             yield TexNode(child)
 
     @property
     def contents(self):
-        """Returns a generator of all contents, for this TeX element"""
+        """Any non-whitespace contents inside of this TeX element.
+
+        :return: generator of all contents
+        """
         for child in self.expr.contents:
             if isinstance(child, (TexEnv, TexCmd)):
                 yield TexNode(child)
@@ -169,23 +156,52 @@ class TexNode(object):
         """Returns generator of all tokens, for this Tex element"""
         return self.expr.tokens
 
+    ##################
+    # PUBLIC METHODS #
+    ##################
+
     def add_children(self, *nodes):
-        """Add node(s) to this node's list of children.
+        r"""Add node(s) to this node's list of children.
 
         :param TexNode nodes: List of nodes to add
+
+        >>> from TexSoup import TexSoup
+        >>> soup = TexSoup(r'''
+        ... \section{Hey}
+        ... \textbf{Silly}
+        ... \textit{Willy}''')
+        >>> soup.section
+        \section{Hey}
+        >>> soup.section.add_children(soup.textbf, soup.textit)
+        >>> soup.section
+        \section{Hey} \textbf{Silly}\textit{Willy}
         """
         self.expr.add_contents(*nodes)
 
     def add_children_at(self, i, *nodes):
-        """Add a node to its list of children, inserted at position i."""
+        r"""Add a node to its list of children, inserted at position i.
+
+        :param int i: Position to add nodes to
+        :param TexNode nodes: List of nodes to add
+        """
         assert isinstance(i, int), (
-                'Provided index "%s" is not an integer! Did you switch your '
+                'Provided index "{}" is not an integer! Did you switch your '
                 'arguments? The first argument to `add_children_at` is the '
-                'index.' % str(i))
+                'index.'.format(i))
         self.expr.add_contents_at(i, *nodes)
 
     def char_pos_to_line(self, char_pos):
-        assert self.char_to_line is not None, 'CharToLineOffset is not initialized! Pass src to TexNode!'
+        r"""Translate character position in the original document to line number.
+
+        >>> from TexSoup import TexSoup
+        >>> soup = TexSoup(r'''
+        ... \section{Hey}
+        ... \textbf{Silly}
+        ... \textit{Willy}''')
+        """
+        assert self.char_to_line is not None, (
+            'CharToLineOffset is not initialized. Pass src to TexNode '
+            'constructor')
         return self.char_to_line(char_pos)
 
     def count(self, name=None, **attrs):
@@ -439,7 +455,7 @@ class Arg(object):
     def __init__(self, *exprs):
         """Initialize argument using list of expressions.
 
-        :param Union[str, TexCmd, TexEnv] exprs: Tex expressions contained in the
+        :param Union[str,TexCmd,TexEnv] exprs: Tex expressions contained in the
             argument. Can be other commands or environments, or even strings.
         """
         self.exprs = exprs
@@ -453,7 +469,7 @@ class Arg(object):
     def parse(s):
         """Parse a string or list and return an Argument object
 
-        :param Union[string, iterable] s: Either a string or a list, where the first and
+        :param Union[str,iterable] s: Either a string or a list, where the first and
             last elements are valid argument delimiters.
         """
         if isinstance(s, arg_type):
