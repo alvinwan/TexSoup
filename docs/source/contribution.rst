@@ -1,0 +1,2 @@
+TexSoup Contribution Guide
+===================================

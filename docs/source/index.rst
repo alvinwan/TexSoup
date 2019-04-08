@@ -9,10 +9,27 @@ TexSoup documentation
 TexSoup parses valid LaTeX and provides a variety of BeautifulSoup-esque methods and Pythonic idioms for iterating and searching the parse tree
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 1
+   :caption: Notes
+
+   quickstart
 
 
+.. toctree::
+   :maxdepth: 1
+   :caption: Community
+
+   contribution
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Package Reference
+
+   data
+   navigation
+   search
+   modification
+   utilities
 
 Indices and tables
 ==================
