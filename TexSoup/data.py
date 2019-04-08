@@ -1,13 +1,12 @@
 """
-Tex Data Structures
----
-
-Includes the data structures that users will interface with, in addition to
-internally used data structures.
+The data structures used for TexSoup are exposed to the user via the main
+utilitiy ``TexSoup`` but are largely abstracted away. Below are both
+data structures exposed to the user and those that are used internally.
 """
 import itertools
 import re
 from .utils import TokenWithPosition, CharToLineOffset
+from typing import Union
 
 __all__ = ['TexNode', 'TexCmd', 'TexEnv', 'Arg', 'OArg', 'RArg', 'TexArgs']
 
@@ -18,33 +17,29 @@ __all__ = ['TexNode', 'TexCmd', 'TexEnv', 'Arg', 'OArg', 'RArg', 'TexArgs']
 
 
 class TexNode(object):
-    """Main abstraction for Tex source, a tree node representing both Tex
-    environments and Tex commands.
+    r"""Main abstraction for Tex source.
 
-    Take the following example. Consider the `\begin{itemize}` environment.
+    This is a tree node representing both Tex environments and Tex commands.
+    Take the following example. Consider the ``\begin{itemize}`` environment::
 
-    ```
-    \begin{itemize}
-      Floating text
-      \item outer text
-      \begin{enumerate}
-        \item nested text
-      \end{enumerate}
-    \end{itemize}
-    ```
+        \begin{itemize}
+          Floating text
+          \item outer text
+          \begin{enumerate}
+            \item nested text
+          \end{enumerate}
+        \end{itemize}
 
-    Here are its five properties `name`, `everything`, `contents`, `children`, and `descendants` below:
+    Here are its five properties `name`, `everything`, `contents`, `children`,
+    and `descendants` below:
 
-    - `name`: The name of the command.
-
-        ex. `title`
+    - `name`: The name of the command. ex. `title`
 
     - `contents`: Any non-whitespace contents inside of this command.
 
         ex. `["Floating Text", \item outer text, \begin{enumerate}]`.
 
-    - `everything`: Anything and everything inside of this command.
-        Everything needed to fully reconstruct the latex.
+    - `everything`: Anything and everything inside of this command. Everything needed to fully reconstruct the latex.
 
         ex. `["Floating Text", "\n", \item outer text, "\n", \begin{enumerate}]`.
 
@@ -60,8 +55,9 @@ class TexNode(object):
     def __init__(self, expr, src=None):
         """Creates TexNode object
 
-        :param Union[TexCmd, TexEnv] expr: a LaTeX expression, either a singleton
+        :param Union[TexCmd,TexEnv] expr: a LaTeX expression, either a singleton
             command or an environment containing other commands
+        :param str src: LaTeX source string
         """
         assert isinstance(expr, (TexCmd, TexEnv)), 'Created from TexExpr'
         super().__init__()
@@ -71,130 +67,20 @@ class TexNode(object):
         else:
             self.char_to_line = None
 
-    @property
-    def name(self):
-        return self.expr.name
+    def __getattr__(self, attr, default=None):
+        """Convert all invalid attributes into basic find operation."""
+        return self.find(attr) or default
 
-    @property
-    def args(self):
-        return self.expr.args
+    def __getitem__(self, item):
+        return list(self.contents)[item]
 
-    # Should be set by parent otherwise returns None result
-    @property
-    def parent(self):
-        return self.expr.parent
-
-    @property
-    def extra(self):
-        """Extra string not a part of the expression name.
-
-        This typically only occurs after an \item or similar LaTeX command.
+    def __iter__(self):
         """
-        return self.expr.extra
-
-    @property
-    def string(self):
-        """Returns 'string' content, which is valid if and only if (1) the
-        expression is a TexCmd and (2) the command has only one argument.
+        >>> node = TexNode(TexEnv('lstlisting', ('hai', 'there')))
+        >>> list(node)
+        ['hai', 'there']
         """
-        if isinstance(self.expr, TexCmd) and len(self.expr.args) == 1:
-            return str(self.expr.args[0])
-
-    @property
-    def tokens(self):
-        """Returns generator of all tokens, for this Tex element"""
-        return self.expr.tokens
-
-    @property
-    def contents(self):
-        """Returns a generator of all contents, for this TeX element"""
-        for child in self.expr.contents:
-            if isinstance(child, (TexEnv, TexCmd)):
-                yield TexNode(child)
-            else:
-                yield child
-
-    @property
-    def children(self):
-        """Returns all immediate children of this TeX element"""
-        for child in self.expr.children:
-            child.parent = self
-            yield TexNode(child)
-
-    @property
-    def descendants(self):
-        """Returns all descendants for this TeX element."""
-        return self.__descendants()
-
-    @property
-    def text(self):
-        for descendant in self.contents:
-            if isinstance(descendant, TokenWithPosition):
-                yield descendant
-            elif hasattr(descendant, 'text'):
-                yield from descendant.text
-
-    def __descendants(self):
-        """Implementation for descendants, hacky workaround for __getattr__
-        issues.
-        """
-        return itertools.chain(self.contents,
-                               *[c.descendants for c in self.children])
-
-    def find_all(self, name=None, **attrs):
-        """Return all descendant nodes matching criteria, naively."""
-        for descendant in self.__descendants():
-            if hasattr(descendant, '__match__') and \
-                    descendant.__match__(name, attrs):
-                yield descendant
-
-    def find(self, name=None, **attrs):
-        """Return first descendant node matching criteria"""
-        try:
-            return next(self.find_all(name, **attrs))
-        except StopIteration:
-            return None
-
-    def search_regex(self, pattern):
-        for node in self.text:
-            for match in re.finditer(pattern, node):
-                body = match.group()  # group() returns the full match
-                start = match.start()
-                yield TokenWithPosition(body, node.position + start)
-
-    def count(self, name=None, **attrs):
-        """Return number of descendants matching criteria"""
-        return len(list(self.find_all(name, **attrs)))
-
-    def delete(self):
-        """Delete this node from the parse tree tree."""
-        self.parent.remove_child(self)
-
-    def replace(self, *nodes):
-        """Replace this node in the parse tree with the provided node(s)."""
-        self.parent.replace_child(self, *nodes)
-
-    def add_children(self, *nodes):
-        """Add a node to its list of children."""
-        self.expr.add_contents(*nodes)
-
-    def add_children_at(self, i, *nodes):
-        """Add a node to its list of children, inserted at position i."""
-        assert isinstance(i, int), (
-                'Provided index "%s" is not an integer! Did you switch your '
-                'arguments? The first argument to `add_children_at` is the '
-                'index.' % str(i))
-        self.expr.add_contents_at(i, *nodes)
-
-    def remove_child(self, node):
-        """Remove a node from its list of contents."""
-        self.expr.remove_content(node.expr)
-
-    def replace_child(self, child, *nodes):
-        """Replace provided node with node(s)."""
-        self.expr.add_contents_at(
-            self.expr.remove_content(child.expr),
-            *nodes)
+        return self.contents
 
     def __match__(self, name=None, attrs=()):
         r"""Check if given attributes match current object
@@ -212,32 +98,145 @@ class TexNode(object):
                 return False
         return True
 
-    def __getitem__(self, item):
-        return list(self.contents)[item]
-
-    def __iter__(self):
-        """
-        >>> node = TexNode(TexEnv('lstlisting', ('hai', 'there')))
-        >>> list(node)
-        ['hai', 'there']
-        """
-        return self.contents
+    def __repr__(self):
+        """Interpreter representation"""
+        return str(self)
 
     def __str__(self):
         """Stringified command"""
         return str(self.expr)
 
-    def __repr__(self):
-        """Interpreter representation"""
-        return str(self)
+    @property
+    def args(self):
+        return self.expr.args
 
-    def __getattr__(self, attr, default=None):
-        """Convert all invalid attributes into basic find operation."""
-        return self.find(attr) or default
+    @property
+    def children(self):
+        """Returns all immediate children of this TeX element"""
+        for child in self.expr.children:
+            child.parent = self
+            yield TexNode(child)
+
+    @property
+    def contents(self):
+        """Returns a generator of all contents, for this TeX element"""
+        for child in self.expr.contents:
+            if isinstance(child, (TexEnv, TexCmd)):
+                yield TexNode(child)
+            else:
+                yield child
+
+    @property
+    def descendants(self):
+        """Returns all descendants for this TeX element."""
+        return self.__descendants()
+
+    @property
+    def extra(self):
+        """Extra string not a part of the expression name.
+
+        This typically only occurs after an \item or similar LaTeX command.
+        """
+        return self.expr.extra
+
+    @property
+    def name(self):
+        return self.expr.name
+
+    # Should be set by parent otherwise returns None result
+    @property
+    def parent(self):
+        return self.expr.parent
+
+    @property
+    def string(self):
+        """Returns 'string' content, which is valid if and only if (1) the
+        expression is a TexCmd and (2) the command has only one argument.
+        """
+        if isinstance(self.expr, TexCmd) and len(self.expr.args) == 1:
+            return str(self.expr.args[0])
+
+    @property
+    def text(self):
+        for descendant in self.contents:
+            if isinstance(descendant, TokenWithPosition):
+                yield descendant
+            elif hasattr(descendant, 'text'):
+                yield from descendant.text
+
+    @property
+    def tokens(self):
+        """Returns generator of all tokens, for this Tex element"""
+        return self.expr.tokens
+
+    def add_children(self, *nodes):
+        """Add node(s) to this node's list of children.
+
+        :param TexNode nodes: List of nodes to add
+        """
+        self.expr.add_contents(*nodes)
+
+    def add_children_at(self, i, *nodes):
+        """Add a node to its list of children, inserted at position i."""
+        assert isinstance(i, int), (
+                'Provided index "%s" is not an integer! Did you switch your '
+                'arguments? The first argument to `add_children_at` is the '
+                'index.' % str(i))
+        self.expr.add_contents_at(i, *nodes)
 
     def char_pos_to_line(self, char_pos):
         assert self.char_to_line is not None, 'CharToLineOffset is not initialized! Pass src to TexNode!'
         return self.char_to_line(char_pos)
+
+    def count(self, name=None, **attrs):
+        """Return number of descendants matching criteria"""
+        return len(list(self.find_all(name, **attrs)))
+
+    def delete(self):
+        """Delete this node from the parse tree tree."""
+        self.parent.remove_child(self)
+
+    def find(self, name=None, **attrs):
+        """Return first descendant node matching criteria"""
+        try:
+            return next(self.find_all(name, **attrs))
+        except StopIteration:
+            return None
+
+    def find_all(self, name=None, **attrs):
+        """Return all descendant nodes matching criteria, naively."""
+        for descendant in self.__descendants():
+            if hasattr(descendant, '__match__') and \
+                    descendant.__match__(name, attrs):
+                yield descendant
+
+    def remove_child(self, node):
+        """Remove a node from its list of contents."""
+        self.expr.remove_content(node.expr)
+
+    def replace(self, *nodes):
+        """Replace this node in the parse tree with the provided node(s)."""
+        self.parent.replace_child(self, *nodes)
+
+    def replace_child(self, child, *nodes):
+        """Replace provided node with node(s)."""
+        self.expr.add_contents_at(
+            self.expr.remove_content(child.expr),
+            *nodes)
+
+    def search_regex(self, pattern):
+        for node in self.text:
+            for match in re.finditer(pattern, node):
+                body = match.group()  # group() returns the full match
+                start = match.start()
+                yield TokenWithPosition(body, node.position + start)
+
+    def __descendants(self):
+        """Implementation for descendants, hacky workaround for __getattr__
+        issues.
+        """
+        return itertools.chain(self.contents,
+                               *[c.descendants for c in self.children])
 
 
 ###############

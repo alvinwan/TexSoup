@@ -7,8 +7,7 @@ Nodes
 -----------------------------------
 
 .. autoclass:: TexNode()
-
-  .. automethod:: find_all
+  :members:
 
 Arguments
 -----------------------------------

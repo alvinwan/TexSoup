@@ -8,6 +8,8 @@ Main file, containing most commonly used elements of TexSoup
 @site: alvinwan.com
 """
 
+__version__ = '0.1.4'
+
 from TexSoup.tex import *
 
 
