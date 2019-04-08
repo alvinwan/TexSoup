@@ -10,9 +10,12 @@ TexSoup parses valid LaTeX and provides a variety of BeautifulSoup-esque methods
 
 .. toctree::
    :maxdepth: 1
-   :caption: Notes
+   :caption: Guides
 
    quickstart
+   navigation
+   search
+   modification
 
 
 .. toctree::
@@ -26,10 +29,7 @@ TexSoup parses valid LaTeX and provides a variety of BeautifulSoup-esque methods
    :caption: Package Reference
 
    data
-   navigation
-   search
-   modification
-   utilities
+   utils
 
 Indices and tables
 ==================

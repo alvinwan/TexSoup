@@ -1,7 +1,7 @@
 """
-The data structures used for TexSoup are exposed to the user via the main
-utilitiy ``TexSoup`` but are largely abstracted away. Below are both
-data structures exposed to the user and those that are used internally.
+TexSoup transforms a LaTeX document into a complex tree of various Python
+objects, but all objects fall into one of the following three categories:
+``TexNode``, ``TexExpr`` (environments and commands), and ``Arg`` s.
 """
 import itertools
 import re
@@ -55,7 +55,7 @@ class TexNode(object):
     def __init__(self, expr, src=None):
         """Creates TexNode object
 
-        :param Union[TexCmd,TexEnv] expr: a LaTeX expression, either a singleton
+        :param TexExpr expr: a LaTeX expression, either a singleton
             command or an environment containing other commands
         :param str src: LaTeX source string
         """
