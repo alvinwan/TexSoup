@@ -1,2 +1,2 @@
-TexSoup Contribution Guide
+Parsing Mechanics
 ===================================

@@ -20,9 +20,9 @@ TexSoup parses valid LaTeX and provides a variety of BeautifulSoup-esque methods
 
 .. toctree::
    :maxdepth: 1
-   :caption: Community
+   :caption: Notes
 
-   contribution
+   parser
 
 .. toctree::
    :maxdepth: 1

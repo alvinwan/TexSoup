@@ -199,7 +199,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'pytorch.tex', 'TexSoup Documentation',
-     'Torch Contributors', 'manual'),
+     'Alvin Wan', 'manual'),
 ]
 
 

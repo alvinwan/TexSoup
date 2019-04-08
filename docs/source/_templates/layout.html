@@ -92,21 +92,15 @@
 <div class="container-fluid header-holder tutorials-header" id="header-holder">
   <div class="container">
     <div class="header-container">
-      <a class="header-logo" href="{{ theme_variables.external_urls['home'] }}" aria-label="PyTorch"></a>
+      <a class="header-logo" href="{{ theme_variables.urls['home'] }}" aria-label="PyTorch"></a>
 
       <div class="main-menu">
         <ul>
-          <li>
-            <a href="{{ theme_variables.external_urls['get_started'] }}">Get Started</a>
+        {% for link in theme_variables.main_menu_links %}
+          <li {%- if theme_pytorch_project.lower() == link['name'].lower() %} class="active"{% endif %}>
+            <a href="{{ link['href'] }}">{{ link['name'] }}</a>
           </li>
-
-          <li {%- if theme_pytorch_project == 'docs' %} class="active"{% endif %}>
-            <a href="{{ theme_variables.external_urls['docs'] }}">Docs</a>
-          </li>
-
-          <li>
-            <a href="{{ theme_variables.external_urls['github'] }}">Github</a>
-          </li>
+        {% endfor %}
         </ul>
       </div>
 
@@ -289,33 +283,20 @@
   <footer class="site-footer">
     <div class="container footer-container">
       <div class="footer-logo-wrapper">
-        <a href="{{ theme_variables.external_urls['home'] }}" class="footer-logo"></a>
+        <a href="{{ theme_variables.urls['home'] }}" class="footer-logo"></a>
       </div>
 
       <div class="footer-links-wrapper">
+      {% for column in theme_variables.footer_columns %}
         <div class="footer-links-col">
           <ul>
-            <li class="list-title"><a href="{{ theme_variables.external_urls['home'] }}">TexSoup</a></li>
-            <li><a href="{{ theme_variables.external_urls['getting_started'] }}">Getting Started</a></li>
+            <li class="list-title">{% if column['href'] %}<a href="{{ column['href'] }}">{% endif %}{{ column['name'] }}{% if column['href'] %}</a>{% endif %}</li>
+            {% for link in column['links'] %}
+            <li><a href="{{ link['href'] }}">{{ link['name'] }}</a></li>
+            {% endfor %}
           </ul>
         </div>
-
-        <div class="footer-links-col">
-          <ul>
-            <li class="list-title">Support</li>
-            <li><a href="{{ theme_variables.external_urls['docs'] }}">Docs</a></li>
-            <li><a href="{{ theme_variables.external_urls['github_issues'] }}" target="_blank">Github Issues</a></li>
-            <li><a href="{{ theme_variables.external_urls['contributing'] }}" target="_blank">Contributing</a></li>
-          </ul>
-        </div>
-
-        <div class="footer-links-col">
-          <ul>
-            <li class="list-title">Ecosystem</li>
-            <li><a href="{{ theme_variables.external_urls['md2py'] }}" target="_blank">md2py</a></li>
-            <li><a href="{{ theme_variables.external_urls['tex2py'] }}" target="_blank">tex2py</a></li>
-          </ul>
-        </div>
+      {% endfor %}
       </div>
     </div>
   </footer>
@@ -330,7 +311,7 @@
     <div class="container-fluid">
       <div class="container">
         <div class="mobile-main-menu-header-container">
-          <a class="header-logo" href="{{ theme_variables.external_urls['home'] }}" aria-label="PyTorch"></a>
+          <a class="header-logo" href="{{ theme_variables.urls['home'] }}" aria-label="PyTorch"></a>
           <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
         </div>
       </div>
@@ -339,37 +320,11 @@
     <div class="mobile-main-menu-links-container">
       <div class="main-menu">
         <ul>
-          <li>
-            <a href="#">Get Started</a>
+        {% for link in theme_variables.main_menu_links %}
+          <li {%- if theme_pytorch_project.lower() == link['name'].lower() %} class="active"{% endif %}>
+            <a href="{{ link['href'] }}">{{ link['name'] }}</a>
           </li>
-
-          <li>
-            <a href="#">Features</a>
-          </li>
-
-          <li>
-            <a href="#">Ecosystem</a>
-          </li>
-
-          <li>
-            <a href="{{ theme_variables.external_urls['blog'] }}">Blog</a>
-          </li>
-
-          <li {%- if theme_pytorch_project == 'tutorials' %} class="active"{%- endif %}>
-            <a href="{{ theme_variables.external_urls['tutorials'] }}">Tutorials</a>
-          </li>
-
-          <li {%- if theme_pytorch_project == 'docs' %} class="active"{%- endif %}>
-            <a href="{{ theme_variables.external_urls['docs'] }}">Docs</a>
-          </li>
-
-          <li>
-            <a href="{{ theme_variables.external_urls['resources'] }}">Resources</a>
-          </li>
-
-          <li>
-            <a href="{{ theme_variables.external_urls['github'] }}">Github</a>
-          </li>
+        {% endfor %}
         </ul>
       </div>
     </div>
