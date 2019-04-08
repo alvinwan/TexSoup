@@ -115,6 +115,7 @@
 
   {% block extrabody %} {% endblock %}
 
+  {% block mainbody %}
     {# SIDE NAV, TOGGLES ON MOBILE #}
 
     <div class="table-of-contents-link-wrapper">
@@ -275,6 +276,8 @@
           SphinxRtdTheme.Navigation.enable({{ 'true' if theme_sticky_navigation|tobool else 'false' }});
       });
   </script>
+
+  {% endblock %}
 
   {%- block footer %} {% endblock %}
 
