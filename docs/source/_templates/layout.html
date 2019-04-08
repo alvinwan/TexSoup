@@ -1,5 +1,7 @@
 {# TEMPLATE VAR SETTINGS #}
 
+{%- set extra_css_files = ["_static/css/theme-mod.css"] -%}
+{%- set favicon=1 -%}
 {%- set url_root = pathto('', 1) %}
 {%- if url_root == '#' %}{% set url_root = '' %}{% endif %}
 {%- if not embedded and docstitle %}
@@ -24,7 +26,13 @@
 
   {# FAVICON #}
   {% if favicon %}
-    <link rel="shortcut icon" href="{{ pathto('_static/' + favicon, 1) }}"/>
+    <link rel="apple-touch-icon" sizes="180x180" href="_static/images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="_static/images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="_static/images/favicon-16x16.png">
+    <link rel="manifest" href="_static/images/site.webmanifest">
+    <link rel="mask-icon" href="_static/images/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="theme-color" content="#ffffff">
   {% endif %}
   {# CANONICAL URL #}
   {% if theme_canonical_url %}
@@ -81,7 +89,6 @@
   {# Keep modernizr in head - http://modernizr.com/docs/#installing #}
   <script src="{{ pathto('_static/js/modernizr.min.js', 1) }}"></script>
 </head>
-
 <div class="container-fluid header-holder tutorials-header" id="header-holder">
   <div class="container">
     <div class="header-container">

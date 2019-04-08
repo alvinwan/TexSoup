@@ -1,0 +1,17 @@
+@media screen and (min-width: 768px) {
+  .site-footer .footer-logo {
+      background-size: 51px 80px;
+      height: 51px;
+      margin-bottom: 0;
+      margin-bottom: 0;
+      width: 80px;
+  }
+}
+
+.site-footer {
+  margin-top: 2em;
+}
+
+.pytorch-breadcrumbs-aside img {
+  height:20px;
+}

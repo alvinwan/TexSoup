@@ -103,14 +103,14 @@ html_theme_path = [pytorch_sphinx_theme.get_html_theme_path()]
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-#
-# html_theme_options = {
-#     'pytorch_project': 'docs',
-#     'canonical_url': 'https://pytorch.org/docs/stable/',
-#     'collapse_navigation': False,
-#     'display_version': True,
-#     'logo_only': True,
-# }
+
+html_theme_options = {
+    'pytorch_project': 'docs',
+    'canonical_url': 'http://texsoup.alvinwan.com/docs',
+    'collapse_navigation': False,
+    'display_version': True,
+    'logo_only': True,
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
