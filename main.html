@@ -1,0 +1,503 @@
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Main Interface &mdash; TexSoup master documentation</title>
+  
+
+  
+  
+    <link rel="apple-touch-icon" sizes="180x180" href="_static/images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="_static/images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="_static/images/favicon-16x16.png">
+    <link rel="manifest" href="_static/images/site.webmanifest">
+    <link rel="mask-icon" href="_static/images/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="theme-color" content="#ffffff">
+  
+  
+  
+    <link rel="canonical" href="http://texsoup.alvinwan.commain.html"/>
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
+    <link rel="stylesheet" href="_static/css/theme-mod.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Data Structures" href="data.html" />
+    <link rel="prev" title="Parsing Mechanics" href="parser.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+</head>
+<div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="http://texsoup.alvinwan.com" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+        
+          <li>
+            <a href="http://texsoup.alvinwan.com">Home</a>
+          </li>
+        
+          <li class="active">
+            <a href="http://texsoup.alvinwan.org/docs/index.html">Docs</a>
+          </li>
+        
+          <li>
+            <a href="https://github.com/alvinwan/texsoup">Github</a>
+          </li>
+        
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+
+  </div>
+</div>
+
+
+<body class="pytorch-body">
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+
+            
+              
+              
+                <div class="version">
+                  master (0.1.4 )
+                </div>
+              
+            
+
+            
+
+
+  
+
+
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+            
+          </div>
+
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="navigation.html">Navigation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="searching.html">Search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modification.html">Modification</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Notes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="parser.html">Parsing Mechanics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Package Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Main Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html">Data Structures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utilities</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="index.html">
+          
+            Docs
+          
+        </a> &gt;
+      </li>
+
+        
+      <li>Main Interface</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="_sources/main.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">
+          Shortcuts
+        </div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <div class="section" id="module-TexSoup">
+<span id="main-interface"></span><h1>Main Interface<a class="headerlink" href="#module-TexSoup" title="Permalink to this headline">¶</a></h1>
+<p>TexSoup&#8217;s main utility is the <code class="docutils literal"><span class="pre">TexSoup</span></code> function. Invoke this function on
+a LaTeX string or file handler to obtain a parse tree with navigation, search,
+and modification utilities.</p>
+<dl class="function">
+<dt id="TexSoup.TexSoup">
+<code class="descclassname">TexSoup.</code><code class="descname">TexSoup</code><span class="sig-paren">(</span><em>tex_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup.html#TexSoup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.TexSoup" title="Permalink to this definition">¶</a></dt>
+<dd><p>At a high-level, parses provided Tex into a navigable, searchable structure.
+This is accomplished in two steps:</p>
+<ol class="arabic simple">
+<li>Tex is parsed, cleaned, and packaged.</li>
+<li>Structure fed to TexNodes for a searchable, coder-friendly interface.</li>
+</ol>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tex_code</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>,</em><em>iterable</em><em>]</em><em></em>) &#8211; the Tex source</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><a class="reference internal" href="data.html#TexSoup.data.TexNode" title="TexSoup.data.TexNode"><code class="xref py py-class docutils literal"><span class="pre">TexSoup.data.TexNode</span></code></a> object representing tex document</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="k">import</span> <span class="n">TexSoup</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="gp">... </span><span class="s1">\begin</span><span class="si">{document}</span><span class="s1"></span>
+<span class="gp">...</span><span class="s1"></span>
+<span class="gp">... </span><span class="s1">\section{Hello \textit</span><span class="si">{world}</span><span class="s1">.}</span>
+<span class="gp">...</span><span class="s1"></span>
+<span class="gp">... </span><span class="s1">\subsection</span><span class="si">{Watermelon}</span><span class="s1"></span>
+<span class="gp">...</span><span class="s1"></span>
+<span class="gp">... </span><span class="s1">(n.) A sacred fruit. Also known as:</span>
+<span class="gp">...</span><span class="s1"></span>
+<span class="gp">... </span><span class="s1">\begin</span><span class="si">{itemize}</span><span class="s1"></span>
+<span class="gp">... </span><span class="s1">\item red lemon</span>
+<span class="gp">... </span><span class="s1">\item life</span>
+<span class="gp">... </span><span class="s1">\end</span><span class="si">{itemize}</span><span class="s1"></span>
+<span class="gp">...</span><span class="s1"></span>
+<span class="gp">... </span><span class="s1">Here is the prevalence of each synonym.</span>
+<span class="gp">...</span><span class="s1"></span>
+<span class="gp">... </span><span class="s1">\begin</span><span class="si">{tabular}</span><span class="s1">{c c}</span>
+<span class="gp">... </span><span class="s1">red lemon &amp; uncommon \\ \n</span>
+<span class="gp">... </span><span class="s1">life &amp; common</span>
+<span class="gp">... </span><span class="s1">\end</span><span class="si">{tabular}</span><span class="s1"></span>
+<span class="gp">...</span><span class="s1"></span>
+<span class="gp">... </span><span class="s1">\end</span><span class="si">{document}</span><span class="s1"></span>
+<span class="gp">... </span><span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">section</span>
+<span class="go">\section{Hello \textit{world}.}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">section</span><span class="o">.</span><span class="n">name</span>
+<span class="go">&#39;section&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">section</span><span class="o">.</span><span class="n">string</span>
+<span class="go">&#39;Hello \\textit{world}.&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">section</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">name</span>
+<span class="go">&#39;document&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">tabular</span>
+<span class="go">\begin{tabular}{c c}</span>
+<span class="go">red lemon &amp; uncommon \\ \n</span>
+<span class="go">life &amp; common</span>
+<span class="go">\end{tabular}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">tabular</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">&#39;c c&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">itemize</span>
+<span class="go">\begin{itemize}</span>
+<span class="go">\item red lemon</span>
+<span class="go">\item life</span>
+<span class="go">\end{itemize}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">item</span>
+<span class="go">\item red lemon</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;item&#39;</span><span class="p">))</span>
+<span class="go">[\item red lemon</span>
+<span class="go">, \item life</span>
+<span class="go">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;&#39;&#39;\textbf{&#39;Hello&#39;}\textit{&#39;Y&#39;}O\textit{&#39;U&#39;}&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">textbf</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;Hello&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">repr</span><span class="p">(</span><span class="n">soup</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">textit</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;S&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">textit</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;U&#39;</span><span class="p">,</span> <span class="s1">&#39;P&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span>
+<span class="go">SOUP</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+             </article>
+             
+            </div>
+            <!-- Only change in this file is to change attribution from rtd to pytorch -->
+
+<footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="data.html" class="btn btn-neutral float-right" title="Data Structures" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
+      
+      
+        <a href="parser.html" class="btn btn-neutral" title="Parsing Mechanics" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Alvin Wan.
+
+    </p>
+  </div>
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/pytorch/pytorch_sphinx_theme">theme</a> provided by <a href="https://pytorch.org">PyTorch</a>.
+      </div>
+     
+
+</footer>
+          </div>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">Main Interface</a></li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript">
+           var DOCUMENTATION_OPTIONS = {
+               URL_ROOT:'./',
+               VERSION:'master',
+               LANGUAGE:'None',
+               COLLAPSE_INDEX:false,
+               FILE_SUFFIX:'.html',
+               HAS_SOURCE:  true,
+               SOURCELINK_SUFFIX: '.txt'
+           };
+       </script>
+         <script type="text/javascript" src="_static/jquery.js"></script>
+         <script type="text/javascript" src="_static/underscore.js"></script>
+         <script type="text/javascript" src="_static/doctools.js"></script>
+         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"></script>
+         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"></script>
+         <script type="text/javascript" src="_static/katex_autorenderer.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+  <!-- Begin Footer -->
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="http://texsoup.alvinwan.com" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+      
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="http://texsoup.alvinwan.com">TexSoup</a></li>
+            
+            <li><a href="https://github.com/alvinwan/texsoup/blob/master/README.md#getting-started">Getting Started</a></li>
+            
+          </ul>
+        </div>
+      
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">Support</li>
+            
+            <li><a href="http://texsoup.alvinwan.org/docs/index.html">Docs</a></li>
+            
+            <li><a href="https://github.com/alvinwan/texsoup/issues">Github Issues</a></li>
+            
+          </ul>
+        </div>
+      
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">Related</li>
+            
+            <li><a href="https://github.com/alvinwan/md2py">Markdown2Python</a></li>
+            
+            <li><a href="https://github.com/alvinwan/tex2py">LaTeX2Python</a></li>
+            
+          </ul>
+        </div>
+      
+      </div>
+    </div>
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">To analyze traffic and optimize your experience, we serve cookies on this site. By clicking or navigating, you agree to allow our usage of cookies. As the current maintainers of this site, Facebook’s Cookies Policy applies. Learn more, including about available controls: <a href="https://www.facebook.com/policies/cookies/">Cookies Policy</a>.</p>
+    <img class="close-button" src="_static/images/pytorch-x.svg">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="http://texsoup.alvinwan.com" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+        
+          <li>
+            <a href="http://texsoup.alvinwan.com">Home</a>
+          </li>
+        
+          <li class="active">
+            <a href="http://texsoup.alvinwan.org/docs/index.html">Docs</a>
+          </li>
+        
+          <li>
+            <a href="https://github.com/alvinwan/texsoup">Github</a>
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+</body>
+</html>
