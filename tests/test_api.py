@@ -13,7 +13,7 @@ if chikin:
 
 def test_navigation_attributes(chikin):
     """Test navigation with attributes by dot notation"""
-    assert str(chikin.section) == '\section{Chikin Tales}'
+    assert str(chikin.section) == r'\section{Chikin Tales}'
     assert chikin.section.name == 'section'
     assert chikin.section.string == 'Chikin Tales'
 
@@ -72,8 +72,8 @@ def test_find_basic(chikin):
 def test_find_by_command(chikin):
     """Find all LaTeX blocks that match a command"""
     sections = list(chikin.find_all('section'))
-    assert str(sections[0]) == '\section{Chikin Tales}'
-    assert str(sections[1]) == '\section{Chikin Scream}'
+    assert str(sections[0]) == r'\section{Chikin Tales}'
+    assert str(sections[1]) == r'\section{Chikin Scream}'
 
 
 ################
@@ -103,8 +103,8 @@ def test_replace_multiple(chikin):
 
 def test_add_children(chikin):
     """Add a child to the parse tree"""
-    chikin.section.add_children('asdfghjkl')
-    assert 'asdfghjkl' in str(chikin.section)
+    chikin.itemize.add_children('asdfghjkl')
+    assert 'asdfghjkl' in str(chikin.itemize)
 
 
 def test_add_children_at(chikin):
