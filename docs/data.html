@@ -129,20 +129,36 @@
             
               <p class="caption"><span class="caption-text">Guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#how-to-use">How to Use</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#how-to-install">How to Install</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="navigation.html">Navigation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="searching.html">Search</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modification.html">Modification</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Notes</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="parser.html">Parsing Mechanics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parser.html">Parsing Mechanics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="parser.html#tokenizer">Tokenizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parser.html#mapper">Mapper</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption"><span class="caption-text">Package Reference</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="main.html">Main Interface</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Data Structures</a></li>
-<li class="toctree-l1"><a class="reference internal" href="utils.html">Utilities</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Data Structures</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#node">Node</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#expressions">Expressions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#arguments">Arguments</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#tokens">Tokens</a></li>
+</ul>
+</li>
 </ul>
 
             
@@ -227,7 +243,13 @@ objects, but all objects fall into one of the following three categories:
 <em class="property">class </em><code class="descclassname">TexSoup.data.</code><code class="descname">TexNode</code><a class="reference internal" href="_modules/TexSoup/data.html#TexNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.data.TexNode" title="Permalink to this definition">¶</a></dt>
 <dd><p>A tree node representing an expression in the LaTeX document.</p>
 <p>Every node in the parse tree is a <code class="docutils literal"><span class="pre">TexNode</span></code>, equipped with navigation,
-search, and modification utilities.</p>
+search, and modification utilities. To navigate the parse tree, use
+abstractions such as <code class="docutils literal"><span class="pre">children</span></code> and <code class="docutils literal"><span class="pre">descendant</span></code>. To access content in
+the parse tree, use abstractions such as <code class="docutils literal"><span class="pre">contents</span></code>, <code class="docutils literal"><span class="pre">text</span></code>, <code class="docutils literal"><span class="pre">string</span></code>
+, and <code class="docutils literal"><span class="pre">args</span></code>.</p>
+<p>Note that the LaTeX parse tree is largely shallow: only environments such as
+<code class="docutils literal"><span class="pre">itemize</span></code> or <code class="docutils literal"><span class="pre">enumerate</span></code> have children and thus descendants. Typical LaTeX
+expressions such as <code class="docutils literal"><span class="pre">\section</span></code> have <em>arguments</em> but not children.</p>
 <dl class="method">
 <dt id="TexSoup.data.TexNode.add_children">
 <code class="descname">add_children</code><span class="sig-paren">(</span><em>*nodes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/data.html#TexNode.add_children"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.data.TexNode.add_children" title="Permalink to this definition">¶</a></dt>
@@ -242,14 +264,25 @@ search, and modification utilities.</p>
 </table>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="k">import</span> <span class="n">TexSoup</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="gp">... </span><span class="s1">\begin</span><span class="si">{itemize}</span><span class="s1"></span>
+<span class="gp">... </span><span class="s1">    \item Hello</span>
+<span class="gp">... </span><span class="s1">\end</span><span class="si">{itemize}</span><span class="s1"></span>
 <span class="gp">... </span><span class="s1">\section</span><span class="si">{Hey}</span><span class="s1"></span>
-<span class="gp">... </span><span class="s1">\textbf</span><span class="si">{Silly}</span><span class="s1"></span>
 <span class="gp">... </span><span class="s1">\textit</span><span class="si">{Willy}</span><span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">section</span>
 <span class="go">\section{Hey}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">section</span><span class="o">.</span><span class="n">add_children</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">textbf</span><span class="p">,</span> <span class="n">soup</span><span class="o">.</span><span class="n">textit</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">section</span><span class="o">.</span><span class="n">add_children</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">textit</span><span class="p">)</span>  
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">TypeError</span>: <span class="n">...</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">section</span>
-<span class="go">\section{Hey} \textbf{Silly}\textit{Willy}</span>
+<span class="go">\section{Hey}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">itemize</span><span class="o">.</span><span class="n">add_children</span><span class="p">(</span><span class="s1">&#39;    &#39;</span><span class="p">,</span> <span class="n">soup</span><span class="o">.</span><span class="n">item</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">itemize</span>
+<span class="go">\begin{itemize}</span>
+<span class="go">    \item Hello</span>
+<span class="go">    \item Hello</span>
+<span class="go">\end{itemize}</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -257,7 +290,7 @@ search, and modification utilities.</p>
 <dl class="method">
 <dt id="TexSoup.data.TexNode.add_children_at">
 <code class="descname">add_children_at</code><span class="sig-paren">(</span><em>i</em>, <em>*nodes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/data.html#TexNode.add_children_at"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.data.TexNode.add_children_at" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a node to its list of children, inserted at position i.</p>
+<dd><p>Add node(s) to this node&#8217;s list of children, inserted at position i.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -270,17 +303,49 @@ search, and modification utilities.</p>
 </tr>
 </tbody>
 </table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="k">import</span> <span class="n">TexSoup</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="gp">... </span><span class="s1">\begin</span><span class="si">{itemize}</span><span class="s1"></span>
+<span class="gp">... </span><span class="s1">    \item Hello</span>
+<span class="gp">... </span><span class="s1">    \item Bye</span>
+<span class="gp">... </span><span class="s1">\end</span><span class="si">{itemize}</span><span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">item</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">item</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">itemize</span><span class="o">.</span><span class="n">add_children_at</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">itemize</span>
+<span class="go">\begin{itemize}</span>
+<span class="go">    \item Hello</span>
+<span class="go">    \item Bye</span>
+<span class="go">\end{itemize}</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
 <dt id="TexSoup.data.TexNode.char_pos_to_line">
 <code class="descname">char_pos_to_line</code><span class="sig-paren">(</span><em>char_pos</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/data.html#TexNode.char_pos_to_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.data.TexNode.char_pos_to_line" title="Permalink to this definition">¶</a></dt>
-<dd><p>Translate character position in the original document to line number.</p>
+<dd><p>Map position in the original string to parsed LaTeX position.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>char_pos</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) &#8211; Character position in the original string</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(line number, index of character in line)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a>]</td>
+</tr>
+</tbody>
+</table>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="k">import</span> <span class="n">TexSoup</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
 <span class="gp">... </span><span class="s1">\section</span><span class="si">{Hey}</span><span class="s1"></span>
 <span class="gp">... </span><span class="s1">\textbf</span><span class="si">{Silly}</span><span class="s1"></span>
 <span class="gp">... </span><span class="s1">\textit</span><span class="si">{Willy}</span><span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">char_pos_to_line</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="go">(1, 9)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">char_pos_to_line</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+<span class="go">(2, 5)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -317,13 +382,51 @@ search, and modification utilities.</p>
 <dl class="method">
 <dt id="TexSoup.data.TexNode.count">
 <code class="descname">count</code><span class="sig-paren">(</span><em>name=None</em>, <em>**attrs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/data.html#TexNode.count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.data.TexNode.count" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return number of descendants matching criteria</p>
+<dd><p>Number of descendants matching criteria.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a><em>,</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>]</em><em></em>) &#8211; name of LaTeX expression</li>
+<li><strong>attrs</strong> &#8211; LaTeX expression attributes, such as item text.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">number of matching expressions</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="k">import</span> <span class="n">TexSoup</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="gp">... </span><span class="s1">\section</span><span class="si">{Hey}</span><span class="s1"></span>
+<span class="gp">... </span><span class="s1">\textit</span><span class="si">{Silly}</span><span class="s1"></span>
+<span class="gp">... </span><span class="s1">\textit</span><span class="si">{Willy}</span><span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;section&#39;</span><span class="p">)</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;textit&#39;</span><span class="p">)</span>
+<span class="go">2</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
 <dt id="TexSoup.data.TexNode.delete">
 <code class="descname">delete</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/data.html#TexNode.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.data.TexNode.delete" title="Permalink to this definition">¶</a></dt>
-<dd><p>Delete this node from the parse tree tree.</p>
+<dd><p>Delete this node from the parse tree.</p>
+<p>Where applicable, this will remove all descendants of this node from
+the parse tree.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="k">import</span> <span class="n">TexSoup</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;&#39;&#39;\textit{\color</span><span class="si">{blue}{Silly}</span><span class="s1">}\textit{keep me!}&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">textit</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span>
+<span class="go">\textit{keep me!}</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="attribute">
@@ -342,31 +445,159 @@ search, and modification utilities.</p>
 <dl class="method">
 <dt id="TexSoup.data.TexNode.find">
 <code class="descname">find</code><span class="sig-paren">(</span><em>name=None</em>, <em>**attrs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/data.html#TexNode.find"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.data.TexNode.find" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return first descendant node matching criteria</p>
+<dd><p>First descendant node matching criteria.</p>
+<p>Returns None if no descendant node found.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">descendant node matching criteria</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">Union[<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a>,<a class="reference internal" href="#TexSoup.data.TexExpr" title="TexSoup.data.TexExpr">TexExpr</a>]</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="k">import</span> <span class="n">TexSoup</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="gp">... </span><span class="s1">\section</span><span class="si">{Ooo}</span><span class="s1"></span>
+<span class="gp">... </span><span class="s1">\textit</span><span class="si">{eee}</span><span class="s1"></span>
+<span class="gp">... </span><span class="s1">\textit</span><span class="si">{ooo}</span><span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;textit&#39;</span><span class="p">)</span>
+<span class="go">\textit{eee}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;textbf&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
 <dt id="TexSoup.data.TexNode.find_all">
 <code class="descname">find_all</code><span class="sig-paren">(</span><em>name=None</em>, <em>**attrs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/data.html#TexNode.find_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.data.TexNode.find_all" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return all descendant nodes matching criteria, naively.</p>
+<dd><p>Return all descendant nodes matching criteria.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a><em>,</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>]</em><em></em>) &#8211; name of LaTeX expression</li>
+<li><strong>attrs</strong> &#8211; LaTeX expression attributes, such as item text.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">All descendant nodes matching criteria</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">generator</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="k">import</span> <span class="n">TexSoup</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="gp">... </span><span class="s1">\section</span><span class="si">{Ooo}</span><span class="s1"></span>
+<span class="gp">... </span><span class="s1">\textit</span><span class="si">{eee}</span><span class="s1"></span>
+<span class="gp">... </span><span class="s1">\textit</span><span class="si">{ooo}</span><span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gen</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;textit&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">next</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span>
+<span class="go">\textit{eee}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">next</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span>
+<span class="go">\textit{ooo}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">next</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;textbf&#39;</span><span class="p">))</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">StopIteration</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
 <dt id="TexSoup.data.TexNode.remove_child">
 <code class="descname">remove_child</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/data.html#TexNode.remove_child"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.data.TexNode.remove_child" title="Permalink to this definition">¶</a></dt>
-<dd><p>Remove a node from its list of contents.</p>
+<dd><p>Remove a node from this node&#8217;s list of contents.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>node</strong> (<a class="reference internal" href="#TexSoup.data.TexExpr" title="TexSoup.data.TexExpr"><em>TexExpr</em></a>) &#8211; Node to remove</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="k">import</span> <span class="n">TexSoup</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="gp">... </span><span class="s1">\begin</span><span class="si">{itemize}</span><span class="s1"></span>
+<span class="gp">... </span><span class="s1">    \item Hello</span>
+<span class="gp">... </span><span class="s1">    \item Bye</span>
+<span class="gp">... </span><span class="s1">\end</span><span class="si">{itemize}</span><span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">itemize</span><span class="o">.</span><span class="n">remove_child</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">item</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">itemize</span>
+<span class="go">\begin{itemize}</span>
+<span class="go">    \item Bye</span>
+<span class="go">\end{itemize}</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
 <dt id="TexSoup.data.TexNode.replace">
 <code class="descname">replace</code><span class="sig-paren">(</span><em>*nodes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/data.html#TexNode.replace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.data.TexNode.replace" title="Permalink to this definition">¶</a></dt>
 <dd><p>Replace this node in the parse tree with the provided node(s).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>nodes</strong> (<a class="reference internal" href="#TexSoup.data.TexNode" title="TexSoup.data.TexNode"><em>TexNode</em></a>) &#8211; List of nodes to subtitute in</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="k">import</span> <span class="n">TexSoup</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="gp">... </span><span class="s1">\begin</span><span class="si">{itemize}</span><span class="s1"></span>
+<span class="gp">... </span><span class="s1">    \item Hello</span>
+<span class="gp">... </span><span class="s1">    \item Bye</span>
+<span class="gp">... </span><span class="s1">\end</span><span class="si">{itemize}</span><span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">items</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;item&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bye</span> <span class="o">=</span> <span class="n">items</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">item</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">bye</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">itemize</span>
+<span class="go">\begin{itemize}</span>
+<span class="go">    \item Bye</span>
+<span class="go">\item Bye</span>
+<span class="go">\end{itemize}</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
 <dt id="TexSoup.data.TexNode.replace_child">
 <code class="descname">replace_child</code><span class="sig-paren">(</span><em>child</em>, <em>*nodes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/data.html#TexNode.replace_child"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.data.TexNode.replace_child" title="Permalink to this definition">¶</a></dt>
 <dd><p>Replace provided node with node(s).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>child</strong> (<a class="reference internal" href="#TexSoup.data.TexNode" title="TexSoup.data.TexNode"><em>TexNode</em></a>) &#8211; Child node to replace</li>
+<li><strong>nodes</strong> (<a class="reference internal" href="#TexSoup.data.TexNode" title="TexSoup.data.TexNode"><em>TexNode</em></a>) &#8211; List of nodes to subtitute in</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="k">import</span> <span class="n">TexSoup</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="gp">... </span><span class="s1">\begin</span><span class="si">{itemize}</span><span class="s1"></span>
+<span class="gp">... </span><span class="s1">    \item Hello</span>
+<span class="gp">... </span><span class="s1">    \item Bye</span>
+<span class="gp">... </span><span class="s1">\end</span><span class="si">{itemize}</span><span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">items</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;item&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bye</span> <span class="o">=</span> <span class="n">items</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">itemize</span><span class="o">.</span><span class="n">replace_child</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">item</span><span class="p">,</span> <span class="n">bye</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">itemize</span>
+<span class="go">\begin{itemize}</span>
+<span class="go">    \item Bye</span>
+<span class="go">\item Bye</span>
+<span class="go">\end{itemize}</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="attribute">
@@ -435,9 +666,12 @@ words and other expressions.</p>
 <dt id="TexSoup.data.TexEnv">
 <em class="property">class </em><code class="descclassname">TexSoup.data.</code><code class="descname">TexEnv</code><a class="reference internal" href="_modules/TexSoup/data.html#TexEnv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.data.TexEnv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Abstraction for a LaTeX command, denoted by begin{env} and end{env}.
-Contains three attributes: (1) the environment name itself, (2) the
-environment arguments, whether optional or required, and (3) the
-environment&#8217;s contents.</p>
+Contains three attributes:</p>
+<ol class="arabic simple">
+<li>the environment name itself,</li>
+<li>the environment arguments, whether optional or required, and</li>
+<li>the environment&#8217;s contents.</li>
+</ol>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">TexEnv</span><span class="p">(</span><span class="s1">&#39;tabular&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">0 &amp; 0 &amp; * </span><span class="se">\\\\\n</span><span class="s1">1 &amp; 1 &amp; * </span><span class="se">\\\\\n</span><span class="s1">&#39;</span><span class="p">],</span>
 <span class="gp">... </span>    <span class="p">[</span><span class="n">RArg</span><span class="p">(</span><span class="s1">&#39;c | c c&#39;</span><span class="p">)])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">t</span>
@@ -456,9 +690,11 @@ environment&#8217;s contents.</p>
 <dl class="class">
 <dt id="TexSoup.data.TexCmd">
 <em class="property">class </em><code class="descclassname">TexSoup.data.</code><code class="descname">TexCmd</code><a class="reference internal" href="_modules/TexSoup/data.html#TexCmd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.data.TexCmd" title="Permalink to this definition">¶</a></dt>
-<dd><p>Abstraction for a LaTeX command. Contains two attributes: (1) the
-command name itself and (2) the command arguments, whether optional or
-required.</p>
+<dd><p>Abstraction for a LaTeX command. Contains two attributes:</p>
+<ol class="arabic simple">
+<li>the command name itself and</li>
+<li>the command arguments, whether optional or required.</li>
+</ol>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -487,7 +723,9 @@ required.</p>
 <dl class="method">
 <dt id="TexSoup.data.TexCmd.add_contents">
 <code class="descname">add_contents</code><span class="sig-paren">(</span><em>*contents</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/data.html#TexCmd.add_contents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.data.TexCmd.add_contents" title="Permalink to this definition">¶</a></dt>
-<dd><p>Amend extra instead of contents, as commands do not have contents.</p>
+<dd><p>Amend extra where appropriate.</p>
+<p>If item, amend extra. If otherwise, throw error, since commands don&#8217;t
+have children.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -619,7 +857,7 @@ a method invocation, to access an Arg object.</p>
     </p>
   </div>
     
-      <div>
+      <div class="built-with">
         Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/pytorch/pytorch_sphinx_theme">theme</a> provided by <a href="https://pytorch.org">PyTorch</a>.
       </div>
      
@@ -686,7 +924,8 @@ a method invocation, to access an Arg object.</p>
    
 
   <!-- Begin Footer -->
-
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+  </div>
   <footer class="site-footer">
     <div class="container footer-container">
       <div class="footer-logo-wrapper">
