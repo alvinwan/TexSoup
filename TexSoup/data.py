@@ -93,6 +93,26 @@ class TexNode(object):
     ##############
 
     @property
+    def all(self):
+        r"""Returns all content in this node, regardless of whitespace or
+        not. This includes all LaTeX needed to reconstruct the original source.
+
+        >>> from TexSoup import TexSoup
+        >>> soup = TexSoup(r'''
+        ... \newcommand{reverseconcat}[3]{#3#2#1}
+        ... ''')
+        >>> list(soup.all)
+        ['\n', \newcommand{reverseconcat}[3]{#3#2#1}, '\n']
+        """
+        for child in self.expr.all:
+            if isinstance(child, TexExpr):
+                node = TexNode(child)
+                node.parent = self
+                yield node
+            else:
+                yield child
+
+    @property
     def args(self):
         r"""Arguments for this node. Note that this argument is settable.
 
@@ -265,7 +285,7 @@ class TexNode(object):
     # PUBLIC METHODS #
     ##################
 
-    def add_children(self, *nodes):
+    def append(self, *nodes):
         r"""Add node(s) to this node's list of children.
 
         :param TexNode nodes: List of nodes to add
@@ -279,22 +299,22 @@ class TexNode(object):
         ... \textit{Willy}''')
         >>> soup.section
         \section{Hey}
-        >>> soup.section.add_children(soup.textit)  # doctest: +ELLIPSIS
+        >>> soup.section.append(soup.textit)  # doctest: +ELLIPSIS
         Traceback (most recent call last):
         ...
         TypeError: ...
         >>> soup.section
         \section{Hey}
-        >>> soup.itemize.add_children('    ', soup.item)
+        >>> soup.itemize.append('    ', soup.item)
         >>> soup.itemize
         \begin{itemize}
             \item Hello
             \item Hello
         \end{itemize}
         """
-        self.expr.add_contents(*nodes)
+        self.expr.append(*nodes)
 
-    def add_children_at(self, i, *nodes):
+    def insert(self, i, *nodes):
         r"""Add node(s) to this node's list of children, inserted at position i.
 
         :param int i: Position to add nodes to
@@ -308,7 +328,7 @@ class TexNode(object):
         ... \end{itemize}''')
         >>> item = soup.item
         >>> soup.item.delete()
-        >>> soup.itemize.add_children_at(1, item)
+        >>> soup.itemize.insert(1, item)
         >>> soup.itemize
         \begin{itemize}
             \item Hello
@@ -317,9 +337,9 @@ class TexNode(object):
         """
         assert isinstance(i, int), (
                 'Provided index "{}" is not an integer! Did you switch your '
-                'arguments? The first argument to `add_children_at` is the '
+                'arguments? The first argument to `insert` is the '
                 'index.'.format(i))
-        self.expr.add_contents_at(i, *nodes)
+        self.expr.insert(i, *nodes)
 
     def char_pos_to_line(self, char_pos):
         r"""Map position in the original string to parsed LaTeX position.
@@ -382,7 +402,7 @@ class TexNode(object):
         # TODO: needs better abstraction for supports contents
         parent = self.parent
         if parent.expr._supports_contents():
-            parent.remove_child(self)
+            parent.remove(self)
             return
 
         # TODO: needs abstraction for removing from arg
@@ -440,7 +460,7 @@ class TexNode(object):
                     descendant.__match__(name, attrs):
                 yield descendant
 
-    def remove_child(self, node):
+    def remove(self, node):
         r"""Remove a node from this node's list of contents.
 
         :param TexExpr node: Node to remove
@@ -451,15 +471,15 @@ class TexNode(object):
         ...     \item Hello
         ...     \item Bye
         ... \end{itemize}''')
-        >>> soup.itemize.remove_child(soup.item)
+        >>> soup.itemize.remove(soup.item)
         >>> soup.itemize
         \begin{itemize}
             \item Bye
         \end{itemize}
         """
-        self.expr.remove_content(node.expr)
+        self.expr.remove(node.expr)
 
-    def replace(self, *nodes):
+    def replace_with(self, *nodes):
         r"""Replace this node in the parse tree with the provided node(s).
 
         :param TexNode nodes: List of nodes to subtitute in
@@ -472,16 +492,16 @@ class TexNode(object):
         ... \end{itemize}''')
         >>> items = list(soup.find_all('item'))
         >>> bye = items[1]
-        >>> soup.item.replace(bye)
+        >>> soup.item.replace_with(bye)
         >>> soup.itemize
         \begin{itemize}
             \item Bye
         \item Bye
         \end{itemize}
         """
-        self.parent.replace_child(self, *nodes)
+        self.parent.replace(self, *nodes)
 
-    def replace_child(self, child, *nodes):
+    def replace(self, child, *nodes):
         r"""Replace provided node with node(s).
 
         :param TexNode child: Child node to replace
@@ -495,15 +515,15 @@ class TexNode(object):
         ... \end{itemize}''')
         >>> items = list(soup.find_all('item'))
         >>> bye = items[1]
-        >>> soup.itemize.replace_child(soup.item, bye)
+        >>> soup.itemize.replace(soup.item, bye)
         >>> soup.itemize
         \begin{itemize}
             \item Bye
         \item Bye
         \end{itemize}
         """
-        self.expr.add_contents_at(
-            self.expr.remove_content(child.expr),
+        self.expr.insert(
+            self.expr.remove(child.expr),
             *nodes)
 
     def search_regex(self, pattern):
@@ -559,24 +579,42 @@ class TexExpr(object):
     ##############
 
     @property
-    def children(self):
-        return filter(lambda x: isinstance(x, (TexEnv, TexCmd)), self.contents)
-
-    @property
-    def contents(self):
-        """Returns all contents in this expression."""
-        for content in self.all:
-            is_whitespace = isinstance(content, str) and content.isspace()
-            if not is_whitespace or self.preserve_whitespace:
-                yield content
-
-    @property
     def all(self):
+        r"""Returns all content in this expression, regardless of whitespace or
+        not. This includes all LaTeX needed to reconstruct the original source.
+
+        >>> expr1 = TexExpr('textbf', ('\n', 'hi'))
+        >>> expr2 = TexExpr('textbf', ('\n', 'hi'), preserve_whitespace=True)
+        >>> list(expr1.all) == list(expr2.all)
+        True
+        """
         for arg in self.args:
             for expr in arg:
                 yield expr
         for content in self._contents:
             yield content
+
+    @property
+    def children(self):
+        return filter(lambda x: isinstance(x, (TexEnv, TexCmd)), self.contents)
+
+    @property
+    def contents(self):
+        r"""Returns all contents in this expression.
+
+        Optionally includes whitespace if set when node was created.
+
+        >>> expr1 = TexExpr('textbf', ('\n', 'hi'))
+        >>> list(expr1.contents)
+        ['hi']
+        >>> expr2 = TexExpr('textbf', ('\n', 'hi'), preserve_whitespace=True)
+        >>> list(expr2.contents)
+        ['\n', 'hi']
+        """
+        for content in self.all:
+            is_whitespace = isinstance(content, str) and content.isspace()
+            if not is_whitespace or self.preserve_whitespace:
+                yield content
 
     @property
     def tokens(self):
@@ -598,7 +636,7 @@ class TexExpr(object):
     # PUBLIC METHODS #
     ##################
 
-    def add_contents(self, *exprs):
+    def append(self, *exprs):
         """Add contents to the expression.
 
         :param Union[TexExpr,str] exprs: List of contents to add
@@ -606,14 +644,14 @@ class TexExpr(object):
         >>> expr = TexExpr('textbf', ('hello',))
         >>> expr
         TexExpr('textbf', ['hello'])
-        >>> expr.add_contents('world')
+        >>> expr.append('world')
         >>> expr
         TexExpr('textbf', ['hello', 'world'])
         """
         self._assert_supports_contents()
         self._contents.extend(exprs)
 
-    def add_contents_at(self, i, *exprs):
+    def insert(self, i, *exprs):
         """Insert content at specified position into expression.
 
         :param int i: Position to add content to
@@ -622,7 +660,7 @@ class TexExpr(object):
         >>> expr = TexExpr('textbf', ('hello',))
         >>> expr
         TexExpr('textbf', ['hello'])
-        >>> expr.add_contents_at(0, 'world')
+        >>> expr.insert(0, 'world')
         >>> expr
         TexExpr('textbf', ['world', 'hello'])
         """
@@ -630,7 +668,7 @@ class TexExpr(object):
         for j, expr in enumerate(exprs):
             self._contents.insert(i + j, expr)
 
-    def remove_content(self, expr):
+    def remove(self, expr):
         """Remove a provided expression from its list of contents.
 
         :param Union[TexExpr,str] expr: Content to add
@@ -638,7 +676,7 @@ class TexExpr(object):
         :rtype: int
 
         >>> expr = TexExpr('textbf', ('hello',))
-        >>> expr.remove_content('hello')
+        >>> expr.remove('hello')
         0
         >>> expr
         TexExpr('textbf', [])
@@ -764,6 +802,8 @@ class Arg(object):
     'uehue'
     """
 
+    fmt = "%s"
+
     def __init__(self, *exprs):
         """Initialize argument using list of expressions.
 
@@ -772,9 +812,37 @@ class Arg(object):
         """
         self.contents = list(exprs)
 
+    def __eq__(self, other):
+        return isinstance(other, Arg) and \
+            self.value == other.value and \
+            self.type == other.type
+
+    def __getitem__(self, i):
+        return self.value[i]
+
+    def __iter__(self):
+        return iter(self.contents)
+
+    def __lt__(self, other):
+        return self.value < other.value
+
+    def __repr__(self):
+        return '%s(%s)' % (self.__class__.__name__,
+                           ', '.join(map(repr, self.contents)))
+
+    def __str__(self):
+        return self.fmt % self.value
+
     @property
     def value(self):
-        """Argument value, without format."""
+        """Argument value, without format.
+
+        >>> arg = RArg('hello')
+        >>> arg
+        RArg('hello')
+        >>> arg.value
+        'hello'
+        """
         return ''.join(map(str, self.contents))
 
     @staticmethod
@@ -806,58 +874,37 @@ class Arg(object):
         raise TypeError('Malformed argument. Must be an Arg or a string in '
                         'either brackets or curly braces.')
 
-    def __getitem__(self, i):
-        """Retrieve an argument's value"""
-        return self.value[i]
-
     @classmethod
     def delims(cls):
-        """Returns delimiters"""
+        """Returns delimiters specific to an argument type.
+
+        >>> RArg.delims()
+        ['{', '}']
+        >>> OArg.delims()
+        ['[', ']']
+        """
         return cls.fmt.split('%s')
 
     @classmethod
     def __is__(cls, s):
-        """Test if string matches format."""
+        """Test if string matches this argument's format."""
         return s.startswith(cls.delims()[0]) and s.endswith(cls.delims()[1])
-
-    def __lt__(self, other):
-        return self.value < other.value
 
     @classmethod
     def __strip__(cls, s):
         """Strip string of format."""
         return s[len(cls.delims()[0]):-len(cls.delims()[1])]
 
-    def __eq__(self, other):
-        return isinstance(other, Arg) and \
-            self.value == other.value and \
-            self.type == other.type
-
-    def __iter__(self):
-        """Iterator iterates over all argument contents."""
-        return iter(self.contents)
-
-    def __repr__(self):
-        """Makes argument display-friendly."""
-        return '%s(%s)' % (self.__class__.__name__,
-                           ', '.join(map(repr, self.contents)))
-
-    def __str__(self):
-        """Stringifies argument value."""
-        return self.fmt % self.value
-
-    fmt = "%s"
-
 
 class OArg(Arg):
-    """Optional argument."""
+    """Optional argument, denoted as ``[arg]``"""
 
     fmt = '[%s]'
     type = 'optional'
 
 
 class RArg(Arg):
-    """Required argument."""
+    """Required argument, denoted as ``{arg}``."""
 
     fmt = '{%s}'
     type = 'required'

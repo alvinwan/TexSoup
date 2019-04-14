@@ -28,15 +28,15 @@ def resolve(tex):
     # resolve subimports
     for subimport in soup.find_all('subimport'):
         path = subimport.args[0] + subimport.args[1]
-        subimport.replace(*resolve(open(path)).contents)
+        subimport.replace_with(*resolve(open(path)).contents)
 
     # resolve imports
     for _import in soup.find_all('import'):
-        _import.replace(*resolve(open(_import.args[0])).contents)
+        _import.replace_with(*resolve(open(_import.args[0])).contents)
 
     # resolve includes
     for include in soup.find_all('include'):
-        include.replace(*resolve(open(include.args[0])).contents)
+        include.replace_with(*resolve(open(include.args[0])).contents)
 
     return soup
 

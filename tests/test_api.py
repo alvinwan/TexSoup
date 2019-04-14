@@ -96,27 +96,27 @@ def test_delete_arg():
 
 def test_replace_single(chikin):
     """Replace an element in the parse tree"""
-    chikin.section.replace(chikin.subsection)
+    chikin.section.replace_with(chikin.subsection)
     assert 'Chikin Tales' not in str(chikin)
     assert len(list(chikin.find_all('subsection'))) == 4
 
 
 def test_replace_multiple(chikin):
     """Replace an element in the parse tree"""
-    chikin.section.replace(chikin.subsection, chikin.subsection)
+    chikin.section.replace_with(chikin.subsection, chikin.subsection)
     assert 'Chikin Tales' not in str(chikin)
     assert len(list(chikin.find_all('subsection'))) == 5
 
 
-def test_add_children(chikin):
+def test_append(chikin):
     """Add a child to the parse tree"""
-    chikin.itemize.add_children('asdfghjkl')
+    chikin.itemize.append('asdfghjkl')
     assert 'asdfghjkl' in str(chikin.itemize)
 
 
-def test_add_children_at(chikin):
+def test_insert(chikin):
     """Add a child to the parse tree at a specific position"""
-    chikin.add_children_at(0, 'asdfghjkl')
+    chikin.insert(0, 'asdfghjkl')
     assert 'asdfghjkl' in str(chikin)
     assert str(chikin[0]) == 'asdfghjkl'
 

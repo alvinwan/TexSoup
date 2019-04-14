@@ -333,7 +333,7 @@ def read_math_env(src, expr):
         raise EOFError('Expecting %s. %s' % (expr.end, explanation))
     else:
         src.forward(1)
-    expr.add_contents(content)
+    expr.append(content)
     return expr
 
 
@@ -358,7 +358,7 @@ def read_env(src, expr):
         raise EOFError('Expecting \\end{%s}. %s' % (expr.name, explanation))
     else:
         src.forward(4)
-    expr.add_contents(*contents)
+    expr.append(*contents)
     return expr
 
 

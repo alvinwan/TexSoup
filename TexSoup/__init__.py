@@ -75,8 +75,8 @@ def TexSoup(tex_code):
     >>> soup.textbf.delete()
     >>> 'Hello' not in repr(soup)
     True
-    >>> soup.textit.replace('S')
-    >>> soup.textit.replace('U', 'P')
+    >>> soup.textit.replace_with('S')
+    >>> soup.textit.replace_with('U', 'P')
     >>> soup
     SOUP
     """
