@@ -97,7 +97,7 @@
               
               
                 <div class="version">
-                  master (0.1.4 )
+                  master (0.2.0 )
                 </div>
               
             
@@ -565,7 +565,7 @@
         <span class="k">raise</span> <span class="ne">EOFError</span><span class="p">(</span><span class="s1">&#39;Expecting </span><span class="si">%s</span><span class="s1">. </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">expr</span><span class="o">.</span><span class="n">end</span><span class="p">,</span> <span class="n">explanation</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">src</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">expr</span><span class="o">.</span><span class="n">add_contents</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+    <span class="n">expr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">expr</span></div>
 
 
@@ -590,11 +590,11 @@
         <span class="k">raise</span> <span class="ne">EOFError</span><span class="p">(</span><span class="s1">&#39;Expecting </span><span class="se">\\</span><span class="s1">end{</span><span class="si">%s</span><span class="s1">}. </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">expr</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">explanation</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">src</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
-    <span class="n">expr</span><span class="o">.</span><span class="n">add_contents</span><span class="p">(</span><span class="o">*</span><span class="n">contents</span><span class="p">)</span>
+    <span class="n">expr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">*</span><span class="n">contents</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">expr</span></div>
 
 
-<span class="k">def</span> <span class="nf">read_args</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="read_args"><a class="viewcode-back" href="../../parser.html#TexSoup.reader.read_args">[docs]</a><span class="k">def</span> <span class="nf">read_args</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Read all arguments from buffer.</span>
 
 <span class="sd">    Advances buffer until end of last valid arguments. There can be any number</span>
@@ -630,7 +630,7 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="p">:</span>
         <span class="n">src</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">candidate_index</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">args</span>
+    <span class="k">return</span> <span class="n">args</span></div>
 
 
 <div class="viewcode-block" id="read_arg"><a class="viewcode-back" href="../../parser.html#TexSoup.reader.read_arg">[docs]</a><span class="k">def</span> <span class="nf">read_arg</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>

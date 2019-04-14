@@ -99,7 +99,7 @@
               
               
                 <div class="version">
-                  master (0.1.4 )
+                  master (0.2.0 )
                 </div>
               
             
@@ -260,10 +260,15 @@ BeautifulSoup. With that said, these are very much a work in progress.</p>
 <span class="gp">... </span><span class="s2">\end</span><span class="si">{tabular}</span><span class="s2"></span>
 <span class="gp">... </span><span class="s2">\end</span><span class="si">{document}</span><span class="s2"></span>
 <span class="gp">... </span><span class="s2">&quot;&quot;&quot;</span>
-</pre></div>
-</div>
-<p>Pass this document to <code class="docutils literal"><span class="pre">TexSoup</span></code> to obtain a fully-fledged parse tree:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="k">import</span> <span class="n">TexSoup</span>
+
+<span class="go">There are two ways to input $\LaTeX$ into TexSoup. Either pass in</span>
+
+<span class="go">1. a file buffer (`open(&#39;file.tex&#39;)`) OR</span>
+<span class="go">2. a string</span>
+
+<span class="go">Below, we demonstrate using the string defined above::</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="k">import</span> <span class="n">TexSoup</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="n">tex_doc</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span>
 <span class="go">\begin{document}</span>
@@ -282,7 +287,8 @@ BeautifulSoup. With that said, these are very much a work in progress.</p>
 <span class="go">\end{document}</span>
 </pre></div>
 </div>
-<p>Here are some simple ways to navigate this parse tree:</p>
+<p>With the soupified <span class="math">\(\LaTeX\)</span>, you can now search and traverse the document tree.
+The code below demonstrates the basic functions that TexSoup provides.:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">section</span>
 <span class="go">\section{Hello \textit{world}.}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">section</span><span class="o">.</span><span class="n">name</span>
@@ -307,7 +313,10 @@ BeautifulSoup. With that said, these are very much a work in progress.</p>
 <span class="go">]</span>
 </pre></div>
 </div>
-<p>One possible task is retrieving the number of references to a figure:</p>
+<p>One possible task is searching for references to a figure. For this (slightly)
+more advanced search, include arguments. For example, to search for all
+references to a particular label, search for <code class="docutils literal"><span class="pre">ref{&lt;label&gt;}</span></code>. This way you can
+count the number of times a particular label is referenced.:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\ref{table:synonyms}&#39;</span><span class="p">)</span>
 <span class="go">1</span>
 </pre></div>
@@ -315,6 +324,19 @@ BeautifulSoup. With that said, these are very much a work in progress.</p>
 <p>Another possible task is extracting all text from the page:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
 <span class="go">[&#39;Hello &#39;, &#39;world&#39;, &#39;.&#39;, &#39;Watermelon&#39;, &#39;\n\n(n.) A sacred fruit. Also known as:\n\n&#39;, &#39;red lemon\n&#39;, &#39;life\n&#39;, &#39;\n\nHere is the prevalence of each synonym.\n\n&#39;, &#39;\nred lemon &amp; uncommon \\\\ &#39;, &#39;\nlife &amp; common\n&#39;]</span>
+</pre></div>
+</div>
+<p>If you need more flexibility and wish to build on top of the raw parse tree,
+you may use the underlying data structures. For direct access to the raw data
+structures, without a wrapper <code class="docutils literal"><span class="pre">TexNode</span></code>, use the main parsing utility,
+<code class="docutils literal"><span class="pre">read</span></code>, which translates any <span class="math">\(\LaTeX\)</span> string or iterator into a Python
+data structure.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="k">import</span> <span class="n">read</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">expr</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="s1">&#39;\section</span><span class="si">{textbf}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">expr</span>
+<span class="go">TexCmd(&#39;section&#39;, [RArg(&#39;textbf&#39;)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span>
+<span class="go">\section{textbf}</span>
 </pre></div>
 </div>
 </div>

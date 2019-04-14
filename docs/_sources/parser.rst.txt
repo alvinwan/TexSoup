@@ -24,4 +24,5 @@ Mapper
 .. autofunction:: read_item
 .. autofunction:: read_math_env
 .. autofunction:: read_env
+.. autofunction:: read_args
 .. autofunction:: read_arg

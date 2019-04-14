@@ -97,7 +97,7 @@
               
               
                 <div class="version">
-                  master (0.1.4 )
+                  master (0.2.0 )
                 </div>
               
             
@@ -325,6 +325,26 @@
     <span class="c1">##############</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Returns all content in this node, regardless of whitespace or</span>
+<span class="sd">        not. This includes all LaTeX needed to reconstruct the original source.</span>
+
+<span class="sd">        &gt;&gt;&gt; from TexSoup import TexSoup</span>
+<span class="sd">        &gt;&gt;&gt; soup = TexSoup(r&#39;&#39;&#39;</span>
+<span class="sd">        ... \newcommand{reverseconcat}[3]{#3#2#1}</span>
+<span class="sd">        ... &#39;&#39;&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; list(soup.all)</span>
+<span class="sd">        [&#39;\n&#39;, \newcommand{reverseconcat}[3]{#3#2#1}, &#39;\n&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">all</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">TexExpr</span><span class="p">):</span>
+                <span class="n">node</span> <span class="o">=</span> <span class="n">TexNode</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+                <span class="n">node</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span>
+                <span class="k">yield</span> <span class="n">node</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">child</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Arguments for this node. Note that this argument is settable.</span>
 
@@ -497,7 +517,7 @@
     <span class="c1"># PUBLIC METHODS #</span>
     <span class="c1">##################</span>
 
-<div class="viewcode-block" id="TexNode.add_children"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexNode.add_children">[docs]</a>    <span class="k">def</span> <span class="nf">add_children</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">nodes</span><span class="p">):</span>
+<div class="viewcode-block" id="TexNode.append"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexNode.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">nodes</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Add node(s) to this node&#39;s list of children.</span>
 
 <span class="sd">        :param TexNode nodes: List of nodes to add</span>
@@ -511,22 +531,22 @@
 <span class="sd">        ... \textit{Willy}&#39;&#39;&#39;)</span>
 <span class="sd">        &gt;&gt;&gt; soup.section</span>
 <span class="sd">        \section{Hey}</span>
-<span class="sd">        &gt;&gt;&gt; soup.section.add_children(soup.textit)  # doctest: +ELLIPSIS</span>
+<span class="sd">        &gt;&gt;&gt; soup.section.append(soup.textit)  # doctest: +ELLIPSIS</span>
 <span class="sd">        Traceback (most recent call last):</span>
 <span class="sd">        ...</span>
 <span class="sd">        TypeError: ...</span>
 <span class="sd">        &gt;&gt;&gt; soup.section</span>
 <span class="sd">        \section{Hey}</span>
-<span class="sd">        &gt;&gt;&gt; soup.itemize.add_children(&#39;    &#39;, soup.item)</span>
+<span class="sd">        &gt;&gt;&gt; soup.itemize.append(&#39;    &#39;, soup.item)</span>
 <span class="sd">        &gt;&gt;&gt; soup.itemize</span>
 <span class="sd">        \begin{itemize}</span>
 <span class="sd">            \item Hello</span>
 <span class="sd">            \item Hello</span>
 <span class="sd">        \end{itemize}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">add_contents</span><span class="p">(</span><span class="o">*</span><span class="n">nodes</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">*</span><span class="n">nodes</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="TexNode.add_children_at"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexNode.add_children_at">[docs]</a>    <span class="k">def</span> <span class="nf">add_children_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="o">*</span><span class="n">nodes</span><span class="p">):</span>
+<div class="viewcode-block" id="TexNode.insert"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexNode.insert">[docs]</a>    <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="o">*</span><span class="n">nodes</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Add node(s) to this node&#39;s list of children, inserted at position i.</span>
 
 <span class="sd">        :param int i: Position to add nodes to</span>
@@ -540,7 +560,7 @@
 <span class="sd">        ... \end{itemize}&#39;&#39;&#39;)</span>
 <span class="sd">        &gt;&gt;&gt; item = soup.item</span>
 <span class="sd">        &gt;&gt;&gt; soup.item.delete()</span>
-<span class="sd">        &gt;&gt;&gt; soup.itemize.add_children_at(1, item)</span>
+<span class="sd">        &gt;&gt;&gt; soup.itemize.insert(1, item)</span>
 <span class="sd">        &gt;&gt;&gt; soup.itemize</span>
 <span class="sd">        \begin{itemize}</span>
 <span class="sd">            \item Hello</span>
@@ -549,9 +569,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="p">(</span>
                 <span class="s1">&#39;Provided index &quot;</span><span class="si">{}</span><span class="s1">&quot; is not an integer! Did you switch your &#39;</span>
-                <span class="s1">&#39;arguments? The first argument to `add_children_at` is the &#39;</span>
+                <span class="s1">&#39;arguments? The first argument to `insert` is the &#39;</span>
                 <span class="s1">&#39;index.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">add_contents_at</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="o">*</span><span class="n">nodes</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="o">*</span><span class="n">nodes</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TexNode.char_pos_to_line"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexNode.char_pos_to_line">[docs]</a>    <span class="k">def</span> <span class="nf">char_pos_to_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">char_pos</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Map position in the original string to parsed LaTeX position.</span>
@@ -614,7 +634,7 @@
         <span class="c1"># TODO: needs better abstraction for supports contents</span>
         <span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span>
         <span class="k">if</span> <span class="n">parent</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">_supports_contents</span><span class="p">():</span>
-            <span class="n">parent</span><span class="o">.</span><span class="n">remove_child</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="n">parent</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
             <span class="k">return</span>
 
         <span class="c1"># TODO: needs abstraction for removing from arg</span>
@@ -672,7 +692,7 @@
                     <span class="n">descendant</span><span class="o">.</span><span class="n">__match__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
                 <span class="k">yield</span> <span class="n">descendant</span></div>
 
-<div class="viewcode-block" id="TexNode.remove_child"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexNode.remove_child">[docs]</a>    <span class="k">def</span> <span class="nf">remove_child</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+<div class="viewcode-block" id="TexNode.remove"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexNode.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Remove a node from this node&#39;s list of contents.</span>
 
 <span class="sd">        :param TexExpr node: Node to remove</span>
@@ -683,15 +703,15 @@
 <span class="sd">        ...     \item Hello</span>
 <span class="sd">        ...     \item Bye</span>
 <span class="sd">        ... \end{itemize}&#39;&#39;&#39;)</span>
-<span class="sd">        &gt;&gt;&gt; soup.itemize.remove_child(soup.item)</span>
+<span class="sd">        &gt;&gt;&gt; soup.itemize.remove(soup.item)</span>
 <span class="sd">        &gt;&gt;&gt; soup.itemize</span>
 <span class="sd">        \begin{itemize}</span>
 <span class="sd">            \item Bye</span>
 <span class="sd">        \end{itemize}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">remove_content</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">expr</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">expr</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="TexNode.replace"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexNode.replace">[docs]</a>    <span class="k">def</span> <span class="nf">replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">nodes</span><span class="p">):</span>
+<div class="viewcode-block" id="TexNode.replace_with"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexNode.replace_with">[docs]</a>    <span class="k">def</span> <span class="nf">replace_with</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">nodes</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Replace this node in the parse tree with the provided node(s).</span>
 
 <span class="sd">        :param TexNode nodes: List of nodes to subtitute in</span>
@@ -704,16 +724,16 @@
 <span class="sd">        ... \end{itemize}&#39;&#39;&#39;)</span>
 <span class="sd">        &gt;&gt;&gt; items = list(soup.find_all(&#39;item&#39;))</span>
 <span class="sd">        &gt;&gt;&gt; bye = items[1]</span>
-<span class="sd">        &gt;&gt;&gt; soup.item.replace(bye)</span>
+<span class="sd">        &gt;&gt;&gt; soup.item.replace_with(bye)</span>
 <span class="sd">        &gt;&gt;&gt; soup.itemize</span>
 <span class="sd">        \begin{itemize}</span>
 <span class="sd">            \item Bye</span>
 <span class="sd">        \item Bye</span>
 <span class="sd">        \end{itemize}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">replace_child</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">nodes</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">nodes</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="TexNode.replace_child"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexNode.replace_child">[docs]</a>    <span class="k">def</span> <span class="nf">replace_child</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">child</span><span class="p">,</span> <span class="o">*</span><span class="n">nodes</span><span class="p">):</span>
+<div class="viewcode-block" id="TexNode.replace"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexNode.replace">[docs]</a>    <span class="k">def</span> <span class="nf">replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">child</span><span class="p">,</span> <span class="o">*</span><span class="n">nodes</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Replace provided node with node(s).</span>
 
 <span class="sd">        :param TexNode child: Child node to replace</span>
@@ -727,15 +747,15 @@
 <span class="sd">        ... \end{itemize}&#39;&#39;&#39;)</span>
 <span class="sd">        &gt;&gt;&gt; items = list(soup.find_all(&#39;item&#39;))</span>
 <span class="sd">        &gt;&gt;&gt; bye = items[1]</span>
-<span class="sd">        &gt;&gt;&gt; soup.itemize.replace_child(soup.item, bye)</span>
+<span class="sd">        &gt;&gt;&gt; soup.itemize.replace(soup.item, bye)</span>
 <span class="sd">        &gt;&gt;&gt; soup.itemize</span>
 <span class="sd">        \begin{itemize}</span>
 <span class="sd">            \item Bye</span>
 <span class="sd">        \item Bye</span>
 <span class="sd">        \end{itemize}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">add_contents_at</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">remove_content</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">expr</span><span class="p">),</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">expr</span><span class="p">),</span>
             <span class="o">*</span><span class="n">nodes</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">search_regex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pattern</span><span class="p">):</span>
@@ -791,24 +811,42 @@
     <span class="c1">##############</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">children</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="n">TexEnv</span><span class="p">,</span> <span class="n">TexCmd</span><span class="p">)),</span> <span class="bp">self</span><span class="o">.</span><span class="n">contents</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">contents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns all contents in this expression.&quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">content</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">:</span>
-            <span class="n">is_whitespace</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">content</span><span class="o">.</span><span class="n">isspace</span><span class="p">()</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">is_whitespace</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">preserve_whitespace</span><span class="p">:</span>
-                <span class="k">yield</span> <span class="n">content</span>
-
-    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Returns all content in this expression, regardless of whitespace or</span>
+<span class="sd">        not. This includes all LaTeX needed to reconstruct the original source.</span>
+
+<span class="sd">        &gt;&gt;&gt; expr1 = TexExpr(&#39;textbf&#39;, (&#39;\n&#39;, &#39;hi&#39;))</span>
+<span class="sd">        &gt;&gt;&gt; expr2 = TexExpr(&#39;textbf&#39;, (&#39;\n&#39;, &#39;hi&#39;), preserve_whitespace=True)</span>
+<span class="sd">        &gt;&gt;&gt; list(expr1.all) == list(expr2.all)</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">expr</span> <span class="ow">in</span> <span class="n">arg</span><span class="p">:</span>
                 <span class="k">yield</span> <span class="n">expr</span>
         <span class="k">for</span> <span class="n">content</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contents</span><span class="p">:</span>
             <span class="k">yield</span> <span class="n">content</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">children</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="n">TexEnv</span><span class="p">,</span> <span class="n">TexCmd</span><span class="p">)),</span> <span class="bp">self</span><span class="o">.</span><span class="n">contents</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">contents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Returns all contents in this expression.</span>
+
+<span class="sd">        Optionally includes whitespace if set when node was created.</span>
+
+<span class="sd">        &gt;&gt;&gt; expr1 = TexExpr(&#39;textbf&#39;, (&#39;\n&#39;, &#39;hi&#39;))</span>
+<span class="sd">        &gt;&gt;&gt; list(expr1.contents)</span>
+<span class="sd">        [&#39;hi&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; expr2 = TexExpr(&#39;textbf&#39;, (&#39;\n&#39;, &#39;hi&#39;), preserve_whitespace=True)</span>
+<span class="sd">        &gt;&gt;&gt; list(expr2.contents)</span>
+<span class="sd">        [&#39;\n&#39;, &#39;hi&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">content</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">:</span>
+            <span class="n">is_whitespace</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">content</span><span class="o">.</span><span class="n">isspace</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">is_whitespace</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">preserve_whitespace</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">content</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">tokens</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -830,7 +868,7 @@
     <span class="c1"># PUBLIC METHODS #</span>
     <span class="c1">##################</span>
 
-<div class="viewcode-block" id="TexExpr.add_contents"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexExpr.add_contents">[docs]</a>    <span class="k">def</span> <span class="nf">add_contents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">exprs</span><span class="p">):</span>
+<div class="viewcode-block" id="TexExpr.append"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexExpr.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">exprs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Add contents to the expression.</span>
 
 <span class="sd">        :param Union[TexExpr,str] exprs: List of contents to add</span>
@@ -838,14 +876,14 @@
 <span class="sd">        &gt;&gt;&gt; expr = TexExpr(&#39;textbf&#39;, (&#39;hello&#39;,))</span>
 <span class="sd">        &gt;&gt;&gt; expr</span>
 <span class="sd">        TexExpr(&#39;textbf&#39;, [&#39;hello&#39;])</span>
-<span class="sd">        &gt;&gt;&gt; expr.add_contents(&#39;world&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; expr.append(&#39;world&#39;)</span>
 <span class="sd">        &gt;&gt;&gt; expr</span>
 <span class="sd">        TexExpr(&#39;textbf&#39;, [&#39;hello&#39;, &#39;world&#39;])</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_assert_supports_contents</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_contents</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">exprs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="TexExpr.add_contents_at"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexExpr.add_contents_at">[docs]</a>    <span class="k">def</span> <span class="nf">add_contents_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="o">*</span><span class="n">exprs</span><span class="p">):</span>
+<div class="viewcode-block" id="TexExpr.insert"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexExpr.insert">[docs]</a>    <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="o">*</span><span class="n">exprs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Insert content at specified position into expression.</span>
 
 <span class="sd">        :param int i: Position to add content to</span>
@@ -854,7 +892,7 @@
 <span class="sd">        &gt;&gt;&gt; expr = TexExpr(&#39;textbf&#39;, (&#39;hello&#39;,))</span>
 <span class="sd">        &gt;&gt;&gt; expr</span>
 <span class="sd">        TexExpr(&#39;textbf&#39;, [&#39;hello&#39;])</span>
-<span class="sd">        &gt;&gt;&gt; expr.add_contents_at(0, &#39;world&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; expr.insert(0, &#39;world&#39;)</span>
 <span class="sd">        &gt;&gt;&gt; expr</span>
 <span class="sd">        TexExpr(&#39;textbf&#39;, [&#39;world&#39;, &#39;hello&#39;])</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -862,7 +900,7 @@
         <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">expr</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">exprs</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_contents</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="n">j</span><span class="p">,</span> <span class="n">expr</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="TexExpr.remove_content"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexExpr.remove_content">[docs]</a>    <span class="k">def</span> <span class="nf">remove_content</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expr</span><span class="p">):</span>
+<div class="viewcode-block" id="TexExpr.remove"><a class="viewcode-back" href="../../data.html#TexSoup.data.TexExpr.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expr</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Remove a provided expression from its list of contents.</span>
 
 <span class="sd">        :param Union[TexExpr,str] expr: Content to add</span>
@@ -870,7 +908,7 @@
 <span class="sd">        :rtype: int</span>
 
 <span class="sd">        &gt;&gt;&gt; expr = TexExpr(&#39;textbf&#39;, (&#39;hello&#39;,))</span>
-<span class="sd">        &gt;&gt;&gt; expr.remove_content(&#39;hello&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; expr.remove(&#39;hello&#39;)</span>
 <span class="sd">        0</span>
 <span class="sd">        &gt;&gt;&gt; expr</span>
 <span class="sd">        TexExpr(&#39;textbf&#39;, [])</span>
@@ -996,6 +1034,8 @@
 <span class="sd">    &#39;uehue&#39;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="n">fmt</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">exprs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialize argument using list of expressions.</span>
 
@@ -1004,9 +1044,37 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">contents</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">exprs</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Arg</span><span class="p">)</span> <span class="ow">and</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">value</span> <span class="ow">and</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">type</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">contents</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">(</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                           <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">repr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">contents</span><span class="p">)))</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Argument value, without format.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Argument value, without format.</span>
+
+<span class="sd">        &gt;&gt;&gt; arg = RArg(&#39;hello&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; arg</span>
+<span class="sd">        RArg(&#39;hello&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; arg.value</span>
+<span class="sd">        &#39;hello&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">contents</span><span class="p">))</span>
 
 <div class="viewcode-block" id="Arg.parse"><a class="viewcode-back" href="../../data.html#TexSoup.data.Arg.parse">[docs]</a>    <span class="nd">@staticmethod</span>
@@ -1038,58 +1106,37 @@
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Malformed argument. Must be an Arg or a string in &#39;</span>
                         <span class="s1">&#39;either brackets or curly braces.&#39;</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Retrieve an argument&#39;s value&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-
 <div class="viewcode-block" id="Arg.delims"><a class="viewcode-back" href="../../data.html#TexSoup.data.Arg.delims">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">delims</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns delimiters&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Returns delimiters specific to an argument type.</span>
+
+<span class="sd">        &gt;&gt;&gt; RArg.delims()</span>
+<span class="sd">        [&#39;{&#39;, &#39;}&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; OArg.delims()</span>
+<span class="sd">        [&#39;[&#39;, &#39;]&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">fmt</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">)</span></div>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">__is__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Test if string matches format.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Test if string matches this argument&#39;s format.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">delims</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span> <span class="ow">and</span> <span class="n">s</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">delims</span><span class="p">()[</span><span class="mi">1</span><span class="p">])</span>
-
-    <span class="k">def</span> <span class="nf">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">value</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">__strip__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Strip string of format.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">s</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">delims</span><span class="p">()[</span><span class="mi">0</span><span class="p">]):</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">delims</span><span class="p">()[</span><span class="mi">1</span><span class="p">])]</span>
-
-    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Arg</span><span class="p">)</span> <span class="ow">and</span> \
-            <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">value</span> <span class="ow">and</span> \
-            <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">type</span>
-
-    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Iterator iterates over all argument contents.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">contents</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Makes argument display-friendly.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">(</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
-                           <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">repr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">contents</span><span class="p">)))</span>
-
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Stringifies argument value.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
-
-    <span class="n">fmt</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span></div>
+        <span class="k">return</span> <span class="n">s</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">delims</span><span class="p">()[</span><span class="mi">0</span><span class="p">]):</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">delims</span><span class="p">()[</span><span class="mi">1</span><span class="p">])]</span></div>
 
 
 <div class="viewcode-block" id="OArg"><a class="viewcode-back" href="../../data.html#TexSoup.data.OArg">[docs]</a><span class="k">class</span> <span class="nc">OArg</span><span class="p">(</span><span class="n">Arg</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Optional argument.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Optional argument, denoted as ``[arg]``&quot;&quot;&quot;</span>
 
     <span class="n">fmt</span> <span class="o">=</span> <span class="s1">&#39;[</span><span class="si">%s</span><span class="s1">]&#39;</span>
     <span class="nb">type</span> <span class="o">=</span> <span class="s1">&#39;optional&#39;</span></div>
 
 
 <div class="viewcode-block" id="RArg"><a class="viewcode-back" href="../../data.html#TexSoup.data.RArg">[docs]</a><span class="k">class</span> <span class="nc">RArg</span><span class="p">(</span><span class="n">Arg</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Required argument.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Required argument, denoted as ``{arg}``.&quot;&quot;&quot;</span>
 
     <span class="n">fmt</span> <span class="o">=</span> <span class="s1">&#39;{</span><span class="si">%s</span><span class="s1">}&#39;</span>
     <span class="nb">type</span> <span class="o">=</span> <span class="s1">&#39;required&#39;</span></div>
