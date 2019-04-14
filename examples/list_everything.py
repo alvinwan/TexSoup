@@ -19,13 +19,13 @@ def everything(tex_tree):
     result = []
     for tex_code in tex_tree:
         if isinstance(tex_code, TexSoup.TexEnv):
-            result.append([tex_code.begin + str(tex_code.arguments), everything(tex_code.everything), tex_code.end])
+            result.append([tex_code.begin + str(tex_code.arguments), everything(tex_code.all), tex_code.end])
         elif isinstance(tex_code, TexSoup.TexCmd):
             result.append(["\\" + tex_code.name + str(tex_code.arguments)])
         elif isinstance(tex_code, TexSoup.TokenWithPosition):
             result.append(tex_code.text)
         elif isinstance(tex_code, TexSoup.Arg):
-            result.append(["{", everything(TexSoup.TexSoup(tex_code.value).expr.everything), "}"])
+            result.append(["{", everything(TexSoup.TexSoup(tex_code.value).expr.all), "}"])
         else:
             result.append([str(tex_code)])
 
@@ -37,6 +37,6 @@ if __name__ == '__main__':
 
     tex_file = open(input('LaTex file:').strip())
     tex_soup = TexSoup.TexSoup(tex_file)
-    tex_text = everything(tex_soup.expr.everything)
+    tex_text = everything(tex_soup.expr.all)
     print("LaTeX Contents:\n== == ==\n\n")
     pprint.pprint(tex_text)

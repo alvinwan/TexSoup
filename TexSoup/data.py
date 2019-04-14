@@ -140,8 +140,8 @@ class TexNode(object):
     def contents(self):
         r"""Any non-whitespace contents inside of this TeX element.
 
-        :return: generator of all contents
-        :rtype: Iterator[TexExpr]
+        :return: generator of all nodes, tokens, and strings
+        :rtype: Iterator[Union[TexNode,str]]
 
         >>> from TexSoup import TexSoup
         >>> soup = TexSoup(r'''
@@ -157,10 +157,31 @@ class TexNode(object):
         <BLANKLINE>
         """
         for child in self.expr.contents:
-            if isinstance(child, (TexEnv, TexCmd)):
+            if isinstance(child, TexExpr):
                 yield TexNode(child)
             else:
                 yield child
+
+    @property
+    def exprs(self):
+        r"""Any sub-TexNode nodes inside of this node.
+
+        :return: generator of all nodes
+        :rtype: Iterator[TexNode]
+
+        >>> from TexSoup import TexSoup
+        >>> soup = TexSoup(r'''
+        ... \begin{itemize}
+        ...     Random text!
+        ...     \item Hello
+        ... \end{itemize}''')
+        >>> exprs = soup.itemize.exprs
+        >>> next(exprs)
+        \item Hello
+        <BLANKLINE>
+        """
+        for child in self.expr.exprs:
+            yield TexNode(child)
 
     @property
     def descendants(self):
@@ -264,7 +285,7 @@ class TexNode(object):
             "`string` must be of type `list` or `str`"
         if isinstance(string, str):
             string = [string]
-        self.expr.args[0].exprs = string
+        self.expr.args[0].contents = string
 
     @property
     def text(self):
@@ -546,27 +567,65 @@ class TexNode(object):
 
 
 class TexExpr(object):
-    """General TeX expression abstract"""
+    """General abstraction for a TeX expression.
 
-    def __init__(self, name, contents=(), args=(), stuff=()):
+    An expression may be a command or an environment and is identified by
+    a name, arguments, and place in the parse tree. This is an abstract and is
+    not directly instantiated.
+    """
+
+    def __init__(self, name, contents=(), args=(), stuff=(),
+            preserve_whitespace=False):
         self.name = name.strip()
         self.args = TexArgs(args)
         self.stuff = stuff
         self.parent = self.parent if hasattr(self, 'parent') else None
-        self._contents = contents or []
+        self._contents = list(contents) or []
+        self.preserve_whitespace = preserve_whitespace
 
         for content in contents:
             if isinstance(content, (TexEnv, TexCmd)):
                 content.parent = self
+
+    #################
+    # MAGIC METHODS #
+    #################
+
+    def __repr__(self):
+        if not self.args:
+            return "TexExpr('%s', %s)" % (self.name, repr(self._contents))
+        return "TexExpr('%s', %s, %s)" % (self.name, repr(self._contents), repr(self.args))
 
     ##############
     # PROPERTIES #
     ##############
 
     @property
+    def children(self):
+        return filter(lambda x: isinstance(x, (TexEnv, TexCmd)), self.contents)
+
+    @property
+    def exprs(self):
+        """Returns expressions within this expression, using filtered contents."""
+        for content in self.contents:
+            if isinstance(content, TexExpr):
+                yield content
+
+    @property
     def contents(self):
-        """Returns all tokenized chunks for a particular expression."""
-        raise NotImplementedError()
+        """Returns all contents in this expression."""
+        for content in self.all:
+            is_whitespace = isinstance(content, str) and not content.strip()
+            if not is_whitespace or self.preserve_whitespace:
+                yield content
+
+    @property
+    def all(self):
+        for arg in self.args:
+            for expr in arg:
+                yield expr
+        for content in self._contents:
+            yield content
 
     @property
     def arguments(self):
@@ -588,28 +647,54 @@ class TexExpr(object):
             else:
                 yield content
 
-    @property
-    def children(self):
-        """Returns all child expressions for a particular expression."""
-        return filter(lambda x: isinstance(x, (TexEnv, TexCmd)), self.contents)
-
     ##################
     # PUBLIC METHODS #
     ##################
 
-    def add_contents(self, *contents):
-        self._assert_supports_contents()
-        self._contents.extend(contents)
+    def add_contents(self, *exprs):
+        """Add contents to the expression.
 
-    def add_contents_at(self, i, *contents):
+        :param Union[TexExpr,str] exprs: List of contents to add
+
+        >>> expr = TexExpr('textbf', ('hello',))
+        >>> expr
+        TexExpr('textbf', ['hello'])
+        >>> expr.add_contents('world')
+        >>> expr
+        TexExpr('textbf', ['hello', 'world'])
+        """
         self._assert_supports_contents()
-        for j, content in enumerate(contents):
-            self._contents.insert(i + j, content)
+        self._contents.extend(exprs)
+
+    def add_contents_at(self, i, *exprs):
+        """Insert content at specified position into expression.
+
+        :param int i: Position to add content to
+        :param Union[TexExpr,str] exprs: List of contents to add
+
+        >>> expr = TexExpr('textbf', ('hello',))
+        >>> expr
+        TexExpr('textbf', ['hello'])
+        >>> expr.add_contents_at(0, 'world')
+        >>> expr
+        TexExpr('textbf', ['world', 'hello'])
+        """
+        self._assert_supports_contents()
+        for j, expr in enumerate(exprs):
+            self._contents.insert(i + j, expr)
 
     def remove_content(self, expr):
         """Remove a provided expression from its list of contents.
 
+        :param Union[TexExpr,str] expr: Content to add
         :return: index of the expression removed
+        :rtype: int
+
+        >>> expr = TexExpr('textbf', ('hello',))
+        >>> expr.remove_content('hello')
+        0
+        >>> expr
+        TexExpr('textbf', [])
         """
         self._assert_supports_contents()
         index = self._contents.index(expr)
@@ -617,11 +702,11 @@ class TexExpr(object):
         return index
 
     def _assert_supports_contents(self):
-        raise NotImplementedError()
+        return True
 
 
 class TexEnv(TexExpr):
-    r"""Abstraction for a LaTeX command, denoted by \begin{env} and \end{env}.
+    r"""Abstraction for a LaTeX command, denoted by ``\begin{env}`` and ``\end{env}``.
     Contains three attributes:
 
     1. the environment name itself,
@@ -652,8 +737,8 @@ class TexEnv(TexExpr):
             whitespace will be removed from contents.
         :param bool nobegin: Disable \begin{...} notation.
         """
-        super().__init__(name, contents, args, stuff)
-        self.preserve_whitespace = preserve_whitespace
+        super().__init__(name, contents, args, stuff,
+            preserve_whitespace=preserve_whitespace)
         self.stuff = stuff if stuff else []
 
         self.nobegin = nobegin
@@ -680,17 +765,6 @@ class TexEnv(TexExpr):
     ##############
     # PROPERTIES #
     ##############
-
-    @property
-    def contents(self):
-        for content in self._contents:
-            if not isinstance(content, TokenWithPosition) or bool(content.strip()) or self.preserve_whitespace:
-                yield content
-
-    @property
-    def everything(self):
-        for content in self._contents:
-            yield content
 
     def _assert_supports_contents(self):
         pass
@@ -736,7 +810,6 @@ class TexCmd(TexExpr):
 
     @property
     def contents(self):
-        """All contents of command arguments"""
         for arg in self.args:
             for expr in arg:
                 yield expr
@@ -749,6 +822,11 @@ class TexCmd(TexExpr):
 
         If \item, amend extra. If otherwise, throw error, since commands don't
         have children.
+
+        >>> t = TexCmd('item', [])
+        >>> t.add_contents('Hello')
+        >>> str(t)
+        '\\item Hello'
         """
         self._assert_supports_contents()
         self.extra.extend(contents)
@@ -767,9 +845,8 @@ class TexCmd(TexExpr):
 #############
 
 
-# A general Argument class
 class Arg(object):
-    """LaTeX command argument
+    """Abstraction for a LaTeX expression argument.
 
     >>> arg = Arg('huehue')
     >>> arg[0]
@@ -784,12 +861,12 @@ class Arg(object):
         :param Union[str,TexCmd,TexEnv] exprs: Tex expressions contained in the
             argument. Can be other commands or environments, or even strings.
         """
-        self.exprs = exprs
+        self.contents = exprs
 
     @property
     def value(self):
         """Argument value, without format."""
-        return ''.join(map(str, self.exprs))
+        return ''.join(map(str, self.contents))
 
     @staticmethod
     def parse(s):
@@ -797,6 +874,11 @@ class Arg(object):
 
         :param Union[str,iterable] s: Either a string or a list, where the first and
             last elements are valid argument delimiters.
+
+        >>> Arg.parse(RArg('arg0'))
+        RArg('arg0')
+        >>> Arg.parse('[arg0]')
+        OArg('arg0')
         """
         if isinstance(s, arg_type):
             return s
@@ -841,12 +923,12 @@ class Arg(object):
 
     def __iter__(self):
         """Iterator iterates over all argument contents."""
-        return iter(self.exprs)
+        return iter(self.contents)
 
     def __repr__(self):
         """Makes argument display-friendly."""
         return '%s(%s)' % (self.__class__.__name__,
-                           ', '.join(map(repr, self.exprs)))
+                           ', '.join(map(repr, self.contents)))
 
     def __str__(self):
         """Stringifies argument value."""

@@ -86,6 +86,7 @@ article.pytorch-article .class .staticmethod dt::before {
   background: linear-gradient(0deg, rgba(241,90,36,1) 0%, rgba(251,176,59,1) 100%);
 }
 
+/* HACK: why is this needed? */
 article.pytorch-article .class dl.attribute dt::before {
   margin-left:-6px;
   margin-bottom: -3px;
