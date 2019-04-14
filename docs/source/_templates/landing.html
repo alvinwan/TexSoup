@@ -1,0 +1,55 @@
+{% extend "layout.html" %}
+
+{% block mainbody %}
+  <style>
+.landing {
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  align-items: center;
+}
+.landing h1 {
+  font-size:4em;
+  max-width:17em;
+  text-align:center;
+  line-height:125%;
+  text-transform:none;
+  letter-spacing:0;
+  font-weight:300;
+  margin-top:1em;
+  padding:0 0.5em;
+}
+.landing h2 {
+  font-size:1.2em;
+  color:#999;
+}
+.landing p {
+  display:flex;
+  flex-direction:column;
+}
+.landing p span {
+  width:100%;
+  text-align:center;
+}
+.landing .btn {
+  color:transparent;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent;
+  background: rgb(241,90,36);
+  background: linear-gradient(135deg, rgba(241,90,36,1) 0%, rgba(251,176,59,1) 100%);
+  font-size:1.5em;
+}
+.landing .btn-arrow {
+  height:0.6em;
+  margin-bottom:0.15em;
+  margin-left:0.5em;
+}
+  </style>
+
+  <div class="landing">
+    <h1>Navigate, Search, and Modify LaTeX Documents in Python</h1>
+    <h2>Easy and reliable: No C extensions, no installation dependencies, and 100% test coverage</h2>
+    <p><a class="btn" href="/docs/quickstart.html">Get started <img class="btn-arrow" src="docs/_static/images/chevron-right-orange.svg"></a><span><a href="http://github.com/alvinwan/texsoup">View on Github</a></span></p>
+  </div>
+
+{% endblock %}

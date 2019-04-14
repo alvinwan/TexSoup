@@ -1,4 +1,6 @@
-# TexSoup
+<a href="https://texsoup.alvinwan.com"><img src="https://user-images.githubusercontent.com/2068077/55692228-b7f92d00-595a-11e9-93a2-90090a361d12.png" width="80px"></a>
+
+# [TexSoup](https://texsoup.alvinwan.com)
 
 [![Build Status](https://travis-ci.org/alvinwan/TexSoup.svg?branch=master)](https://travis-ci.org/alvinwan/TexSoup)
 [![Coverage Status](https://coveralls.io/repos/github/alvinwan/TexSoup/badge.svg?branch=master)](https://coveralls.io/github/alvinwan/TexSoup?branch=master)
