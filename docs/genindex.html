@@ -237,6 +237,8 @@
  | <a href="#D"><strong>D</strong></a>
  | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
+ | <a href="#I"><strong>I</strong></a>
+ | <a href="#L"><strong>L</strong></a>
  | <a href="#N"><strong>N</strong></a>
  | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
@@ -253,13 +255,17 @@
 </li>
       <li><a href="data.html#TexSoup.data.TexNode.add_children_at">add_children_at() (TexSoup.data.TexNode method)</a>
 </li>
+      <li><a href="data.html#TexSoup.data.TexExpr.add_contents">add_contents() (TexSoup.data.TexExpr method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="data.html#TexSoup.data.TexCmd.add_contents">add_contents() (TexSoup.data.TexCmd method)</a>
+      <li><a href="data.html#TexSoup.data.TexExpr.add_contents_at">add_contents_at() (TexSoup.data.TexExpr method)</a>
 </li>
       <li><a href="data.html#TexSoup.data.TexArgs.append">append() (TexSoup.data.TexArgs method)</a>
 </li>
       <li><a href="data.html#TexSoup.data.Arg">Arg (class in TexSoup.data)</a>
+</li>
+      <li><a href="data.html#TexSoup.data.TexNode.args">args (TexSoup.data.TexNode attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -271,19 +277,15 @@
 </li>
       <li><a href="utils.html#TexSoup.utils.CharToLineOffset">CharToLineOffset (class in TexSoup.utils)</a>
 </li>
-      <li><a href="data.html#TexSoup.data.TexExpr.children">children (TexSoup.data.TexExpr attribute)</a>
-
-      <ul>
-        <li><a href="data.html#TexSoup.data.TexNode.children">(TexSoup.data.TexNode attribute)</a>
+      <li><a href="data.html#TexSoup.data.TexNode.children">children (TexSoup.data.TexNode attribute)</a>
 </li>
-      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="data.html#TexSoup.data.TexCmd.contents">contents (TexSoup.data.TexCmd attribute)</a>
+      <li><a href="data.html#TexSoup.data.TexArgs.clear">clear() (TexSoup.data.TexArgs method)</a>
+</li>
+      <li><a href="data.html#TexSoup.data.TexExpr.contents">contents (TexSoup.data.TexExpr attribute)</a>
 
       <ul>
-        <li><a href="data.html#TexSoup.data.TexExpr.contents">(TexSoup.data.TexExpr attribute)</a>
-</li>
         <li><a href="data.html#TexSoup.data.TexNode.contents">(TexSoup.data.TexNode attribute)</a>
 </li>
       </ul></li>
@@ -309,7 +311,7 @@
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="data.html#TexSoup.data.TexNode.extra">extra (TexSoup.data.TexNode attribute)</a>
+      <li><a href="data.html#TexSoup.data.TexArgs.extend">extend() (TexSoup.data.TexArgs method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -326,8 +328,28 @@
   </ul></td>
 </tr></table>
 
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="data.html#TexSoup.data.TexArgs.insert">insert() (TexSoup.data.TexArgs method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="utils.html#TexSoup.utils.TokenWithPosition.lstrip">lstrip() (TexSoup.utils.TokenWithPosition method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="N">N</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="data.html#TexSoup.data.TexNode.name">name (TexSoup.data.TexNode attribute)</a>
+</li>
+  </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="parser.html#TexSoup.reader.next_token">next_token() (in module TexSoup.reader)</a>
 </li>
@@ -348,6 +370,10 @@
       <li><a href="data.html#TexSoup.data.Arg.parse">parse() (TexSoup.data.Arg static method)</a>
 </li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="data.html#TexSoup.data.TexArgs.pop">pop() (TexSoup.data.TexArgs method)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="R">R</h2>
@@ -363,9 +389,11 @@
 </li>
       <li><a href="parser.html#TexSoup.reader.read_math_env">read_math_env() (in module TexSoup.reader)</a>
 </li>
+      <li><a href="parser.html#TexSoup.reader.read_tex">read_tex() (in module TexSoup.reader)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="parser.html#TexSoup.reader.read_tex">read_tex() (in module TexSoup.reader)</a>
+      <li><a href="data.html#TexSoup.data.TexArgs.remove">remove() (TexSoup.data.TexArgs method)</a>
 </li>
       <li><a href="data.html#TexSoup.data.TexNode.remove_child">remove_child() (TexSoup.data.TexNode method)</a>
 </li>
@@ -375,11 +403,19 @@
 </li>
       <li><a href="data.html#TexSoup.data.TexNode.replace_child">replace_child() (TexSoup.data.TexNode method)</a>
 </li>
+      <li><a href="data.html#TexSoup.data.TexArgs.reverse">reverse() (TexSoup.data.TexArgs method)</a>
+</li>
+      <li><a href="utils.html#TexSoup.utils.TokenWithPosition.rstrip">rstrip() (TexSoup.utils.TokenWithPosition method)</a>
+</li>
   </ul></td>
 </tr></table>
 
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="data.html#TexSoup.data.TexArgs.sort">sort() (TexSoup.data.TexArgs method)</a>
+</li>
+  </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="data.html#TexSoup.data.TexNode.string">string (TexSoup.data.TexNode attribute)</a>
 </li>
@@ -411,6 +447,8 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="data.html#TexSoup.data.TexNode.text">text (TexSoup.data.TexNode attribute)</a>
+</li>
       <li><a href="parser.html#TexSoup.reader.token">token() (in module TexSoup.reader)</a>
 </li>
       <li><a href="parser.html#TexSoup.reader.tokenize">tokenize() (in module TexSoup.reader)</a>
@@ -428,11 +466,7 @@
       <li><a href="parser.html#TexSoup.reader.tokenize_string">tokenize_string() (in module TexSoup.reader)</a>
 </li>
       <li><a href="data.html#TexSoup.data.TexExpr.tokens">tokens (TexSoup.data.TexExpr attribute)</a>
-
-      <ul>
-        <li><a href="data.html#TexSoup.data.TexNode.tokens">(TexSoup.data.TexNode attribute)</a>
 </li>
-      </ul></li>
       <li><a href="utils.html#TexSoup.utils.TokenWithPosition">TokenWithPosition (class in TexSoup.utils)</a>
 </li>
   </ul></td>

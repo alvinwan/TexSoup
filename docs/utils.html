@@ -238,6 +238,28 @@
 <dt id="TexSoup.utils.TokenWithPosition">
 <em class="property">class </em><code class="descclassname">TexSoup.utils.</code><code class="descname">TokenWithPosition</code><a class="reference internal" href="_modules/TexSoup/utils.html#TokenWithPosition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.utils.TokenWithPosition" title="Permalink to this definition">¶</a></dt>
 <dd><p>Enhanced string object with knowledge of global position.</p>
+<dl class="method">
+<dt id="TexSoup.utils.TokenWithPosition.lstrip">
+<code class="descname">lstrip</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/utils.html#TokenWithPosition.lstrip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.utils.TokenWithPosition.lstrip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Strip leading whitespace for text.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">TokenWithPosition</span><span class="p">(</span><span class="s1">&#39;  asdf  &#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span>
+<span class="go">&#39;asdf  &#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="TexSoup.utils.TokenWithPosition.rstrip">
+<code class="descname">rstrip</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/utils.html#TokenWithPosition.rstrip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.utils.TokenWithPosition.rstrip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Strip trailing whitespace for text.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">TokenWithPosition</span><span class="p">(</span><span class="s1">&#39;  asdf  &#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+<span class="go">&#39;  asdf&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
