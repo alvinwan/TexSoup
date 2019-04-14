@@ -93,7 +93,9 @@ class TexNode(object):
 
     @property
     def args(self):
-        r"""Arguments for this Tex expression
+        r"""Arguments for this node. Note that this argument is settable.
+
+        :rtype: TexArgs
 
         >>> from TexSoup import TexSoup
         >>> soup = TexSoup(r'''\newcommand{reverseconcat}[3]{#3#2#1}''')
@@ -107,16 +109,28 @@ class TexNode(object):
 
     @args.setter
     def args(self, args):
-        assert isinstance(args, TexArgs), "Must be proper TexArgs object"
+        assert isinstance(args, TexArgs), "`args` must be of type `TexArgs`"
         self.expr.args = args
 
     @property
     def children(self):
-        """Immediate children of this TeX element that are valid TeX objects.
+        r"""Immediate children of this TeX element that are valid TeX objects.
 
-        In effect, same as contents, but remove random pieces of text.
+        This is equivalent to contents, excluding text elements and keeping only
+        Tex expressions.
 
         :return: generator of all children
+        :rtype: Iterator[TexExpr]
+
+        >>> from TexSoup import TexSoup
+        >>> soup = TexSoup(r'''
+        ... \begin{itemize}
+        ...     Random text!
+        ...     \item Hello
+        ... \end{itemize}''')
+        >>> next(soup.itemize.children)
+        \item Hello
+        <BLANKLINE>
         """
         for child in self.expr.children:
             child.parent = self
@@ -124,9 +138,23 @@ class TexNode(object):
 
     @property
     def contents(self):
-        """Any non-whitespace contents inside of this TeX element.
+        r"""Any non-whitespace contents inside of this TeX element.
 
         :return: generator of all contents
+        :rtype: Iterator[TexExpr]
+
+        >>> from TexSoup import TexSoup
+        >>> soup = TexSoup(r'''
+        ... \begin{itemize}
+        ...     Random text!
+        ...     \item Hello
+        ... \end{itemize}''')
+        >>> contents = soup.itemize.contents
+        >>> next(contents)
+        '\n    Random text!\n    '
+        >>> next(contents)
+        \item Hello
+        <BLANKLINE>
         """
         for child in self.expr.contents:
             if isinstance(child, (TexEnv, TexCmd)):
@@ -136,7 +164,20 @@ class TexNode(object):
 
     @property
     def descendants(self):
-        """Returns all descendants for this TeX element."""
+        r"""Returns all descendants for this TeX element.
+
+        >>> from TexSoup import TexSoup
+        >>> soup = TexSoup(r'''
+        ... \begin{itemize}
+        ...     \begin{itemize}
+        ...         \item Nested
+        ...     \end{itemize}
+        ... \end{itemize}''')
+        >>> descendants = list(soup.itemize.descendants)
+        >>> descendants[1]
+        \item Nested
+        <BLANKLINE>
+        """
         return self.__descendants()
 
     @property
@@ -144,12 +185,51 @@ class TexNode(object):
         r"""Extra string not a part of the expression name.
 
         This typically only occurs after an item or similar LaTeX command.
+
+        :rtype: str
+
+        >>> from TexSoup import TexSoup
+        >>> soup = TexSoup(r'''
+        ... \begin{itemize}
+        ...     \item Hello
+        ... \end{itemize}''')
+        >>> soup.item.extra
+        ['Hello\n']
+        >>> soup.item.extra = 'Hello World\n'
+        >>> soup.itemize
+        \begin{itemize}
+            \item Hello World
+        \end{itemize}
         """
         return self.expr.extra
 
+    @extra.setter
+    def extra(self, extra):
+        assert isinstance(extra, (list, str)), \
+            "`extra` must be of type `list` or `str`"
+        if isinstance(extra, str):
+            extra = [extra]
+        self.expr.extra = extra
+
     @property
     def name(self):
+        r"""Name of the expression. Used for search functions.
+
+        :rtype: str
+
+        >>> from TexSoup import TexSoup
+        >>> soup = TexSoup(r'''\textbf{Hello}''')
+        >>> soup.textbf.name
+        'textbf'
+        >>> soup.textbf.name = 'textit'
+        >>> soup.textit
+        \textit{Hello}
+        """
         return self.expr.name
+
+    @name.setter
+    def name(self, name):
+        self.expr.name = name
 
     # Should be set by parent otherwise returns None result
     @property
@@ -158,14 +238,51 @@ class TexNode(object):
 
     @property
     def string(self):
-        """Returns 'string' content, which is valid if and only if (1) the
-        expression is a TexCmd and (2) the command has only one argument.
+        r"""This is valid if and only if
+
+        1. the expression is a :class:`.TexCmd` AND
+        2. the command has only one argument.
+
+        :rtype: Union[None,str]
+
+        >>> from TexSoup import TexSoup
+        >>> soup = TexSoup(r'''\textbf{Hello}''')
+        >>> soup.textbf.string
+        'Hello'
+        >>> soup.textbf.string = 'Hello World'
+        >>> soup.textbf.string
+        'Hello World'
+        >>> soup.textbf
+        \textbf{Hello World}
         """
         if isinstance(self.expr, TexCmd) and len(self.expr.args) == 1:
             return self.expr.args[0].value
 
+    @string.setter
+    def string(self, string):
+        assert isinstance(string, (list, str)), \
+            "`string` must be of type `list` or `str`"
+        if isinstance(string, str):
+            string = [string]
+        self.expr.args[0].exprs = string
+
     @property
     def text(self):
+        r"""All text in descendant nodes.
+
+        This is equivalent to contents, keeping text elements and excluding
+        Tex expressions.
+
+        >>> from TexSoup import TexSoup
+        >>> soup = TexSoup(r'''
+        ... \begin{itemize}
+        ...     \begin{itemize}
+        ...         \item Nested
+        ...     \end{itemize}
+        ... \end{itemize}''')
+        >>> next(soup.text)
+        'Nested\n    '
+        """
         for descendant in self.contents:
             if isinstance(descendant, TokenWithPosition):
                 yield descendant
@@ -174,7 +291,6 @@ class TexNode(object):
 
     @property
     def tokens(self):
-        """Returns generator of all tokens, for this Tex element"""
         return self.expr.tokens
 
     ##################
@@ -321,7 +437,7 @@ class TexNode(object):
         :param Union[None,str] name: name of LaTeX expression
         :param attrs: LaTeX expression attributes, such as item text.
         :return: All descendant nodes matching criteria
-        :rtype: generator
+        :rtype: Iterator[TexNode]
 
         >>> from TexSoup import TexSoup
         >>> soup = TexSoup(r'''
@@ -718,6 +834,11 @@ class Arg(object):
         """Strip string of format."""
         return s[len(cls.delims()[0]):-len(cls.delims()[1])]
 
+    def __eq__(self, other):
+        return isinstance(other, Arg) and \
+            self.value == other.value and \
+            self.type == other.type
+
     def __iter__(self):
         """Iterator iterates over all argument contents."""
         return iter(self.exprs)
@@ -752,25 +873,17 @@ arg_type = (OArg, RArg)
 
 
 class TexArgs(list):
-    """List data structure, supporting additional ops for command arguments
+    """List of arguments for a TeX expression. Supports all standard list ops.
 
-    Use regular indexing to access the argument value. Use parentheses, like
-    a method invocation, to access an Arg object.
+    Additional support for conversion from and to unparsed argument strings.
 
     >>> arguments = TexArgs([RArg('arg0'), '[arg1]', '{arg2}'])
     >>> arguments
     [RArg('arg0'), OArg('arg1'), RArg('arg2')]
     >>> arguments[2]
     RArg('arg2')
-    >>> arguments[2].type
-    'required'
-    >>> str(arguments[2])
-    '{arg2}'
-    >>> arguments.append('[arg3]')
-    >>> arguments[3]
-    OArg('arg3')
     >>> len(arguments)
-    4
+    3
     >>> arguments[:2]
     [RArg('arg0'), OArg('arg1')]
     >>> isinstance(arguments[:2], TexArgs)
@@ -782,27 +895,79 @@ class TexArgs(list):
         self.extend(args)
 
     def append(self, arg):
-        """Append a value to the list"""
+        """Append either an unparsed argument string or an argument object.
+
+        >>> arguments = TexArgs([RArg('arg0'), '[arg1]', '{arg2}'])
+        >>> arguments.append('[arg3]')
+        >>> arguments[3]
+        OArg('arg3')
+        >>> arguments.append(RArg('arg4'))
+        >>> arguments[4]
+        RArg('arg4')
+        """
         if isinstance(arg, str):
             arg = Arg.parse(arg)
-        list.append(self, arg)
+        super().append(arg)
 
     def extend(self, args):
+        """Extend mixture of unparsed argument strings or arguments objects.
+
+        >>> arguments = TexArgs([RArg('arg0'), '[arg1]', '{arg2}'])
+        >>> arguments.extend(['[arg3]', RArg('arg4')])
+        >>> len(arguments)
+        5
+        >>> arguments[4]
+        RArg('arg4')
+        """
         for arg in args:
             self.append(arg)
 
-    def tovalues(self):
-        return [arg.value for arg in self]
+    def insert(self, i, arg):
+        """Insert either an unparsed argument string or an argument object.
+
+        >>> arguments = TexArgs([RArg('arg0'), '[arg2]', '{arg3}'])
+        >>> arguments.insert(1, '[arg1]')
+        >>> len(arguments)
+        4
+        >>> arguments[1]
+        OArg('arg1')
+        """
+        if isinstance(arg, str):
+            arg = Arg.parse(arg)
+        super().insert(i, arg)
 
     def __getitem__(self, key):
+        """Standard list slicing.
+
+        Returns TexArgs object for subset of list and returns an Arg object
+        for single items.
+
+        >>> arguments = TexArgs([RArg('arg0'), '[arg1]', '{arg2}'])
+        >>> arguments[2]
+        RArg('arg2')
+        >>> arguments[:2]
+        [RArg('arg0'), OArg('arg1')]
+        """
         value = super().__getitem__(key)
         if isinstance(value, list):
             return TexArgs(value)
         return value
 
     def __contains__(self, item):
+        """Checks for membership. Allows string comparisons to args.
+
+        >>> arguments = TexArgs(['{arg0}', '[arg1]'])
+        >>> 'arg0' in arguments
+        True
+        >>> OArg('arg0') in arguments
+        False
+        >>> RArg('arg0') in arguments
+        True
+        >>> 'arg3' in arguments
+        False
+        """
         if isinstance(item, str):
-            return item in self.tovalues()
+            return any([item == arg.value for arg in self])
         return super().__contains__(item)
 
     def __str__(self):
