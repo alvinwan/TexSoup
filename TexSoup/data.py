@@ -376,7 +376,17 @@ class TexNode(object):
         >>> soup
         \textit{keep me!}
         """
-        self.parent.remove_child(self)
+
+        # TODO: needs better abstraction for supports contents
+        parent = self.parent
+        if parent.expr._supports_contents():
+            parent.remove_child(self)
+            return
+
+        # TODO: needs abstraction for removing from arg
+        for arg in parent.args:
+            if self in arg.contents:
+                arg.contents.remove(self)
 
     def find(self, name=None, **attrs):
         r"""First descendant node matching criteria.
@@ -636,6 +646,9 @@ class TexExpr(object):
         self._contents.remove(expr)
         return index
 
+    def _supports_contents(self):
+        return True
+
     def _assert_supports_contents(self):
         pass
 
@@ -722,8 +735,11 @@ class TexCmd(TexExpr):
             return "TexCmd('%s')" % self.name
         return "TexCmd('%s', %s)" % (self.name, repr(self.args))
 
+    def _supports_contents(self):
+        return self.name == 'item'
+
     def _assert_supports_contents(self):
-        if self.name != 'item':
+        if not self._supports_contents():
             raise TypeError(
                 'Command "{}" has no children. `add_contents` is only valid for'
                 ': 1. environments like `itemize` and 2. `\\item`. Alternatively'
