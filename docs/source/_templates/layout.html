@@ -151,7 +151,7 @@
               toctree is empty. Skip building this for now.
             #}
             {% if 'singlehtml' not in builder %}
-              {% set global_toc = toctree(maxdepth=1,
+              {% set global_toc = toctree(maxdepth=2,
                                           collapse=theme_collapse_navigation|tobool,
                                           includehidden=theme_includehidden|tobool,
                                           titles_only=theme_titles_only|tobool) %}
@@ -279,7 +279,8 @@
   {%- block footer %} {% endblock %}
 
   <!-- Begin Footer -->
-
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+  </div>
   <footer class="site-footer">
     <div class="container footer-container">
       <div class="footer-logo-wrapper">
