@@ -6,7 +6,11 @@
 TexSoup documentation
 ===================================
 
-TexSoup parses valid LaTeX and provides a variety of BeautifulSoup-esque methods and Pythonic idioms for iterating and searching the parse tree
+TexSoup parses valid :math:`LaTeX` and provides a variety of BeautifulSoup-esque
+methods and Pythonic idioms for iterating and searching the parse tree. Unlike
+BeautifulSoup however, TexSoup is modeled after an interpreter, providing a set
+of Pythonic structures for processing environments, commands, and arguments.
+TexSoup only supports Python3.
 
 .. toctree::
    :maxdepth: 1
