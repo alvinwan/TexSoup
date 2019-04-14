@@ -251,18 +251,19 @@ def read_tex(src):
     elif c.startswith('\\'):
         command = TokenWithPosition(c[1:], src.position)
         if command == 'item':
-            contents, arg, stuff = read_item(src)
-            mode, expr = 'command', TexCmd(command, contents, arg, stuff)
+            contents, arg, _ = read_item(src)
+            mode, expr = 'command', TexCmd(command, contents, arg)
         elif command == 'begin':
             mode, expr, _ = 'begin', TexEnv(src.peek(1)), src.forward(3)
         else:
             mode, expr = 'command', TexCmd(command)
 
         # TODO: should really be handled by tokenizer
-        stuff_index, candidate_index = 0, src.num_forward_until(lambda s: not s.isspace())
+        stuff = []
+        content_index, candidate_index = 0, src.num_forward_until(lambda s: not s.isspace())
         while src.peek().isspace():
-            stuff_index += 1
-            expr.stuff.append(read_tex(src))
+            content_index += 1
+            stuff.append(read_tex(src))
 
         line_breaks = 0
         while src.peek() in ARG_START_TOKENS or src.peek().isspace() and line_breaks == 0:
@@ -270,16 +271,18 @@ def read_tex(src):
             if space_index > 0:
                 line_breaks += 1
                 if src.peek((0, space_index)).count("\n") <= 1 and src.peek(space_index) in ARG_START_TOKENS:
-                    expr.stuff.append(read_tex(src))
+                    stuff.append(read_tex(src))
             else:
                 line_breaks = 0
                 tex_text = read_tex(src)
                 expr.args.append(tex_text)
-                expr.stuff.append(tex_text)
+                stuff.append(tex_text)
+
         if not expr.args:
-            if stuff_index > 0:
-                del expr.stuff[-stuff_index:]
+            if content_index > 0:
+                del stuff[-content_index:]
             src.backward(candidate_index)
+
         if mode == 'begin':
             read_env(src, expr)
         return expr

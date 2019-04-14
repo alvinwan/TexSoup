@@ -522,11 +522,9 @@ class TexExpr(object):
     not directly instantiated.
     """
 
-    def __init__(self, name, contents=(), args=(), stuff=(),
-            preserve_whitespace=False):
+    def __init__(self, name, contents=(), args=(), preserve_whitespace=False):
         self.name = name.strip()
         self.args = TexArgs(args)
-        self.stuff = list(stuff)
         self.parent = self.parent if hasattr(self, 'parent') else None
         self._contents = list(contents) or []
         self.preserve_whitespace = preserve_whitespace
@@ -556,7 +554,7 @@ class TexExpr(object):
     def contents(self):
         """Returns all contents in this expression."""
         for content in self.all:
-            is_whitespace = isinstance(content, str) and not content.strip()
+            is_whitespace = isinstance(content, str) and content.isspace()
             if not is_whitespace or self.preserve_whitespace:
                 yield content
 
@@ -567,10 +565,6 @@ class TexExpr(object):
                 yield expr
         for content in self._contents:
             yield content
-
-    @property
-    def arguments(self):
-        return AllArgs(self.stuff)
 
     @property
     def tokens(self):
@@ -668,7 +662,7 @@ class TexEnv(TexExpr):
     """
 
     def __init__(self, name, contents=(), args=(), preserve_whitespace=False,
-                 nobegin=False, begin=False, end=False, stuff=()):
+                 nobegin=False, begin=False, end=False):
         """Initialization for Tex environment.
 
         :param str name: name of environment
@@ -678,9 +672,7 @@ class TexEnv(TexExpr):
             whitespace will be removed from contents.
         :param bool nobegin: Disable \begin{...} notation.
         """
-        super().__init__(name, contents, args, stuff,
-            preserve_whitespace=preserve_whitespace)
-        self.stuff = list(stuff) if stuff else []
+        super().__init__(name, contents, args, preserve_whitespace)
 
         self.nobegin = nobegin
         self.begin = begin if begin else (self.name if self.nobegin else "\\begin{%s}" % self.name)
@@ -705,10 +697,6 @@ class TexCmd(TexExpr):
 
     1. the command name itself and
     2. the command arguments, whether optional or required.
-
-    :param str name: name of the command, e.g., "textbf"
-    :param list args: Arg objects
-    :param list extra: TexExpr objects
 
     >>> textit = TexCmd('textit', args=[RArg('slant')])
     >>> t = TexCmd('textbf', args=[RArg('big ', textit, '.')])
@@ -875,12 +863,21 @@ class TexArgs(list):
     True
     """
 
-    def __init__(self, args):
+    def __init__(self, args=[]):
         super().__init__()
+        self.all = []
         self.extend(args)
 
+    def __coerce(self, arg):
+        if isinstance(arg, str) and not arg.isspace():
+            arg = Arg.parse(arg)
+        return arg
+
     def append(self, arg):
-        """Append either an unparsed argument string or an argument object.
+        """Append whitespace, an unparsed argument string, or an argument
+        object.
+
+        :param Arg arg: argument to add to the end of the list
 
         >>> arguments = TexArgs([RArg('arg0'), '[arg1]', '{arg2}'])
         >>> arguments.append('[arg3]')
@@ -889,16 +886,24 @@ class TexArgs(list):
         >>> arguments.append(RArg('arg4'))
         >>> arguments[4]
         RArg('arg4')
+        >>> len(arguments)
+        5
+        >>> arguments.append('\\n')
+        >>> len(arguments)
+        5
+        >>> len(arguments.all)
+        6
         """
-        if isinstance(arg, str):
-            arg = Arg.parse(arg)
-        super().append(arg)
+        self.insert(len(self), arg)
 
     def extend(self, args):
-        """Extend mixture of unparsed argument strings or arguments objects.
+        """Extend mixture of unparsed argument strings, arguments objects, and
+        whitespace.
+
+        :param List[Arg] args: Arguments to add to end of the list
 
         >>> arguments = TexArgs([RArg('arg0'), '[arg1]', '{arg2}'])
-        >>> arguments.extend(['[arg3]', RArg('arg4')])
+        >>> arguments.extend(['[arg3]', RArg('arg4'), '\\t'])
         >>> len(arguments)
         5
         >>> arguments[4]
@@ -908,7 +913,11 @@ class TexArgs(list):
             self.append(arg)
 
     def insert(self, i, arg):
-        """Insert either an unparsed argument string or an argument object.
+        """Insert whitespace, an unparsed argument string, or an argument
+        object.
+
+        :param int i: Index to insert argument into
+        :param Arg arg: Argument to insert
 
         >>> arguments = TexArgs([RArg('arg0'), '[arg2]', '{arg3}'])
         >>> arguments.insert(1, '[arg1]')
@@ -917,9 +926,56 @@ class TexArgs(list):
         >>> arguments[1]
         OArg('arg1')
         """
-        if isinstance(arg, str):
-            arg = Arg.parse(arg)
-        super().insert(i, arg)
+        arg = self.__coerce(arg)
+        self.all.insert(i, arg)
+
+        if isinstance(arg, Arg):
+            super().insert(i, arg)
+
+    def remove(self, item):
+        """Remove either an unparsed argument string or an argument object.
+
+        :param Union[str,Arg] item: Item to remove
+
+        >>> arguments = TexArgs([RArg('arg0'), '[arg2]', '{arg3}'])
+        >>> arguments.remove('{arg0}')
+        >>> len(arguments)
+        2
+        >>> arguments[0]
+        OArg('arg2')
+        """
+        item = self.__coerce(item)
+        self.all.remove(item)
+        super().remove(item)
+
+    def pop(self, i):
+        """Pop argument object at provided index.
+
+        :param int i: Index to pop from the list
+
+        >>> arguments = TexArgs([RArg('arg0'), '[arg2]', '{arg3}'])
+        >>> arguments.pop(1)
+        OArg('arg2')
+        >>> len(arguments)
+        2
+        >>> arguments[0]
+        RArg('arg0')
+        """
+        item = super().pop(i)
+        j = self.all.index(item)
+        return self.all.pop(j)
+
+    def reverse(self):
+        super().reverse()
+        self.all.reverse()
+
+    def sort(self):
+        super().sort()
+        self.all = list(self)
+
+    def clear(self):
+        super().clear()
+        self.all.clear()
 
     def __getitem__(self, key):
         """Standard list slicing.
@@ -970,19 +1026,3 @@ class TexArgs(list):
         [RArg('a'), OArg('b'), RArg('c')]
         """
         return '[%s]' % ', '.join(map(repr, self))
-
-
-class AllArgs(list):
-
-    def __init__(self, stuff):
-        super().__init__()
-        self.stuff = stuff
-
-    def __str__(self):
-        return "".join([str(tex) for tex in self.stuff])
-
-    def __repr__(self):
-        return self.stuff
-
-    def __iter__(self):
-        return iter(self.stuff)
