@@ -802,6 +802,9 @@ class Arg(object):
         """Test if string matches format."""
         return s.startswith(cls.delims()[0]) and s.endswith(cls.delims()[1])
 
+    def __lt__(self, other):
+        return self.value < other.value
+
     @classmethod
     def __strip__(cls, s):
         """Strip string of format."""
@@ -846,13 +849,15 @@ arg_type = (OArg, RArg)
 
 
 class TexArgs(list):
-    """List of arguments for a TeX expression. Supports all standard list ops.
+    r"""List of arguments for a TeX expression. Supports all standard list ops.
 
     Additional support for conversion from and to unparsed argument strings.
 
-    >>> arguments = TexArgs([RArg('arg0'), '[arg1]', '{arg2}'])
+    >>> arguments = TexArgs(['\n', RArg('arg0'), '[arg1]', '{arg2}'])
     >>> arguments
     [RArg('arg0'), OArg('arg1'), RArg('arg2')]
+    >>> arguments.all
+    ['\n', RArg('arg0'), OArg('arg1'), RArg('arg2')]
     >>> arguments[2]
     RArg('arg2')
     >>> len(arguments)
@@ -913,24 +918,38 @@ class TexArgs(list):
             self.append(arg)
 
     def insert(self, i, arg):
-        """Insert whitespace, an unparsed argument string, or an argument
+        r"""Insert whitespace, an unparsed argument string, or an argument
         object.
 
         :param int i: Index to insert argument into
         :param Arg arg: Argument to insert
 
-        >>> arguments = TexArgs([RArg('arg0'), '[arg2]', '{arg3}'])
+        >>> arguments = TexArgs(['\n', RArg('arg0'), '[arg2]'])
         >>> arguments.insert(1, '[arg1]')
         >>> len(arguments)
-        4
-        >>> arguments[1]
-        OArg('arg1')
+        3
+        >>> arguments
+        [RArg('arg0'), OArg('arg1'), OArg('arg2')]
+        >>> arguments.all
+        ['\n', RArg('arg0'), OArg('arg1'), OArg('arg2')]
+        >>> arguments.insert(10, '[arg3]')
+        >>> arguments[3]
+        OArg('arg3')
         """
         arg = self.__coerce(arg)
-        self.all.insert(i, arg)
 
         if isinstance(arg, Arg):
             super().insert(i, arg)
+
+        if len(self) <= 1:
+            self.all.append(arg)
+        else:
+            if i > len(self):
+                i = len(self) - 1
+
+            before = self[i - 1]
+            index_before = self.all.index(before)
+            self.all.insert(index_before + 1, arg)
 
     def remove(self, item):
         """Remove either an unparsed argument string or an argument object.
@@ -966,14 +985,40 @@ class TexArgs(list):
         return self.all.pop(j)
 
     def reverse(self):
+        r"""Reverse both the list and the proxy `.all`.
+
+        >>> args = TexArgs(['\n', RArg('arg1'), OArg('arg2')])
+        >>> args.reverse()
+        >>> args.all
+        [OArg('arg2'), RArg('arg1'), '\n']
+        >>> args
+        [OArg('arg2'), RArg('arg1')]
+        """
         super().reverse()
         self.all.reverse()
 
     def sort(self):
+        r"""Sort both the list and the proxy `.all`.
+
+        Since it doesn't make sense to sort the proxy, all whitespace is
+        dropped.
+
+        >>> args = TexArgs(['\n', RArg('arg1'), OArg('arg2')])
+        >>> args.sort()
+        >>> len(args) == len(args.all)
+        True
+        """
         super().sort()
         self.all = list(self)
 
     def clear(self):
+        r"""Clear both the list and the proxy `.all`.
+
+        >>> args = TexArgs(['\n', RArg('arg1'), OArg('arg2')])
+        >>> args.clear()
+        >>> len(args) == len(args.all) == 0
+        True
+        """
         super().clear()
         self.all.clear()
 

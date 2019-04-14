@@ -198,11 +198,23 @@ class TokenWithPosition(str):
         return TokenWithPosition(stripped, self.position + offset)
 
     def lstrip(self, *args, **kwargs):
+        """Strip leading whitespace for text.
+
+        >>> t = TokenWithPosition('  asdf  ', 2)
+        >>> t.lstrip()
+        'asdf  '
+        """
         stripped = self.text.lstrip(*args, **kwargs)
         offset = self.text.find(stripped)
         return TokenWithPosition(stripped, self.position + offset)
 
     def rstrip(self, *args, **kwargs):
+        """Strip trailing whitespace for text.
+
+        >>> t = TokenWithPosition('  asdf  ', 2)
+        >>> t.rstrip()
+        '  asdf'
+        """
         stripped = self.text.rstrip(*args, **kwargs)
         offset = self.text.find(stripped)
         return TokenWithPosition(stripped, self.position + offset)
