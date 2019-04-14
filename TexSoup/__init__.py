@@ -57,7 +57,7 @@ def TexSoup(tex_code):
     red lemon & uncommon \\ \n
     life & common
     \end{tabular}
-    >>> soup.tabular.args[0]
+    >>> soup.tabular.args[0].value
     'c c'
     >>> soup.itemize
     \begin{itemize}

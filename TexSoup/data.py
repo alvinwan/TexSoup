@@ -93,7 +93,22 @@ class TexNode(object):
 
     @property
     def args(self):
+        r"""Arguments for this Tex expression
+
+        >>> from TexSoup import TexSoup
+        >>> soup = TexSoup(r'''\newcommand{reverseconcat}[3]{#3#2#1}''')
+        >>> soup.newcommand.args
+        [RArg('reverseconcat'), OArg('3'), RArg('#3#2#1')]
+        >>> soup.newcommand.args = soup.newcommand.args[:2]
+        >>> soup.newcommand
+        \newcommand{reverseconcat}[3]
+        """
         return self.expr.args
+
+    @args.setter
+    def args(self, args):
+        assert isinstance(args, TexArgs), "Must be proper TexArgs object"
+        self.expr.args = args
 
     @property
     def children(self):
@@ -147,7 +162,7 @@ class TexNode(object):
         expression is a TexCmd and (2) the command has only one argument.
         """
         if isinstance(self.expr, TexCmd) and len(self.expr.args) == 1:
-            return str(self.expr.args[0])
+            return self.expr.args[0].value
 
     @property
     def text(self):
@@ -419,7 +434,7 @@ class TexExpr(object):
 
     def __init__(self, name, contents=(), args=(), stuff=()):
         self.name = name.strip()
-        self.args = TexArgs(*args)
+        self.args = TexArgs(args)
         self.stuff = stuff
         self.parent = self.parent if hasattr(self, 'parent') else None
         self._contents = contents or []
@@ -742,62 +757,69 @@ class TexArgs(list):
     Use regular indexing to access the argument value. Use parentheses, like
     a method invocation, to access an Arg object.
 
-    >>> arguments = TexArgs(RArg('arg0'), '[arg1]', '{arg2}')
+    >>> arguments = TexArgs([RArg('arg0'), '[arg1]', '{arg2}'])
     >>> arguments
     [RArg('arg0'), OArg('arg1'), RArg('arg2')]
-    >>> arguments(2)
-    RArg('arg2')
     >>> arguments[2]
-    'arg2'
-    >>> arguments(2).type
+    RArg('arg2')
+    >>> arguments[2].type
     'required'
-    >>> str(arguments(2))
+    >>> str(arguments[2])
     '{arg2}'
     >>> arguments.append('[arg3]')
-    >>> arguments(3)
+    >>> arguments[3]
     OArg('arg3')
     >>> len(arguments)
     4
+    >>> arguments[:2]
+    [RArg('arg0'), OArg('arg1')]
+    >>> isinstance(arguments[:2], TexArgs)
+    True
     """
 
-    def __init__(self, *args):
-        """Append all arguments to list"""
+    def __init__(self, args):
         super().__init__()
-        self.__args = []
+        self.extend(args)
+
+    def append(self, arg):
+        """Append a value to the list"""
+        if isinstance(arg, str):
+            arg = Arg.parse(arg)
+        list.append(self, arg)
+
+    def extend(self, args):
         for arg in args:
             self.append(arg)
 
-    def append(self, value):
-        """Append a value to the list"""
-        arg = Arg.parse(value)
-        self.__args.append(arg)
-        list.append(self, arg.value)
+    def tovalues(self):
+        return [arg.value for arg in self]
 
-    def __call__(self, i):
-        """
-        Access more information about an argument using function-call syntax.
-        """
-        return self.__args[i]
+    def __getitem__(self, key):
+        value = super().__getitem__(key)
+        if isinstance(value, list):
+            return TexArgs(value)
+        return value
 
-    def __iter__(self):
-        """Iterator iterates over all argument objects."""
-        return iter(self.__args)
+    def __contains__(self, item):
+        if isinstance(item, str):
+            return item in self.tovalues()
+        return super().__contains__(item)
 
     def __str__(self):
         """Stringifies a list of arguments.
 
-        >>> str(TexArgs('{a}', '[b]', '{c}'))
+        >>> str(TexArgs(['{a}', '[b]', '{c}']))
         '{a}[b]{c}'
         """
-        return ''.join(map(str, self.__args))
+        return ''.join(map(str, self))
 
     def __repr__(self):
         """Makes list of arguments command-line friendly.
 
-        >>> TexArgs('{a}', '[b]', '{c}')
+        >>> TexArgs(['{a}', '[b]', '{c}'])
         [RArg('a'), OArg('b'), RArg('c')]
         """
-        return '[%s]' % ', '.join(map(repr, self.__args))
+        return '[%s]' % ', '.join(map(repr, self))
 
 
 class AllArgs(list):
