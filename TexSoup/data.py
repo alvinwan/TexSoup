@@ -6,7 +6,6 @@ objects, but all objects fall into one of the following three categories:
 import itertools
 import re
 from .utils import TokenWithPosition, CharToLineOffset
-from typing import Union
 
 __all__ = ['TexNode', 'TexCmd', 'TexEnv', 'Arg', 'OArg', 'RArg', 'TexArgs']
 
@@ -129,7 +128,7 @@ class TexNode(object):
     def extra(self):
         r"""Extra string not a part of the expression name.
 
-        This typically only occurs after an \item or similar LaTeX command.
+        This typically only occurs after an item or similar LaTeX command.
         """
         return self.expr.extra
 
