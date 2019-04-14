@@ -1,3 +1,4 @@
+from TexSoup import TexSoup
 from TexSoup.utils import TokenWithPosition
 from tests.config import chikin
 import re
@@ -85,6 +86,12 @@ def test_delete(chikin):
     """Delete an element from the parse tree."""
     chikin.section.delete()
     assert 'Chikin Tales' not in str(chikin)
+
+
+def test_delete_arg():
+    """Delete an element from an arg in the parse tree"""
+    soup = TexSoup(r'\foo{\bar{\baz}}')
+    soup.bar.delete()
 
 
 def test_replace_single(chikin):

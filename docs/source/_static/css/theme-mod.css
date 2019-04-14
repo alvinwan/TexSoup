@@ -65,24 +65,31 @@ article.pytorch-article .class dt::before {
   background-color:transparent;  /* allows gradients to show up as borders */
 }
 
-article.pytorch-article .function dt,
-article.pytorch-article .class .method dt,
+
 article.pytorch-article .attribute dt,
+article.pytorch-article .function dt,
 article.pytorch-article .class .attribute dt,
 article.pytorch-article .class .classmethod dt,
+article.pytorch-article .class .method dt,
 article.pytorch-article .class .staticmethod dt {
   border-left:3px solid transparent;
 }
 
-article.pytorch-article .function dt::before,
-article.pytorch-article .class .method dt::before,
 article.pytorch-article .attribute dt::before,
+article.pytorch-article .function dt::before,
 article.pytorch-article .class .attribute dt::before,
 article.pytorch-article .class .classmethod dt::before,
+article.pytorch-article .class .method dt::before,
 article.pytorch-article .class .staticmethod dt::before {
   margin-top:0;
   margin-left:-3px;
   background: linear-gradient(0deg, rgba(241,90,36,1) 0%, rgba(251,176,59,1) 100%);
+}
+
+/* HACK: why is this needed? */
+article.pytorch-article .class dl.attribute dt::before {
+  margin-left:-6px;
+  margin-bottom: -3px;
 }
 
 /*********

@@ -20,7 +20,7 @@ def tex_read(tex_soup, prefix=" |- "):
     for tex_code in tex_soup:
         if isinstance(tex_code, TexSoup.TexEnv):
             result += tex_read((prefix + tex_code.begin + str(tex_code.arguments)
-                                + "\n" + textwrap.indent(tex_read(tex_code.everything), "\t")
+                                + "\n" + textwrap.indent(tex_read(tex_code.all), "\t")
                                 + "\n" + prefix + tex_code.end).splitlines(), prefix="")
         elif isinstance(tex_code, TexSoup.TexCmd):
             result += textwrap.indent("\\" + tex_code.name + str(tex_code.arguments), prefix, lambda line: True)
@@ -28,7 +28,7 @@ def tex_read(tex_soup, prefix=" |- "):
             result += textwrap.indent(tex_code.text.strip(), prefix, lambda line: True)
         elif isinstance(tex_code, TexSoup.Arg):
             result += tex_read((prefix + "{" + "\n"
-                                + textwrap.indent(tex_read(TexSoup.TexSoup(tex_code.value).expr.everything), "\t")
+                                + textwrap.indent(tex_read(TexSoup.TexSoup(tex_code.value).expr.all), "\t")
                                 + "\n" + prefix + "}").splitlines(), prefix="")
         else:
             result += textwrap.indent(str(tex_code), prefix)
@@ -43,6 +43,6 @@ if __name__ == '__main__':
 
     tex_path = input('LaTex file:').strip()
     tex_text = open(tex_path).read()
-    tex_tree = tex_read(TexSoup.TexSoup(tex_text).expr.everything)
+    tex_tree = tex_read(TexSoup.TexSoup(tex_text).expr.all)
     print("LaTeX Contents:\n== == ==\n\n")
     print(tex_tree)

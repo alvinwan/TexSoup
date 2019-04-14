@@ -251,35 +251,15 @@ def read_tex(src):
     elif c.startswith('\\'):
         command = TokenWithPosition(c[1:], src.position)
         if command == 'item':
-            extra, arg, stuff = read_item(src)
-            mode, expr = 'command', TexCmd(command, arg, extra, stuff)
+            contents, arg = read_item(src)
+            mode, expr = 'command', TexCmd(command, contents, arg)
         elif command == 'begin':
             mode, expr, _ = 'begin', TexEnv(src.peek(1)), src.forward(3)
         else:
             mode, expr = 'command', TexCmd(command)
 
-        # TODO: should really be handled by tokenizer
-        stuff_index, candidate_index = 0, src.num_forward_until(lambda s: not s.isspace())
-        while src.peek().isspace():
-            stuff_index += 1
-            expr.stuff.append(read_tex(src))
+        expr.args = read_args(src, expr.args)
 
-        line_breaks = 0
-        while src.peek() in ARG_START_TOKENS or src.peek().isspace() and line_breaks == 0:
-            space_index = src.num_forward_until(lambda s: not s.isspace())
-            if space_index > 0:
-                line_breaks += 1
-                if src.peek((0, space_index)).count("\n") <= 1 and src.peek(space_index) in ARG_START_TOKENS:
-                    expr.stuff.append(read_tex(src))
-            else:
-                line_breaks = 0
-                tex_text = read_tex(src)
-                expr.args.append(tex_text)
-                expr.stuff.append(tex_text)
-        if not expr.args:
-            if stuff_index > 0:
-                del expr.stuff[-stuff_index:]
-            src.backward(candidate_index)
         if mode == 'begin':
             read_env(src, expr)
         return expr
@@ -314,20 +294,17 @@ def read_item(src):
 
     # Item argument such as in description environment
     arg = []
-    stuff = []
     extra = []
 
     if src.peek() in ARG_START_TOKENS:
         c = next(src)
         a = read_arg(src, c)
         arg.append(a)
-        stuff.append(a)
 
     if not src.hasNext():
-        return extra, arg, stuff
+        return extra, arg
 
     last = stringify(forward_until_new(src))
-    stuff.append(last)
     extra.append(last.lstrip(" "))
 
     while (src.hasNext() and not str(src).strip(" ").startswith('\n\n') and
@@ -336,8 +313,7 @@ def read_item(src):
             not (isinstance(last, TokenWithPosition) and last.strip(" ").endswith('\n\n') and len(extra) > 1)):
         last = read_tex(src)
         extra.append(last)
-        stuff.append(last)
-    return extra, arg, stuff
+    return extra, arg
 
 
 def read_math_env(src, expr):
@@ -348,6 +324,7 @@ def read_math_env(src, expr):
 
     :param Buffer src: a buffer of tokens
     :param TexExpr expr: expression for the environment
+    :rtype: TexExpr
     """
     content = src.forward_until(lambda s: s == expr.end)
     if not src.startswith(expr.end):
@@ -368,6 +345,7 @@ def read_env(src, expr):
 
     :param Buffer src: a buffer of tokens
     :param TexExpr expr: expression for the environment
+    :rtype: TexExpr
     """
     contents = []
     if expr.name in SKIP_ENVS:
@@ -384,6 +362,45 @@ def read_env(src, expr):
     return expr
 
 
+def read_args(src, args=None):
+    r"""Read all arguments from buffer.
+
+    Advances buffer until end of last valid arguments. There can be any number
+    of whitespace characters between command and the first argument.
+    However, after that first argument, the command can only tolerate one
+    successive line break, before discontinuing the chain of arguments.
+
+    :param TexArgs args: existing arguments to extend
+    :return: parsed arguments
+    :rtype: TexArgs
+    """
+    args = args or TexArgs()
+
+    # Unlimited whitespace before first argument
+    candidate_index = src.num_forward_until(lambda s: not s.isspace())
+    while src.peek().isspace():
+        args.append(read_tex(src))
+
+    # Restricted to only one line break after first argument
+    line_breaks = 0
+    while src.peek() in ARG_START_TOKENS or \
+            (src.peek().isspace() and line_breaks == 0):
+        space_index = src.num_forward_until(lambda s: not s.isspace())
+        if space_index > 0:
+            line_breaks += 1
+            if src.peek((0, space_index)).count("\n") <= 1 and src.peek(space_index) in ARG_START_TOKENS:
+                args.append(read_tex(src))
+        else:
+            line_breaks = 0
+            tex_text = read_tex(src)
+            args.append(tex_text)
+
+    if not args:
+        src.backward(candidate_index)
+
+    return args
+
+
 def read_arg(src, c):
     """Read the argument from buffer.
 
@@ -392,6 +409,7 @@ def read_arg(src, c):
     :param Buffer src: a buffer of tokens
     :param str c: argument token (starting token)
     :return: the parsed argument
+    :rtype: Arg
     """
     content = [c]
     while src.hasNext():

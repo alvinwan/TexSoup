@@ -15,8 +15,8 @@ def test_commands_only():
     """)
     children = list(soup.children)
     assert len(children) == 2
-    assert str(children[0]) == '\section{Chikin Tales}'
-    assert str(children[1]) == '\subsection{Chikin Fly}'
+    assert str(children[0]) == r'\section{Chikin Tales}'
+    assert str(children[1]) == r'\subsection{Chikin Fly}'
 
 
 def test_commands_envs_only():
@@ -32,8 +32,8 @@ def test_commands_envs_only():
     """)
     children = list(soup.children)
     assert len(children) == 3
-    assert str(children[0]) == '\section{Chikin Tales}'
-    assert str(children[1]) == '\subsection{Chikin Fly}'
+    assert str(children[0]) == r'\section{Chikin Tales}'
+    assert str(children[1]) == r'\subsection{Chikin Fly}'
     itemize = children[2]
     assert itemize.name == 'itemize'
     items = list(itemize.children)
@@ -69,12 +69,12 @@ def test_commands_envs_text():
     assert str(children[3]) == r'\subsection{Chikin Fly}'
     assert len(children) == 5
     assert len(contents) == 6
-    everything = list(doc.expr.everything)
+    everything = list(doc.expr.all)
     assert len(everything) == 12
-    arguments = str(doc.section.expr.arguments)
-    assert arguments == "\n    [Tales]{Chikin Tales}"
-    arguments_list = [str(arg) for arg in doc.section.expr.arguments]
-    assert arguments_list == ['\n    ', '[Tales]', '{Chikin Tales}']
+    # arguments = str(doc.section.expr.arguments)
+    # assert arguments == "\n    [Tales]{Chikin Tales}"
+    # arguments_list = [str(arg) for arg in doc.section.expr.arguments]
+    # assert arguments_list == ['\n    ', '[Tales]', '{Chikin Tales}']
 
 
 #########
@@ -102,8 +102,8 @@ def test_command_name_parse():
     """
     with_space_not_arg = TexSoup(r"""\item (10 points)""")
     assert with_space_not_arg.item is not None
-    assert len(with_space_not_arg.item.extra) == 1
-    assert with_space_not_arg.item.extra[0] == '(10 points)'
+    assert len(list(with_space_not_arg.item.contents)) == 1
+    assert next(with_space_not_arg.item.contents) == '(10 points)'
 
     with_space_with_arg = TexSoup(r"""\section {hula}""")
     assert with_space_with_arg.section.string == 'hula'
@@ -155,32 +155,32 @@ def test_ignore_environment():
     """)
     verbatim = list(list(soup.children)[1].contents)[0]
     assert len(list(soup.contents)) == 6, 'Special environments not recognized.'
-    assert str(list(soup.children)[0]) == '\\begin{equation}\min_x \|Ax - b\|_2^2\\end{equation}'
+    assert str(list(soup.children)[0]) == r'\begin{equation}\min_x \|Ax - b\|_2^2\end{equation}'
     # hacky workaround for odd string types
     assert verbatim[0] == '\n' and verbatim[1:].startswith('   '), 'Whitespace not preserved: {}'.format(verbatim)
-    assert str(list(soup.children)[2]) == '$$\min_x \|Ax - b\|_2^2 + \lambda \|x\|_1^2$$'
-    assert str(list(soup.children)[3]) == '\[[0,1)\]'
+    assert str(list(soup.children)[2]) == r'$$\min_x \|Ax - b\|_2^2 + \lambda \|x\|_1^2$$'
+    assert str(list(soup.children)[3]) == r'\[[0,1)\]'
 
 
 def test_inline_math():
     """Tests that inline math is rendered correctly."""
-    soup = TexSoup("""
+    soup = TexSoup(r"""
     \begin{itemize}
     \item This $e^{i\pi} = -1$
     \item How \(e^{i\pi} + 1 = 0\)
     \item Therefore!
     \end{itemize}""")
-    assert '$e^{i\pi} = -1$' in str(soup), 'Math environment not kept intact.'
-    assert '$e^{i\pi} = -1$' in str(list(soup.children)[0]), 'Environment incorrectly associated.'
-    assert '\(e^{i\pi} + 1 = 0\)' in str(soup), 'Math environment not kept intact.'
-    assert '\(e^{i\pi} + 1 = 0\)' in str(list(soup.children)[1]), 'Environment incorrectly associated.'
+    assert r'$e^{i\pi} = -1$' in str(soup), 'Math environment not kept intact.'
+    assert r'$e^{i\pi} = -1$' in str(list(soup.itemize.children)[0]), 'Environment incorrectly associated.'
+    assert r'\(e^{i\pi} + 1 = 0\)' in str(soup), 'Math environment not kept intact.'
+    assert r'\(e^{i\pi} + 1 = 0\)' in str(list(soup.itemize.children)[1]), 'Environment incorrectly associated.'
 
 
 def test_escaped_characters():
     """Tests that special characters are escaped properly.
     Formerly, escaped characters would be rendered as latex commands.
     """
-    soup = TexSoup("""
+    soup = TexSoup(r"""
     \begin{itemize}
     \item Ice cream costs \$4-\$5 around here. \}[\{]
     \end{itemize}""")
@@ -216,8 +216,8 @@ def test_item_parsing():
     \item
     \item first item
     \end{itemize}""")
-    zeroitem = soup.item.extra[0].strip()
-    assert not zeroitem, 'Zeroth item should not include content, but contains: {}'.format(zeroitem)
+    assert len(list(soup.item.contents)) == 0, \
+        "Zeroth item should have no contents"
     soup = TexSoup(r"""\begin{itemize}
     \item second item
     \item
@@ -228,13 +228,11 @@ def test_item_parsing():
 
     floating text
     \end{itemize}""")
-    all_extra = list(soup.find_all('item'))[1].extra
-    thirditem = all_extra[0] + all_extra[1]
-    assert 'third item' in thirditem, 'Item does not tolerate starting line breaks (as it should)'
-    assert 'with' in thirditem, 'Item does not tolerate line break in middle (as it should)'
-    assert 'floating' not in thirditem, 'Item should not tolerate multiple line breaks in middle'
-    assert thirditem.lstrip() == "third item\n    with third item\n\n"
-    assert thirditem.rstrip() == "\n\n\n    third item\n    with third item"
+    items = list(soup.find_all('item'))
+    content = next(items[1].contents)
+    assert 'third item' in content, 'Item does not tolerate starting line breaks (as it should)'
+    assert 'with' in content, 'Item does not tolerate line break in middle (as it should)'
+    assert 'floating' not in content, 'Item should not tolerate multiple line breaks in middle'
     soup = TexSoup(r"""\begin{itemize}
     \item This item contains code!
     \begin{lstlisting}
@@ -243,12 +241,12 @@ def test_item_parsing():
     \item hello
     \end{itemize}""")
     assert ' Code code code' in str(soup.item.lstlisting), 'Item does not correctly parse contained environments.'
-    assert '\n    Code code code\n    ' in soup.item.lstlisting.expr.everything
+    assert '\n    Code code code\n    ' in soup.item.lstlisting.expr.contents
     soup = TexSoup(r"""\begin{itemize}
     \item\label{some-label} waddle
     \item plop
     \end{itemize}""")
-    assert str(soup.item.label) == '\label{some-label}'
+    assert str(soup.item.label) == r'\label{some-label}'
 
 
 def test_item_argument_parsing():
@@ -341,12 +339,12 @@ def test_whitespace_in_command():
 
 def test_math_environment_whitespace():
     """Tests that math environments are untouched."""
-    soup = TexSoup("""$$\lambda
+    soup = TexSoup(r"""$$\lambda
     \Sigma$$ But don't mind me \$3.00""")
     children, contents = list(soup.children), list(soup.contents)
     assert '\n' in str(children[0]), 'Whitesapce not preserved in math env.'
     assert len(children) == 1 and children[0].name == '$$', 'Math env wrong'
-    assert '\$' in contents[1], 'Dollar sign not escaped!'
+    assert r'\$' in contents[1], 'Dollar sign not escaped!'
     soup = TexSoup(r"""\gamma = \beta\begin{notescaped}\gamma = \beta\end{notescaped}
     \begin{equation*}\beta = \gamma\end{equation*}""")
     assert str(soup.find('equation*')) == r'\begin{equation*}\beta = \gamma\end{equation*}'
@@ -356,9 +354,9 @@ def test_math_environment_whitespace():
 
 def test_math_environment_escape():
     """Tests $ escapes in math environment."""
-    soup = TexSoup("$ \$ $")
+    soup = TexSoup(r"$ \$ $")
     contents = list(soup.contents)
-    assert '\$' in contents[0][0], 'Dollar sign not escaped!'
+    assert r'\$' in contents[0][0], 'Dollar sign not escaped!'
 
 
 def test_punctuation_command_structure():
@@ -377,7 +375,7 @@ def test_non_punctuation_command_structure():
     """
     soup = TexSoup(r"""\mycommand, hello""")
     contents = list(soup.contents)
-    assert '\mycommand' == str(contents[0]), 'Comma considered part of the command.'
+    assert r'\mycommand' == str(contents[0]), 'Comma considered part of the command.'
 
     soup = TexSoup(r"""\hspace*{0.2in} hello \hspace*{2in} world""")
     assert len(list(soup.contents)) == 4, '* not recognized as part of command.'
