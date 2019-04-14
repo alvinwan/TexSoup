@@ -2,7 +2,7 @@
 subject to change.
 """
 
-from TexSoup.utils import to_buffer, Buffer, TokenWithPosition
+from TexSoup.utils import TokenWithPosition, to_buffer
 from TexSoup.data import *
 import TexSoup.data as data
 import string
