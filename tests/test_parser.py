@@ -102,8 +102,8 @@ def test_command_name_parse():
     """
     with_space_not_arg = TexSoup(r"""\item (10 points)""")
     assert with_space_not_arg.item is not None
-    assert len(with_space_not_arg.item.extra) == 1
-    assert with_space_not_arg.item.extra[0] == '(10 points)'
+    assert len(list(with_space_not_arg.item.contents)) == 1
+    assert next(with_space_not_arg.item.contents) == '(10 points)'
 
     with_space_with_arg = TexSoup(r"""\section {hula}""")
     assert with_space_with_arg.section.string == 'hula'
@@ -216,8 +216,8 @@ def test_item_parsing():
     \item
     \item first item
     \end{itemize}""")
-    zeroitem = soup.item.extra[0].strip()
-    assert not zeroitem, 'Zeroth item should not include content, but contains: {}'.format(zeroitem)
+    assert len(list(soup.item.contents)) == 0, \
+        "Zeroth item should have no contents"
     soup = TexSoup(r"""\begin{itemize}
     \item second item
     \item
@@ -228,13 +228,11 @@ def test_item_parsing():
 
     floating text
     \end{itemize}""")
-    all_extra = list(soup.find_all('item'))[1].extra
-    thirditem = all_extra[0] + all_extra[1]
-    assert 'third item' in thirditem, 'Item does not tolerate starting line breaks (as it should)'
-    assert 'with' in thirditem, 'Item does not tolerate line break in middle (as it should)'
-    assert 'floating' not in thirditem, 'Item should not tolerate multiple line breaks in middle'
-    assert thirditem.lstrip() == "third item\n    with third item\n\n"
-    assert thirditem.rstrip() == "\n\n\n    third item\n    with third item"
+    items = list(soup.find_all('item'))
+    content = next(items[1].contents)
+    assert 'third item' in content, 'Item does not tolerate starting line breaks (as it should)'
+    assert 'with' in content, 'Item does not tolerate line break in middle (as it should)'
+    assert 'floating' not in content, 'Item should not tolerate multiple line breaks in middle'
     soup = TexSoup(r"""\begin{itemize}
     \item This item contains code!
     \begin{lstlisting}

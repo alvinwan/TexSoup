@@ -163,27 +163,6 @@ class TexNode(object):
                 yield child
 
     @property
-    def exprs(self):
-        r"""Any sub-TexNode nodes inside of this node.
-
-        :return: generator of all nodes
-        :rtype: Iterator[TexNode]
-
-        >>> from TexSoup import TexSoup
-        >>> soup = TexSoup(r'''
-        ... \begin{itemize}
-        ...     Random text!
-        ...     \item Hello
-        ... \end{itemize}''')
-        >>> exprs = soup.itemize.exprs
-        >>> next(exprs)
-        \item Hello
-        <BLANKLINE>
-        """
-        for child in self.expr.exprs:
-            yield TexNode(child)
-
-    @property
     def descendants(self):
         r"""Returns all descendants for this TeX element.
 
@@ -200,37 +179,6 @@ class TexNode(object):
         <BLANKLINE>
         """
         return self.__descendants()
-
-    @property
-    def extra(self):
-        r"""Extra string not a part of the expression name.
-
-        This typically only occurs after an item or similar LaTeX command.
-
-        :rtype: str
-
-        >>> from TexSoup import TexSoup
-        >>> soup = TexSoup(r'''
-        ... \begin{itemize}
-        ...     \item Hello
-        ... \end{itemize}''')
-        >>> soup.item.extra
-        ['Hello\n']
-        >>> soup.item.extra = 'Hello World\n'
-        >>> soup.itemize
-        \begin{itemize}
-            \item Hello World
-        \end{itemize}
-        """
-        return self.expr.extra
-
-    @extra.setter
-    def extra(self, extra):
-        assert isinstance(extra, (list, str)), \
-            "`extra` must be of type `list` or `str`"
-        if isinstance(extra, str):
-            extra = [extra]
-        self.expr.extra = extra
 
     @property
     def name(self):
@@ -578,7 +526,7 @@ class TexExpr(object):
             preserve_whitespace=False):
         self.name = name.strip()
         self.args = TexArgs(args)
-        self.stuff = stuff
+        self.stuff = list(stuff)
         self.parent = self.parent if hasattr(self, 'parent') else None
         self._contents = list(contents) or []
         self.preserve_whitespace = preserve_whitespace
@@ -603,13 +551,6 @@ class TexExpr(object):
     @property
     def children(self):
         return filter(lambda x: isinstance(x, (TexEnv, TexCmd)), self.contents)
-
-    @property
-    def exprs(self):
-        """Returns expressions within this expression, using filtered contents."""
-        for content in self.contents:
-            if isinstance(content, TexExpr):
-                yield content
 
     @property
     def contents(self):
@@ -702,7 +643,7 @@ class TexExpr(object):
         return index
 
     def _assert_supports_contents(self):
-        return True
+        pass
 
 
 class TexEnv(TexExpr):
@@ -739,15 +680,11 @@ class TexEnv(TexExpr):
         """
         super().__init__(name, contents, args, stuff,
             preserve_whitespace=preserve_whitespace)
-        self.stuff = stuff if stuff else []
+        self.stuff = list(stuff) if stuff else []
 
         self.nobegin = nobegin
         self.begin = begin if begin else (self.name if self.nobegin else "\\begin{%s}" % self.name)
         self.end = end if end else (self.name if self.nobegin else "\\end{%s}" % self.name)
-
-    #################
-    # MAGIC METHODS #
-    #################
 
     def __str__(self):
         contents = ''.join(map(str, self._contents))
@@ -762,13 +699,6 @@ class TexEnv(TexExpr):
             return "TexEnv('%s')" % self.name
         return "TexEnv('%s', %s, %s)" % (self.name, repr(self._contents), repr(self.args))
 
-    ##############
-    # PROPERTIES #
-    ##############
-
-    def _assert_supports_contents(self):
-        pass
-
 
 class TexCmd(TexExpr):
     r"""Abstraction for a LaTeX command. Contains two attributes:
@@ -780,7 +710,8 @@ class TexCmd(TexExpr):
     :param list args: Arg objects
     :param list extra: TexExpr objects
 
-    >>> t = TexCmd('textbf',[RArg('big ',TexCmd('textit',[RArg('slant')]),'.')])
+    >>> textit = TexCmd('textit', args=[RArg('slant')])
+    >>> t = TexCmd('textbf', args=[RArg('big ', textit, '.')])
     >>> t
     TexCmd('textbf', [RArg('big ', TexCmd('textit', [RArg('slant')]), '.')])
     >>> print(t)
@@ -792,44 +723,16 @@ class TexCmd(TexExpr):
     \textit{slant}
     """
 
-    def __init__(self, name, args=(), extra=(), stuff=()):
-        super().__init__(name, [], args, stuff)
-        self.extra = extra if extra else []
-        self.stuff = stuff if stuff else []
-
     def __str__(self):
-        if self.extra:
+        if self._contents:
             return '\\%s%s %s' % (self.name, self.args, ''.join(
-                [str(e) for e in self.extra]))
+                [str(e) for e in self.contents]))
         return '\\%s%s' % (self.name, self.args)
 
     def __repr__(self):
         if not self.args:
             return "TexCmd('%s')" % self.name
         return "TexCmd('%s', %s)" % (self.name, repr(self.args))
-
-    @property
-    def contents(self):
-        for arg in self.args:
-            for expr in arg:
-                yield expr
-        if self.extra:
-            for expr in self.extra:
-                yield expr
-
-    def add_contents(self, *contents):
-        r"""Amend extra where appropriate.
-
-        If \item, amend extra. If otherwise, throw error, since commands don't
-        have children.
-
-        >>> t = TexCmd('item', [])
-        >>> t.add_contents('Hello')
-        >>> str(t)
-        '\\item Hello'
-        """
-        self._assert_supports_contents()
-        self.extra.extend(contents)
 
     def _assert_supports_contents(self):
         if self.name != 'item':

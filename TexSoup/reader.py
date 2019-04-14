@@ -251,8 +251,8 @@ def read_tex(src):
     elif c.startswith('\\'):
         command = TokenWithPosition(c[1:], src.position)
         if command == 'item':
-            extra, arg, stuff = read_item(src)
-            mode, expr = 'command', TexCmd(command, arg, extra, stuff)
+            contents, arg, stuff = read_item(src)
+            mode, expr = 'command', TexCmd(command, contents, arg, stuff)
         elif command == 'begin':
             mode, expr, _ = 'begin', TexEnv(src.peek(1)), src.forward(3)
         else:
