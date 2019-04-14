@@ -89,6 +89,10 @@ article.pytorch-article .class .staticmethod dt::before {
  * FIXES *
  *********/
 
+.pytorch-left-menu li.current ul,  .pytorch-right-menu li.current ul {
+  padding-left: 1em;
+}
+
 #docs-tutorials-resources {
   padding: 0;
   height: 0;
