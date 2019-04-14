@@ -20,7 +20,14 @@ class TexNode(object):
     r"""A tree node representing an expression in the LaTeX document.
 
     Every node in the parse tree is a ``TexNode``, equipped with navigation,
-    search, and modification utilities.
+    search, and modification utilities. To navigate the parse tree, use
+    abstractions such as ``children`` and ``descendant``. To access content in
+    the parse tree, use abstractions such as ``contents``, ``text``, ``string``
+    , and ``args``.
+
+    Note that the LaTeX parse tree is largely shallow: only environments such as
+    ``itemize`` or ``enumerate`` have children and thus descendants. Typical LaTeX
+    expressions such as ``\section`` have *arguments* but not children.
     """
 
     def __init__(self, expr, src=None):
@@ -120,7 +127,7 @@ class TexNode(object):
 
     @property
     def extra(self):
-        """Extra string not a part of the expression name.
+        r"""Extra string not a part of the expression name.
 
         This typically only occurs after an \item or similar LaTeX command.
         """
@@ -167,22 +174,48 @@ class TexNode(object):
 
         >>> from TexSoup import TexSoup
         >>> soup = TexSoup(r'''
+        ... \begin{itemize}
+        ...     \item Hello
+        ... \end{itemize}
         ... \section{Hey}
-        ... \textbf{Silly}
         ... \textit{Willy}''')
         >>> soup.section
         \section{Hey}
-        >>> soup.section.add_children(soup.textbf, soup.textit)
+        >>> soup.section.add_children(soup.textit)  # doctest: +ELLIPSIS
+        Traceback (most recent call last):
+        ...
+        TypeError: ...
         >>> soup.section
-        \section{Hey} \textbf{Silly}\textit{Willy}
+        \section{Hey}
+        >>> soup.itemize.add_children('    ', soup.item)
+        >>> soup.itemize
+        \begin{itemize}
+            \item Hello
+            \item Hello
+        \end{itemize}
         """
         self.expr.add_contents(*nodes)
 
     def add_children_at(self, i, *nodes):
-        r"""Add a node to its list of children, inserted at position i.
+        r"""Add node(s) to this node's list of children, inserted at position i.
 
         :param int i: Position to add nodes to
         :param TexNode nodes: List of nodes to add
+
+        >>> from TexSoup import TexSoup
+        >>> soup = TexSoup(r'''
+        ... \begin{itemize}
+        ...     \item Hello
+        ...     \item Bye
+        ... \end{itemize}''')
+        >>> item = soup.item
+        >>> soup.item.delete()
+        >>> soup.itemize.add_children_at(1, item)
+        >>> soup.itemize
+        \begin{itemize}
+            \item Hello
+            \item Bye
+        \end{itemize}
         """
         assert isinstance(i, int), (
                 'Provided index "{}" is not an integer! Did you switch your '
@@ -191,13 +224,21 @@ class TexNode(object):
         self.expr.add_contents_at(i, *nodes)
 
     def char_pos_to_line(self, char_pos):
-        r"""Translate character position in the original document to line number.
+        r"""Map position in the original string to parsed LaTeX position.
+
+        :param int char_pos: Character position in the original string
+        :return: (line number, index of character in line)
+        :rtype: Tuple[int, int]
 
         >>> from TexSoup import TexSoup
         >>> soup = TexSoup(r'''
         ... \section{Hey}
         ... \textbf{Silly}
         ... \textit{Willy}''')
+        >>> soup.char_pos_to_line(10)
+        (1, 9)
+        >>> soup.char_pos_to_line(20)
+        (2, 5)
         """
         assert self.char_to_line is not None, (
             'CharToLineOffset is not initialized. Pass src to TexNode '
@@ -205,37 +246,151 @@ class TexNode(object):
         return self.char_to_line(char_pos)
 
     def count(self, name=None, **attrs):
-        """Return number of descendants matching criteria"""
+        r"""Number of descendants matching criteria.
+
+        :param Union[None,str] name: name of LaTeX expression
+        :param attrs: LaTeX expression attributes, such as item text.
+        :return: number of matching expressions
+        :rtype: int
+
+        >>> from TexSoup import TexSoup
+        >>> soup = TexSoup(r'''
+        ... \section{Hey}
+        ... \textit{Silly}
+        ... \textit{Willy}''')
+        >>> soup.count('section')
+        1
+        >>> soup.count('textit')
+        2
+        """
         return len(list(self.find_all(name, **attrs)))
 
     def delete(self):
-        """Delete this node from the parse tree tree."""
+        r"""Delete this node from the parse tree.
+
+        Where applicable, this will remove all descendants of this node from
+        the parse tree.
+
+        >>> from TexSoup import TexSoup
+        >>> soup = TexSoup(r'''\textit{\color{blue}{Silly}}\textit{keep me!}''')
+        >>> soup.textit.delete()
+        >>> soup
+        \textit{keep me!}
+        """
         self.parent.remove_child(self)
 
     def find(self, name=None, **attrs):
-        """Return first descendant node matching criteria"""
+        r"""First descendant node matching criteria.
+
+        Returns None if no descendant node found.
+
+        :return: descendant node matching criteria
+        :rtype: Union[None,TexExpr]
+
+        >>> from TexSoup import TexSoup
+        >>> soup = TexSoup(r'''
+        ... \section{Ooo}
+        ... \textit{eee}
+        ... \textit{ooo}''')
+        >>> soup.find('textit')
+        \textit{eee}
+        >>> soup.find('textbf')
+        """
         try:
             return next(self.find_all(name, **attrs))
         except StopIteration:
             return None
 
     def find_all(self, name=None, **attrs):
-        """Return all descendant nodes matching criteria, naively."""
+        r"""Return all descendant nodes matching criteria.
+
+        :param Union[None,str] name: name of LaTeX expression
+        :param attrs: LaTeX expression attributes, such as item text.
+        :return: All descendant nodes matching criteria
+        :rtype: generator
+
+        >>> from TexSoup import TexSoup
+        >>> soup = TexSoup(r'''
+        ... \section{Ooo}
+        ... \textit{eee}
+        ... \textit{ooo}''')
+        >>> gen = soup.find_all('textit')
+        >>> next(gen)
+        \textit{eee}
+        >>> next(gen)
+        \textit{ooo}
+        >>> next(soup.find_all('textbf'))
+        Traceback (most recent call last):
+        ...
+        StopIteration
+        """
         for descendant in self.__descendants():
             if hasattr(descendant, '__match__') and \
                     descendant.__match__(name, attrs):
                 yield descendant
 
     def remove_child(self, node):
-        """Remove a node from its list of contents."""
+        r"""Remove a node from this node's list of contents.
+
+        :param TexExpr node: Node to remove
+
+        >>> from TexSoup import TexSoup
+        >>> soup = TexSoup(r'''
+        ... \begin{itemize}
+        ...     \item Hello
+        ...     \item Bye
+        ... \end{itemize}''')
+        >>> soup.itemize.remove_child(soup.item)
+        >>> soup.itemize
+        \begin{itemize}
+            \item Bye
+        \end{itemize}
+        """
         self.expr.remove_content(node.expr)
 
     def replace(self, *nodes):
-        """Replace this node in the parse tree with the provided node(s)."""
+        r"""Replace this node in the parse tree with the provided node(s).
+
+        :param TexNode nodes: List of nodes to subtitute in
+
+        >>> from TexSoup import TexSoup
+        >>> soup = TexSoup(r'''
+        ... \begin{itemize}
+        ...     \item Hello
+        ...     \item Bye
+        ... \end{itemize}''')
+        >>> items = list(soup.find_all('item'))
+        >>> bye = items[1]
+        >>> soup.item.replace(bye)
+        >>> soup.itemize
+        \begin{itemize}
+            \item Bye
+        \item Bye
+        \end{itemize}
+        """
         self.parent.replace_child(self, *nodes)
 
     def replace_child(self, child, *nodes):
-        """Replace provided node with node(s)."""
+        r"""Replace provided node with node(s).
+
+        :param TexNode child: Child node to replace
+        :param TexNode nodes: List of nodes to subtitute in
+
+        >>> from TexSoup import TexSoup
+        >>> soup = TexSoup(r'''
+        ... \begin{itemize}
+        ...     \item Hello
+        ...     \item Bye
+        ... \end{itemize}''')
+        >>> items = list(soup.find_all('item'))
+        >>> bye = items[1]
+        >>> soup.itemize.replace_child(soup.item, bye)
+        >>> soup.itemize
+        \begin{itemize}
+            \item Bye
+        \item Bye
+        \end{itemize}
+        """
         self.expr.add_contents_at(
             self.expr.remove_content(child.expr),
             *nodes)
@@ -274,21 +429,9 @@ class TexExpr(object):
             if isinstance(content, (TexEnv, TexCmd)):
                 content.parent = self
 
-    def add_contents(self, *contents):
-        self._contents.extend(contents)
-
-    def add_contents_at(self, i, *contents):
-        for j, content in enumerate(contents):
-            self._contents.insert(i + j, content)
-
-    def remove_content(self, expr):
-        """Remove a provided expression from its list of contents.
-
-        :return: index of the expression removed
-        """
-        index = self._contents.index(expr)
-        self._contents.remove(expr)
-        return index
+    ##############
+    # PROPERTIES #
+    ##############
 
     @property
     def contents(self):
@@ -320,12 +463,40 @@ class TexExpr(object):
         """Returns all child expressions for a particular expression."""
         return filter(lambda x: isinstance(x, (TexEnv, TexCmd)), self.contents)
 
+    ##################
+    # PUBLIC METHODS #
+    ##################
+
+    def add_contents(self, *contents):
+        self._assert_supports_contents()
+        self._contents.extend(contents)
+
+    def add_contents_at(self, i, *contents):
+        self._assert_supports_contents()
+        for j, content in enumerate(contents):
+            self._contents.insert(i + j, content)
+
+    def remove_content(self, expr):
+        """Remove a provided expression from its list of contents.
+
+        :return: index of the expression removed
+        """
+        self._assert_supports_contents()
+        index = self._contents.index(expr)
+        self._contents.remove(expr)
+        return index
+
+    def _assert_supports_contents(self):
+        raise NotImplementedError()
+
 
 class TexEnv(TexExpr):
     r"""Abstraction for a LaTeX command, denoted by \begin{env} and \end{env}.
-    Contains three attributes: (1) the environment name itself, (2) the
-    environment arguments, whether optional or required, and (3) the
-    environment's contents.
+    Contains three attributes:
+
+    1. the environment name itself,
+    2. the environment arguments, whether optional or required, and
+    3. the environment's contents.
 
     >>> t = TexEnv('tabular', ['\n0 & 0 & * \\\\\n1 & 1 & * \\\\\n'],
     ...     [RArg('c | c c')])
@@ -359,16 +530,9 @@ class TexEnv(TexExpr):
         self.begin = begin if begin else (self.name if self.nobegin else "\\begin{%s}" % self.name)
         self.end = end if end else (self.name if self.nobegin else "\\end{%s}" % self.name)
 
-    @property
-    def contents(self):
-        for content in self._contents:
-            if not isinstance(content, TokenWithPosition) or bool(content.strip()) or self.preserve_whitespace:
-                yield content
-
-    @property
-    def everything(self):
-        for content in self._contents:
-            yield content
+    #################
+    # MAGIC METHODS #
+    #################
 
     def __str__(self):
         contents = ''.join(map(str, self._contents))
@@ -383,11 +547,30 @@ class TexEnv(TexExpr):
             return "TexEnv('%s')" % self.name
         return "TexEnv('%s', %s, %s)" % (self.name, repr(self._contents), repr(self.args))
 
+    ##############
+    # PROPERTIES #
+    ##############
+
+    @property
+    def contents(self):
+        for content in self._contents:
+            if not isinstance(content, TokenWithPosition) or bool(content.strip()) or self.preserve_whitespace:
+                yield content
+
+    @property
+    def everything(self):
+        for content in self._contents:
+            yield content
+
+    def _assert_supports_contents(self):
+        pass
+
 
 class TexCmd(TexExpr):
-    r"""Abstraction for a LaTeX command. Contains two attributes: (1) the
-    command name itself and (2) the command arguments, whether optional or
-    required.
+    r"""Abstraction for a LaTeX command. Contains two attributes:
+
+    1. the command name itself and
+    2. the command arguments, whether optional or required.
 
     :param str name: name of the command, e.g., "textbf"
     :param list args: Arg objects
@@ -410,6 +593,17 @@ class TexCmd(TexExpr):
         self.extra = extra if extra else []
         self.stuff = stuff if stuff else []
 
+    def __str__(self):
+        if self.extra:
+            return '\\%s%s %s' % (self.name, self.args, ''.join(
+                [str(e) for e in self.extra]))
+        return '\\%s%s' % (self.name, self.args)
+
+    def __repr__(self):
+        if not self.args:
+            return "TexCmd('%s')" % self.name
+        return "TexCmd('%s', %s)" % (self.name, repr(self.args))
+
     @property
     def contents(self):
         """All contents of command arguments"""
@@ -421,19 +615,21 @@ class TexCmd(TexExpr):
                 yield expr
 
     def add_contents(self, *contents):
-        """Amend extra instead of contents, as commands do not have contents."""
+        r"""Amend extra where appropriate.
+
+        If \item, amend extra. If otherwise, throw error, since commands don't
+        have children.
+        """
+        self._assert_supports_contents()
         self.extra.extend(contents)
 
-    def __str__(self):
-        if self.extra:
-            return '\\%s%s %s' % (self.name, self.args, ''.join(
-                [str(e) for e in self.extra]))
-        return '\\%s%s' % (self.name, self.args)
-
-    def __repr__(self):
-        if not self.args:
-            return "TexCmd('%s')" % self.name
-        return "TexCmd('%s', %s)" % (self.name, repr(self.args))
+    def _assert_supports_contents(self):
+        if self.name != 'item':
+            raise TypeError(
+                'Command "{}" has no children. `add_contents` is only valid for'
+                ': 1. environments like `itemize` and 2. `\\item`. Alternatively'
+                ', you can add, edit, or delete arguments by modifying `.args`'
+                ', which behaves like a list.'.format(self.name))
 
 
 #############
