@@ -89,8 +89,18 @@ article.pytorch-article .class .staticmethod dt::before {
  * FIXES *
  *********/
 
-.site-footer {
-  margin-top: 2em;
+#docs-tutorials-resources {
+  padding: 0;
+  height: 0;
+  margin: 0;
+}
+
+.built-with {
+  margin-bottom:1em;
+}
+
+.pytorch-menu-vertical {
+  padding-bottom: 1.625rem;
 }
 
 .pytorch-breadcrumbs-aside img {
