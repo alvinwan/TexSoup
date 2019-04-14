@@ -39,6 +39,7 @@ class TexNode(object):
         assert isinstance(expr, (TexCmd, TexEnv)), 'Created from TexExpr'
         super().__init__()
         self.expr = expr
+        self.parent = None
         if src is not None:
             self.char_to_line = CharToLineOffset(src)
         else:
@@ -133,8 +134,9 @@ class TexNode(object):
         <BLANKLINE>
         """
         for child in self.expr.children:
-            child.parent = self
-            yield TexNode(child)
+            node = TexNode(child)
+            node.parent = self
+            yield node
 
     @property
     def contents(self):
@@ -158,7 +160,9 @@ class TexNode(object):
         """
         for child in self.expr.contents:
             if isinstance(child, TexExpr):
-                yield TexNode(child)
+                node = TexNode(child)
+                node.parent = self
+                yield node
             else:
                 yield child
 
@@ -199,11 +203,6 @@ class TexNode(object):
     @name.setter
     def name(self, name):
         self.expr.name = name
-
-    # Should be set by parent otherwise returns None result
-    @property
-    def parent(self):
-        return self.expr.parent
 
     @property
     def string(self):
@@ -372,6 +371,9 @@ class TexNode(object):
 
         >>> from TexSoup import TexSoup
         >>> soup = TexSoup(r'''\textit{\color{blue}{Silly}}\textit{keep me!}''')
+        >>> soup.textit.color.delete()
+        >>> soup
+        \textit{}\textit{keep me!}
         >>> soup.textit.delete()
         >>> soup
         \textit{keep me!}
@@ -385,8 +387,8 @@ class TexNode(object):
 
         # TODO: needs abstraction for removing from arg
         for arg in parent.args:
-            if self in arg.contents:
-                arg.contents.remove(self)
+            if self.expr in arg.contents:
+                arg.contents.remove(self.expr)
 
     def find(self, name=None, **attrs):
         r"""First descendant node matching criteria.
@@ -535,7 +537,7 @@ class TexExpr(object):
     def __init__(self, name, contents=(), args=(), preserve_whitespace=False):
         self.name = name.strip()
         self.args = TexArgs(args)
-        self.parent = self.parent if hasattr(self, 'parent') else None
+        self.parent = None
         self._contents = list(contents) or []
         self.preserve_whitespace = preserve_whitespace
 
@@ -768,7 +770,7 @@ class Arg(object):
         :param Union[str,TexCmd,TexEnv] exprs: Tex expressions contained in the
             argument. Can be other commands or environments, or even strings.
         """
-        self.contents = exprs
+        self.contents = list(exprs)
 
     @property
     def value(self):
