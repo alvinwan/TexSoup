@@ -74,7 +74,12 @@ class TexNode(object):
         """
         if '{' in name or '[' in name:
             return str(self) == name
-        attrs['name'] = name
+        if isinstance(name, list):
+            node_name = getattr(self, 'name')
+            if node_name not in name:
+                return False
+        else:
+            attrs['name'] = name
         for k, v in attrs.items():
             if getattr(self, k) != v:
                 return False
@@ -435,10 +440,12 @@ class TexNode(object):
     def find_all(self, name=None, **attrs):
         r"""Return all descendant nodes matching criteria.
 
-        :param Union[None,str] name: name of LaTeX expression
+        :param Union[None,str,list] name: name of LaTeX expression
         :param attrs: LaTeX expression attributes, such as item text.
         :return: All descendant nodes matching criteria
         :rtype: Iterator[TexNode]
+
+        If `name` is a list of `str`'s, any matching section will be matched.
 
         >>> from TexSoup import TexSoup
         >>> soup = TexSoup(r'''
