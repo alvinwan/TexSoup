@@ -120,6 +120,16 @@ def tokenize_punctuation_command(text):
                 return text.forward(len(point) + 1)
 
 
+ESCAPED_CHARACTERS = {" "}
+
+@token('escaped_character')
+def tokenize_escaped_character(text):
+    if text.peek() == "\\":
+        for char in ESCAPED_CHARACTERS:
+            if text.peek((1, len(char) + 1)) == char:
+                return text.forward(len(char) + 1)
+
+
 @token('command')
 def tokenize_command(text):
     """Process command, but ignore line breaks. (double backslash)

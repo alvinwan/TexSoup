@@ -1,6 +1,4 @@
-from TexSoup import TexSoup
 import pytest
-
 
 ###############
 # BASIC TESTS #
@@ -357,6 +355,15 @@ def test_math_environment_escape():
     soup = TexSoup(r"$ \$ $")
     contents = list(soup.contents)
     assert r'\$' in contents[0][0], 'Dollar sign not escaped!'
+
+
+def test_parse_space_command():
+    """Tests that "\ <word>" is parsed as a command followed by a word."""
+    soup = TexSoup(r"\ word")
+    contents = list(soup.contents)
+    assert len(contents) == 2
+    assert str(contents[0]) == r'\ '
+    assert str(contents[1]) == r'word'
 
 
 def test_punctuation_command_structure():

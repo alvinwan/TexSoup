@@ -562,7 +562,8 @@ class TexExpr(object):
     """
 
     def __init__(self, name, contents=(), args=(), preserve_whitespace=False):
-        self.name = name.strip()
+        # self.name = name.strip()
+        self.name = name
         self.args = TexArgs(args)
         self.parent = None
         self._contents = list(contents) or []
@@ -877,7 +878,8 @@ class Arg(object):
                             ' mistyped closing punctuation, misalignment.' % (str(s)))
         for arg in arg_type:
             if arg.__is__(s):
-                return arg(arg.__strip__(s))
+                return arg(s)
+                # return arg(arg.__strip__(s))
         raise TypeError('Malformed argument. Must be an Arg or a string in '
                         'either brackets or curly braces.')
 
