@@ -3,7 +3,7 @@ language: python
 sudo: false
 
 python:
-  - "3.4.2"
+  - "3.4.5"
 
 install:
   - python setup.py install
