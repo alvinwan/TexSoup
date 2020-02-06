@@ -41,7 +41,7 @@ setup(
     packages=['TexSoup'],
     cmdclass={'test': PyTest},
     tests_require=tests_require,
-    install_requires=install_requires + tests_require,
+    install_requires=install_requires,
     download_url='https://github.com/alvinwan/TexSoup/archive/%s.zip' % VERSION,
     classifiers=[
         "Topic :: Utilities",
