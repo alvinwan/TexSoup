@@ -7,6 +7,7 @@ python:
 
 install:
   - python setup.py install
+  - python setup.py easy_install $(python3 -c 'import distutils.core; print(" ".join(distutils.core.run_setup("setup.py").tests_require))')
 
 script:
   - py.test --cov
