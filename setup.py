@@ -2,7 +2,7 @@ import sys
 from setuptools import setup
 from setuptools.command.test import test as test_command
 
-tests_require = ['pytest', 'pytest-cov==2.5.1', 'coverage == 3.7.1', 'coveralls == 1.1']
+tests_require = ['pytest', 'pytest-cov==2.5.1', 'coverage==3.7.1', 'coveralls==1.1']
 install_requires = []
 
 
@@ -41,7 +41,7 @@ setup(
     packages=['TexSoup'],
     cmdclass={'test': PyTest},
     tests_require=tests_require,
-    install_requires=install_requires + tests_require,
+    install_requires=install_requires,
     download_url='https://github.com/alvinwan/TexSoup/archive/%s.zip' % VERSION,
     classifiers=[
         "Topic :: Utilities",
