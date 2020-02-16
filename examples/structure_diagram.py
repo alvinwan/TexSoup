@@ -19,11 +19,11 @@ def tex_read(tex_soup, prefix=" |- "):
     result = ""
     for tex_code in tex_soup:
         if isinstance(tex_code, TexSoup.TexEnv):
-            result += tex_read((prefix + tex_code.begin + str(tex_code.arguments)
+            result += tex_read((prefix + tex_code.begin + str(tex_code.args)
                                 + "\n" + textwrap.indent(tex_read(tex_code.all), "\t")
                                 + "\n" + prefix + tex_code.end).splitlines(), prefix="")
         elif isinstance(tex_code, TexSoup.TexCmd):
-            result += textwrap.indent("\\" + tex_code.name + str(tex_code.arguments), prefix, lambda line: True)
+            result += textwrap.indent("\\" + tex_code.name + str(tex_code.args), prefix, lambda line: True)
         elif isinstance(tex_code, TexSoup.TokenWithPosition):
             result += textwrap.indent(tex_code.text.strip(), prefix, lambda line: True)
         elif isinstance(tex_code, TexSoup.Arg):
