@@ -16,12 +16,16 @@ import pprint
 
 
 def everything(tex_tree):
+    """
+    Accepts a list of Union[TexNode,TokenWithPosition] and returns a nested list
+    of strings of the entire source document.
+    """
     result = []
     for tex_code in tex_tree:
         if isinstance(tex_code, TexSoup.TexEnv):
-            result.append([tex_code.begin + str(tex_code.arguments), everything(tex_code.all), tex_code.end])
+            result.append([tex_code.begin + str(tex_code.args), everything(tex_code.all), tex_code.end])
         elif isinstance(tex_code, TexSoup.TexCmd):
-            result.append(["\\" + tex_code.name + str(tex_code.arguments)])
+            result.append(["\\" + tex_code.name + str(tex_code.args)])
         elif isinstance(tex_code, TexSoup.TokenWithPosition):
             result.append(tex_code.text)
         elif isinstance(tex_code, TexSoup.Arg):
