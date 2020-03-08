@@ -121,12 +121,10 @@ class TexNode(object):
         \newcommand{reverseconcat}[3]{#3#2#1}
         """
         for child in self.expr.all:
-            if isinstance(child, TexExpr):
-                node = TexNode(child)
-                node.parent = self
-                yield node
-            else:
-                yield child
+            assert isinstance(child, TexExpr)
+            node = TexNode(child)
+            node.parent = self
+            yield node
 
     @property
     def args(self):
@@ -636,22 +634,6 @@ class TexExpr(object):
             if not is_whitespace or self.preserve_whitespace:
                 yield content
 
-    @property
-    def tokens(self):
-        """Further breaks down all tokens for a particular expression into
-        words and other expressions.
-
-        >>> tex = TexEnv('lstlisting', ('var x = 10',))
-        >>> list(tex.tokens)
-        ['var x = 10']
-        """
-        for content in self.contents:
-            if isinstance(content, TexText):
-                for word in content.split():
-                    yield word
-            else:
-                yield content
-
     ##################
     # PUBLIC METHODS #
     ##################
@@ -852,9 +834,17 @@ class TexText(TexExpr):
         return False
 
     def __str__(self):
+        """
+        >>> TexText('asdf')
+        'asdf'
+        """
         return str(self._text)
 
     def __repr__(self):
+        """
+        >>> TexText('asdf')
+        'asdf'
+        """
         return repr(self._text)
 
 
