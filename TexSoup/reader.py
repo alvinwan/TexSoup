@@ -228,6 +228,7 @@ def read_tex(src):
     r"""Read next expression from buffer
 
     :param Buffer src: a buffer of tokens
+    :return: TexExpr
     """
     c = next(src)
     if c.startswith('%'):
@@ -265,7 +266,9 @@ def read_tex(src):
         return expr
     if c in ARG_START_TOKENS:
         return read_arg(src, c)
-    return c
+
+    assert isinstance(c, TokenWithPosition)
+    return TexText(c)
 
 
 def read_item(src):
@@ -310,7 +313,7 @@ def read_item(src):
     while (src.hasNext() and not str(src).strip(" ").startswith('\n\n') and
             not src.startswith('\item') and
             not src.startswith('\end') and
-            not (isinstance(last, TokenWithPosition) and last.strip(" ").endswith('\n\n') and len(extra) > 1)):
+            not (isinstance(last, TexText) and last._text.strip(" ").endswith('\n\n') and len(extra) > 1)):
         last = read_tex(src)
         extra.append(last)
     return extra, arg
