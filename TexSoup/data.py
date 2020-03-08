@@ -72,18 +72,7 @@ class TexNode(object):
         >>> soup.count(r'\ref{hello}')
         3
         """
-        if '{' in name or '[' in name:
-            return str(self) == name
-        if isinstance(name, list):
-            node_name = getattr(self, 'name')
-            if node_name not in name:
-                return False
-        else:
-            attrs['name'] = name
-        for k, v in attrs.items():
-            if getattr(self, k) != v:
-                return False
-        return True
+        return self.expr.__match__(name, attrs)
 
     def __repr__(self):
         """Interpreter representation"""
@@ -588,6 +577,22 @@ class TexExpr(object):
     # MAGIC METHODS #
     #################
 
+    def __match__(self, name=None, attrs=()):
+        """Check if given attributes match current object"""
+        # TODO: this should re-parse the name, instead of hardcoding here
+        if '{' in name or '[' in name:
+            return str(self) == name
+        if isinstance(name, list):
+            node_name = getattr(self, 'name')
+            if node_name not in name:
+                return False
+        else:
+            attrs['name'] = name
+        for k, v in attrs.items():
+            if getattr(self, k) != v:
+                return False
+        return True
+
     def __repr__(self):
         if not self.args:
             return "TexExpr('%s', %s)" % (self.name, repr(self._contents))
@@ -749,6 +754,13 @@ class TexEnv(TexExpr):
         self.nobegin = nobegin
         self.begin = begin if begin else (self.name if self.nobegin else "\\begin{%s}" % self.name)
         self.end = end if end else (self.name if self.nobegin else "\\end{%s}" % self.name)
+
+    def __match__(self, name=None, attrs=()):
+        """Check if given attributes match environment"""
+        if name in (
+                self.name, self.begin + str(self.args), self.begin, self.end):
+            return True
+        return super().__match__(name, attrs)
 
     def __str__(self):
         contents = ''.join(map(str, self._contents))
