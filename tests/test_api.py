@@ -94,6 +94,21 @@ def test_delete_arg():
     soup.bar.delete()
 
 
+def test_delete_token():
+    """Delete TokenWithPosition"""
+    soup = TexSoup(r"""
+    \section{one}
+    text
+    \section{two}
+    delete me""")
+
+    assert 'delete me' in str(soup)
+    for node in soup.all:
+        if 'delete me' in node:
+            node.delete()
+    assert 'delete me' not in str(soup)
+
+
 def test_replace_single(chikin):
     """Replace an element in the parse tree"""
     chikin.section.replace_with(chikin.subsection)
@@ -124,6 +139,7 @@ def test_insert(chikin):
 #########
 # TEXT #
 ########
+
 def test_text(chikin):
     """Get text of document"""
     text = list(chikin.text)

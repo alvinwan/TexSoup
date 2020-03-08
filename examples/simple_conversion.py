@@ -32,7 +32,7 @@ def to_dictionary(tex_tree):
             )
         elif isinstance(i, TexSoup.TexCmd):
             str_tree.append({i.name: "\\" + i.name + str(i.args)})
-        elif isinstance(i, TexSoup.TokenWithPosition):
+        elif isinstance(i, TexSoup.TexText):
             str_tree.append(str(i.text))
         elif isinstance(i, TexSoup.Arg):
             str_tree.append(["{", to_dictionary(TexSoup.TexSoup(i.value).expr.all), "}"])
