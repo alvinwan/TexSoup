@@ -99,7 +99,7 @@
               
               
                 <div class="version">
-                  master (0.2.0 )
+                  master (0.2.1 )
                 </div>
               
             
@@ -239,7 +239,7 @@ a LaTeX string or file handler to obtain a parse tree with navigation, search,
 and modification utilities.</p>
 <dl class="function">
 <dt id="TexSoup.TexSoup">
-<code class="descclassname">TexSoup.</code><code class="descname">TexSoup</code><span class="sig-paren">(</span><em>tex_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup.html#TexSoup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.TexSoup" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">TexSoup.</code><code class="descname">TexSoup</code><span class="sig-paren">(</span><em>tex_code</em>, <em>skip_envs=()</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup.html#TexSoup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.TexSoup" title="Permalink to this definition">¶</a></dt>
 <dd><p>At a high-level, parses provided Tex into a navigable, searchable structure.
 This is accomplished in two steps:</p>
 <ol class="arabic simple">
@@ -250,9 +250,14 @@ This is accomplished in two steps:</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tex_code</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>,</em><em>iterable</em><em>]</em><em></em>) &#8211; the Tex source</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tex_code</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>,</em><em>iterable</em><em>]</em><em></em>) &#8211; the Tex source</li>
+<li><strong>skip_envs</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em><em></em>) &#8211; names of environments to skip parsing</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><a class="reference internal" href="data.html#TexSoup.data.TexNode" title="TexSoup.data.TexNode"><code class="xref py py-class docutils literal"><span class="pre">TexSoup.data.TexNode</span></code></a> object representing tex document</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><a class="reference internal" href="data.html#TexSoup.data.TexNode" title="TexSoup.data.TexNode"><code class="xref py py-class docutils literal"><span class="pre">TexSoup.data.TexNode</span></code></a> object representing tex document</p>
+</td>
 </tr>
 </tbody>
 </table>

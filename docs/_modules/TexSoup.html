@@ -97,7 +97,7 @@
               
               
                 <div class="version">
-                  master (0.2.0 )
+                  master (0.2.1 )
                 </div>
               
             
@@ -234,13 +234,13 @@
 <span class="sd">and modification utilities.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="n">__version__</span> <span class="o">=</span> <span class="s1">&#39;0.2.0&#39;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s1">&#39;0.2.1&#39;</span>
 
 <span class="kn">from</span> <span class="nn">TexSoup.tex</span> <span class="k">import</span> <span class="o">*</span>
 
 
 <span class="c1"># noinspection PyPep8Naming</span>
-<div class="viewcode-block" id="TexSoup"><a class="viewcode-back" href="../main.html#TexSoup.TexSoup">[docs]</a><span class="k">def</span> <span class="nf">TexSoup</span><span class="p">(</span><span class="n">tex_code</span><span class="p">):</span>
+<div class="viewcode-block" id="TexSoup"><a class="viewcode-back" href="../main.html#TexSoup.TexSoup">[docs]</a><span class="k">def</span> <span class="nf">TexSoup</span><span class="p">(</span><span class="n">tex_code</span><span class="p">,</span> <span class="n">skip_envs</span><span class="o">=</span><span class="p">()):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    At a high-level, parses provided Tex into a navigable, searchable structure.</span>
 <span class="sd">    This is accomplished in two steps:</span>
@@ -249,6 +249,7 @@
 <span class="sd">    2. Structure fed to TexNodes for a searchable, coder-friendly interface.</span>
 
 <span class="sd">    :param Union[str,iterable] tex_code: the Tex source</span>
+<span class="sd">    :param Union[str] skip_envs: names of environments to skip parsing</span>
 <span class="sd">    :return: :class:`TexSoup.data.TexNode` object representing tex document</span>
 
 <span class="sd">    &gt;&gt;&gt; from TexSoup import TexSoup</span>
@@ -311,7 +312,7 @@
 <span class="sd">    &gt;&gt;&gt; soup</span>
 <span class="sd">    SOUP</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">parsed</span><span class="p">,</span> <span class="n">src</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">tex_code</span><span class="p">)</span>
+    <span class="n">parsed</span><span class="p">,</span> <span class="n">src</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">tex_code</span><span class="p">,</span> <span class="n">skip_envs</span><span class="o">=</span><span class="n">skip_envs</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">TexNode</span><span class="p">(</span><span class="n">parsed</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="n">src</span><span class="p">)</span></div>
 </pre></div>
 

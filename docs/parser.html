@@ -99,7 +99,7 @@
               
               
                 <div class="version">
-                  master (0.2.0 )
+                  master (0.2.1 )
                 </div>
               
             
@@ -428,7 +428,7 @@ punctuation is not supposed to match.</p>
 <h2>Mapper<a class="headerlink" href="#mapper" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="TexSoup.reader.read_tex">
-<code class="descclassname">TexSoup.reader.</code><code class="descname">read_tex</code><span class="sig-paren">(</span><em>src</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#read_tex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.read_tex" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">TexSoup.reader.</code><code class="descname">read_tex</code><span class="sig-paren">(</span><em>src</em>, <em>skip_envs=()</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#read_tex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.read_tex" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read next expression from buffer</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -487,7 +487,7 @@ parsed content to the expression automatically.</p>
 
 <dl class="function">
 <dt id="TexSoup.reader.read_env">
-<code class="descclassname">TexSoup.reader.</code><code class="descname">read_env</code><span class="sig-paren">(</span><em>src</em>, <em>expr</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#read_env"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.read_env" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">TexSoup.reader.</code><code class="descname">read_env</code><span class="sig-paren">(</span><em>src</em>, <em>expr</em>, <em>skip_envs=()</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#read_env"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.read_env" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read the environment from buffer.</p>
 <p>Advances the buffer until right after the end of the environment. Adds
 parsed content to the expression automatically.</p>
