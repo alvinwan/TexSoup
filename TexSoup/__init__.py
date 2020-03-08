@@ -3,7 +3,7 @@ a LaTeX string or file handler to obtain a parse tree with navigation, search,
 and modification utilities.
 """
 
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 
 from TexSoup.tex import *
 
