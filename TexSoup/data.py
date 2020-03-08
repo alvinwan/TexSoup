@@ -757,8 +757,7 @@ class TexEnv(TexExpr):
 
     def __match__(self, name=None, attrs=()):
         """Check if given attributes match environment"""
-        if name in (
-                self.name, self.begin + str(self.args), self.begin, self.end):
+        if name in (self.name, self.begin + str(self.args), self.begin, self.end):
             return True
         return super().__match__(name, attrs)
 
