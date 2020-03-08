@@ -77,6 +77,12 @@ def test_find_by_command(chikin):
     assert str(sections[1]) == r'\section{Chikin Scream}'
 
 
+def test_find_env():
+    """Find all equations in the document"""
+    soup = TexSoup(r"""\begin{equation}1+1\end{equation}""")
+    equations = soup.find_all(r'\begin{equation}')
+    assert len(list(equations)) > 0
+
 ################
 # MODIFICATION #
 ################

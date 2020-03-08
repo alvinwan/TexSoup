@@ -79,18 +79,7 @@ class TexNode(object):
         >>> soup.count(r'\ref{hello}')
         3
         """
-        if '{' in name or '[' in name:
-            return str(self) == name
-        if isinstance(name, list):
-            node_name = getattr(self, 'name')
-            if node_name not in name:
-                return False
-        else:
-            attrs['name'] = name
-        for k, v in attrs.items():
-            if getattr(self, k) != v:
-                return False
-        return True
+        return self.expr.__match__(name, attrs)
 
     def __repr__(self):
         """Interpreter representation"""
@@ -242,8 +231,8 @@ class TexNode(object):
     def string(self):
         r"""This is valid if and only if
 
-        1. the expression is a :class:`.TexCmd` AND
-        2. the command has only one argument.
+        1. the expression is a :class:`.TexCmd` AND has only one argument OR
+        2. the expression is a :class:`.TexEnv` AND has only one TexText child
 
         :rtype: Union[None,str]
 
@@ -256,9 +245,21 @@ class TexNode(object):
         'Hello World'
         >>> soup.textbf
         \textbf{Hello World}
+        >>> soup = TexSoup(r'''\begin{equation}1+1\end{equation}''')
+        >>> soup.equation.string
+        '1+1'
         """
-        if isinstance(self.expr, TexCmd) and len(self.expr.args) == 1:
+        if isinstance(self.expr, TexCmd):
+            assert len(self.expr.args) == 1, \
+                '.string is only valid for commands with one argument'
             return self.expr.args[0].value
+
+        contents = list(self.contents)
+        if isinstance(self.expr, TexEnv):
+            assert len(contents) == 1 and \
+                isinstance(contents[0], (TexText, str)), \
+                '.string is only valid for environments with only text content'
+            return contents[0]
 
     @string.setter
     def string(self, string):
@@ -581,6 +582,22 @@ class TexExpr(object):
     # MAGIC METHODS #
     #################
 
+    def __match__(self, name=None, attrs=()):
+        """Check if given attributes match current object"""
+        # TODO: this should re-parse the name, instead of hardcoding here
+        if '{' in name or '[' in name:
+            return str(self) == name
+        if isinstance(name, list):
+            node_name = getattr(self, 'name')
+            if node_name not in name:
+                return False
+        else:
+            attrs['name'] = name
+        for k, v in attrs.items():
+            if getattr(self, k) != v:
+                return False
+        return True
+
     def __repr__(self):
         if not self.args:
             return "TexExpr('%s', %s)" % (self.name, repr(self._contents))
@@ -728,6 +745,12 @@ class TexEnv(TexExpr):
         self.nobegin = nobegin
         self.begin = begin if begin else (self.name if self.nobegin else "\\begin{%s}" % self.name)
         self.end = end if end else (self.name if self.nobegin else "\\end{%s}" % self.name)
+
+    def __match__(self, name=None, attrs=()):
+        """Check if given attributes match environment"""
+        if name in (self.name, self.begin + str(self.args), self.begin, self.end):
+            return True
+        return super().__match__(name, attrs)
 
     def __str__(self):
         contents = ''.join(map(str, self._contents))
