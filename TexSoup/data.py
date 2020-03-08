@@ -337,7 +337,7 @@ class TexNode(object):
         ...     \item Hello
         ...     \item Bye
         ... \end{itemize}''')
-        >>> item = soup.item
+        >>> item = soup.item.copy()
         >>> soup.item.delete()
         >>> soup.itemize.insert(1, item)
         >>> soup.itemize
@@ -345,11 +345,22 @@ class TexNode(object):
             \item Hello
             \item Bye
         \end{itemize}
+        >>> item.parent.name == soup.itemize.name
+        True
         """
         assert isinstance(i, int), (
                 'Provided index "{}" is not an integer! Did you switch your '
                 'arguments? The first argument to `insert` is the '
                 'index.'.format(i))
+        for node in nodes:
+            if not isinstance(node, TexNode):
+                continue
+            assert not node.parent, (
+                'Inserted node should not already have parent. Call `.copy()` '
+                'on node to fix.'
+            )
+            node.parent = self
+
         self.expr.insert(i, *nodes)
 
     def char_pos_to_line(self, char_pos):
@@ -373,6 +384,21 @@ class TexNode(object):
             'CharToLineOffset is not initialized. Pass src to TexNode '
             'constructor')
         return self.char_to_line(char_pos)
+
+    def copy(self):
+        r"""Create another copy of the current node.
+
+        >>> from TexSoup import TexSoup
+        >>> soup = TexSoup(r'''
+        ... \section{Hey}
+        ... \textit{Silly}
+        ... \textit{Willy}''')
+        >>> s = soup.section.copy()
+        >>> s.parent is None
+        True
+        """
+        return TexNode(self.expr)
+
 
     def count(self, name=None, **attrs):
         r"""Number of descendants matching criteria.
@@ -678,9 +704,14 @@ class TexExpr(object):
         >>> expr.insert(0, 'world')
         >>> expr
         TexExpr('textbf', ['world', 'hello'])
+        >>> expr.insert(0, TexText('asdf'))
+        >>> expr
+        TexExpr('textbf', ['asdf', 'world', 'hello'])
         """
         self._assert_supports_contents()
         for j, expr in enumerate(exprs):
+            if isinstance(expr, TexExpr):
+                expr.parent = self
             self._contents.insert(i + j, expr)
 
     def remove(self, expr):
