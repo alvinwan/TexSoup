@@ -132,6 +132,7 @@
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#how-to-use">How to Use</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#how-to-install">How to Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#making-a-soup">Making a Soup</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="navigation.html">Navigation</a></li>
@@ -259,8 +260,12 @@ not. This includes all LaTeX needed to reconstruct the original source.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
 <span class="gp">... </span><span class="s1">\newcommand</span><span class="si">{reverseconcat}</span><span class="s1">[3]{#3#2#1}</span>
 <span class="gp">... </span><span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">all</span><span class="p">)</span>
-<span class="go">[&#39;\n&#39;, \newcommand{reverseconcat}[3]{#3#2#1}, &#39;\n&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">alls</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">all</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">alls</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">alls</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="go">\newcommand{reverseconcat}[3]{#3#2#1}</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -333,11 +338,11 @@ not. This includes all LaTeX needed to reconstruct the original source.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>char_pos</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) &#8211; Character position in the original string</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>char_pos</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) &#8211; Character position in the original string</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(line number, index of character in line)</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a>]</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a>]</td>
 </tr>
 </tbody>
 </table>
@@ -392,7 +397,7 @@ Tex expressions.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">generator of all nodes, tokens, and strings</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">Iterator[Union[<a class="reference internal" href="#TexSoup.data.TexNode" title="TexSoup.data.TexNode">TexNode</a>,<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a>]]</td>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">Iterator[Union[<a class="reference internal" href="#TexSoup.data.TexNode" title="TexSoup.data.TexNode">TexNode</a>,<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a>]]</td>
 </tr>
 </tbody>
 </table>
@@ -412,6 +417,22 @@ Tex expressions.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="TexSoup.data.TexNode.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/data.html#TexNode.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.data.TexNode.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create another copy of the current node.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="k">import</span> <span class="n">TexSoup</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="gp">... </span><span class="s1">\section</span><span class="si">{Hey}</span><span class="s1"></span>
+<span class="gp">... </span><span class="s1">\textit</span><span class="si">{Silly}</span><span class="s1"></span>
+<span class="gp">... </span><span class="s1">\textit</span><span class="si">{Willy}</span><span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">section</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="kc">None</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
 <dt id="TexSoup.data.TexNode.count">
 <code class="descname">count</code><span class="sig-paren">(</span><em>name=None</em>, <em>**attrs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/data.html#TexNode.count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.data.TexNode.count" title="Permalink to this definition">¶</a></dt>
 <dd><p>Number of descendants matching criteria.</p>
@@ -420,7 +441,7 @@ Tex expressions.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>name</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a><em>,</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>]</em><em></em>) &#8211; name of LaTeX expression</li>
+<li><strong>name</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em>,</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em><em></em>) &#8211; name of LaTeX expression</li>
 <li><strong>attrs</strong> &#8211; LaTeX expression attributes, such as item text.</li>
 </ul>
 </td>
@@ -428,7 +449,7 @@ Tex expressions.</p>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">number of matching expressions</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
 </td>
 </tr>
 </tbody>
@@ -493,7 +514,7 @@ the parse tree.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">descendant node matching criteria</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">Union[<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a>,<a class="reference internal" href="#TexSoup.data.TexExpr" title="TexSoup.data.TexExpr">TexExpr</a>]</td>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">Union[<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a>,<a class="reference internal" href="#TexSoup.data.TexExpr" title="TexSoup.data.TexExpr">TexExpr</a>]</td>
 </tr>
 </tbody>
 </table>
@@ -518,7 +539,7 @@ the parse tree.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>name</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a><em>,</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>]</em><em></em>) &#8211; name of LaTeX expression</li>
+<li><strong>name</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em>,</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>,</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em>]</em><em></em>) &#8211; name of LaTeX expression</li>
 <li><strong>attrs</strong> &#8211; LaTeX expression attributes, such as item text.</li>
 </ul>
 </td>
@@ -531,6 +552,7 @@ the parse tree.</p>
 </tr>
 </tbody>
 </table>
+<p>If <cite>name</cite> is a list of <cite>str</cite>&#8216;s, any matching section will be matched.</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="k">import</span> <span class="n">TexSoup</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
 <span class="gp">... </span><span class="s1">\section</span><span class="si">{Ooo}</span><span class="s1"></span>
@@ -558,7 +580,7 @@ the parse tree.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>i</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) &#8211; Position to add nodes to</li>
+<li><strong>i</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) &#8211; Position to add nodes to</li>
 <li><strong>nodes</strong> (<a class="reference internal" href="#TexSoup.data.TexNode" title="TexSoup.data.TexNode"><em>TexNode</em></a>) &#8211; List of nodes to add</li>
 </ul>
 </td>
@@ -571,7 +593,7 @@ the parse tree.</p>
 <span class="gp">... </span><span class="s1">    \item Hello</span>
 <span class="gp">... </span><span class="s1">    \item Bye</span>
 <span class="gp">... </span><span class="s1">\end</span><span class="si">{itemize}</span><span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">item</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">item</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">item</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">itemize</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">itemize</span>
@@ -579,6 +601,8 @@ the parse tree.</p>
 <span class="go">    \item Hello</span>
 <span class="go">    \item Bye</span>
 <span class="go">\end{itemize}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">soup</span><span class="o">.</span><span class="n">itemize</span><span class="o">.</span><span class="n">name</span>
+<span class="go">True</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -591,7 +615,7 @@ the parse tree.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></td>
 </tr>
 </tbody>
 </table>
@@ -702,14 +726,14 @@ the parse tree.</p>
 <code class="descname">string</code><a class="headerlink" href="#TexSoup.data.TexNode.string" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is valid if and only if</p>
 <ol class="arabic simple">
-<li>the expression is a <a class="reference internal" href="#TexSoup.data.TexCmd" title="TexSoup.data.TexCmd"><code class="xref py py-class docutils literal"><span class="pre">TexCmd</span></code></a> AND</li>
-<li>the command has only one argument.</li>
+<li>the expression is a <a class="reference internal" href="#TexSoup.data.TexCmd" title="TexSoup.data.TexCmd"><code class="xref py py-class docutils literal"><span class="pre">TexCmd</span></code></a> AND has only one argument OR</li>
+<li>the expression is a <a class="reference internal" href="#TexSoup.data.TexEnv" title="TexSoup.data.TexEnv"><code class="xref py py-class docutils literal"><span class="pre">TexEnv</span></code></a> AND has only one TexText child</li>
 </ol>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Union[<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a>,<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a>]</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Union[<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a>,<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a>]</td>
 </tr>
 </tbody>
 </table>
@@ -722,6 +746,9 @@ the parse tree.</p>
 <span class="go">&#39;Hello World&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">textbf</span>
 <span class="go">\textbf{Hello World}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;&#39;&#39;\begin</span><span class="si">{equation}</span><span class="s1">1+1\end</span><span class="si">{equation}</span><span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">equation</span><span class="o">.</span><span class="n">string</span>
+<span class="go">&#39;1+1&#39;</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -778,7 +805,7 @@ not. This includes all LaTeX needed to reconstruct the original source.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>exprs</strong> (<em>Union</em><em>[</em><a class="reference internal" href="#TexSoup.data.TexExpr" title="TexSoup.data.TexExpr"><em>TexExpr</em></a><em>,</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>]</em><em></em>) &#8211; List of contents to add</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>exprs</strong> (<em>Union</em><em>[</em><a class="reference internal" href="#TexSoup.data.TexExpr" title="TexSoup.data.TexExpr"><em>TexExpr</em></a><em>,</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em><em></em>) &#8211; List of contents to add</td>
 </tr>
 </tbody>
 </table>
@@ -816,8 +843,8 @@ not. This includes all LaTeX needed to reconstruct the original source.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>i</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) &#8211; Position to add content to</li>
-<li><strong>exprs</strong> (<em>Union</em><em>[</em><a class="reference internal" href="#TexSoup.data.TexExpr" title="TexSoup.data.TexExpr"><em>TexExpr</em></a><em>,</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>]</em><em></em>) &#8211; List of contents to add</li>
+<li><strong>i</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) &#8211; Position to add content to</li>
+<li><strong>exprs</strong> (<em>Union</em><em>[</em><a class="reference internal" href="#TexSoup.data.TexExpr" title="TexSoup.data.TexExpr"><em>TexExpr</em></a><em>,</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em><em></em>) &#8211; List of contents to add</li>
 </ul>
 </td>
 </tr>
@@ -829,6 +856,9 @@ not. This includes all LaTeX needed to reconstruct the original source.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">expr</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;world&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">expr</span>
 <span class="go">TexExpr(&#39;textbf&#39;, [&#39;world&#39;, &#39;hello&#39;])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">expr</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">TexText</span><span class="p">(</span><span class="s1">&#39;asdf&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">expr</span>
+<span class="go">TexExpr(&#39;textbf&#39;, [&#39;asdf&#39;, &#39;world&#39;, &#39;hello&#39;])</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -841,11 +871,11 @@ not. This includes all LaTeX needed to reconstruct the original source.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>expr</strong> (<em>Union</em><em>[</em><a class="reference internal" href="#TexSoup.data.TexExpr" title="TexSoup.data.TexExpr"><em>TexExpr</em></a><em>,</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>]</em><em></em>) &#8211; Content to add</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>expr</strong> (<em>Union</em><em>[</em><a class="reference internal" href="#TexSoup.data.TexExpr" title="TexSoup.data.TexExpr"><em>TexExpr</em></a><em>,</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em><em></em>) &#8211; Content to add</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">index of the expression removed</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></td>
 </tr>
 </tbody>
 </table>
@@ -854,18 +884,6 @@ not. This includes all LaTeX needed to reconstruct the original source.</p>
 <span class="go">0</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">expr</span>
 <span class="go">TexExpr(&#39;textbf&#39;, [])</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="TexSoup.data.TexExpr.tokens">
-<code class="descname">tokens</code><a class="headerlink" href="#TexSoup.data.TexExpr.tokens" title="Permalink to this definition">¶</a></dt>
-<dd><p>Further breaks down all tokens for a particular expression into
-words and other expressions.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tex</span> <span class="o">=</span> <span class="n">TexEnv</span><span class="p">(</span><span class="s1">&#39;lstlisting&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;var x = 10&#39;</span><span class="p">,))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">tex</span><span class="o">.</span><span class="n">tokens</span><span class="p">)</span>
-<span class="go">[&#39;var x = 10&#39;]</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -954,7 +972,7 @@ Contains three attributes:</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>s</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>,</em><em>iterable</em><em>]</em><em></em>) &#8211; Either a string or a list, where the first and
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>s</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>,</em><em>iterable</em><em>]</em><em></em>) &#8211; Either a string or a list, where the first and
 last elements are valid argument delimiters.</td>
 </tr>
 </tbody>
@@ -1090,7 +1108,7 @@ object.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>i</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) &#8211; Index to insert argument into</li>
+<li><strong>i</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) &#8211; Index to insert argument into</li>
 <li><strong>arg</strong> (<a class="reference internal" href="#TexSoup.data.Arg" title="TexSoup.data.Arg"><em>Arg</em></a>) &#8211; Argument to insert</li>
 </ul>
 </td>
@@ -1120,7 +1138,7 @@ object.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>i</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) &#8211; Index to pop from the list</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>i</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) &#8211; Index to pop from the list</td>
 </tr>
 </tbody>
 </table>
@@ -1143,7 +1161,7 @@ object.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>item</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>,</em><a class="reference internal" href="#TexSoup.data.Arg" title="TexSoup.data.Arg"><em>Arg</em></a><em>]</em><em></em>) &#8211; Item to remove</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>item</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>,</em><a class="reference internal" href="#TexSoup.data.Arg" title="TexSoup.data.Arg"><em>Arg</em></a><em>]</em><em></em>) &#8211; Item to remove</td>
 </tr>
 </tbody>
 </table>

@@ -130,6 +130,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quick Start</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../quickstart.html#how-to-use">How to Use</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../quickstart.html#how-to-install">How to Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../quickstart.html#making-a-soup">Making a Soup</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../navigation.html">Navigation</a></li>
@@ -460,6 +461,7 @@
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Read next expression from buffer</span>
 
 <span class="sd">    :param Buffer src: a buffer of tokens</span>
+<span class="sd">    :return: TexExpr</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">c</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;%&#39;</span><span class="p">):</span>
@@ -497,7 +499,9 @@
         <span class="k">return</span> <span class="n">expr</span>
     <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">ARG_START_TOKENS</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">read_arg</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">c</span></div>
+
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">TokenWithPosition</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">TexText</span><span class="p">(</span><span class="n">c</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="read_item"><a class="viewcode-back" href="../../parser.html#TexSoup.reader.read_item">[docs]</a><span class="k">def</span> <span class="nf">read_item</span><span class="p">(</span><span class="n">src</span><span class="p">):</span>
@@ -542,7 +546,7 @@
     <span class="k">while</span> <span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">hasNext</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">str</span><span class="p">(</span><span class="n">src</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span> <span class="ow">and</span>
             <span class="ow">not</span> <span class="n">src</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;\item&#39;</span><span class="p">)</span> <span class="ow">and</span>
             <span class="ow">not</span> <span class="n">src</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;\end&#39;</span><span class="p">)</span> <span class="ow">and</span>
-            <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">last</span><span class="p">,</span> <span class="n">TokenWithPosition</span><span class="p">)</span> <span class="ow">and</span> <span class="n">last</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">extra</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)):</span>
+            <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">last</span><span class="p">,</span> <span class="n">TexText</span><span class="p">)</span> <span class="ow">and</span> <span class="n">last</span><span class="o">.</span><span class="n">_text</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">extra</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)):</span>
         <span class="n">last</span> <span class="o">=</span> <span class="n">read_tex</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
         <span class="n">extra</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">last</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">extra</span><span class="p">,</span> <span class="n">arg</span></div>

@@ -4,9 +4,8 @@ Quick Start
 The below illustrates major categories of features that TexSoup supports--how it
 works, when it works, and how to leverage its utilities.
 
-.. note:: Full disclaimer: I follow the same structure that the well-written
-          BeautifulSoup docs do. So, if the guides look well-organized, thank
-          BeautifulSoup. With that said, these are very much a work in progress.
+.. note:: Full disclaimer: I'm a big fan of BeautifulSoup documentation and
+          modeled these guides after theirs.
 
 How to Use
 -----------------------------------
@@ -30,12 +29,12 @@ Here is a LaTeX document that we'll be using as an example throughout::
   ... \end{document}
   ... """
 
-  There are two ways to input $\LaTeX$ into TexSoup. Either pass in
+There are two ways to input $\LaTeX$ into TexSoup. Either pass in
 
-  1. a file buffer (`open('file.tex')`) OR
-  2. a string
+1. a file buffer (`open('file.tex')`) OR
+2. a string
 
-  Below, we demonstrate using the string defined above::
+Below, we demonstrate using the string defined above::
 
   >>> from TexSoup import TexSoup
   >>> soup = TexSoup(tex_doc)
@@ -107,6 +106,9 @@ data structure.
   >>> print(expr)
   \section{textbf}
 
+Does this look promising? If so, see installation and more detailed usage
+instructions below.
+
 How to Install
 -----------------------------------
 
@@ -120,3 +122,9 @@ Alternatively, you can install the package from source::
   git clone https://github.com/alvinwan/TexSoup.git
   cd TexSoup
   python setup.py install
+
+Making a Soup
+-----------------------------------
+
+To parse a $LaTeX$ document, pass an open filehandle or a string into the
+`TexSoup` constructor.

@@ -132,6 +132,7 @@
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#how-to-use">How to Use</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#how-to-install">How to Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#making-a-soup">Making a Soup</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="navigation.html">Navigation</a></li>
@@ -245,7 +246,7 @@ subject to change.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>text</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>,</em><em>iterator</em><em>,</em><em>Buffer</em><em>]</em><em></em>) &#8211; LaTeX to process</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>text</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>,</em><em>iterator</em><em>,</em><em>Buffer</em><em>]</em><em></em>) &#8211; LaTeX to process</td>
 </tr>
 </tbody>
 </table>
@@ -266,7 +267,7 @@ position to start processing from.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>text</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>,</em><em>iterator</em><em>,</em><em>Buffer</em><em>]</em><em></em>) &#8211; LaTeX to process</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>text</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>,</em><em>iterator</em><em>,</em><em>Buffer</em><em>]</em><em></em>) &#8211; LaTeX to process</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return str:</th><td class="field-body">the token</td>
 </tr>
@@ -300,7 +301,7 @@ position to start processing from.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) &#8211; Name of tokenizer</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) &#8211; Name of tokenizer</td>
 </tr>
 </tbody>
 </table>
@@ -403,7 +404,7 @@ punctuation is not supposed to match.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>text</strong> (<em>Buffer</em>) &#8211; iterator over line, with current position</li>
-<li><strong>delimiters</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a><em>,</em><em>iterable</em><em>,</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>]</em><em></em>) &#8211; defines the delimiters</li>
+<li><strong>delimiters</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em>,</em><em>iterable</em><em>,</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em><em></em>) &#8211; defines the delimiters</li>
 </ul>
 </td>
 </tr>
@@ -434,6 +435,8 @@ punctuation is not supposed to match.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>src</strong> (<em>Buffer</em>) &#8211; a buffer of tokens</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">TexExpr</td>
 </tr>
 </tbody>
 </table>
@@ -538,7 +541,7 @@ successive line break, before discontinuing the chain of arguments.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>src</strong> (<em>Buffer</em>) &#8211; a buffer of tokens</li>
-<li><strong>c</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) &#8211; argument token (starting token)</li>
+<li><strong>c</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) &#8211; argument token (starting token)</li>
 </ul>
 </td>
 </tr>

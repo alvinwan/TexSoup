@@ -132,6 +132,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#how-to-use">How to Use</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-to-install">How to Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#making-a-soup">Making a Soup</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="navigation.html">Navigation</a></li>
@@ -237,9 +238,8 @@
 works, when it works, and how to leverage its utilities.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Full disclaimer: I follow the same structure that the well-written
-BeautifulSoup docs do. So, if the guides look well-organized, thank
-BeautifulSoup. With that said, these are very much a work in progress.</p>
+<p class="last">Full disclaimer: I&#8217;m a big fan of BeautifulSoup documentation and
+modeled these guides after theirs.</p>
 </div>
 <div class="section" id="how-to-use">
 <h2>How to Use<a class="headerlink" href="#how-to-use" title="Permalink to this headline">¶</a></h2>
@@ -260,15 +260,15 @@ BeautifulSoup. With that said, these are very much a work in progress.</p>
 <span class="gp">... </span><span class="s2">\end</span><span class="si">{tabular}</span><span class="s2"></span>
 <span class="gp">... </span><span class="s2">\end</span><span class="si">{document}</span><span class="s2"></span>
 <span class="gp">... </span><span class="s2">&quot;&quot;&quot;</span>
-
-<span class="go">There are two ways to input $\LaTeX$ into TexSoup. Either pass in</span>
-
-<span class="go">1. a file buffer (`open(&#39;file.tex&#39;)`) OR</span>
-<span class="go">2. a string</span>
-
-<span class="go">Below, we demonstrate using the string defined above::</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="k">import</span> <span class="n">TexSoup</span>
+</pre></div>
+</div>
+<p>There are two ways to input $LaTeX$ into TexSoup. Either pass in</p>
+<ol class="arabic simple">
+<li>a file buffer (<cite>open(&#8216;file.tex&#8217;)</cite>) OR</li>
+<li>a string</li>
+</ol>
+<p>Below, we demonstrate using the string defined above:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="k">import</span> <span class="n">TexSoup</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="n">tex_doc</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span>
 <span class="go">\begin{document}</span>
@@ -339,6 +339,8 @@ data structure.</p>
 <span class="go">\section{textbf}</span>
 </pre></div>
 </div>
+<p>Does this look promising? If so, see installation and more detailed usage
+instructions below.</p>
 </div>
 <div class="section" id="how-to-install">
 <h2>How to Install<a class="headerlink" href="#how-to-install" title="Permalink to this headline">¶</a></h2>
@@ -353,6 +355,11 @@ name is <code class="docutils literal"><span class="pre">TexSoup</span></code>:<
 <span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span>
 </pre></div>
 </div>
+</div>
+<div class="section" id="making-a-soup">
+<h2>Making a Soup<a class="headerlink" href="#making-a-soup" title="Permalink to this headline">¶</a></h2>
+<p>To parse a $LaTeX$ document, pass an open filehandle or a string into the
+<cite>TexSoup</cite> constructor.</p>
 </div>
 </div>
 
@@ -403,6 +410,7 @@ name is <code class="docutils literal"><span class="pre">TexSoup</span></code>:<
 <li><a class="reference internal" href="#">Quick Start</a><ul>
 <li><a class="reference internal" href="#how-to-use">How to Use</a></li>
 <li><a class="reference internal" href="#how-to-install">How to Install</a></li>
+<li><a class="reference internal" href="#making-a-soup">Making a Soup</a></li>
 </ul>
 </li>
 </ul>
