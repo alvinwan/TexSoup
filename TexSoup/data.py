@@ -233,8 +233,8 @@ class TexNode(object):
     def string(self):
         r"""This is valid if and only if
 
-        1. the expression is a :class:`.TexCmd` AND
-        2. the command has only one argument.
+        1. the expression is a :class:`.TexCmd` AND has only one argument OR
+        2. the expression is a :class:`.TexEnv` AND has only one TexText child
 
         :rtype: Union[None,str]
 
@@ -247,9 +247,21 @@ class TexNode(object):
         'Hello World'
         >>> soup.textbf
         \textbf{Hello World}
+        >>> soup = TexSoup(r'''\begin{equation}1+1\end{equation}''')
+        >>> soup.equation.string
+        '1+1'
         """
-        if isinstance(self.expr, TexCmd) and len(self.expr.args) == 1:
+        if isinstance(self.expr, TexCmd):
+            assert len(self.expr.args) == 1, \
+                '.string is only valid for commands with one argument'
             return self.expr.args[0].value
+
+        contents = list(self.contents)
+        if isinstance(self.expr, TexEnv):
+            assert len(contents) == 1 and \
+                isinstance(contents[0], (TexText, str)), \
+                '.string is only valid for environments with only text content'
+            return contents[0]
 
     @string.setter
     def string(self, string):
