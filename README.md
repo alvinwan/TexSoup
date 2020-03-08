@@ -7,45 +7,19 @@
 
 TexSoup is a Python3 package for searching, navigating, and modifying LaTeX documents.
 
-- [Installation](https://github.com/alvinwan/TexSoup#Installation)
 - [Getting Started](https://github.com/alvinwan/TexSoup#Getting-Started)
+- [Installation](https://github.com/alvinwan/TexSoup#Installation)
+- [API Reference](http://texsoup.alvinwan.com/docs/data.html)
 
 Created by [Alvin Wan](http://alvinwan.com).
-
-# Installation
-
-## Pip
-
-TexSoup is published via PyPi, so you can install it via `pip`. The package
-name is `TexSoup`:
-
-```bash
-$ pip install texsoup
-```
-
-## From source
-
-Alternatively, you can install the package from source:
-
-```bash
-$ git clone https://github.com/alvinwan/TexSoup.git
-$ cd TexSoup
-$ pip install .
-```
 
 # Getting Started
 
 - [Quickstart Guide: how and when to use TexSoup](http://texsoup.alvinwan.com/docs/quickstart.html)
-- [API Reference](http://texsoup.alvinwan.com/docs/data.html)
 - [Example Use Cases: counting references, resolving imports, and more](https://github.com/alvinwan/TexSoup/tree/master/examples)
 
-There is one main utility, `TexSoup`, which translates any $\LaTeX$ string or
-iterator into a soupified object.
-
-## Basic Usage
-
-There are two ways to input $\LaTeX$ into TexSoup. Either pass in (1) a file
-buffer (`open('file.tex')`) or (2) a string.
+To parse a $LaTeX$ document, pass an open filehandle or a string into the
+`TexSoup` constructor.
 
 ``` python
 from TexSoup import TexSoup
@@ -99,4 +73,25 @@ life & common
 [\item red lemon, \item life]
 ```
 
-[See more in the Quickstart Guide &rarr;](https://texsoup.alvinwan.com/docs/quickstart.html)
+Does this look promising? [See more in the Quickstart Guide &rarr;](https://texsoup.alvinwan.com/docs/quickstart.html)
+
+# Installation
+
+## Pip
+
+TexSoup is published via PyPi, so you can install it via `pip`. The package
+name is `TexSoup`:
+
+```bash
+$ pip install texsoup
+```
+
+## From source
+
+Alternatively, you can install the package from source:
+
+```bash
+$ git clone https://github.com/alvinwan/TexSoup.git
+$ cd TexSoup
+$ pip install .
+```
