@@ -44,10 +44,10 @@ def test_navigation_positions(chikin):
     assert chikin.char_pos_to_line(1) == (0, 1), 'documentclass'
     assert chikin.char_pos_to_line(172) == (11, 6), 'waddle'
 
-    assert isinstance(next(next(chikin.itemize.children).tokens), TokenWithPosition)
+    assert isinstance(next(next(chikin.itemize.children).contents), TokenWithPosition)
 
     # get position of first token
-    waddle_pos = next(next(chikin.itemize.children).tokens).position
+    waddle_pos = next(next(chikin.itemize.children).contents).position
     assert chikin.char_pos_to_line(waddle_pos) == (11, 6)
 
     # get position of item
@@ -94,6 +94,21 @@ def test_delete_arg():
     soup.bar.delete()
 
 
+def test_delete_token():
+    """Delete TokenWithPosition"""
+    soup = TexSoup(r"""
+    \section{one}
+    text
+    \section{two}
+    delete me""")
+
+    assert 'delete me' in str(soup)
+    for node in soup.all:
+        if 'delete me' in node:
+            node.delete()
+    assert 'delete me' not in str(soup)
+
+
 def test_replace_single(chikin):
     """Replace an element in the parse tree"""
     chikin.section.replace_with(chikin.subsection)
@@ -124,6 +139,7 @@ def test_insert(chikin):
 #########
 # TEXT #
 ########
+
 def test_text(chikin):
     """Get text of document"""
     text = list(chikin.text)

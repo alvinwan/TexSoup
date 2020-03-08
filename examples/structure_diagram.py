@@ -24,7 +24,7 @@ def tex_read(tex_soup, prefix=" |- "):
                                 + "\n" + prefix + tex_code.end).splitlines(), prefix="")
         elif isinstance(tex_code, TexSoup.TexCmd):
             result += textwrap.indent("\\" + tex_code.name + str(tex_code.args), prefix, lambda line: True)
-        elif isinstance(tex_code, TexSoup.TokenWithPosition):
+        elif isinstance(tex_code, TexSoup.TexText):
             result += textwrap.indent(tex_code.text.strip(), prefix, lambda line: True)
         elif isinstance(tex_code, TexSoup.Arg):
             result += tex_read((prefix + "{" + "\n"

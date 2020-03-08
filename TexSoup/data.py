@@ -7,7 +7,8 @@ import itertools
 import re
 from .utils import TokenWithPosition, CharToLineOffset
 
-__all__ = ['TexNode', 'TexCmd', 'TexEnv', 'Arg', 'OArg', 'RArg', 'TexArgs']
+__all__ = ['TexNode', 'TexCmd', 'TexEnv', 'Arg', 'OArg', 'RArg', 'TexArgs',
+           'TexText']
 
 
 #############
@@ -36,7 +37,7 @@ class TexNode(object):
             command or an environment containing other commands
         :param str src: LaTeX source string
         """
-        assert isinstance(expr, (TexCmd, TexEnv)), 'Created from TexExpr'
+        assert isinstance(expr, (TexCmd, TexEnv, TexText)), 'Created from TexExpr'
         super().__init__()
         self.expr = expr
         self.parent = None
@@ -48,6 +49,12 @@ class TexNode(object):
     #################
     # MAGIC METHODS #
     #################
+
+    def __contains__(self, other):
+        """Use custom containment checker where applicable (TexText, for ex)"""
+        if hasattr(self.expr, '__contains__'):
+            return other in self.expr
+        return other in iter(self)
 
     def __getattr__(self, attr, default=None):
         """Convert all invalid attributes into basic find operation."""
@@ -106,16 +113,18 @@ class TexNode(object):
         >>> soup = TexSoup(r'''
         ... \newcommand{reverseconcat}[3]{#3#2#1}
         ... ''')
-        >>> list(soup.all)
-        ['\n', \newcommand{reverseconcat}[3]{#3#2#1}, '\n']
+        >>> alls = list(soup.all)
+        >>> alls[0]
+        <BLANKLINE>
+        <BLANKLINE>
+        >>> alls[1]
+        \newcommand{reverseconcat}[3]{#3#2#1}
         """
         for child in self.expr.all:
-            if isinstance(child, TexExpr):
-                node = TexNode(child)
-                node.parent = self
-                yield node
-            else:
-                yield child
+            assert isinstance(child, TexExpr)
+            node = TexNode(child)
+            node.parent = self
+            yield node
 
     @property
     def args(self):
@@ -277,14 +286,10 @@ class TexNode(object):
         'Nested\n    '
         """
         for descendant in self.contents:
-            if isinstance(descendant, TokenWithPosition):
+            if isinstance(descendant, (TexText, TokenWithPosition)):
                 yield descendant
             elif hasattr(descendant, 'text'):
                 yield from descendant.text
-
-    @property
-    def tokens(self):
-        return self.expr.tokens
 
     ##################
     # PUBLIC METHODS #
@@ -619,24 +624,10 @@ class TexExpr(object):
         ['\n', 'hi']
         """
         for content in self.all:
+            if isinstance(content, TexText):
+                content = content._text
             is_whitespace = isinstance(content, str) and content.isspace()
             if not is_whitespace or self.preserve_whitespace:
-                yield content
-
-    @property
-    def tokens(self):
-        """Further breaks down all tokens for a particular expression into
-        words and other expressions.
-
-        >>> tex = TexEnv('lstlisting', ('var x = 10',))
-        >>> list(tex.tokens)
-        ['var x = 10']
-        """
-        for content in self.contents:
-            if isinstance(content, TokenWithPosition):
-                for word in content.split():
-                    yield word
-            else:
                 yield content
 
     ##################
@@ -794,6 +785,65 @@ class TexCmd(TexExpr):
                 ', which behaves like a list.'.format(self.name))
 
 
+class TexText(TexExpr):
+    r"""Abstraction for LaTeX text.
+
+    Representing regular text objects in the parsed tree allows users to
+    search and modify text objects as any other expression allows.
+
+    >>> obj = TexNode(TexText('asdf gg'))
+    >>> 'asdf' in obj
+    True
+    >>> 'err' in obj
+    False
+    """
+
+    _has_custom_contain = True
+
+    def __init__(self, text):
+        super().__init__('text', [text])
+        self._text = text
+
+    def __contains__(self, other):
+        """
+        >>> obj = TexText(TokenWithPosition('asdf'))
+        >>> 'a' in obj
+        True
+        >>> 'b' in obj
+        False
+        """
+        return other in self._text
+
+    def __eq__(self, other):
+        """
+        >>> TexText('asdf') == 'asdf'
+        True
+        >>> TexText('asdf') == TexText('asdf')
+        True
+        >>> TexText('asfd') == 'sdddsss'
+        False
+        """
+        if isinstance(other, TexText):
+            return self._text == other._text
+        if isinstance(other, str):
+            return self._text == other
+        return False
+
+    def __str__(self):
+        """
+        >>> TexText('asdf')
+        'asdf'
+        """
+        return str(self._text)
+
+    def __repr__(self):
+        """
+        >>> TexText('asdf')
+        'asdf'
+        """
+        return repr(self._text)
+
+
 #############
 # Arguments #
 #############
@@ -946,6 +996,8 @@ class TexArgs(list):
         self.extend(args)
 
     def __coerce(self, arg):
+        if isinstance(arg, TexText):
+            arg = arg._text
         if isinstance(arg, str) and not arg.isspace():
             arg = Arg.parse(arg)
         return arg
