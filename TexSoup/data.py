@@ -291,10 +291,6 @@ class TexNode(object):
             elif hasattr(descendant, 'text'):
                 yield from descendant.text
 
-    @property
-    def tokens(self):
-        return self.expr.tokens
-
     ##################
     # PUBLIC METHODS #
     ##################
