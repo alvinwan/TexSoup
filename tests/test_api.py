@@ -1,6 +1,7 @@
 from TexSoup import TexSoup
 from TexSoup.utils import TokenWithPosition
 from tests.config import chikin
+import pytest
 import re
 
 ##############
@@ -169,3 +170,20 @@ def test_search_regex_precompiled_pattern(chikin):
     assert len(matches) == 1
     assert matches[0] == "unless ordered to squat"
     assert matches[0].position == 341
+
+
+###########
+# TEXSOUP #
+###########
+
+
+def test_skip_envs():
+    """Test envs with invalid latex are not parsed."""
+    with pytest.raises(TypeError):
+        soup = TexSoup(r"""will raise error \textbf{aaaaa""")
+
+    # no error, ignores verbatim
+    TexSoup(r"""\begin{verbatim} \textbf{aaaaa \end{verbatim}""")
+
+    # no error, customized to ignore foobar
+    TexSoup(r"""\begin{foobar} \textbf{aaaaa \end{foobar}""", skip_envs=('foobar',))

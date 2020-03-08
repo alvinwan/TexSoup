@@ -224,7 +224,7 @@ def tokenize_string(text, delimiters=None):
 ##########
 
 
-def read_tex(src):
+def read_tex(src, skip_envs=()):
     r"""Read next expression from buffer
 
     :param Buffer src: a buffer of tokens
@@ -262,7 +262,7 @@ def read_tex(src):
         expr.args = read_args(src, expr.args)
 
         if mode == 'begin':
-            read_env(src, expr)
+            read_env(src, expr, skip_envs=skip_envs)
         return expr
     if c in ARG_START_TOKENS:
         return read_arg(src, c)
@@ -340,7 +340,7 @@ def read_math_env(src, expr):
     return expr
 
 
-def read_env(src, expr):
+def read_env(src, expr, skip_envs=()):
     r"""Read the environment from buffer.
 
     Advances the buffer until right after the end of the environment. Adds
@@ -351,7 +351,7 @@ def read_env(src, expr):
     :rtype: TexExpr
     """
     contents = []
-    if expr.name in SKIP_ENVS:
+    if expr.name in SKIP_ENVS + skip_envs:
         contents = [src.forward_until(lambda s: s == '\\end')]
     while src.hasNext() and not src.startswith('\\end{%s}' % expr.name):
         contents.append(read_tex(src))

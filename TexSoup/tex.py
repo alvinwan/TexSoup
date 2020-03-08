@@ -4,7 +4,7 @@ from TexSoup.utils import *
 import itertools
 
 
-def read(tex):
+def read(tex, skip_envs=()):
     """Read and parse all LaTeX source
 
     :param Union[str,iterable] tex: LaTeX source
@@ -16,7 +16,7 @@ def read(tex):
         tex = ''.join(itertools.chain(*tex))
     buf, children = Buffer(tokenize(tex)), []
     while buf.hasNext():
-        content = read_tex(buf)
+        content = read_tex(buf, skip_envs=skip_envs)
         if content is not None:
             children.append(content)
     return TexEnv('[tex]', children), tex

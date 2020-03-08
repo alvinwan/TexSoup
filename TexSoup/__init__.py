@@ -9,7 +9,7 @@ from TexSoup.tex import *
 
 
 # noinspection PyPep8Naming
-def TexSoup(tex_code):
+def TexSoup(tex_code, skip_envs=()):
     r"""
     At a high-level, parses provided Tex into a navigable, searchable structure.
     This is accomplished in two steps:
@@ -18,6 +18,7 @@ def TexSoup(tex_code):
     2. Structure fed to TexNodes for a searchable, coder-friendly interface.
 
     :param Union[str,iterable] tex_code: the Tex source
+    :param Union[str] skip_envs: names of environments to skip parsing
     :return: :class:`TexSoup.data.TexNode` object representing tex document
 
     >>> from TexSoup import TexSoup
@@ -80,5 +81,5 @@ def TexSoup(tex_code):
     >>> soup
     SOUP
     """
-    parsed, src = read(tex_code)
+    parsed, src = read(tex_code, skip_envs=skip_envs)
     return TexNode(parsed, src=src)
