@@ -16,3 +16,11 @@ def seed(path):
 def chikin():
     """Instance of the chikin tex file"""
     return TexSoup(open(seed('samples/chikin.tex')))
+
+
+@pytest.fixture(scope='function')
+def pancake():
+    """Content of the pancake tex file"""
+    with open(seed('samples/pancake.tex')) as fp:
+        return fp.read()
+
