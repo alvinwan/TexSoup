@@ -10,7 +10,7 @@ import string
 __all__ = ['tokenize', 'read_tex']
 
 COMMAND_TOKENS = {'\\'}
-MATH_TOKENS = {'$', '\[', '\]', '\(', '\)'}
+MATH_TOKENS = {'$', r'\[', r'\]', r'\(', r'\)'}
 COMMENT_TOKENS = {'%'}
 ARG_START_TOKENS = {arg.delims()[0] for arg in data.arg_type}
 ARG_END_TOKENS = {arg.delims()[1] for arg in data.arg_type}
@@ -20,11 +20,11 @@ SKIP_ENVS = ('verbatim', 'equation', 'lstlisting', 'align', 'alignat',
              'equation*', 'align*', 'math', 'displaymath', 'split', 'array',
              'eqnarray', 'eqnarray*', 'multline', 'multline*', 'gather',
              'gather*', 'flalign', 'flalign*',
-             '$', '$$', '\[', '\]', '\(', '\)')
+             '$', '$$', r'\[', r'\]', r'\(', r'\)')
 BRACKETS_DELIMITERS = {'(', ')', '<', '>', '[', ']', '{', '}',
-                       '\{', '\}', '.' '|', '\langle', '\rangle',
-                       '\lfloor', '\rfloor', '\lceil', '\rceil',
-                       r'\ulcorner', r'\urcorner', '\lbrack', '\rbrack'}
+                       r'\{', r'\}', '.' '|', r'\langle', r'\rangle',
+                       r'\lfloor', '\rfloor', r'\lceil', r'\rceil',
+                       r'\ulcorner', r'\urcorner', r'\lbrack', r'\rbrack'}
 SIZE_PREFIX = ('left', 'right', 'big', 'Big', 'bigg', 'Bigg')
 PUNCTUATION_COMMANDS = {command + bracket
                         for command in SIZE_PREFIX
@@ -237,15 +237,15 @@ def read_tex(src, skip_envs=()):
         name = '$$' if c.startswith('$$') else '$'
         expr = TexEnv(name, [], nobegin=True)
         return read_math_env(src, expr)
-    elif c.startswith('\[') or c.startswith("\("):
-        if c.startswith('\['):
+    elif c.startswith(r'\[') or c.startswith(r"\("):
+        if c.startswith(r'\['):
             name = 'displaymath'
-            begin = '\['
-            end = '\]'
+            begin = r'\['
+            end = r'\]'
         else:
             name = "math"
-            begin = "\("
-            end = "\)"
+            begin = r"\("
+            end = r"\)"
 
         expr = TexEnv(name, [], nobegin=True, begin=begin, end=end)
         return read_math_env(src, expr)
@@ -311,8 +311,8 @@ def read_item(src):
     extra.append(last.lstrip(" "))
 
     while (src.hasNext() and not str(src).strip(" ").startswith('\n\n') and
-            not src.startswith('\item') and
-            not src.startswith('\end') and
+            not src.startswith(r'\item') and
+            not src.startswith(r'\end') and
             not (isinstance(last, TexText) and last._text.strip(" ").endswith('\n\n') and len(extra) > 1)):
         last = read_tex(src)
         extra.append(last)
