@@ -819,7 +819,7 @@ class TexCmd(TexExpr):
     def __str__(self):
         if self._contents:
             return '\\%s%s %s' % (self.name, self.args, ''.join(
-                [str(e) for e in self.contents]))
+                [str(e) for e in self._contents]))
         return '\\%s%s' % (self.name, self.args)
 
     def __repr__(self):
