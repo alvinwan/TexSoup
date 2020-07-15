@@ -224,10 +224,12 @@ def tokenize_string(text, delimiters=None):
 ##########
 
 
-def read_tex(src, skip_envs=()):
+def read_tex(src, skip_envs=(), context=None):
     r"""Read next expression from buffer
 
     :param Buffer src: a buffer of tokens
+    :param Tuple[str] skip_envs: environments to skip parsing
+    :param TexExpr context: parent expression
     :return: TexExpr
     """
     c = next(src)
@@ -264,7 +266,7 @@ def read_tex(src, skip_envs=()):
         if mode == 'begin':
             read_env(src, expr, skip_envs=skip_envs)
         return expr
-    if c in ARG_START_TOKENS:
+    if c in ARG_START_TOKENS and isinstance(context, TexArgs) or c == '{':
         return read_arg(src, c)
 
     assert isinstance(c, TokenWithPosition)
@@ -382,7 +384,7 @@ def read_args(src, args=None):
     # Unlimited whitespace before first argument
     candidate_index = src.num_forward_until(lambda s: not s.isspace())
     while src.peek().isspace():
-        args.append(read_tex(src))
+        args.append(read_tex(src, context=args))
 
     # Restricted to only one line break after first argument
     line_breaks = 0
@@ -392,10 +394,10 @@ def read_args(src, args=None):
         if space_index > 0:
             line_breaks += 1
             if src.peek((0, space_index)).count("\n") <= 1 and src.peek(space_index) in ARG_START_TOKENS:
-                args.append(read_tex(src))
+                args.append(read_tex(src, context=args))
         else:
             line_breaks = 0
-            tex_text = read_tex(src)
+            tex_text = read_tex(src, context=args)
             args.append(tex_text)
 
     if not args:

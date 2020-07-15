@@ -381,6 +381,33 @@ def test_non_punctuation_command_structure():
     assert len(list(soup.contents)) == 4, '* not recognized as part of command.'
 
 
+def test_allow_unclosed_non_curly_braces():
+    """Tests that non-curly-brace 'delimiters' can be unclosed
+
+    Non-curly-brace delimiters only cause parse errors when parsing arguments
+    for a command.
+    """
+    soup = TexSoup("[)")
+    assert len(list(soup.contents)) == 2
+
+    soup = TexSoup(r"""
+    \documentclass{article}
+        \usepackage[utf8]{inputenc}
+    \begin{document}
+        \textbf{[}
+    \end{document}
+    """)
+    assert soup.textbf.string == '['
+
+    soup = TexSoup("[regular text]")
+    contents = list(soup.contents)
+    assert isinstance(contents[0], str)
+
+    soup = TexSoup("{regular text}[")
+    contents = list(soup.contents)
+    assert isinstance(contents[1], str)
+
+
 ##########
 # BUFFER #
 ##########
@@ -452,4 +479,4 @@ def test_arg_parse():
         Arg.parse(('{', ']'))
 
     with pytest.raises(TypeError):
-        Arg.parse('(]')
+        Arg.parse('\section[{')
