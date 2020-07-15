@@ -113,6 +113,17 @@ def test_command_name_parse():
     assert with_linebreak_with_arg.section.string == 'hula'
 
 
+def test_command_env_name_parse():
+    """Tests that the begin/end command is parsed correctly."""
+
+    with_space = TexSoup(r"""\begin            {itemize}\end{itemize}""")
+    assert len(list(with_space.contents)) == 1
+
+    with_whitespace = TexSoup(r"""\begin
+{itemize}\end{itemize}""")
+    assert len(list(with_whitespace.contents)) == 1
+
+
 def test_commands_without_arguments():
     """Tests that commands without arguments are parsed correctly."""
     soup = TexSoup(r"""

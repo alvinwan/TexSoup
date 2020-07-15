@@ -257,6 +257,7 @@ def read_tex(src, skip_envs=(), context=None):
             contents, arg = read_item(src)
             mode, expr = 'command', TexCmd(command, contents, arg)
         elif command == 'begin':
+            forward_until_non_whitespace(src)  # allow whitespace TODO: should be built into command tokenization
             mode, expr, _ = 'begin', TexEnv(src.peek(1)), src.forward(3)
         else:
             mode, expr = 'command', TexCmd(command)
@@ -273,6 +274,19 @@ def read_tex(src, skip_envs=(), context=None):
     return TexText(c)
 
 
+def stringify(string):
+    return TokenWithPosition.join(string.split(' '), glue=' ')
+
+def forward_until_non_whitespace(src):
+    """Catch the first non-whitespace character"""
+    t = TokenWithPosition('', src.peek().position)
+    while (src.hasNext() and
+            any([src.peek().startswith(substr) for substr in string.whitespace]) and
+            not t.strip(" ").endswith('\n')):
+        t += src.forward(1)
+    return t
+
+
 def read_item(src):
     r"""Read the item content.
 
@@ -285,17 +299,6 @@ def read_item(src):
     :param Buffer src: a buffer of tokens
     :return: contents of the item and any item arguments
     """
-    def stringify(s):
-        return TokenWithPosition.join(s.split(' '), glue=' ')
-
-    def forward_until_new(s):
-        """Catch the first non-whitespace character"""
-        t = TokenWithPosition('', s.peek().position)
-        while (s.hasNext() and
-                any([s.peek().startswith(substr) for substr in string.whitespace]) and
-                not t.strip(" ").endswith('\n')):
-            t += s.forward(1)
-        return t
 
     # Item argument such as in description environment
     arg = []
@@ -309,12 +312,12 @@ def read_item(src):
     if not src.hasNext():
         return extra, arg
 
-    last = stringify(forward_until_new(src))
+    last = stringify(forward_until_non_whitespace(src))
     extra.append(last.lstrip(" "))
 
     while (src.hasNext() and not str(src).strip(" ").startswith('\n\n') and
             not src.startswith(r'\item') and
-            not src.startswith(r'\end') and
+            not src.startswith(r'\end') and  # TODO: replace witth regex? r"\\\s+?end"
             not (isinstance(last, TexText) and last._text.strip(" ").endswith('\n\n') and len(extra) > 1)):
         last = read_tex(src)
         extra.append(last)
