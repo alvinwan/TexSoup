@@ -1,7 +1,7 @@
 """Parsing mechanisms should not be directly invoked publicly, as they are
 subject to change."""
 
-from TexSoup.utils import Buffer, TokenWithPosition
+from TexSoup.utils import Buffer, Token
 from TexSoup.data import *
 from TexSoup.tokenize import *
 
@@ -41,7 +41,7 @@ def read_tex(src, skip_envs=(), context=None):
         expr = TexEnv(name, [], nobegin=True, begin=begin, end=end)
         return read_math_env(src, expr)
     elif c.startswith('\\'):
-        command = TokenWithPosition(c[1:], src.position)
+        command = Token(c[1:], src.position)
         if command == 'item':
             contents, arg = read_item(src)
             mode, expr = 'command', TexCmd(command, contents, arg)
@@ -60,17 +60,17 @@ def read_tex(src, skip_envs=(), context=None):
     if c in ARG_START_TOKENS and isinstance(context, TexArgs) or c == '{':
         return read_arg(src, c)
 
-    assert isinstance(c, TokenWithPosition)
+    assert isinstance(c, Token)
     return TexText(c)
 
 
 def stringify(string):
-    return TokenWithPosition.join(string.split(' '), glue=' ')
+    return Token.join(string.split(' '), glue=' ')
 
 
 def forward_until_non_whitespace(src):
     """Catch the first non-whitespace character."""
-    t = TokenWithPosition('', src.peek().position)
+    t = Token('', src.peek().position)
     while (src.hasNext() and
             any([src.peek().startswith(sub) for sub in string.whitespace])
             and not t.strip(" ").endswith('\n')):

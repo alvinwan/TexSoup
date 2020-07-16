@@ -17,7 +17,7 @@ import pprint
 
 def everything(tex_tree):
     """
-    Accepts a list of Union[TexNode,TokenWithPosition] and returns a nested list
+    Accepts a list of Union[TexNode,Token] and returns a nested list
     of strings of the entire source document.
     """
     result = []

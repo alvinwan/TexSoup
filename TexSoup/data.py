@@ -6,7 +6,7 @@ objects, but all objects fall into one of the following three categories:
 
 import itertools
 import re
-from .utils import TokenWithPosition, CharToLineOffset
+from .utils import Token, CharToLineOffset
 
 __all__ = ['TexNode', 'TexCmd', 'TexEnv', 'Arg', 'OArg', 'RArg', 'TexArgs',
            'TexText']
@@ -289,7 +289,7 @@ class TexNode(object):
         'Nested\n    '
         """
         for descendant in self.contents:
-            if isinstance(descendant, (TexText, TokenWithPosition)):
+            if isinstance(descendant, (TexText, Token)):
                 yield descendant
             elif hasattr(descendant, 'text'):
                 yield from descendant.text
@@ -574,7 +574,7 @@ class TexNode(object):
             for match in re.finditer(pattern, node):
                 body = match.group()  # group() returns the full match
                 start = match.start()
-                yield TokenWithPosition(body, node.position + start)
+                yield Token(body, node.position + start)
 
     def __descendants(self):
         """Implementation for descendants, hacky workaround for __getattr__
@@ -869,7 +869,7 @@ class TexText(TexExpr):
 
     def __contains__(self, other):
         """
-        >>> obj = TexText(TokenWithPosition('asdf'))
+        >>> obj = TexText(Token('asdf'))
         >>> 'a' in obj
         True
         >>> 'b' in obj

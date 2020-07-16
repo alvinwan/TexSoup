@@ -11,7 +11,7 @@ TexSoup is a Python3 package for searching, navigating, and modifying LaTeX docu
 - [Installation](https://github.com/alvinwan/TexSoup#Installation)
 - [API Reference](http://texsoup.alvinwan.com/docs/data.html)
 
-Created by [Alvin Wan](http://alvinwan.com).
+Created by [Alvin Wan](http://alvinwan.com) + [contributors](https://github.com/alvinwan/TexSoup/graphs/contributors).
 
 # Getting Started
 

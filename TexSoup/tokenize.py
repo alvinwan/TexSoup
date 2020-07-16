@@ -4,7 +4,7 @@ Translates string into iterable `TexSoup.utils.Buffer`, yielding one
 token at a time.
 """
 
-from TexSoup.utils import to_buffer, Buffer, TokenWithPosition
+from TexSoup.utils import to_buffer, Buffer, Token
 import TexSoup.data as data
 import string
 
@@ -142,7 +142,7 @@ def tokenize_line_comment(text):
     >>> tokenize_line_comment(Buffer('%hello\n world'))
     '%hello'
     """
-    result = TokenWithPosition('', text.position)
+    result = Token('', text.position)
     if text.peek() == '%' and text.peek(-1) != '\\':
         result += text.forward(1)
         while text.peek() != '\n' and text.hasNext():
@@ -177,7 +177,7 @@ def tokenize_math(text):
     if text.startswith('$') and (
        text.position == 0 or text.peek(-1) != '\\' or text.endswith(r'\\')):
         starter = '$$' if text.startswith('$$') else '$'
-        return TokenWithPosition(text.forward(len(starter)), text.position)
+        return Token(text.forward(len(starter)), text.position)
 
 
 @token('string')
@@ -199,7 +199,7 @@ def tokenize_string(text, delimiters=None):
     """
     if delimiters is None:
         delimiters = ALL_TOKENS
-    result = TokenWithPosition('', text.position)
+    result = Token('', text.position)
     for c in text:
         if c == '\\' and str(text.peek()) in delimiters and str(
                 c + text.peek()) not in delimiters:
