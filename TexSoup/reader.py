@@ -28,7 +28,6 @@ def read_tex(src, skip_envs=(), context=None):
     """
     c = next(src)
     # TODO: assemble and use groups
-    from TexSoup.utils import CC
     if c.category == TC.Comment:
         return c
     elif c.category == TC.MathSwitch:
@@ -40,8 +39,8 @@ def read_tex(src, skip_envs=(), context=None):
         else:
             expr = TexMathEnv([])
         return read_math_env(src, expr)
-    # TODO: reduce to command-parsing only -- assemble envs in 2nd pass
-    elif c.category in (TC.Escape, CC.Escape):
+    elif c.category == TC.Escape:
+        # TODO: reduce to command-parsing only -- assemble envs in 2nd pass
         command = Token(src.forward(1), src.position)
         if command == 'item':
             contents, arg = read_item(src)
@@ -58,7 +57,7 @@ def read_tex(src, skip_envs=(), context=None):
         if mode == 'begin':
             read_env(src, expr, skip_envs=skip_envs)
         return expr
-    if c in ARG_START_TOKENS and isinstance(context, TexArgs) or c == '{':
+    if c.category in ARG_START_TOKENS and isinstance(context, TexArgs) or c == '{':
         return read_arg(src, c)
 
     assert isinstance(c, Token)
@@ -96,7 +95,7 @@ def read_item(src):
     arg = []
     extra = []
 
-    if src.peek() in ARG_START_TOKENS:
+    if src.peek().category in ARG_START_TOKENS:
         c = next(src)
         a = read_arg(src, c)
         arg.append(a)
@@ -186,13 +185,14 @@ def read_args(src, args=None):
 
     # Restricted to only one line break after first argument
     line_breaks = 0
-    while src.peek() in ARG_START_TOKENS or \
+    while src.peek().category in ARG_START_TOKENS or \
             (src.peek().isspace() and line_breaks == 0):
         space_index = src.num_forward_until(lambda s: not s.isspace())
         if space_index > 0:
             line_breaks += 1
-            if src.peek((0, space_index)).count("\n") <= 1 and src.peek(
-                    space_index) in ARG_START_TOKENS:
+            if src.peek((0, space_index)).count("\n") <= 1 \
+                    and src.peek(space_index) is not None \
+                    and src.peek(space_index).category in ARG_START_TOKENS:
                 args.append(read_tex(src, context=args))
         else:
             line_breaks = 0
@@ -217,7 +217,7 @@ def read_arg(src, c):
     """
     content = [c]
     while src.hasNext():
-        if src.peek() in ARG_END_TOKENS:
+        if src.peek().category in ARG_END_TOKENS:
             content.append(next(src))
             break
         else:

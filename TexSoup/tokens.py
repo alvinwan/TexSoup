@@ -32,23 +32,26 @@ TC = IntEnum('TokenCode', (
     'LineBreak',
     'CommandName',
     'Text',
+    'OpenBracket',
+    'CloseBracket',
+    'OpenParen',
+    'CloseParen',
 
     # temporary
     'PunctuationCommandName',
     'ArgumentDelimiter',
-), start=CC.Invalid + 1)
+), start=max(CC))
 
 
 # Supersets of category codes
 MATH_START_TOKENS = (r'\[', r'\(')  # TODO: how to do this cleanly?
 MATH_END_TOKENS = (r'\]', r'\)')
 
-ARG_TOKENS = tuple(itertools.chain(*(arg.delims() for arg in arg_type)))
-ARG_START_TOKENS = ARG_TOKENS[::2]
-ARG_END_TOKENS = ARG_TOKENS[1::2]
+ARG_START_TOKENS = [TC.OpenBracket, TC.GroupStart]
+ARG_END_TOKENS = [TC.CloseBracket, TC.GroupEnd]
 
 # TODO: misnomer, what does ALL_TOKENS actually contain?
-ALL_TOKENS = ('\\',) + ARG_TOKENS + ('%',) + MATH_START_TOKENS + MATH_END_TOKENS + ('$', '$$')
+ALL_TOKENS = ('\\', '{', '[', ']', '}', '%',) + MATH_START_TOKENS + MATH_END_TOKENS + ('$', '$$')
 
 # Custom higher-level combinations of primitives
 SKIP_ENVS = ('verbatim', 'equation', 'lstlisting', 'align', 'alignat',
@@ -270,20 +273,26 @@ def ignore(text, prev=None):
 def tokenize_symbols(text, prev=None):
     r"""Process singletone symbols as standalone tokens.
 
-    :param Buffer text: iterator over line, with current position
+    :param Buffer text: iterator over line, with current position. Escape is
+                        isolated if not part of escaped char
 
     >>> next(tokenize(categorize(r'\begin turing')))
     '\\'
     >>> next(tokenize(categorize(r'\bf  {turing}')))
     '\\'
+    >>> next(tokenize(categorize(r'{]}'))).category
+    <TokenCode.GroupStart: 23>
     """
     mapping = {
-        CC.Escape:     TC.Escape,
-        CC.GroupStart: TC.GroupStart,
-        CC.GroupEnd:   TC.GroupEnd
+        CC.Escape:          TC.Escape,
+        CC.GroupStart:      TC.GroupStart,
+        CC.GroupEnd:        TC.GroupEnd,
+        CC.OpenBracket:     TC.OpenBracket,
+        CC.CloseBracket:    TC.CloseBracket,
+        CC.OpenParen:       TC.OpenParen,
+        CC.CloseParen:      TC.CloseParen
     }
-    if text.peek().category in (
-            CC.Escape, CC.GroupStart, CC.GroupEnd):
+    if text.peek().category in mapping.keys():
         result = text.forward(1)
         result.category = mapping[result.category]
         return result
@@ -306,20 +315,6 @@ def tokenize_punctuation_command_name(text, prev=None):
                 result = text.forward(len(point) + 1)
                 result.category = TC.PunctuationCommandName
                 return result
-
-
-# TODO: update string tokenizer so this isn't needed
-@token('argument')
-def tokenize_argument(text, prev=None):
-    """Process both optional and required arguments.
-
-    :param Buffer text: iterator over line, with current position
-    """
-    for delim in ARG_TOKENS:
-        if text.startswith(delim):
-            result = text.forward(len(delim))
-            result.category = TC.ArgumentDelimiter
-            return result
 
 
 @token('command_name')
