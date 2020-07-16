@@ -53,7 +53,11 @@ CC = IntEnum('CategoryCodes', (
     'Other',
     'Active',
     'Comment',
-    'Invalid'
+    'Invalid',
+
+    # custom
+    'MathGroupStart',
+    'MathGroupEnd'
 ))
 
 

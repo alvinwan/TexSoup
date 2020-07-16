@@ -36,15 +36,17 @@ INVALID_TOKEN       = chr(127)  # not used
 GCC = IntEnum('GroupedCategoryCodes', (
     'Comment',
     'Group',  # denoted by curly brace
-    'Spacer',  # whitespace allowed between \, <command name>, and arguments
+    'Spacer',  # whitespace allowed between <command name> and arguments
     'EscapedComment',
     'SizeCommand',
     'MathSwitch',
+    'MathGroupStart',
+    'MathGroupEnd'
 ), start=CC.Invalid + 1)
 
 
 # Supersets of category codes
-MATH_START_TOKENS = (r'\[', r'\(')
+MATH_START_TOKENS = (r'\[', r'\(')  # TODO: how to do this cleanly?
 MATH_END_TOKENS = (r'\]', r'\)')
 MATH_TOKENS = MATH_SWITCH_TOKENS + MATH_START_TOKENS + MATH_END_TOKENS
 
@@ -188,17 +190,15 @@ def tokenize_line_comment(text):
         return result
 
 
-@token('math_switch')
-def tokenize_math(text):
+@token('math_sym_switch')
+def tokenize_math_sym_switch(text):
     r"""Group characters in math switches.
 
     :param Buffer text: iterator over line, with current position
 
-    >>> b = categorize(r'$\min_x$ \command')
-    >>> tokenize_math(b)
+    >>> tokenize_math_sym_switch(categorize(r'$\min_x$ \command'))
     '$'
-    >>> b = categorize(r'$$\min_x$$ \command')
-    >>> tokenize_math(b)
+    >>> tokenize_math_sym_switch(categorize(r'$$\min_x$$ \command'))
     '$$'
     """
     if text.peek().category == CC.MathSwitch:
@@ -207,6 +207,27 @@ def tokenize_math(text):
         else:
             result = Token(text.forward(1), text.position)
         result.category = GCC.MathSwitch
+        return result
+
+
+@token('math_asym_switch')
+def tokenize_math_asym_switch(text):
+    r"""Group characters in begin-end-style math switches
+
+    :param Buffer text: iterator over line, with current position
+
+    >>> tokenize_math_asym_switch(categorize(r'\[asf'))
+    '\\['
+    >>> tokenize_math_asym_switch(categorize(r'\] sdf'))
+    '\\]'
+    >>> tokenize_math_asym_switch(categorize(r'[]'))
+    """
+    if text.peek((0, 2)) in MATH_START_TOKENS + MATH_END_TOKENS:
+        result = text.forward(2)
+        if result in MATH_START_TOKENS:
+            result.category = GCC.MathGroupStart
+        else:
+            result.category = GCC.MathGroupEnd
         return result
 
 
