@@ -1,7 +1,5 @@
-"""
-Parsing mechanisms should not be directly invoked publicly, as they are subject
-to change.
-"""
+"""Parsing mechanisms should not be directly invoked publicly, as they are
+subject to change."""
 
 from TexSoup.utils import Buffer, TokenWithPosition
 from TexSoup.data import *
@@ -48,7 +46,8 @@ def read_tex(src, skip_envs=(), context=None):
             contents, arg = read_item(src)
             mode, expr = 'command', TexCmd(command, contents, arg)
         elif command == 'begin':
-            forward_until_non_whitespace(src)  # allow whitespace TODO: should be built into command tokenization
+            # allow whitespace TODO: should be built into command tokenization
+            forward_until_non_whitespace(src)
             mode, expr, _ = 'begin', TexEnv(src.peek(1)), src.forward(3)
         else:
             mode, expr = 'command', TexCmd(command)
@@ -68,12 +67,13 @@ def read_tex(src, skip_envs=(), context=None):
 def stringify(string):
     return TokenWithPosition.join(string.split(' '), glue=' ')
 
+
 def forward_until_non_whitespace(src):
-    """Catch the first non-whitespace character"""
+    """Catch the first non-whitespace character."""
     t = TokenWithPosition('', src.peek().position)
     while (src.hasNext() and
-            any([src.peek().startswith(substr) for substr in string.whitespace]) and
-            not t.strip(" ").endswith('\n')):
+            any([src.peek().startswith(sub) for sub in string.whitespace])
+            and not t.strip(" ").endswith('\n')):
         t += src.forward(1)
     return t
 
@@ -81,8 +81,8 @@ def forward_until_non_whitespace(src):
 def read_item(src):
     r"""Read the item content.
 
-    There can be any number of whitespace characters between \item and the first
-    non-whitespace character. However, after that first non-whitespace
+    There can be any number of whitespace characters between \item and the
+    first non-whitespace character. However, after that first non-whitespace
     character, the item can only tolerate one successive line break at a time.
 
     \item can also take an argument.
@@ -108,8 +108,10 @@ def read_item(src):
 
     while (src.hasNext() and not str(src).strip(" ").startswith('\n\n') and
             not src.startswith(r'\item') and
-            not src.startswith(r'\end') and  # TODO: replace witth regex? r"\\\s+?end"
-            not (isinstance(last, TexText) and last._text.strip(" ").endswith('\n\n') and len(extra) > 1)):
+            # TODO: replace witth regex? r"\\\s+?end"
+            not src.startswith(r'\end') and
+            not (isinstance(last, TexText) and
+                 last._text.strip(" ").endswith('\n\n') and len(extra) > 1)):
         last = read_tex(src)
         extra.append(last)
     return extra, arg
@@ -187,7 +189,8 @@ def read_args(src, args=None):
         space_index = src.num_forward_until(lambda s: not s.isspace())
         if space_index > 0:
             line_breaks += 1
-            if src.peek((0, space_index)).count("\n") <= 1 and src.peek(space_index) in ARG_START_TOKENS:
+            if src.peek((0, space_index)).count("\n") <= 1 and src.peek(
+                    space_index) in ARG_START_TOKENS:
                 args.append(read_tex(src, context=args))
         else:
             line_breaks = 0

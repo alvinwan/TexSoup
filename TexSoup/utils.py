@@ -8,9 +8,8 @@ import functools
 
 
 def to_buffer(f):
-    """
-    Decorator converting all strings and iterators/iterables into Buffers.
-    """
+    """Decorator converting all strings and iterators/iterables into
+    Buffers."""
     @functools.wraps(f)
     def wrap(*args, **kwargs):
         iterator = kwargs.get('iterator', args[0])
@@ -222,7 +221,7 @@ class TokenWithPosition(str):
 
 # General Buffer class
 class Buffer:
-    """Converts string or iterable into a navigable iterator of strings
+    """Converts string or iterable into a navigable iterator of strings.
 
     >>> b1 = Buffer("012345")
     >>> next(b1)
@@ -248,7 +247,7 @@ class Buffer:
     """
 
     def __init__(self, iterator, join=TokenWithPosition.join):
-        """Initialization for Buffer
+        """Initialization for Buffer.
 
         :param iterator: iterator or iterable
         :param func join: function to join multiple buffer elements
@@ -265,15 +264,12 @@ class Buffer:
         return bool(self.peek())
 
     def startswith(self, s):
-        """
-        Check if iterator starts with s, beginning from the current position
-        """
+        """Check if iterator starts with s, beginning from the current
+        position."""
         return self.peek((0, len(s))).startswith(s)
 
     def endswith(self, s):
-        """
-        Check if iterator ends with s, ending at current position
-        """
+        """Check if iterator ends with s, ending at current position."""
         return self.peek((-len(s), 0)).endswith(s)
 
     def forward(self, j=1):
@@ -288,7 +284,7 @@ class Buffer:
         if j < 0:
             return self.backward(-j)
         self.__i += j
-        return self[self.__i-j:self.__i]
+        return self[self.__i - j:self.__i]
 
     def num_forward_until(self, condition):
         """Forward until one of the provided matches is found.
@@ -327,18 +323,18 @@ class Buffer:
         """
         if j < 0:
             return self.forward(-j)
-        assert self.__i - j >= 0, 'Cannot move more than %d backward' % self.__i
+        assert self.__i - j >= 0, 'Cannot move more than %d back' % self.__i
         self.__i -= j
-        return self[self.__i:self.__i+j]
+        return self[self.__i:self.__i + j]
 
     def peek(self, j=(0, 1)):
-        """
-        Peek at the next value(s), without advancing the Buffer.
+        """Peek at the next value(s), without advancing the Buffer.
+
         Return None if index is out of range.
         """
         try:
             if isinstance(j, int):
-                return self[self.__i+j]
+                return self[self.__i + j]
             return self[self.__i + j[0]:self.__i + j[1]]
         except IndexError:
             return None
@@ -346,12 +342,13 @@ class Buffer:
     def __next__(self):
         """Implements next."""
         while self.__i >= len(self.__queue):
-            self.__queue.append(TokenWithPosition(next(self.__iterator), self.__i))
+            self.__queue.append(TokenWithPosition(
+                next(self.__iterator), self.__i))
         self.__i += 1
-        return self.__queue[self.__i-1]
+        return self.__queue[self.__i - 1]
 
     def __getitem__(self, i):
-        """Supports indexing list
+        """Supports indexing list.
 
         >>> b = Buffer('asdf')
         >>> b[5]
@@ -393,11 +390,9 @@ class Buffer:
 
 
 class CharToLineOffset(object):
-    """
-    Utility to convert absolute position in the source file
-    to line_no:char_no_in_line.
-    This can be very useful if we want to parse LaTeX and
-    navigate to some elements in the generated DVI/PDF via SyncTeX.
+    """Utility to convert absolute position in the source file to
+    line_no:char_no_in_line. This can be very useful if we want to parse LaTeX
+    and navigate to some elements in the generated DVI/PDF via SyncTeX.
 
     >>> clo = CharToLineOffset('''hello
     ... world
@@ -409,6 +404,7 @@ class CharToLineOffset(object):
     >>> clo(12)
     (2, 0)
     """
+
     def __init__(self, src):
         self.line_break_positions = [i for i, c in enumerate(src) if c == '\n']
         self.src_len = len(src)

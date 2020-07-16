@@ -5,7 +5,7 @@ import itertools
 
 
 def read(tex, skip_envs=()):
-    """Read and parse all LaTeX source
+    """Read and parse all LaTeX source.
 
     :param Union[str,iterable] tex: LaTeX source
     :return TexEnv: the global environment
