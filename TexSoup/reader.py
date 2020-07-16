@@ -126,7 +126,7 @@ def read_math_env(src, expr):
     :param TexExpr expr: expression for the environment
     :rtype: TexExpr
     """
-    content = src.forward_until(lambda s: s == expr.end)
+    content = src.forward_until(lambda s: s.startswith(expr.end), peek=False)
     if not src.startswith(expr.end):
         end = src.peek()
         explanation = 'Instead got %s' % end if end else 'Reached end of file.'
@@ -149,15 +149,16 @@ def read_env(src, expr, skip_envs=()):
     """
     contents = []
     if expr.name in SKIP_ENVS + skip_envs:
-        contents = [src.forward_until(lambda s: s == '\\end')]
+        contents = [src.forward_until(
+            lambda s: s.startswith('\\end'), peek=False)]
     while src.hasNext() and not src.startswith('\\end{%s}' % expr.name):
         contents.append(read_tex(src))
     if not src.startswith('\\end{%s}' % expr.name):
-        end = src.peek((0, 5))
+        end = src.peek((0, 6))
         explanation = 'Instead got %s' % end if end else 'Reached end of file.'
         raise EOFError('Expecting \\end{%s}. %s' % (expr.name, explanation))
     else:
-        src.forward(4)
+        src.forward(5)
     expr.append(*contents)
     return expr
 

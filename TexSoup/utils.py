@@ -342,7 +342,7 @@ class Buffer:
         assert self.backward(i) == c
         return i
 
-    def forward_until(self, condition):
+    def forward_until(self, condition, peek=True):
         """Forward until one of the provided matches is found.
 
         The returned string contains all characters found *before the condition
@@ -352,7 +352,7 @@ class Buffer:
         :param condition: set of valid strings
         """
         c = Token('', self.peek().position)
-        while self.hasNext() and not condition(self.peek()):
+        while self.hasNext() and not condition(self.peek() if peek else self):
             c += self.forward(1)
         return c
 
