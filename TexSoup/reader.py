@@ -1,7 +1,7 @@
 """Parsing mechanisms should not be directly invoked publicly, as they are
 subject to change."""
 
-from TexSoup.utils import Buffer, Token, CC
+from TexSoup.utils import Token, CC, to_buffer
 from TexSoup.data import *
 from TexSoup.tokens import (
     GCC,
@@ -17,6 +17,7 @@ import string
 __all__ = ['read_tex']
 
 
+@to_buffer(convert_out=False)
 def read_tex(src, skip_envs=(), context=None):
     r"""Read next expression from buffer
 

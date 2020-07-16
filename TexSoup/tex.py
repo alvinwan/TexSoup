@@ -18,7 +18,5 @@ def read(tex, skip_envs=()):
         tex = ''.join(itertools.chain(*tex))
     buf, children = tokenize(categorize(tex)), []
     while buf.hasNext():
-        content = read_tex(buf, skip_envs=skip_envs)
-        if content is not None:
-            children.append(content)
+        children.append(read_tex(buf, skip_envs=skip_envs))
     return TexEnv('[tex]', children), tex
