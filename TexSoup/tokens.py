@@ -39,6 +39,7 @@ GCC = IntEnum('GroupedCategoryCodes', (
     'Spacer',  # whitespace allowed between \, <command name>, and arguments
     'EscapedComment',
     'SizeCommand',
+    'MathSwitch',
 ), start=CC.Invalid + 1)
 
 
@@ -202,8 +203,11 @@ def tokenize_math(text):
     """
     if text.peek().category == CC.MathSwitch:
         if text.peek(1) and text.peek(1).category == CC.MathSwitch:
-            return Token(text.forward(2), text.position)
-        return Token(text.forward(1), text.position)
+            result = Token(text.forward(2), text.position)
+        else:
+            result = Token(text.forward(1), text.position)
+        result.category = GCC.MathSwitch
+        return result
 
 
 # TODO: move me to parser
