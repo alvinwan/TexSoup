@@ -61,7 +61,7 @@ class Token(str):
     """Enhanced string object with knowledge of global position."""
 
     # noinspection PyArgumentList
-    def __new__(cls, text, position=None, category=CC.Other):
+    def __new__(cls, text, position=None, category=None):
         """Initializer for pseudo-string object.
 
         :param text: The original string
@@ -71,10 +71,9 @@ class Token(str):
         """
         self = str.__new__(cls, text)
         if isinstance(text, Token):
-            # TODO: should this throw a warning if category is set an ignored?
             self.text = text.text
             self.position = text.position
-            self.category = text.category
+            self.category = category or text.category
         else:
             self.text = text
             self.position = position

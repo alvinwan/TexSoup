@@ -2,6 +2,7 @@ from TexSoup.reader import read_tex
 from TexSoup.data import *
 from TexSoup.utils import *
 from TexSoup.tokens import tokenize
+from TexSoup.category import categorize
 import itertools
 
 
@@ -15,7 +16,7 @@ def read(tex, skip_envs=()):
         tex = tex
     else:
         tex = ''.join(itertools.chain(*tex))
-    buf, children = tokenize(tex), []
+    buf, children = tokenize(categorize(tex)), []
     while buf.hasNext():
         content = read_tex(buf, skip_envs=skip_envs)
         if content is not None:
