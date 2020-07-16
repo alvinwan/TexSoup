@@ -8,7 +8,10 @@ from TexSoup.tokens import (
     ARG_START_TOKENS,
     ARG_END_TOKENS,
     SKIP_ENVS,
-    COMMAND_TOKEN
+    COMMAND_TOKEN,
+    MATH_SWITCH_TOKENS,
+    END_OF_LINE_TOKENS,
+    COMMENT_TOKEN
 )
 import string
 
@@ -25,11 +28,10 @@ def read_tex(src, skip_envs=(), context=None):
     :return: TexExpr
     """
     c = next(src)
-    if c.startswith('%'):
+    if c.startswith(COMMENT_TOKEN):
         return c
-    elif c.startswith('$'):
-        name = '$$' if c.startswith('$$') else '$'
-        expr = TexEnv(name, [], nobegin=True)
+    elif c in MATH_SWITCH_TOKENS:
+        expr = TexEnv(c, [], nobegin=True)
         return read_math_env(src, expr)
     elif c.startswith(r'\[') or c.startswith(r"\("):
         if c.startswith(r'\['):
@@ -76,7 +78,7 @@ def forward_until_non_whitespace(src):
     t = Token('', src.peek().position)
     while (src.hasNext() and
             any([src.peek().startswith(sub) for sub in string.whitespace])
-            and not t.strip(" ").endswith('\n')):
+            and not any(t.strip(" ").endswith(c) for c in END_OF_LINE_TOKENS)):
         t += src.forward(1)
     return t
 

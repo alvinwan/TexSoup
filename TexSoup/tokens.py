@@ -13,21 +13,21 @@ import string
 # Core category code primitives
 # https://www.overleaf.com/learn/latex/Table_of_TeX_category_codes
 COMMAND_TOKEN       = '\\'
-START_GROUP_TOKEN   = '{'
-END_GROUP_TOKEN     = '}'
+START_GROUP_TOKEN   = '{'  # not used
+END_GROUP_TOKEN     = '}'  # not used
 MATH_SWITCH_TOKENS  = ('$', '$$')
-ALIGNMENT_TOKEN     = '&'
+ALIGNMENT_TOKEN     = '&'  # not used
 END_OF_LINE_TOKENS  = ('\n', '\r')
-MACRO_TOKEN         = '#'
-SUPERSCRIPT_TOKEN   = '^'
-SUBSCRIPT_TOKEN     = '_'
-IGNORED_TOKEN       = chr(0)
-SPACER_TOKENS       = (chr(32), chr(9))
+MACRO_TOKEN         = '#'  # not used
+SUPERSCRIPT_TOKEN   = '^'  # not used
+SUBSCRIPT_TOKEN     = '_'  # not used
+IGNORED_TOKEN       = chr(0)  # not used
+SPACER_TOKENS       = (chr(32), chr(9))    # not used
 LETTER_TOKENS       = tuple(string.ascii_letters)  # + lots of unicode
 OTHER_TOKENS        = None  # not defined, just anything left
-ACTIVE_TOKEN        = '~'
+ACTIVE_TOKEN        = '~'  # not used
 COMMENT_TOKEN       = '%'
-INVALID_TOKEN       = chr(127)
+INVALID_TOKEN       = chr(127)  # not used
 
 # Primitive supersets
 MATH_START_TOKENS = (r'\[', r'\(')
@@ -171,9 +171,9 @@ def tokenize_line_comment(text):
     '%hello'
     """
     result = Token('', text.position)
-    if text.peek() == '%' and text.peek(-1) != COMMAND_TOKEN:
+    if text.peek() == COMMENT_TOKEN and text.peek(-1) != COMMAND_TOKEN:
         result += text.forward(1)
-        while text.peek() != '\n' and text.hasNext():
+        while text.peek() not in END_OF_LINE_TOKENS and text.hasNext():
             result += text.forward(1)
         return result
 
