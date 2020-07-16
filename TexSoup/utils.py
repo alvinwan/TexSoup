@@ -18,9 +18,10 @@ def to_buffer(f):
         return f(iterator, *args[1:], **kwargs)
     return wrap
 
-#########################
-# Generalized Utilities #
-#########################
+
+##########
+# Tokens #
+##########
 
 
 class Token(str):
