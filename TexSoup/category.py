@@ -10,7 +10,7 @@ CATEGORY_CODES = {
     CC.Escape:     '\\',
     CC.GroupStart:  '{',  # not used
     CC.GroupEnd:    '}',  # not used
-    CC.MathSwitch:  ('$$', '$'),
+    CC.MathSwitch:  '$',  # $$ checked in tokenize_math
     CC.Alignment:   '&',  # not used
     CC.EndOfLine:   ('\n', '\r'),
     CC.Macro:       '#',  # not used
@@ -45,6 +45,9 @@ def categorize(text):
     <CategoryCodes.Comment: 15>
     >>> print(*chars)
     \ b f { } % h e l l o
+    >>> next(categorize(r'''
+    ... ''')).category
+    <CategoryCodes.EndOfLine: 6>
     """
     for position, char in enumerate(text):
 

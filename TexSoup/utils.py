@@ -61,7 +61,7 @@ class Token(str):
     """Enhanced string object with knowledge of global position."""
 
     # noinspection PyArgumentList
-    def __new__(cls, text, position=None, category=None):
+    def __new__(cls, text='', position=None, category=None):
         """Initializer for pseudo-string object.
 
         :param text: The original string
@@ -168,7 +168,7 @@ class Token(str):
                 tokens[0].position,
                 tokens[0].category)
         else:
-            return ''
+            return Token.Empty
 
     def __bool__(self):
         return bool(self.text)
@@ -254,6 +254,9 @@ class Token(str):
         stripped = self.text.rstrip(*args, **kwargs)
         offset = self.text.find(stripped)
         return Token(stripped, self.position + offset, self.category)
+
+
+Token.Empty = Token('', position=0)
 
 
 # General Buffer class
