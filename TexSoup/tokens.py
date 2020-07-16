@@ -10,26 +10,26 @@ import itertools
 import string
 
 
+# Core category code primitives
 # https://www.overleaf.com/learn/latex/Table_of_TeX_category_codes
-CC = '\\{}$&\r#^_\x00 \t ~%\x7f'
-
-COMMAND_TOKENS      = (CC[0],)
-START_GROUP_TOKENS  = (CC[1],)
-END_GROUP_TOKENS    = (CC[2],)
-MATH_SWITCH_TOKENS  = (CC[3], '$$')
-ALIGNMENT_TOKENS    = (CC[4],)
-END_OF_LINE_TOKENS  = ('\n', CC[5])
-MACRO_TOKENS        = (CC[6],)
-SUPERSCRIPT_TOKENS  = (CC[7],)
-SUBSCRIPT_TOKENS    = (CC[8],)
-IGNORED_TOKENS      = (CC[9],)
-SPACER_TOKENS       = (CC[10], CC[11])
+COMMAND_TOKENS      = ('\\',)
+START_GROUP_TOKENS  = ('{',)
+END_GROUP_TOKENS    = ('}',)
+MATH_SWITCH_TOKENS  = ('$', '$$')
+ALIGNMENT_TOKENS    = ('&',)
+END_OF_LINE_TOKENS  = ('\n', '\r')
+MACRO_TOKENS        = ('#',)
+SUPERSCRIPT_TOKENS  = ('^',)
+SUBSCRIPT_TOKENS    = ('_',)
+IGNORED_TOKENS      = (chr(0),)
+SPACER_TOKENS       = (chr(32), chr(9))
 LETTER_TOKENS       = tuple(string.ascii_letters)  # + lots of unicode
-OTHER_TOKENS        = tuple(set(string.printable) - set(CC))
-ACTIVE_TOKENS       = (CC[13],)
-COMMENT_TOKENS      = (CC[14],)
-INVALID_TOKENS      = (CC[15],)
+OTHER_TOKENS        = None  # not defined, just anything left
+ACTIVE_TOKENS       = ('~',)
+COMMENT_TOKENS      = ('%',)
+INVALID_TOKENS      = (chr(127),)
 
+# Primitive supersets
 MATH_START_TOKENS = (r'\[', r'\(')
 MATH_END_TOKENS = (r'\]', r'\)')
 MATH_TOKENS = MATH_SWITCH_TOKENS + MATH_START_TOKENS + MATH_END_TOKENS
@@ -38,7 +38,10 @@ ARG_TOKENS = tuple(itertools.chain(*(arg.delims() for arg in arg_type)))
 ARG_START_TOKENS = ARG_TOKENS[::2]
 ARG_END_TOKENS = ARG_TOKENS[1::2]
 
+# TODO: misnomer, what does ALL_TOKENS actually contain?
 ALL_TOKENS = COMMAND_TOKENS + ARG_TOKENS + MATH_TOKENS + COMMENT_TOKENS
+
+# Custom higher-level combinations of primitives
 SKIP_ENVS = ('verbatim', 'equation', 'lstlisting', 'align', 'alignat',
              'equation*', 'align*', 'math', 'displaymath', 'split', 'array',
              'eqnarray', 'eqnarray*', 'multline', 'multline*', 'gather',
