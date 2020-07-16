@@ -23,7 +23,7 @@ def to_buffer(f):
 #########################
 
 
-class TokenWithPosition(str):
+class Token(str):
     """Enhanced string object with knowledge of global position."""
 
     # noinspection PyArgumentList
@@ -34,7 +34,7 @@ class TokenWithPosition(str):
         :param position: Position in the original buffer
         """
         self = str.__new__(cls, text)
-        if isinstance(text, TokenWithPosition):
+        if isinstance(text, Token):
             self.text, self.position = text.text, text.position
         else:
             self.text = text
@@ -52,12 +52,12 @@ class TokenWithPosition(str):
 
     def __eq__(self, other):
         """
-        >>> TokenWithPosition('asdf', 0) == TokenWithPosition('asdf', 2)
+        >>> Token('asdf', 0) == Token('asdf', 2)
         True
-        >>> TokenWithPosition('asdf', 0) == TokenWithPosition('asd', 0)
+        >>> Token('asdf', 0) == Token('asd', 0)
         False
         """
-        if isinstance(other, TokenWithPosition):
+        if isinstance(other, Token):
             return self.text == other.text
         else:
             return self.text == other
@@ -68,67 +68,67 @@ class TokenWithPosition(str):
     def __add__(self, other):
         """Implements addition in the form of TextWithPosition(...) + (obj).
 
-        >>> t1 = TokenWithPosition('as', 0) + TokenWithPosition('df', 1)
+        >>> t1 = Token('as', 0) + Token('df', 1)
         >>> str(t1)
         'asdf'
         >>> t1.position
         0
-        >>> t2 = TokenWithPosition('as', 1) + 'df'
+        >>> t2 = Token('as', 1) + 'df'
         >>> str(t2)
         'asdf'
-        >>> t3 = TokenWithPosition(t2)
+        >>> t3 = Token(t2)
         >>> t3.position
         1
         """
 
-        if isinstance(other, TokenWithPosition):
-            return TokenWithPosition(self.text + other.text,
+        if isinstance(other, Token):
+            return Token(self.text + other.text,
                                      self.position)
         else:
-            return TokenWithPosition(self.text + other,
+            return Token(self.text + other,
                                      self.position)
 
     def __radd__(self, other):
         """Implements addition in the form of (obj) + TextWithPosition(...).
 
-        Note that if the first element is TokenWithPosition,
-        TokenWithPosition(...).__add__(...) will be used. As a result, we
-        can assume WLOG that `other` is a type other than TokenWithPosition.
+        Note that if the first element is Token,
+        Token(...).__add__(...) will be used. As a result, we
+        can assume WLOG that `other` is a type other than Token.
 
-        >>> t1 = TokenWithPosition('as', 2) + TokenWithPosition('dfg', 2)
+        >>> t1 = Token('as', 2) + Token('dfg', 2)
         >>> str(t1)
         'asdfg'
         >>> t1.position
         2
-        >>> t2 = 'as' + TokenWithPosition('dfg', 2)
+        >>> t2 = 'as' + Token('dfg', 2)
         >>> str(t2)
         'asdfg'
         >>> t2.position
         0
         """
-        return TokenWithPosition(other + self.text,
+        return Token(other + self.text,
                                  self.position - len(other))
 
     def __iadd__(self, other):
         """Implements addition in the form of TextWithPosition(...) += ...
 
-        >>> t1 = TokenWithPosition('as', 0)
+        >>> t1 = Token('as', 0)
         >>> t1 += 'df'
         >>> str(t1)
         'asdf'
         >>> t1.position
         0
         """
-        if isinstance(other, TokenWithPosition):
-            new = TokenWithPosition(self.text + other.text, self.position)
+        if isinstance(other, Token):
+            new = Token(self.text + other.text, self.position)
         else:
-            new = TokenWithPosition(self.text + other, self.position)
+            new = Token(self.text + other, self.position)
         return new
 
     @classmethod
     def join(cls, tokens, glue=''):
         if len(tokens) > 0:
-            return TokenWithPosition(glue.join(t.text for t in tokens),
+            return Token(glue.join(t.text for t in tokens),
                                      tokens[0].position)
         else:
             return ''
@@ -138,32 +138,32 @@ class TokenWithPosition(str):
 
     def __contains__(self, item):
         """
-        >>> 'rg' in TokenWithPosition('corgi', 0)
+        >>> 'rg' in Token('corgi', 0)
         True
-        >>> 'reg' in TokenWithPosition('corgi', 0)
+        >>> 'reg' in Token('corgi', 0)
         False
-        >>> TokenWithPosition('rg', 0) in TokenWithPosition('corgi', 0)
+        >>> Token('rg', 0) in Token('corgi', 0)
         True
         """
-        if isinstance(item, TokenWithPosition):
+        if isinstance(item, Token):
             return item.text in self.text
         return item in self.text
 
     def __iter__(self):
         """
-        >>> list(TokenWithPosition('asdf', 0))
+        >>> list(Token('asdf', 0))
         ['a', 's', 'd', 'f']
         """
         return iter(self.__iter())
 
     def __iter(self):
         for i, c in enumerate(self.text):
-            yield TokenWithPosition(c, self.position + i)
+            yield Token(c, self.position + i)
 
     def __getitem__(self, i):
         """Access characters in object just as with strings.
 
-        >>> t1 = TokenWithPosition('asdf', 2)
+        >>> t1 = Token('asdf', 2)
         >>> t1[0]
         'a'
         >>> t1[-1]
@@ -179,7 +179,7 @@ class TokenWithPosition(str):
             start = 0
         if start < 0:
             start = len(self.text) + start
-        return TokenWithPosition(self.text[i], self.position + start)
+        return Token(self.text[i], self.position + start)
 
     def split(self, sep=None, maxsplit=-1):
         result = []
@@ -188,35 +188,35 @@ class TokenWithPosition(str):
         cur_offset = 0
         for s in split_res:
             cur_offset = txt.find(s, cur_offset)
-            result.append(TokenWithPosition(s, self.position + cur_offset))
+            result.append(Token(s, self.position + cur_offset))
         return result
 
     def strip(self, *args, **kwargs):
         stripped = self.text.strip(*args, **kwargs)
         offset = self.text.find(stripped)
-        return TokenWithPosition(stripped, self.position + offset)
+        return Token(stripped, self.position + offset)
 
     def lstrip(self, *args, **kwargs):
         """Strip leading whitespace for text.
 
-        >>> t = TokenWithPosition('  asdf  ', 2)
+        >>> t = Token('  asdf  ', 2)
         >>> t.lstrip()
         'asdf  '
         """
         stripped = self.text.lstrip(*args, **kwargs)
         offset = self.text.find(stripped)
-        return TokenWithPosition(stripped, self.position + offset)
+        return Token(stripped, self.position + offset)
 
     def rstrip(self, *args, **kwargs):
         """Strip trailing whitespace for text.
 
-        >>> t = TokenWithPosition('  asdf  ', 2)
+        >>> t = Token('  asdf  ', 2)
         >>> t.rstrip()
         '  asdf'
         """
         stripped = self.text.rstrip(*args, **kwargs)
         offset = self.text.find(stripped)
-        return TokenWithPosition(stripped, self.position + offset)
+        return Token(stripped, self.position + offset)
 
 
 # General Buffer class
@@ -246,7 +246,7 @@ class Buffer:
     'asdf'
     """
 
-    def __init__(self, iterator, join=TokenWithPosition.join):
+    def __init__(self, iterator, join=Token.join):
         """Initialization for Buffer.
 
         :param iterator: iterator or iterable
@@ -307,7 +307,7 @@ class Buffer:
 
         :param condition: set of valid strings
         """
-        c = TokenWithPosition('', self.peek().position)
+        c = Token('', self.peek().position)
         while self.hasNext() and not condition(self.peek()):
             c += self.forward(1)
         return c
@@ -342,7 +342,7 @@ class Buffer:
     def __next__(self):
         """Implements next."""
         while self.__i >= len(self.__queue):
-            self.__queue.append(TokenWithPosition(
+            self.__queue.append(Token(
                 next(self.__iterator), self.__i))
         self.__i += 1
         return self.__queue[self.__i - 1]

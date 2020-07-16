@@ -1,5 +1,5 @@
 from TexSoup import TexSoup
-from TexSoup.utils import TokenWithPosition
+from TexSoup.utils import Token
 from tests.config import chikin
 import pytest
 import re
@@ -45,7 +45,7 @@ def test_navigation_positions(chikin):
     assert chikin.char_pos_to_line(1) == (0, 1), 'documentclass'
     assert chikin.char_pos_to_line(172) == (11, 6), 'waddle'
 
-    assert isinstance(next(next(chikin.itemize.children).contents), TokenWithPosition)
+    assert isinstance(next(next(chikin.itemize.children).contents), Token)
 
     # get position of first token
     waddle_pos = next(next(chikin.itemize.children).contents).position
@@ -102,7 +102,7 @@ def test_delete_arg():
 
 
 def test_delete_token():
-    """Delete TokenWithPosition"""
+    """Delete Token"""
     soup = TexSoup(r"""
     \section{one}
     text
