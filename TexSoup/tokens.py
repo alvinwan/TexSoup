@@ -94,7 +94,7 @@ def next_token(text, prev=None):
     '}'
     >>> b2 = categorize(r'\gamma = \beta')
     >>> print(next_token(b2), next_token(b2), next_token(b2))
-    \ gamma  =
+    \ gamma  = 
     """
     while text.hasNext():
         for name, f in tokenizers:
