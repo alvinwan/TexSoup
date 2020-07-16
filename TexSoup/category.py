@@ -6,6 +6,7 @@ import string
 
 # Core category codes
 # https://www.overleaf.com/learn/latex/Table_of_TeX_category_codes
+others = set(string.printable) - set(string.ascii_letters) - set('{}\\$&\n\r#^_~%\x00\x7d \t')
 CATEGORY_CODES = {
     CC.Escape:     '\\',
     CC.GroupStart:  '{',  # not used
@@ -19,7 +20,7 @@ CATEGORY_CODES = {
     CC.Ignored:     chr(0),  # not used
     CC.Spacer:      (chr(32), chr(9)),    # not used
     CC.Letter:      tuple(string.ascii_letters),  # + lots of unicode
-    CC.Other:       (),  # not defined, just anything left
+    CC.Other:       tuple(others),  # not defined, just anything left
     CC.Active:      '~',  # not used
     CC.Comment:     '%',
     CC.Invalid:      chr(127),  # not used
@@ -32,7 +33,7 @@ def categorize(text):
 
     :param Union[str,iterator,Buffer] text: LaTeX to process
 
-    >>> chars = list(categorize(r'\bf{}%hello'))
+    >>> chars = list(categorize(r'\bf{}%hello+'))
     >>> chars[0].category
     <CategoryCodes.Escape: 1>
     >>> chars[1].category
@@ -43,8 +44,10 @@ def categorize(text):
     <CategoryCodes.GroupEnd: 3>
     >>> chars[5].category
     <CategoryCodes.Comment: 15>
+    >>> chars[-1].category
+    <CategoryCodes.Other: 13>
     >>> print(*chars)
-    \ b f { } % h e l l o
+    \ b f { } % h e l l o +
     >>> next(categorize(r'''
     ... ''')).category
     <CategoryCodes.EndOfLine: 6>
