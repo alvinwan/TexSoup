@@ -66,8 +66,7 @@ class Token(str):
 
         :param text: The original string
         :param position: Position in the original buffer
-        :param category: Category of token. Not that these are not persisted
-                         after string manipulation.
+        :param category: Category of token
         """
         self = str.__new__(cls, text)
         if isinstance(text, Token):
@@ -119,13 +118,10 @@ class Token(str):
         >>> t3.position
         1
         """
-
         if isinstance(other, Token):
-            return Token(self.text + other.text,
-                                     self.position)
+            return Token(self.text + other.text, self.position, self.category)
         else:
-            return Token(self.text + other,
-                                     self.position)
+            return Token(self.text + other, self.position, self.category)
 
     def __radd__(self, other):
         """Implements addition in the form of (obj) + TextWithPosition(...).
@@ -145,8 +141,8 @@ class Token(str):
         >>> t2.position
         0
         """
-        return Token(other + self.text,
-                                 self.position - len(other))
+        return Token(
+            other + self.text, self.position - len(other), self.category)
 
     def __iadd__(self, other):
         """Implements addition in the form of TextWithPosition(...) += ...
@@ -159,16 +155,18 @@ class Token(str):
         0
         """
         if isinstance(other, Token):
-            new = Token(self.text + other.text, self.position)
+            new = Token(self.text + other.text, self.position, self.category)
         else:
-            new = Token(self.text + other, self.position)
+            new = Token(self.text + other, self.position, self.category)
         return new
 
     @classmethod
     def join(cls, tokens, glue=''):
         if len(tokens) > 0:
-            return Token(glue.join(t.text for t in tokens),
-                                     tokens[0].position)
+            return Token(
+                glue.join(t.text for t in tokens),
+                tokens[0].position,
+                tokens[0].category)
         else:
             return ''
 
@@ -197,7 +195,7 @@ class Token(str):
 
     def __iter(self):
         for i, c in enumerate(self.text):
-            yield Token(c, self.position + i)
+            yield Token(c, self.position + i, self.category)
 
     def __getitem__(self, i):
         """Access characters in object just as with strings.
@@ -218,7 +216,7 @@ class Token(str):
             start = 0
         if start < 0:
             start = len(self.text) + start
-        return Token(self.text[i], self.position + start)
+        return Token(self.text[i], self.position + start, self.category)
 
     def split(self, sep=None, maxsplit=-1):
         result = []
@@ -227,13 +225,13 @@ class Token(str):
         cur_offset = 0
         for s in split_res:
             cur_offset = txt.find(s, cur_offset)
-            result.append(Token(s, self.position + cur_offset))
+            result.append(Token(s, self.position + cur_offset, self.category))
         return result
 
     def strip(self, *args, **kwargs):
         stripped = self.text.strip(*args, **kwargs)
         offset = self.text.find(stripped)
-        return Token(stripped, self.position + offset)
+        return Token(stripped, self.position + offset, self.category)
 
     def lstrip(self, *args, **kwargs):
         """Strip leading whitespace for text.
@@ -244,7 +242,7 @@ class Token(str):
         """
         stripped = self.text.lstrip(*args, **kwargs)
         offset = self.text.find(stripped)
-        return Token(stripped, self.position + offset)
+        return Token(stripped, self.position + offset, self.category)
 
     def rstrip(self, *args, **kwargs):
         """Strip trailing whitespace for text.
@@ -255,7 +253,7 @@ class Token(str):
         """
         stripped = self.text.rstrip(*args, **kwargs)
         offset = self.text.find(stripped)
-        return Token(stripped, self.position + offset)
+        return Token(stripped, self.position + offset, self.category)
 
 
 # General Buffer class
