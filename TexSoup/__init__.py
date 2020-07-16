@@ -69,7 +69,7 @@ def TexSoup(tex_code, skip_envs=()):
     \end{itemize}
     >>> soup.item
     \item red lemon
-    ...
+    <BLANKLINE>
     >>> list(soup.find_all('item'))
     [\item red lemon
     , \item life

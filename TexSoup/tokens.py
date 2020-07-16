@@ -21,12 +21,13 @@ END_OF_LINE_TOKENS  = ('\n', '\r')
 GCC = IntEnum('GroupedCategoryCodes', (
     'Comment',
     'Group',  # denoted by curly brace
-    'Spacer',  # whitespace allowed between <command name> and arguments
+    'MergedSpacer',  # whitespace allowed between <command name> and arguments
     'EscapedComment',
     'SizeCommand',
     'MathSwitch',
     'MathGroupStart',
-    'MathGroupEnd'
+    'MathGroupEnd',
+    'LineBreak',
 ), start=CC.Invalid + 1)
 
 
@@ -82,7 +83,7 @@ def next_token(text, prev=None):
     '}'
     >>> b2 = categorize(r'\gamma = \beta')
     >>> print(next_token(b2), next_token(b2), next_token(b2))
-    \ gamma  = 
+    \ gamma  =
     """
     while text.hasNext():
         for name, f in tokenizers:
@@ -258,6 +259,32 @@ def tokenize_argument(text, prev=None):
             return text.forward(len(delim))
 
 
+@token('line_break')
+def tokenize_line_break(text, prev=None):
+    r"""Extract LaTeX line breaks.
+
+    >>> tokenize_line_break(categorize(r'\\aaa'))
+    '\\\\'
+    >>> tokenize_line_break(categorize(r'\aaa'))
+    """
+    if text.peek().category == CC.Escape and text.peek(1) \
+            and text.peek(1).category == CC.Escape:
+        result = text.forward(2)
+        result.category = GCC.LineBreak
+        return result
+
+
+@token('ignore')
+def ignore(text, prev=None):
+    r"""Filter out ignored or invalid characters
+
+    >>> print(*tokenize(categorize('\x00hello')))
+    hello
+    """
+    while text.peek().category in (CC.Ignored, CC.Invalid):
+        text.forward(1)
+
+
 @token('symbols')
 def tokenize_symbols(text, prev=None):
     r"""Process singletone symbols as standalone tokens.
@@ -276,12 +303,25 @@ def tokenize_symbols(text, prev=None):
 
 @token('command_name')
 def tokenize_command_name(text, prev=None):
-    """Extract most restrictive subset possibility for command name.
+    r"""Extract most restrictive subset possibility for command name.
 
     Parser can later join allowed spacers and macros to assemble the final
     command name and arguments.
+
+    >>> b = categorize(r'\bf{')
+    >>> _ = next(b)
+    >>> tokenize_command_name(b)
+    'bf'
+    >>> b = categorize(r'\bf,')
+    >>> _ = next(b)
+    >>> tokenize_command_name(b)
+    'bf'
+    >>> b = categorize(r'\bf*{')
+    >>> _ = next(b)
+    >>> tokenize_command_name(b)
+    'bf*'
     """
-    if text.peek(-1).category == CC.Escape:
+    if text.peek(-1) and text.peek(-1).category == CC.Escape:
         c = text.forward(1)
         while text.hasNext() and text.peek().category == CC.Letter \
                 or text.peek() == '*':  # TODO: what do about asterisk?
