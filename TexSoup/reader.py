@@ -4,6 +4,7 @@ subject to change."""
 from TexSoup.utils import Buffer, Token
 from TexSoup.data import *
 from TexSoup.tokens import (
+    GCC,
     tokenize,
     ARG_START_TOKENS,
     ARG_END_TOKENS,
@@ -12,7 +13,6 @@ from TexSoup.tokens import (
     MATH_SWITCH_TOKENS,
     END_OF_LINE_TOKENS,
     COMMENT_TOKEN,
-    MATH_START_TOKENS
 )
 import string
 
@@ -29,12 +29,12 @@ def read_tex(src, skip_envs=(), context=None):
     :return: TexExpr
     """
     c = next(src)
-    if c.startswith(COMMENT_TOKEN):
+    if c.category == GCC.Comment:
         return c
-    elif c in MATH_SWITCH_TOKENS:
+    elif c.category == GCC.MathSwitch:
         expr = TexEnv(c, [], nobegin=True)
         return read_math_env(src, expr)
-    elif c in MATH_START_TOKENS:
+    elif c.category == GCC.MathGroupStart:
         if c.startswith(TexDisplayMathEnv.start()):
             expr = TexDisplayMathEnv([])
         else:
