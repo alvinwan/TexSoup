@@ -1,7 +1,7 @@
 import bisect
 import functools
 
-from enum import Enum
+from enum import IntEnum
 
 
 ##############
@@ -37,8 +37,8 @@ def to_buffer(convert_in=True, convert_out=True):
 ##########
 
 
-CC = Enum('CategoryCodes', (
-    'Command',
+CC = IntEnum('CategoryCodes', (
+    'Escape',
     'GroupStart',
     'GroupEnd',
     'MathSwitch',

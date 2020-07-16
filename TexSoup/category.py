@@ -7,7 +7,7 @@ import string
 # Core category codes
 # https://www.overleaf.com/learn/latex/Table_of_TeX_category_codes
 CATEGORY_CODES = {
-    CC.Command:     '\\',
+    CC.Escape:     '\\',
     CC.GroupStart:  '{',  # not used
     CC.GroupEnd:    '}',  # not used
     CC.MathSwitch:  ('$$', '$'),
@@ -32,15 +32,19 @@ def categorize(text):
 
     :param Union[str,iterator,Buffer] text: LaTeX to process
 
-    >>> chars = list(categorize(r'\textbf{'))
+    >>> chars = list(categorize(r'\bf{}%hello'))
     >>> chars[0].category
-    <CategoryCodes.Command: 1>
+    <CategoryCodes.Escape: 1>
     >>> chars[1].category
     <CategoryCodes.Letter: 12>
-    >>> chars[-1].category
+    >>> chars[3].category
     <CategoryCodes.GroupStart: 2>
+    >>> chars[4].category
+    <CategoryCodes.GroupEnd: 3>
+    >>> chars[5].category
+    <CategoryCodes.Comment: 15>
     >>> print(*chars)
-    \ t e x t b f {
+    \ b f { } % h e l l o
     """
     for position, char in enumerate(text):
 
