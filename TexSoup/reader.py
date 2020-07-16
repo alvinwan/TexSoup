@@ -1,9 +1,9 @@
 """Parsing mechanisms should not be directly invoked publicly, as they are
 subject to change."""
 
-from TexSoup.utils import Buffer, Token
+from TexSoup.utils import Buffer
 from TexSoup.data import *
-from TexSoup.tokenize import *
+from TexSoup.tokens import *
 
 __all__ = ['tokenize', 'read_tex']
 

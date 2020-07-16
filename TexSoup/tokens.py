@@ -5,7 +5,7 @@ token at a time.
 """
 
 from TexSoup.utils import to_buffer, Buffer, Token
-import TexSoup.data as data
+from . import data
 import string
 
 
@@ -80,9 +80,9 @@ def tokenize(text):
         current_token = next_token(text)
 
 
-##########
-# Tokens #
-##########
+##############
+# Tokenizers #
+##############
 
 tokenizers = []
 

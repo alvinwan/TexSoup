@@ -14,7 +14,7 @@ def read(tex, skip_envs=()):
         tex = tex
     else:
         tex = ''.join(itertools.chain(*tex))
-    buf, children = Buffer(tokenize(tex)), []
+    buf, children = Buffer(tokenize(tex), join=Token.join), []
     while buf.hasNext():
         content = read_tex(buf, skip_envs=skip_envs)
         if content is not None:
