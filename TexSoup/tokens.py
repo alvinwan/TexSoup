@@ -20,7 +20,6 @@ END_OF_LINE_TOKENS  = ('\n', '\r')
 # Only includes items that cannot cause failures
 GCC = IntEnum('GroupedCategoryCodes', (
     'Comment',
-    'Group',  # denoted by curly brace
     'MergedSpacer',  # whitespace allowed between <command name> and arguments
     'EscapedComment',
     'SizeCommand',
