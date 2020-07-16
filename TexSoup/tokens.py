@@ -18,7 +18,10 @@ END_OF_LINE_TOKENS  = ('\n', '\r')
 
 
 # Only includes items that cannot cause failures
-GCC = IntEnum('GroupedCategoryCodes', (
+TC = IntEnum('TokenCode', (
+    'Escape',
+    'GroupStart',
+    'GroupEnd',
     'Comment',
     'MergedSpacer',  # whitespace allowed between <command name> and arguments
     'EscapedComment',
@@ -27,6 +30,12 @@ GCC = IntEnum('GroupedCategoryCodes', (
     'MathGroupStart',
     'MathGroupEnd',
     'LineBreak',
+    'CommandName',
+    'Text',
+
+    # temporary
+    'PunctuationCommandName',
+    'ArgumentDelimiter',
 ), start=CC.Invalid + 1)
 
 
@@ -108,6 +117,7 @@ def tokenize(text):
     """
     current_token = next_token(text)
     while current_token is not None:
+        assert current_token.category in TC
         yield current_token
         current_token = next_token(text, prev=current_token)
 
@@ -154,7 +164,7 @@ def tokenize_escaped_symbols(text, prev=None):
                 CC.Escape, CC.GroupStart, CC.GroupEnd, CC.MathSwitch,
                 CC.Comment):
         result = text.forward(2)
-        result.category = GCC.EscapedComment
+        result.category = TC.EscapedComment
         return result
 
 
@@ -185,7 +195,7 @@ def tokenize_line_comment(text, prev=None):
         result += text.forward(1)
         while text.hasNext() and text.peek().category != CC.EndOfLine:
             result += text.forward(1)
-        result.category = GCC.Comment
+        result.category = TC.Comment
         return result
 
 
@@ -205,7 +215,7 @@ def tokenize_math_sym_switch(text, prev=None):
             result = Token(text.forward(2), text.position)
         else:
             result = Token(text.forward(1), text.position)
-        result.category = GCC.MathSwitch
+        result.category = TC.MathSwitch
         return result
 
 
@@ -224,38 +234,10 @@ def tokenize_math_asym_switch(text, prev=None):
     if text.peek((0, 2)) in MATH_START_TOKENS + MATH_END_TOKENS:
         result = text.forward(2)
         if result in MATH_START_TOKENS:
-            result.category = GCC.MathGroupStart
+            result.category = TC.MathGroupStart
         else:
-            result.category = GCC.MathGroupEnd
+            result.category = TC.MathGroupEnd
         return result
-
-
-# TODO: move me to parser
-@token('punctuation_command')
-def tokenize_punctuation_command(text, prev=None):
-    """Process command that augments or modifies punctuation.
-
-    This is important to the tokenization of a string, as opening or closing
-    punctuation is not supposed to match.
-
-    :param Buffer text: iterator over text, with current position
-    """
-    if text.peek().category == CC.Escape:
-        for point in PUNCTUATION_COMMANDS:
-            if text.peek((1, len(point) + 1)) == point:
-                return text.forward(len(point) + 1)
-
-
-# TODO: update string tokenizer so this isn't needed
-@token('argument')
-def tokenize_argument(text, prev=None):
-    """Process both optional and required arguments.
-
-    :param Buffer text: iterator over line, with current position
-    """
-    for delim in ARG_TOKENS:
-        if text.startswith(delim):
-            return text.forward(len(delim))
 
 
 @token('line_break')
@@ -269,7 +251,7 @@ def tokenize_line_break(text, prev=None):
     if text.peek().category == CC.Escape and text.peek(1) \
             and text.peek(1).category == CC.Escape:
         result = text.forward(2)
-        result.category = GCC.LineBreak
+        result.category = TC.LineBreak
         return result
 
 
@@ -295,9 +277,49 @@ def tokenize_symbols(text, prev=None):
     >>> next(tokenize(categorize(r'\bf  {turing}')))
     '\\'
     """
+    mapping = {
+        CC.Escape:     TC.Escape,
+        CC.GroupStart: TC.GroupStart,
+        CC.GroupEnd:   TC.GroupEnd
+    }
     if text.peek().category in (
-            CC.Escape, CC.GroupStart, CC.GroupEnd): #, CC.EndOfLine):
-        return text.forward(1)
+            CC.Escape, CC.GroupStart, CC.GroupEnd):
+        result = text.forward(1)
+        result.category = mapping[result.category]
+        return result
+
+
+# TODO: move me to parser (should parse punctuation as arg +
+# store punctuation commads as macro)
+@token('punctuation_command_name')
+def tokenize_punctuation_command_name(text, prev=None):
+    """Process command that augments or modifies punctuation.
+
+    This is important to the tokenization of a string, as opening or closing
+    punctuation is not supposed to match.
+
+    :param Buffer text: iterator over text, with current position
+    """
+    if text.peek(-1) and text.peek(-1).category == CC.Escape:
+        for point in PUNCTUATION_COMMANDS:
+            if text.peek((0, len(point))) == point:
+                result = text.forward(len(point) + 1)
+                result.category = TC.PunctuationCommandName
+                return result
+
+
+# TODO: update string tokenizer so this isn't needed
+@token('argument')
+def tokenize_argument(text, prev=None):
+    """Process both optional and required arguments.
+
+    :param Buffer text: iterator over line, with current position
+    """
+    for delim in ARG_TOKENS:
+        if text.startswith(delim):
+            result = text.forward(len(delim))
+            result.category = TC.ArgumentDelimiter
+            return result
 
 
 @token('command_name')
@@ -320,13 +342,15 @@ def tokenize_command_name(text, prev=None):
     >>> tokenize_command_name(b)
     'bf*'
     """
-    if text.peek(-1) and text.peek(-1).category == CC.Escape:
+    if text.peek(-1) and text.peek(-1).category == CC.Escape \
+            and text.peek().category == CC.Letter:
         c = text.forward(1)
         while text.hasNext() and text.peek().category == CC.Letter \
                 or text.peek() == '*':  # TODO: what do about asterisk?
             # TODO: excluded other, macro, super, sub, acttive, alignment
             # although macros can make these a part of the command name
             c += text.forward(1)
+        c.category = TC.CommandName
         return c
 
 
@@ -350,7 +374,7 @@ def tokenize_string(text, delimiters=None, prev=None):
     """
     if delimiters is None:
         delimiters = ALL_TOKENS
-    result = Token('', text.position)
+    result = Token('', text.position, category=TC.Text)
     for c in text:
         if c.category == CC.Escape and str(text.peek()) in delimiters and str(
                 c + text.peek()) not in delimiters:

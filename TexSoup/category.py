@@ -33,7 +33,7 @@ def categorize(text):
 
     :param Union[str,iterator,Buffer] text: LaTeX to process
 
-    >>> chars = list(categorize(r'\bf{}%hello+'))
+    >>> chars = list(categorize(r'\bf{}%hello+😂'))
     >>> chars[0].category
     <CategoryCodes.Escape: 1>
     >>> chars[1].category
@@ -44,10 +44,12 @@ def categorize(text):
     <CategoryCodes.GroupEnd: 3>
     >>> chars[5].category
     <CategoryCodes.Comment: 15>
+    >>> chars[-2].category
+    <CategoryCodes.Other: 13>
     >>> chars[-1].category
     <CategoryCodes.Other: 13>
     >>> print(*chars)
-    \ b f { } % h e l l o +
+    \ b f { } % h e l l o + 😂
     >>> next(categorize(r'''
     ... ''')).category
     <CategoryCodes.EndOfLine: 6>

@@ -1,10 +1,10 @@
 """Parsing mechanisms should not be directly invoked publicly, as they are
 subject to change."""
 
-from TexSoup.utils import Token, CC, to_buffer
+from TexSoup.utils import Token, to_buffer
 from TexSoup.data import *
 from TexSoup.tokens import (
-    GCC,
+    TC,
     tokenize,
     ARG_START_TOKENS,
     ARG_END_TOKENS,
@@ -28,19 +28,20 @@ def read_tex(src, skip_envs=(), context=None):
     """
     c = next(src)
     # TODO: assemble and use groups
-    if c.category == GCC.Comment:
+    from TexSoup.utils import CC
+    if c.category == TC.Comment:
         return c
-    elif c.category == GCC.MathSwitch:
+    elif c.category == TC.MathSwitch:
         expr = TexEnv(c, [], nobegin=True)
         return read_math_env(src, expr)
-    elif c.category == GCC.MathGroupStart:
+    elif c.category == TC.MathGroupStart:
         if c.startswith(TexDisplayMathEnv.start()):
             expr = TexDisplayMathEnv([])
         else:
             expr = TexMathEnv([])
         return read_math_env(src, expr)
     # TODO: reduce to command-parsing only -- assemble envs in 2nd pass
-    elif c.category == CC.Escape:
+    elif c.category in (TC.Escape, CC.Escape):
         command = Token(src.forward(1), src.position)
         if command == 'item':
             contents, arg = read_item(src)

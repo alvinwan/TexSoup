@@ -105,6 +105,10 @@ class Token(str):
             return self.text == other
 
     def __hash__(self):
+        """
+        >>> hash(Token('asf')) == hash('asf')
+        True
+        """
         return hash(self.text)
 
     def __add__(self, other):
