@@ -246,16 +246,21 @@ def tokenize_argument(text):
 # TODO: move me to parser
 @token('command')
 def tokenize_command(text):
-    """Process command, but ignore line breaks. (double backslash)
+    r"""Process command, but ignore line breaks. (double backslash)
 
     :param Buffer text: iterator over line, with current position
+
+    >>> next(tokenize(categorize(r'\begin turing')))
+    '\\begin'
+    >>> next(tokenize(categorize(r'\bf  {turing}')))
+    '\\bf'
     """
     if text.peek().category == CC.Escape:
         c = text.forward(1)
-        # TODO: replace with constants
-        tokens = set(string.punctuation + string.whitespace) - {'*'}
-        while text.hasNext() and (
-                c.category != CC.Escape or text.peek() not in tokens):
+        while text.hasNext() and text.peek().category == CC.Letter \
+                or text.peek() == '*':  # TODO: what do about asterisk?
+            # TODO: excluded other, macro, super, sub, acttive, alignment
+            # although macros can make these a part of the command name
             c += text.forward(1)
         return c
 
