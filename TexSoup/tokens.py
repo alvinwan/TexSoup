@@ -5,15 +5,15 @@ token at a time.
 """
 
 from TexSoup.utils import to_buffer, Buffer, Token
-from . import data
+from TexSoup.data import arg_type
 import string
 
 
 COMMAND_TOKENS = {'\\'}
 MATH_TOKENS = {'$', r'\[', r'\]', r'\(', r'\)'}
 COMMENT_TOKENS = {'%'}
-ARG_START_TOKENS = {arg.delims()[0] for arg in data.arg_type}
-ARG_END_TOKENS = {arg.delims()[1] for arg in data.arg_type}
+ARG_START_TOKENS = {arg.delims()[0] for arg in arg_type}
+ARG_END_TOKENS = {arg.delims()[1] for arg in arg_type}
 ARG_TOKENS = ARG_START_TOKENS | ARG_END_TOKENS
 ALL_TOKENS = COMMAND_TOKENS | ARG_TOKENS | MATH_TOKENS | COMMENT_TOKENS
 SKIP_ENVS = ('verbatim', 'equation', 'lstlisting', 'align', 'alignat',
@@ -29,6 +29,8 @@ SIZE_PREFIX = ('left', 'right', 'big', 'Big', 'bigg', 'Bigg')
 PUNCTUATION_COMMANDS = {command + bracket
                         for command in SIZE_PREFIX
                         for bracket in BRACKETS_DELIMITERS.union({'|', '.'})}
+
+__all__ = ['tokenize']
 
 
 @to_buffer

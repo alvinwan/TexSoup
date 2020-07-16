@@ -1,6 +1,7 @@
-from TexSoup.reader import *
+from TexSoup.reader import read_tex
 from TexSoup.data import *
 from TexSoup.utils import *
+from TexSoup.tokens import tokenize
 import itertools
 
 
