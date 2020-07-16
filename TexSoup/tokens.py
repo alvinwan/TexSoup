@@ -60,7 +60,7 @@ PUNCTUATION_COMMANDS = {command + bracket
 __all__ = ['tokenize']
 
 
-def next_token(text):
+def next_token(text, prev=None):
     r"""Returns the next possible token, advancing the iterator to the next
     position to start processing from.
 
@@ -86,7 +86,7 @@ def next_token(text):
     """
     while text.hasNext():
         for name, f in tokenizers:
-            current_token = f(text)
+            current_token = f(text, prev=prev)
             if current_token is not None:
                 return current_token
 
@@ -97,6 +97,10 @@ def tokenize(text):
 
     :param Union[str,iterator,Buffer] text: LaTeX to process
 
+    >>> print(*tokenize(categorize(r'\\%}')))
+    \\ %}
+    >>> print(*tokenize(categorize(r'\textbf{hello \\%}')))
+    \ textbf { hello \\ %}
     >>> print(*tokenize(categorize(r'\textbf{Do play \textit{nice}.}')))
     \ textbf { Do play  \ textit { nice } . }
     >>> print(*tokenize(categorize(r'\begin{tabular} 0 & 1 \\ 2 & 0 \end{tabular}')))
@@ -105,7 +109,7 @@ def tokenize(text):
     current_token = next_token(text)
     while current_token is not None:
         yield current_token
-        current_token = next_token(text)
+        current_token = next_token(text, prev=current_token)
 
 
 ##############
@@ -129,12 +133,17 @@ def token(name):
 
 
 @token('escaped_symbols')
-def tokenize_escaped_symbols(text):
+def tokenize_escaped_symbols(text, prev=None):
     r"""Process an escaped symbol.
 
     :param Buffer text: iterator over line, with current position
 
-    >>> tokenize_escaped_symbols(categorize('\\'))
+    >>> tokenize_escaped_symbols(categorize(r'\\'))
+    '\\\\'
+    >>> tokenize_escaped_symbols(categorize(r'\\%'))
+    '\\\\'
+    >>> tokenize_escaped_symbols(categorize(r'\}'))
+    '\\}'
     >>> tokenize_escaped_symbols(categorize(r'\%'))
     '\\%'
     >>> tokenize_escaped_symbols(categorize(r'\ %'))  # not even one spacer is allowed
@@ -150,7 +159,7 @@ def tokenize_escaped_symbols(text):
 
 
 @token('comment')
-def tokenize_line_comment(text):
+def tokenize_line_comment(text, prev=None):
     r"""Process a line comment
 
     :param Buffer text: iterator over line, with current position
@@ -158,15 +167,21 @@ def tokenize_line_comment(text):
     >>> tokenize_line_comment(categorize('%hello world\\'))
     '%hello world\\'
     >>> tokenize_line_comment(categorize('hello %world'))
-    >>> tokenize_line_comment(categorize('%hello world'))
-    '%hello world'
+    >>> tokenize_line_comment(categorize('%}hello world'))
+    '%}hello world'
+    >>> tokenize_line_comment(categorize('%}  '))
+    '%}  '
     >>> tokenize_line_comment(categorize('%hello\n world'))
     '%hello'
+    >>> b = categorize(r'\\%')
+    >>> _ = next(b), next(b)
+    >>> tokenize_line_comment(b)
+    '%'
     >>> tokenize_line_comment(categorize('\%'))
     """
     result = Token('', text.position)
-    if text.peek().category == CC.Comment \
-            and text.peek(-1).category != CC.Escape:
+    if text.peek().category == CC.Comment and (
+            prev is None or prev.category != CC.Comment):
         result += text.forward(1)
         while text.hasNext() and text.peek().category != CC.EndOfLine:
             result += text.forward(1)
@@ -175,7 +190,7 @@ def tokenize_line_comment(text):
 
 
 @token('math_sym_switch')
-def tokenize_math_sym_switch(text):
+def tokenize_math_sym_switch(text, prev=None):
     r"""Group characters in math switches.
 
     :param Buffer text: iterator over line, with current position
@@ -195,7 +210,7 @@ def tokenize_math_sym_switch(text):
 
 
 @token('math_asym_switch')
-def tokenize_math_asym_switch(text):
+def tokenize_math_asym_switch(text, prev=None):
     r"""Group characters in begin-end-style math switches
 
     :param Buffer text: iterator over line, with current position
@@ -217,7 +232,7 @@ def tokenize_math_asym_switch(text):
 
 # TODO: move me to parser
 @token('punctuation_command')
-def tokenize_punctuation_command(text):
+def tokenize_punctuation_command(text, prev=None):
     """Process command that augments or modifies punctuation.
 
     This is important to the tokenization of a string, as opening or closing
@@ -233,7 +248,7 @@ def tokenize_punctuation_command(text):
 
 # TODO: update string tokenizer so this isn't needed
 @token('argument')
-def tokenize_argument(text):
+def tokenize_argument(text, prev=None):
     """Process both optional and required arguments.
 
     :param Buffer text: iterator over line, with current position
@@ -243,10 +258,9 @@ def tokenize_argument(text):
             return text.forward(len(delim))
 
 
-# TODO: move me to parser
-@token('command')
-def tokenize_command(text):
-    r"""Process command, but ignore line breaks. (double backslash)
+@token('symbols')
+def tokenize_symbols(text, prev=None):
+    r"""Process singletone symbols as standalone tokens.
 
     :param Buffer text: iterator over line, with current position
 
@@ -255,12 +269,18 @@ def tokenize_command(text):
     >>> next(tokenize(categorize(r'\bf  {turing}')))
     '\\'
     """
-    if text.peek().category == CC.Escape:
+    if text.peek().category in (
+            CC.Escape, CC.GroupStart, CC.GroupEnd): #, CC.EndOfLine):
         return text.forward(1)
 
 
 @token('command_name')
-def tokenize_command_name(text):
+def tokenize_command_name(text, prev=None):
+    """Extract most restrictive subset possibility for command name.
+
+    Parser can later join allowed spacers and macros to assemble the final
+    command name and arguments.
+    """
     if text.peek(-1).category == CC.Escape:
         c = text.forward(1)
         while text.hasNext() and text.peek().category == CC.Letter \
@@ -273,7 +293,7 @@ def tokenize_command_name(text):
 
 # TODO: clean up
 @token('string')
-def tokenize_string(text, delimiters=None):
+def tokenize_string(text, delimiters=None, prev=None):
     r"""Process a string of text
 
     :param Buffer text: iterator over line, with current position
