@@ -4,8 +4,10 @@ Translates string into iterable `TexSoup.utils.Buffer`, yielding one
 token at a time.
 """
 
-from TexSoup.utils import to_buffer, Buffer, Token
+from TexSoup.utils import to_buffer, Buffer, Token, CC
 from TexSoup.data import arg_type
+from TexSoup.category import categorize  # used for tests
+from enum import IntEnum
 import itertools
 import string
 
@@ -29,6 +31,17 @@ ACTIVE_TOKEN        = '~'  # not used
 COMMENT_TOKEN       = '%'
 INVALID_TOKEN       = chr(127)  # not used
 
+
+# Only includes items that cannot cause failures
+GCC = IntEnum('GroupedCategoryCodes', (
+    'Comment',
+    'Group',  # denoted by curly brace
+    'Spacer',  # whitespace allowed between \, <command name>, and arguments
+    'EscapedComment',
+    'SizeCommand',
+), start=CC.Invalid + 1)
+
+
 # Supersets of category codes
 MATH_START_TOKENS = (r'\[', r'\(')
 MATH_END_TOKENS = (r'\]', r'\)')
@@ -51,6 +64,7 @@ BRACKETS_DELIMITERS = {'(', ')', '<', '>', '[', ']', '{', '}',
                        r'\{', r'\}', '.' '|', r'\langle', r'\rangle',
                        r'\lfloor', '\rfloor', r'\lceil', r'\rceil',
                        r'\ulcorner', r'\urcorner', r'\lbrack', r'\rbrack'}
+# TODO: looks like left-right do have to match
 SIZE_PREFIX = ('left', 'right', 'big', 'Big', 'bigg', 'Bigg')
 PUNCTUATION_COMMANDS = {command + bracket
                         for command in SIZE_PREFIX
@@ -66,20 +80,20 @@ def next_token(text):
     :param Union[str,iterator,Buffer] text: LaTeX to process
     :return str: the token
 
-    >>> b = Buffer(r'\textbf{Do play\textit{nice}.}   $$\min_w \|w\|_2^2$$')
+    >>> b = categorize(r'\textbf{Do play\textit{nice}.}   $$\min_w \|w\|_2^2$$')
     >>> print(next_token(b), next_token(b), next_token(b), next_token(b))
     \textbf { Do play \textit
     >>> print(next_token(b), next_token(b), next_token(b), next_token(b))
     { nice } .
     >>> print(next_token(b))
     }
-    >>> print(next_token(Buffer('.}')))
+    >>> print(next_token(categorize('.}')))
     .
     >>> next_token(b)
     '   '
     >>> next_token(b)
     '$$'
-    >>> b2 = Buffer(r'\gamma = \beta')
+    >>> b2 = categorize(r'\gamma = \beta')
     >>> print(next_token(b2), next_token(b2), next_token(b2))
     \gamma  =  \beta
     """
@@ -127,6 +141,72 @@ def token(name):
     return wrap
 
 
+@token('escaped_symbols')
+def tokenize_escaped_symbols(text):
+    r"""Process an escaped symbol.
+
+    :param Buffer text: iterator over line, with current position
+
+    >>> tokenize_escaped_symbols(categorize('\\'))
+    >>> tokenize_escaped_symbols(categorize(r'\%'))
+    '\\%'
+    >>> tokenize_escaped_symbols(categorize(r'\ %'))  # not even one spacer is allowed
+    """
+    if text.peek().category == CC.Escape \
+            and text.peek(1) \
+            and text.peek(1).category in (
+                CC.Escape, CC.GroupStart, CC.GroupEnd, CC.MathSwitch,
+                CC.Comment):
+        result = text.forward(2)
+        result.category = GCC.EscapedComment
+        return result
+
+
+@token('comment')
+def tokenize_line_comment(text):
+    r"""Process a line comment
+
+    :param Buffer text: iterator over line, with current position
+
+    >>> tokenize_line_comment(categorize('%hello world\\'))
+    '%hello world\\'
+    >>> tokenize_line_comment(categorize('hello %world'))
+    >>> tokenize_line_comment(categorize('%hello world'))
+    '%hello world'
+    >>> tokenize_line_comment(categorize('%hello\n world'))
+    '%hello'
+    >>> tokenize_line_comment(categorize('\%'))
+    """
+    result = Token('', text.position)
+    if text.peek().category == CC.Comment \
+            and text.peek(-1).category != CC.Escape:
+        result += text.forward(1)
+        while text.hasNext() and text.peek().category != CC.EndOfLine:
+            result += text.forward(1)
+        result.category = GCC.Comment
+        return result
+
+
+@token('math_switch')
+def tokenize_math(text):
+    r"""Group characters in math switches.
+
+    :param Buffer text: iterator over line, with current position
+
+    >>> b = categorize(r'$\min_x$ \command')
+    >>> tokenize_math(b)
+    '$'
+    >>> b = categorize(r'$$\min_x$$ \command')
+    >>> tokenize_math(b)
+    '$$'
+    """
+    if text.peek().category == CC.MathSwitch:
+        if text.peek(1) and text.peek(1).category == CC.MathSwitch:
+            return Token(text.forward(2), text.position)
+        return Token(text.forward(1), text.position)
+
+
+# TODO: move me to parser
 @token('punctuation_command')
 def tokenize_punctuation_command(text):
     """Process command that augments or modifies punctuation.
@@ -136,12 +216,13 @@ def tokenize_punctuation_command(text):
 
     :param Buffer text: iterator over text, with current position
     """
-    if text.peek() == COMMAND_TOKEN:
+    if text.peek().category == CC.Escape:
         for point in PUNCTUATION_COMMANDS:
             if text.peek((1, len(point) + 1)) == point:
                 return text.forward(len(point) + 1)
 
 
+# TODO: move me to parser
 @token('command')
 def tokenize_command(text):
     """Process command, but ignore line breaks. (double backslash)
@@ -158,26 +239,7 @@ def tokenize_command(text):
         return c
 
 
-@token('line_comment')
-def tokenize_line_comment(text):
-    r"""Process a line comment
-
-    :param Buffer text: iterator over line, with current position
-
-    >>> tokenize_line_comment(Buffer('hello %world'))
-    >>> tokenize_line_comment(Buffer('%hello world'))
-    '%hello world'
-    >>> tokenize_line_comment(Buffer('%hello\n world'))
-    '%hello'
-    """
-    result = Token('', text.position)
-    if text.peek() == COMMENT_TOKEN and text.peek(-1) != COMMAND_TOKEN:
-        result += text.forward(1)
-        while text.peek() not in END_OF_LINE_TOKENS and text.hasNext():
-            result += text.forward(1)
-        return result
-
-
+# TODO: update string tokenizer so this isn't needed
 @token('argument')
 def tokenize_argument(text):
     """Process both optional and required arguments.
@@ -189,27 +251,7 @@ def tokenize_argument(text):
             return text.forward(len(delim))
 
 
-@token('math')
-def tokenize_math(text):
-    r"""Prevents math from being tokenized.
-
-    :param Buffer text: iterator over line, with current position
-
-    >>> b = Buffer(r'$\min_x$ \command')
-    >>> tokenize_math(b)
-    '$'
-    >>> b = Buffer(r'$$\min_x$$ \command')
-    >>> tokenize_math(b)
-    '$$'
-    """
-    for switch in MATH_SWITCH_TOKENS:
-        if text.startswith(switch) and (
-           text.position == 0
-           or text.peek(-1) != COMMAND_TOKEN
-           or text.endswith(r'\\')):
-                return Token(text.forward(len(switch)), text.position)
-
-
+# TODO: clean up
 @token('string')
 def tokenize_string(text, delimiters=None):
     r"""Process a string of text
@@ -217,14 +259,14 @@ def tokenize_string(text, delimiters=None):
     :param Buffer text: iterator over line, with current position
     :param Union[None,iterable,str] delimiters: defines the delimiters
 
-    >>> tokenize_string(Buffer('hello'))
+    >>> tokenize_string(categorize('hello'))
     'hello'
-    >>> b = Buffer(r'hello again\command')
+    >>> b = categorize(r'hello again\command')
     >>> tokenize_string(b)
     'hello again'
     >>> print(b.peek())
     \
-    >>> print(tokenize_string(Buffer(r'0 & 1 \\\command')))
+    >>> print(tokenize_string(categorize(r'0 & 1 \\\command')))
     0 & 1 \\
     """
     if delimiters is None:
