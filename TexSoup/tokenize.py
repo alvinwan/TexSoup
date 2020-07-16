@@ -1,6 +1,7 @@
-"""
-Tokenization for all input. Translates string into iterable
-`TexSoup.utils.Buffer`, yielding one token at a time.
+"""Tokenization for all input.
+
+Translates string into iterable `TexSoup.utils.Buffer`, yielding one
+token at a time.
 """
 
 from TexSoup.utils import to_buffer, Buffer, TokenWithPosition
@@ -87,7 +88,7 @@ tokenizers = []
 
 
 def token(name):
-    """Marker for a token
+    """Marker for a token.
 
     :param str name: Name of tokenizer
     """
@@ -123,7 +124,8 @@ def tokenize_command(text):
     if text.peek() == '\\':
         c = text.forward(1)
         tokens = set(string.punctuation + string.whitespace) - {'*'}
-        while text.hasNext() and (c == '\\' or text.peek() not in tokens) and c not in MATH_TOKENS:
+        while text.hasNext() and (c == '\\' or text.peek()
+                                  not in tokens) and c not in MATH_TOKENS:
             c += text.forward(1)
         return c
 
@@ -199,7 +201,8 @@ def tokenize_string(text, delimiters=None):
         delimiters = ALL_TOKENS
     result = TokenWithPosition('', text.position)
     for c in text:
-        if c == '\\' and str(text.peek()) in delimiters and str(c + text.peek()) not in delimiters:
+        if c == '\\' and str(text.peek()) in delimiters and str(
+                c + text.peek()) not in delimiters:
             c += next(text)
         elif str(c) in delimiters:  # assumes all tokens are single characters
             text.backward(1)

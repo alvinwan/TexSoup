@@ -2,7 +2,8 @@ import sys
 from setuptools import setup
 from setuptools.command.test import test as test_command
 
-tests_require = ['pytest', 'pytest-cov==2.5.1', 'coverage==4.4', 'coveralls==1.1']
+tests_require = ['pytest', 'pytest-cov==2.5.1',
+                 'coverage==4.4', 'coveralls==1.1']
 install_requires = []
 
 

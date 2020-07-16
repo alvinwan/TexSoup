@@ -1,18 +1,19 @@
-"""TexSoup's main utility is the ``TexSoup`` function. Invoke this function on
-a LaTeX string or file handler to obtain a parse tree with navigation, search,
-and modification utilities.
+"""TexSoup's main utility is the ``TexSoup`` function.
+
+Invoke this function on a LaTeX string or file handler to obtain a parse
+tree with navigation, search, and modification utilities.
 """
 
-__version__ = '0.2.1'
-
 from TexSoup.tex import *
+
+__version__ = '0.2.1'
 
 
 # noinspection PyPep8Naming
 def TexSoup(tex_code, skip_envs=()):
     r"""
-    At a high-level, parses provided Tex into a navigable, searchable structure.
-    This is accomplished in two steps:
+    At a high-level, parses provided Tex into a navigable, searchable
+    structure. This is accomplished in two steps:
 
     1. Tex is parsed, cleaned, and packaged.
     2. Structure fed to TexNodes for a searchable, coder-friendly interface.

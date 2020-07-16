@@ -1,8 +1,9 @@
-"""
-TexSoup transforms a LaTeX document into a complex tree of various Python
+"""TexSoup transforms a LaTeX document into a complex tree of various Python
 objects, but all objects fall into one of the following three categories:
+
 ``TexNode``, ``TexExpr`` (environments and commands), and ``Arg`` s.
 """
+
 import itertools
 import re
 from .utils import TokenWithPosition, CharToLineOffset
@@ -25,19 +26,20 @@ class TexNode(object):
     the parse tree, use abstractions such as ``contents``, ``text``, ``string``
     , and ``args``.
 
-    Note that the LaTeX parse tree is largely shallow: only environments such as
-    ``itemize`` or ``enumerate`` have children and thus descendants. Typical LaTeX
-    expressions such as ``\section`` have *arguments* but not children.
+    Note that the LaTeX parse tree is largely shallow: only environments such
+    as ``itemize`` or ``enumerate`` have children and thus descendants. Typical
+    LaTeX expressions such as ``\section`` have *arguments* but not children.
     """
 
     def __init__(self, expr, src=None):
-        """Creates TexNode object
+        """Creates TexNode object.
 
         :param TexExpr expr: a LaTeX expression, either a singleton
             command or an environment containing other commands
         :param str src: LaTeX source string
         """
-        assert isinstance(expr, (TexCmd, TexEnv, TexText)), 'Created from TexExpr'
+        assert isinstance(expr, (TexCmd, TexEnv, TexText)
+                          ), 'Created from TexExpr'
         super().__init__()
         self.expr = expr
         self.parent = None
@@ -82,11 +84,11 @@ class TexNode(object):
         return self.expr.__match__(name, attrs)
 
     def __repr__(self):
-        """Interpreter representation"""
+        """Interpreter representation."""
         return str(self)
 
     def __str__(self):
-        """Stringified command"""
+        """Stringified command."""
         return str(self.expr)
 
     ##############
@@ -140,8 +142,8 @@ class TexNode(object):
     def children(self):
         r"""Immediate children of this TeX element that are valid TeX objects.
 
-        This is equivalent to contents, excluding text elements and keeping only
-        Tex expressions.
+        This is equivalent to contents, excluding text elements and keeping
+        only Tex expressions.
 
         :return: generator of all children
         :rtype: Iterator[TexExpr]
@@ -326,7 +328,7 @@ class TexNode(object):
         self.expr.append(*nodes)
 
     def insert(self, i, *nodes):
-        r"""Add node(s) to this node's list of children, inserted at position i.
+        r"""Add node(s) to this node's list of children, at position i.
 
         :param int i: Position to add nodes to
         :param TexNode nodes: List of nodes to add
@@ -349,9 +351,9 @@ class TexNode(object):
         True
         """
         assert isinstance(i, int), (
-                'Provided index "{}" is not an integer! Did you switch your '
-                'arguments? The first argument to `insert` is the '
-                'index.'.format(i))
+            'Provided index "{}" is not an integer! Did you switch your '
+            'arguments? The first argument to `insert` is the '
+            'index.'.format(i))
         for node in nodes:
             if not isinstance(node, TexNode):
                 continue
@@ -399,7 +401,6 @@ class TexNode(object):
         """
         return TexNode(self.expr)
 
-
     def count(self, name=None, **attrs):
         r"""Number of descendants matching criteria.
 
@@ -427,12 +428,15 @@ class TexNode(object):
         the parse tree.
 
         >>> from TexSoup import TexSoup
-        >>> soup = TexSoup(r'''\textit{\color{blue}{Silly}}\textit{keep me!}''')
+        >>> soup = TexSoup(r'''
+        ... \textit{\color{blue}{Silly}}\textit{keep me!}''')
         >>> soup.textit.color.delete()
         >>> soup
+        <BLANKLINE>
         \textit{}\textit{keep me!}
         >>> soup.textit.delete()
         >>> soup
+        <BLANKLINE>
         \textit{keep me!}
         """
 
@@ -574,8 +578,7 @@ class TexNode(object):
 
     def __descendants(self):
         """Implementation for descendants, hacky workaround for __getattr__
-        issues.
-        """
+        issues."""
         return itertools.chain(self.contents,
                                *[c.descendants for c in self.children])
 
@@ -588,9 +591,9 @@ class TexNode(object):
 class TexExpr(object):
     """General abstraction for a TeX expression.
 
-    An expression may be a command or an environment and is identified by
-    a name, arguments, and place in the parse tree. This is an abstract and is
-    not directly instantiated.
+    An expression may be a command or an environment and is identified
+    by a name, arguments, and place in the parse tree. This is an
+    abstract and is not directly instantiated.
     """
 
     def __init__(self, name, contents=(), args=(), preserve_whitespace=False):
@@ -609,7 +612,7 @@ class TexExpr(object):
     #################
 
     def __match__(self, name=None, attrs=()):
-        """Check if given attributes match current object"""
+        """Check if given attributes match current object."""
         # TODO: this should re-parse the name, instead of hardcoding here
         if '{' in name or '[' in name:
             return str(self) == name
@@ -627,7 +630,8 @@ class TexExpr(object):
     def __repr__(self):
         if not self.args:
             return "TexExpr('%s', %s)" % (self.name, repr(self._contents))
-        return "TexExpr('%s', %s, %s)" % (self.name, repr(self._contents), repr(self.args))
+        return "TexExpr('%s', %s, %s)" % (
+            self.name, repr(self._contents), repr(self.args))
 
     ##############
     # PROPERTIES #
@@ -740,8 +744,8 @@ class TexExpr(object):
 
 
 class TexEnv(TexExpr):
-    r"""Abstraction for a LaTeX command, denoted by ``\begin{env}`` and ``\end{env}``.
-    Contains three attributes:
+    r"""Abstraction for a LaTeX command, denoted by ``\begin{env}`` and
+    ``\end{env}``. Contains three attributes:
 
     1. the environment name itself,
     2. the environment arguments, whether optional or required, and
@@ -774,12 +778,15 @@ class TexEnv(TexExpr):
         super().__init__(name, contents, args, preserve_whitespace)
 
         self.nobegin = nobegin
-        self.begin = begin if begin else (self.name if self.nobegin else "\\begin{%s}" % self.name)
-        self.end = end if end else (self.name if self.nobegin else "\\end{%s}" % self.name)
+        self.begin = begin if begin else (
+            self.name if self.nobegin else "\\begin{%s}" % self.name)
+        self.end = end if end else (
+            self.name if self.nobegin else "\\end{%s}" % self.name)
 
     def __match__(self, name=None, attrs=()):
-        """Check if given attributes match environment"""
-        if name in (self.name, self.begin + str(self.args), self.begin, self.end):
+        """Check if given attributes match environment."""
+        if name in (self.name, self.begin +
+                    str(self.args), self.begin, self.end):
             return True
         return super().__match__(name, attrs)
 
@@ -794,7 +801,8 @@ class TexEnv(TexExpr):
     def __repr__(self):
         if not self.args:
             return "TexEnv('%s')" % self.name
-        return "TexEnv('%s', %s, %s)" % (self.name, repr(self._contents), repr(self.args))
+        return "TexEnv('%s', %s, %s)" % (
+            self.name, repr(self._contents), repr(self.args))
 
 
 class TexCmd(TexExpr):
@@ -833,10 +841,11 @@ class TexCmd(TexExpr):
     def _assert_supports_contents(self):
         if not self._supports_contents():
             raise TypeError(
-                'Command "{}" has no children. `add_contents` is only valid for'
-                ': 1. environments like `itemize` and 2. `\\item`. Alternatively'
-                ', you can add, edit, or delete arguments by modifying `.args`'
-                ', which behaves like a list.'.format(self.name))
+                'Command "{}" has no children. `add_contents` is only valid'
+                'for: 1. environments like `itemize` and 2. `\\item`. '
+                'Alternatively, you can add, edit, or delete arguments by '
+                'modifying `.args`, which behaves like a list.'
+                .format(self.name))
 
 
 class TexText(TexExpr):
@@ -958,10 +967,10 @@ class Arg(object):
 
     @staticmethod
     def parse(s):
-        """Parse a string or list and return an Argument object
+        """Parse a string or list and return an Argument object.
 
-        :param Union[str,iterable] s: Either a string or a list, where the first and
-            last elements are valid argument delimiters.
+        :param Union[str,iterable] s: Either a string or a list, where the
+            first and last elements are valid argument delimiters.
 
         >>> Arg.parse(RArg('arg0'))
         RArg('arg0')
@@ -974,11 +983,13 @@ class Arg(object):
             for arg in arg_type:
                 if [s[0], s[-1]] == arg.delims():
                     return arg(*s[1:-1])
-            raise TypeError('Malformed argument. First and last elements must '
-                            'match a valid argument format. In this case, TexSoup'
-                            ' could not find matching punctuation for: %s.\n'
-                            'Common issues include: Unescaped special characters,'
-                            ' mistyped closing punctuation, misalignment.' % (str(s)))
+            raise TypeError(
+                'Malformed argument. First and last elements must '
+                'match a valid argument format. In this case, TexSoup'
+                ' could not find matching punctuation for: %s.\n'
+                'Common issues include: Unescaped special characters,'
+                ' mistyped closing punctuation, misalignment.' %
+                (str(s)))
         for arg in arg_type:
             if arg.__is__(s):
                 return arg(arg.__strip__(s))
