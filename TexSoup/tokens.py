@@ -15,7 +15,7 @@ import string
 COMMAND_TOKEN       = '\\'
 START_GROUP_TOKEN   = '{'  # not used
 END_GROUP_TOKEN     = '}'  # not used
-MATH_SWITCH_TOKENS  = ('$', '$$')
+MATH_SWITCH_TOKENS  = ('$$', '$')
 ALIGNMENT_TOKEN     = '&'  # not used
 END_OF_LINE_TOKENS  = ('\n', '\r')
 MACRO_TOKEN         = '#'  # not used
@@ -151,6 +151,7 @@ def tokenize_command(text):
     """
     if text.peek() == COMMAND_TOKEN:
         c = text.forward(1)
+        # TODO: replace with constants
         tokens = set(string.punctuation + string.whitespace) - {'*'}
         while text.hasNext() and (c == COMMAND_TOKEN or text.peek()
                                   not in tokens) and c not in MATH_TOKENS:
@@ -202,10 +203,12 @@ def tokenize_math(text):
     >>> tokenize_math(b)
     '$$'
     """
-    if text.startswith('$') and (
-       text.position == 0 or text.peek(-1) != COMMAND_TOKEN or text.endswith(r'\\')):
-        starter = '$$' if text.startswith('$$') else '$'
-        return Token(text.forward(len(starter)), text.position)
+    for switch in MATH_SWITCH_TOKENS:
+        if text.startswith(switch) and (
+           text.position == 0
+           or text.peek(-1) != COMMAND_TOKEN
+           or text.endswith(r'\\')):
+                return Token(text.forward(len(switch)), text.position)
 
 
 @token('string')
@@ -236,9 +239,9 @@ def tokenize_string(text, delimiters=None):
             text.backward(1)
             return result
         result += c
-        if text.peek((0, 2)) == '\\\\':
+        if text.peek((0, 2)) == '\\\\':  # TODO: replace with constants
             result += text.forward(2)
-        if text.peek((0, 2)) == '\n\n':
+        if text.peek((0, 2)) == '\n\n':  # TODO: replace with constants
             result += text.forward(2)
             return result
     return result
