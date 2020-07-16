@@ -14,22 +14,7 @@ import string
 
 # Core category codes
 # https://www.overleaf.com/learn/latex/Table_of_TeX_category_codes
-COMMAND_TOKEN       = '\\'
-START_GROUP_TOKEN   = '{'  # not used
-END_GROUP_TOKEN     = '}'  # not used
-MATH_SWITCH_TOKENS  = ('$$', '$')
-ALIGNMENT_TOKEN     = '&'  # not used
 END_OF_LINE_TOKENS  = ('\n', '\r')
-MACRO_TOKEN         = '#'  # not used
-SUPERSCRIPT_TOKEN   = '^'  # not used
-SUBSCRIPT_TOKEN     = '_'  # not used
-IGNORED_TOKEN       = chr(0)  # not used
-SPACER_TOKENS       = (chr(32), chr(9))    # not used
-LETTER_TOKENS       = tuple(string.ascii_letters)  # + lots of unicode
-OTHER_TOKENS        = None  # not defined, just anything left
-ACTIVE_TOKEN        = '~'  # not used
-COMMENT_TOKEN       = '%'
-INVALID_TOKEN       = chr(127)  # not used
 
 
 # Only includes items that cannot cause failures
@@ -48,14 +33,13 @@ GCC = IntEnum('GroupedCategoryCodes', (
 # Supersets of category codes
 MATH_START_TOKENS = (r'\[', r'\(')  # TODO: how to do this cleanly?
 MATH_END_TOKENS = (r'\]', r'\)')
-MATH_TOKENS = MATH_SWITCH_TOKENS + MATH_START_TOKENS + MATH_END_TOKENS
 
 ARG_TOKENS = tuple(itertools.chain(*(arg.delims() for arg in arg_type)))
 ARG_START_TOKENS = ARG_TOKENS[::2]
 ARG_END_TOKENS = ARG_TOKENS[1::2]
 
 # TODO: misnomer, what does ALL_TOKENS actually contain?
-ALL_TOKENS = (COMMAND_TOKEN,) + ARG_TOKENS + MATH_TOKENS + (COMMENT_TOKEN,)
+ALL_TOKENS = ('\\',) + ARG_TOKENS + ('%',) + MATH_START_TOKENS + MATH_END_TOKENS + ('$', '$$')
 
 # Custom higher-level combinations of primitives
 SKIP_ENVS = ('verbatim', 'equation', 'lstlisting', 'align', 'alignat',
@@ -113,9 +97,9 @@ def tokenize(text):
 
     :param Union[str,iterator,Buffer] text: LaTeX to process
 
-    >>> print(*tokenize(r'\textbf{Do play \textit{nice}.}'))
+    >>> print(*tokenize(categorize(r'\textbf{Do play \textit{nice}.}')))
     \textbf { Do play  \textit { nice } . }
-    >>> print(*tokenize(r'\begin{tabular} 0 & 1 \\ 2 & 0 \end{tabular}'))
+    >>> print(*tokenize(categorize(r'\begin{tabular} 0 & 1 \\ 2 & 0 \end{tabular}')))
     \begin { tabular }  0 & 1 \\ 2 & 0  \end { tabular }
     """
     current_token = next_token(text)
@@ -247,23 +231,6 @@ def tokenize_punctuation_command(text):
                 return text.forward(len(point) + 1)
 
 
-# TODO: move me to parser
-@token('command')
-def tokenize_command(text):
-    """Process command, but ignore line breaks. (double backslash)
-
-    :param Buffer text: iterator over line, with current position
-    """
-    if text.peek() == COMMAND_TOKEN:
-        c = text.forward(1)
-        # TODO: replace with constants
-        tokens = set(string.punctuation + string.whitespace) - {'*'}
-        while text.hasNext() and (c == COMMAND_TOKEN or text.peek()
-                                  not in tokens) and c not in MATH_TOKENS:
-            c += text.forward(1)
-        return c
-
-
 # TODO: update string tokenizer so this isn't needed
 @token('argument')
 def tokenize_argument(text):
@@ -274,6 +241,23 @@ def tokenize_argument(text):
     for delim in ARG_TOKENS:
         if text.startswith(delim):
             return text.forward(len(delim))
+
+
+# TODO: move me to parser
+@token('command')
+def tokenize_command(text):
+    """Process command, but ignore line breaks. (double backslash)
+
+    :param Buffer text: iterator over line, with current position
+    """
+    if text.peek().category == CC.Escape:
+        c = text.forward(1)
+        # TODO: replace with constants
+        tokens = set(string.punctuation + string.whitespace) - {'*'}
+        while text.hasNext() and (
+                c.category != CC.Escape or text.peek() not in tokens):
+            c += text.forward(1)
+        return c
 
 
 # TODO: clean up
@@ -298,7 +282,7 @@ def tokenize_string(text, delimiters=None):
         delimiters = ALL_TOKENS
     result = Token('', text.position)
     for c in text:
-        if c == COMMAND_TOKEN and str(text.peek()) in delimiters and str(
+        if c.category == CC.Escape and str(text.peek()) in delimiters and str(
                 c + text.peek()) not in delimiters:
             c += next(text)
         elif str(c) in delimiters:  # assumes all tokens are single characters
