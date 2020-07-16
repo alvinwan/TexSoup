@@ -7,7 +7,8 @@ from TexSoup.tokens import (
     tokenize,
     ARG_START_TOKENS,
     ARG_END_TOKENS,
-    SKIP_ENVS
+    SKIP_ENVS,
+    COMMAND_TOKEN
 )
 import string
 
@@ -42,7 +43,7 @@ def read_tex(src, skip_envs=(), context=None):
 
         expr = TexEnv(name, [], nobegin=True, begin=begin, end=end)
         return read_math_env(src, expr)
-    elif c.startswith('\\'):
+    elif c.startswith(COMMAND_TOKEN):
         command = Token(c[1:], src.position)
         if command == 'item':
             contents, arg = read_item(src)
