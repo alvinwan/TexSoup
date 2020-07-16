@@ -9,7 +9,7 @@ import re
 from TexSoup.utils import CharToLineOffset, Token
 
 __all__ = ['TexNode', 'TexCmd', 'TexEnv', 'Arg', 'OArg', 'RArg', 'TexArgs',
-           'TexText']
+           'TexText', 'TexMathEnv', 'TexDisplayMathEnv']
 
 
 #############
@@ -803,6 +803,46 @@ class TexEnv(TexExpr):
             return "TexEnv('%s')" % self.name
         return "TexEnv('%s', %s, %s)" % (
             self.name, repr(self._contents), repr(self.args))
+
+
+class TexMathEnv(TexEnv):
+
+    fmt = None
+
+    def __init__(self, contents=(), args=(), preserve_whitespace=False):
+        """Initialization for Tex environment.
+
+        :param iterable contents: list of contents
+        :param iterable args: list of Tex Arguments
+        :param bool preserve_whitespace: If false, elements containing only
+            whitespace will be removed from contents.
+        """
+        super().__init__(self.name, contents, args, preserve_whitespace,
+            nobegin=True, begin=self.start(), end=self.end())
+
+    @classmethod
+    def delims(cls):
+        return cls.fmt.split('%s')
+
+    @classmethod
+    def start(cls):
+        return cls.delims()[0]
+
+    @classmethod
+    def end(cls):
+        return cls.delims()[-1]
+
+
+class TexDisplayMathEnv(TexMathEnv):
+
+    name = 'displaymath'
+    fmt = '\[%s\]'
+
+
+class TexMathEnv(TexMathEnv):
+
+    name = 'math'
+    fmt = '\(%s\)'
 
 
 class TexCmd(TexExpr):

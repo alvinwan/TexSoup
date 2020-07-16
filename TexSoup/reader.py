@@ -11,7 +11,8 @@ from TexSoup.tokens import (
     COMMAND_TOKEN,
     MATH_SWITCH_TOKENS,
     END_OF_LINE_TOKENS,
-    COMMENT_TOKEN
+    COMMENT_TOKEN,
+    MATH_START_TOKENS
 )
 import string
 
@@ -33,17 +34,11 @@ def read_tex(src, skip_envs=(), context=None):
     elif c in MATH_SWITCH_TOKENS:
         expr = TexEnv(c, [], nobegin=True)
         return read_math_env(src, expr)
-    elif c.startswith(r'\[') or c.startswith(r"\("):
-        if c.startswith(r'\['):
-            name = 'displaymath'
-            begin = r'\['
-            end = r'\]'
+    elif c in MATH_START_TOKENS:
+        if c.startswith(TexDisplayMathEnv.start()):
+            expr = TexDisplayMathEnv([])
         else:
-            name = "math"
-            begin = r"\("
-            end = r"\)"
-
-        expr = TexEnv(name, [], nobegin=True, begin=begin, end=end)
+            expr = TexMathEnv([])
         return read_math_env(src, expr)
     elif c.startswith(COMMAND_TOKEN):
         command = Token(c[1:], src.position)
