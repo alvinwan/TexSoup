@@ -6,16 +6,39 @@ token at a time.
 
 from TexSoup.utils import to_buffer, Buffer, Token
 from TexSoup.data import arg_type
+import itertools
 import string
 
 
-COMMAND_TOKENS = {'\\'}
-MATH_TOKENS = {'$', r'\[', r'\]', r'\(', r'\)'}
-COMMENT_TOKENS = {'%'}
-ARG_START_TOKENS = {arg.delims()[0] for arg in arg_type}
-ARG_END_TOKENS = {arg.delims()[1] for arg in arg_type}
-ARG_TOKENS = ARG_START_TOKENS | ARG_END_TOKENS
-ALL_TOKENS = COMMAND_TOKENS | ARG_TOKENS | MATH_TOKENS | COMMENT_TOKENS
+# https://www.overleaf.com/learn/latex/Table_of_TeX_category_codes
+CC = '\\{}$&\r#^_\x00 \t ~%\x7f'
+
+COMMAND_TOKENS      = (CC[0],)
+START_GROUP_TOKENS  = (CC[1],)
+END_GROUP_TOKENS    = (CC[2],)
+MATH_SWITCH_TOKENS  = (CC[3], '$$')
+ALIGNMENT_TOKENS    = (CC[4],)
+END_OF_LINE_TOKENS  = ('\n', CC[5])
+MACRO_TOKENS        = (CC[6],)
+SUPERSCRIPT_TOKENS  = (CC[7],)
+SUBSCRIPT_TOKENS    = (CC[8],)
+IGNORED_TOKENS      = (CC[9],)
+SPACER_TOKENS       = (CC[10], CC[11])
+LETTER_TOKENS       = tuple(string.ascii_letters)  # + lots of unicode
+OTHER_TOKENS        = tuple(set(string.printable) - set(CC))
+ACTIVE_TOKENS       = (CC[13],)
+COMMENT_TOKENS      = (CC[14],)
+INVALID_TOKENS      = (CC[15],)
+
+MATH_START_TOKENS = (r'\[', r'\(')
+MATH_END_TOKENS = (r'\]', r'\)')
+MATH_TOKENS = MATH_SWITCH_TOKENS + MATH_START_TOKENS + MATH_END_TOKENS
+
+ARG_TOKENS = tuple(itertools.chain(*(arg.delims() for arg in arg_type)))
+ARG_START_TOKENS = ARG_TOKENS[::2]
+ARG_END_TOKENS = ARG_TOKENS[1::2]
+
+ALL_TOKENS = COMMAND_TOKENS + ARG_TOKENS + MATH_TOKENS + COMMENT_TOKENS
 SKIP_ENVS = ('verbatim', 'equation', 'lstlisting', 'align', 'alignat',
              'equation*', 'align*', 'math', 'displaymath', 'split', 'array',
              'eqnarray', 'eqnarray*', 'multline', 'multline*', 'gather',
