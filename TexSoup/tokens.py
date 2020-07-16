@@ -7,7 +7,7 @@ token at a time.
 from TexSoup.utils import to_buffer, Buffer, Token, CC
 from TexSoup.data import arg_type
 from TexSoup.category import categorize  # used for tests
-from enum import IntEnum
+from TexSoup.utils import IntEnum
 import itertools
 import string
 
@@ -39,7 +39,6 @@ TC = IntEnum('TokenCode', (
 
     # temporary
     'PunctuationCommandName',
-    'ArgumentDelimiter',
 ), start=max(CC))
 
 
@@ -94,7 +93,7 @@ def next_token(text, prev=None):
     '}'
     >>> b2 = categorize(r'\gamma = \beta')
     >>> print(next_token(b2), next_token(b2), next_token(b2))
-    \ gamma  = 
+    \ gamma  =
     """
     while text.hasNext():
         for name, f in tokenizers:

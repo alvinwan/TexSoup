@@ -1,7 +1,7 @@
 import bisect
 import functools
 
-from enum import IntEnum
+from enum import IntEnum as IntEnumBase
 
 
 ##############
@@ -35,6 +35,12 @@ def to_buffer(convert_in=True, convert_out=True):
 ##########
 # Tokens #
 ##########
+
+
+def IntEnum(name, keys, start=1):
+    """Explicitly define key-value pairs. For Python3.4 compatibility"""
+    return IntEnumBase(name,
+        [(key, index) for index, key in enumerate(keys, start=start)])
 
 
 CC = IntEnum('CategoryCodes', (
