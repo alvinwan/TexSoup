@@ -41,7 +41,7 @@ def test_navigation_descendants(chikin):
 
 
 def test_navigation_positions(chikin):
-    assert chikin.char_pos_to_line(0) == (0, 0), '\\'
+    assert chikin.char_pos_to_line(0) == (0, 0), COMMAND_TOKEN
     assert chikin.char_pos_to_line(1) == (0, 1), 'documentclass'
     assert chikin.char_pos_to_line(172) == (11, 6), 'waddle'
 

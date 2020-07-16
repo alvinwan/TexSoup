@@ -12,22 +12,22 @@ import string
 
 # Core category code primitives
 # https://www.overleaf.com/learn/latex/Table_of_TeX_category_codes
-COMMAND_TOKENS      = ('\\',)
-START_GROUP_TOKENS  = ('{',)
-END_GROUP_TOKENS    = ('}',)
+COMMAND_TOKEN       = '\\'
+START_GROUP_TOKEN   = '{'
+END_GROUP_TOKEN     = '}'
 MATH_SWITCH_TOKENS  = ('$', '$$')
-ALIGNMENT_TOKENS    = ('&',)
+ALIGNMENT_TOKEN     = '&'
 END_OF_LINE_TOKENS  = ('\n', '\r')
-MACRO_TOKENS        = ('#',)
-SUPERSCRIPT_TOKENS  = ('^',)
-SUBSCRIPT_TOKENS    = ('_',)
-IGNORED_TOKENS      = (chr(0),)
+MACRO_TOKEN         = '#'
+SUPERSCRIPT_TOKEN   = '^'
+SUBSCRIPT_TOKEN     = '_'
+IGNORED_TOKEN       = chr(0)
 SPACER_TOKENS       = (chr(32), chr(9))
 LETTER_TOKENS       = tuple(string.ascii_letters)  # + lots of unicode
 OTHER_TOKENS        = None  # not defined, just anything left
-ACTIVE_TOKENS       = ('~',)
-COMMENT_TOKENS      = ('%',)
-INVALID_TOKENS      = (chr(127),)
+ACTIVE_TOKEN        = '~'
+COMMENT_TOKEN       = '%'
+INVALID_TOKEN       = chr(127)
 
 # Primitive supersets
 MATH_START_TOKENS = (r'\[', r'\(')
@@ -39,7 +39,7 @@ ARG_START_TOKENS = ARG_TOKENS[::2]
 ARG_END_TOKENS = ARG_TOKENS[1::2]
 
 # TODO: misnomer, what does ALL_TOKENS actually contain?
-ALL_TOKENS = COMMAND_TOKENS + ARG_TOKENS + MATH_TOKENS + COMMENT_TOKENS
+ALL_TOKENS = (COMMAND_TOKEN,) + ARG_TOKENS + MATH_TOKENS + (COMMENT_TOKEN,)
 
 # Custom higher-level combinations of primitives
 SKIP_ENVS = ('verbatim', 'equation', 'lstlisting', 'align', 'alignat',
@@ -137,7 +137,7 @@ def tokenize_punctuation_command(text):
 
     :param Buffer text: iterator over text, with current position
     """
-    if text.peek() == '\\':
+    if text.peek() == COMMAND_TOKEN:
         for point in PUNCTUATION_COMMANDS:
             if text.peek((1, len(point) + 1)) == point:
                 return text.forward(len(point) + 1)
@@ -149,10 +149,10 @@ def tokenize_command(text):
 
     :param Buffer text: iterator over line, with current position
     """
-    if text.peek() == '\\':
+    if text.peek() == COMMAND_TOKEN:
         c = text.forward(1)
         tokens = set(string.punctuation + string.whitespace) - {'*'}
-        while text.hasNext() and (c == '\\' or text.peek()
+        while text.hasNext() and (c == COMMAND_TOKEN or text.peek()
                                   not in tokens) and c not in MATH_TOKENS:
             c += text.forward(1)
         return c
@@ -171,7 +171,7 @@ def tokenize_line_comment(text):
     '%hello'
     """
     result = Token('', text.position)
-    if text.peek() == '%' and text.peek(-1) != '\\':
+    if text.peek() == '%' and text.peek(-1) != COMMAND_TOKEN:
         result += text.forward(1)
         while text.peek() != '\n' and text.hasNext():
             result += text.forward(1)
@@ -203,7 +203,7 @@ def tokenize_math(text):
     '$$'
     """
     if text.startswith('$') and (
-       text.position == 0 or text.peek(-1) != '\\' or text.endswith(r'\\')):
+       text.position == 0 or text.peek(-1) != COMMAND_TOKEN or text.endswith(r'\\')):
         starter = '$$' if text.startswith('$$') else '$'
         return Token(text.forward(len(starter)), text.position)
 
@@ -229,7 +229,7 @@ def tokenize_string(text, delimiters=None):
         delimiters = ALL_TOKENS
     result = Token('', text.position)
     for c in text:
-        if c == '\\' and str(text.peek()) in delimiters and str(
+        if c == COMMAND_TOKEN and str(text.peek()) in delimiters and str(
                 c + text.peek()) not in delimiters:
             c += next(text)
         elif str(c) in delimiters:  # assumes all tokens are single characters
