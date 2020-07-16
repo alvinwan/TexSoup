@@ -444,12 +444,13 @@ def test_buffer():
 
 def test_to_buffer():
     from TexSoup.utils import to_buffer
-    f = to_buffer(lambda x: x[:])
+    f = to_buffer(convert_out=False)(lambda x: x[:])
     assert f('asdf') == 'asdf'
-    g = to_buffer(lambda x: x)
+    g = to_buffer(convert_out=False)(lambda x: x)
     assert not g('').hasNext()
     assert next(g('asdf')) == 'a'
-
+    h = to_buffer()(lambda x: x)
+    assert str(f('asdf')) == 'asdf'
 
 ##########
 # ERRORS #

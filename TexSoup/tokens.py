@@ -10,7 +10,7 @@ import itertools
 import string
 
 
-# Core category code primitives
+# Core category codes
 # https://www.overleaf.com/learn/latex/Table_of_TeX_category_codes
 COMMAND_TOKEN       = '\\'
 START_GROUP_TOKEN   = '{'  # not used
@@ -29,7 +29,7 @@ ACTIVE_TOKEN        = '~'  # not used
 COMMENT_TOKEN       = '%'
 INVALID_TOKEN       = chr(127)  # not used
 
-# Primitive supersets
+# Supersets of category codes
 MATH_START_TOKENS = (r'\[', r'\(')
 MATH_END_TOKENS = (r'\]', r'\)')
 MATH_TOKENS = MATH_SWITCH_TOKENS + MATH_START_TOKENS + MATH_END_TOKENS
@@ -59,7 +59,6 @@ PUNCTUATION_COMMANDS = {command + bracket
 __all__ = ['tokenize']
 
 
-@to_buffer
 def next_token(text):
     r"""Returns the next possible token, advancing the iterator to the next
     position to start processing from.
@@ -91,7 +90,7 @@ def next_token(text):
                 return current_token
 
 
-@to_buffer
+@to_buffer()
 def tokenize(text):
     r"""Generator for LaTeX tokens on text, ignoring comments.
 
