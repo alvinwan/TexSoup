@@ -4,7 +4,8 @@ Invoke this function on a LaTeX string or file handler to obtain a parse
 tree with navigation, search, and modification utilities.
 """
 
-from TexSoup.tex import *
+from TexSoup.tex import read
+from TexSoup.data import TexNode
 
 __version__ = '0.2.1'
 
