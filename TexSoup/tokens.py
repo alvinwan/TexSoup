@@ -69,20 +69,20 @@ def next_token(text):
 
     >>> b = categorize(r'\textbf{Do play\textit{nice}.}   $$\min_w \|w\|_2^2$$')
     >>> print(next_token(b), next_token(b), next_token(b), next_token(b))
-    \textbf { Do play \textit
+    \ textbf { Do play
     >>> print(next_token(b), next_token(b), next_token(b), next_token(b))
-    { nice } .
+    \ textit { nice
     >>> print(next_token(b))
     }
     >>> print(next_token(categorize('.}')))
     .
     >>> next_token(b)
-    '   '
+    '.'
     >>> next_token(b)
-    '$$'
+    '}'
     >>> b2 = categorize(r'\gamma = \beta')
     >>> print(next_token(b2), next_token(b2), next_token(b2))
-    \gamma  =  \beta
+    \ gamma  = 
     """
     while text.hasNext():
         for name, f in tokenizers:
@@ -98,9 +98,9 @@ def tokenize(text):
     :param Union[str,iterator,Buffer] text: LaTeX to process
 
     >>> print(*tokenize(categorize(r'\textbf{Do play \textit{nice}.}')))
-    \textbf { Do play  \textit { nice } . }
+    \ textbf { Do play  \ textit { nice } . }
     >>> print(*tokenize(categorize(r'\begin{tabular} 0 & 1 \\ 2 & 0 \end{tabular}')))
-    \begin { tabular }  0 & 1 \\ 2 & 0  \end { tabular }
+    \ begin { tabular }  0 & 1 \\ 2 & 0  \ end { tabular }
     """
     current_token = next_token(text)
     while current_token is not None:
@@ -251,11 +251,17 @@ def tokenize_command(text):
     :param Buffer text: iterator over line, with current position
 
     >>> next(tokenize(categorize(r'\begin turing')))
-    '\\begin'
+    '\\'
     >>> next(tokenize(categorize(r'\bf  {turing}')))
-    '\\bf'
+    '\\'
     """
     if text.peek().category == CC.Escape:
+        return text.forward(1)
+
+
+@token('command_name')
+def tokenize_command_name(text):
+    if text.peek(-1).category == CC.Escape:
         c = text.forward(1)
         while text.hasNext() and text.peek().category == CC.Letter \
                 or text.peek() == '*':  # TODO: what do about asterisk?

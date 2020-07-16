@@ -26,6 +26,7 @@ def read_tex(src, skip_envs=(), context=None):
     :return: TexExpr
     """
     c = next(src)
+    # TODO: assemble and use groups
     if c.category == GCC.Comment:
         return c
     elif c.category == GCC.MathSwitch:
@@ -37,8 +38,9 @@ def read_tex(src, skip_envs=(), context=None):
         else:
             expr = TexMathEnv([])
         return read_math_env(src, expr)
+    # TODO: reduce to command-parsing only -- assemble envs in 2nd pass
     elif c.category == CC.Escape:
-        command = Token(c[1:], src.position)
+        command = Token(src.forward(1), src.position)
         if command == 'item':
             contents, arg = read_item(src)
             mode, expr = 'command', TexCmd(command, contents, arg)
