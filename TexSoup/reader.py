@@ -1,7 +1,7 @@
 """Parsing mechanisms should not be directly invoked publicly, as they are
 subject to change."""
 
-from TexSoup.utils import Buffer, Token
+from TexSoup.utils import Buffer, Token, CC
 from TexSoup.data import *
 from TexSoup.tokens import (
     GCC,
@@ -9,10 +9,7 @@ from TexSoup.tokens import (
     ARG_START_TOKENS,
     ARG_END_TOKENS,
     SKIP_ENVS,
-    COMMAND_TOKEN,
-    MATH_SWITCH_TOKENS,
     END_OF_LINE_TOKENS,
-    COMMENT_TOKEN,
 )
 import string
 
@@ -40,7 +37,7 @@ def read_tex(src, skip_envs=(), context=None):
         else:
             expr = TexMathEnv([])
         return read_math_env(src, expr)
-    elif c.startswith(COMMAND_TOKEN):
+    elif c.category == CC.Escape:
         command = Token(c[1:], src.position)
         if command == 'item':
             contents, arg = read_item(src)
