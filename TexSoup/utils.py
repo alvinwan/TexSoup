@@ -1,22 +1,35 @@
 import bisect
 import functools
 
+from enum import Enum
+
 
 ##############
 # Decorators #
 ##############
 
 
-def to_buffer(f):
+def to_buffer(convert_in=True, convert_out=True):
     """Decorator converting all strings and iterators/iterables into
-    Buffers."""
-    @functools.wraps(f)
-    def wrap(*args, **kwargs):
-        iterator = kwargs.get('iterator', args[0])
-        if not isinstance(iterator, Buffer):
-            iterator = Buffer(iterator)
-        return f(iterator, *args[1:], **kwargs)
-    return wrap
+    Buffers.
+
+    :param input: Convert inputs where applicable to Buffers
+    :param output: Convert output to a Buffer
+    """
+    def decorator(f):
+        @functools.wraps(f)
+        def wrap(*args, **kwargs):
+            iterator = args[0]
+            if convert_in:
+                iterator = kwargs.get('iterator', iterator)
+                if not isinstance(iterator, Buffer):
+                    iterator = Buffer(iterator)
+            output = f(iterator, *args[1:], **kwargs)
+            if convert_out:
+                return Buffer(output)
+            return output
+        return wrap
+    return decorator
 
 
 ##########
@@ -24,22 +37,48 @@ def to_buffer(f):
 ##########
 
 
+CC = Enum('CategoryCodes', (
+    'Command',
+    'GroupStart',
+    'GroupEnd',
+    'MathSwitch',
+    'Alignment',
+    'EndOfLine',
+    'Macro',
+    'Superscript',
+    'Subscript',
+    'Ignored',
+    'Spacer',
+    'Letter',
+    'Other',
+    'Active',
+    'Comment',
+    'Invalid'
+))
+
+
 class Token(str):
     """Enhanced string object with knowledge of global position."""
 
     # noinspection PyArgumentList
-    def __new__(cls, text, position=None):
+    def __new__(cls, text, position=None, category=CC.Other):
         """Initializer for pseudo-string object.
 
         :param text: The original string
         :param position: Position in the original buffer
+        :param category: Category of token. Not that these are not persisted
+                         after string manipulation.
         """
         self = str.__new__(cls, text)
         if isinstance(text, Token):
-            self.text, self.position = text.text, text.position
+            # TODO: should this throw a warning if category is set an ignored?
+            self.text = text.text
+            self.position = text.position
+            self.category = text.category
         else:
             self.text = text
             self.position = position
+            self.category = category
         return self
 
     def __repr__(self):
