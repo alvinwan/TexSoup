@@ -25,7 +25,6 @@ TC = IntEnum('TokenCode', (
     'Comment',
     'MergedSpacer',  # whitespace allowed between <command name> and arguments
     'EscapedComment',
-    'SizeCommand',
     'MathSwitch',
     'MathGroupStart',
     'MathGroupEnd',
@@ -37,8 +36,9 @@ TC = IntEnum('TokenCode', (
     'OpenParen',
     'CloseParen',
 
-    # temporary
+    # temporary (Replace with macros support)
     'PunctuationCommandName',
+    'SizeCommand',
 ), start=max(CC))
 
 
