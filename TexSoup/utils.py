@@ -4,34 +4,6 @@ import functools
 from enum import IntEnum as IntEnumBase
 
 
-##############
-# Decorators #
-##############
-
-
-def to_buffer(convert_in=True, convert_out=True):
-    """Decorator converting all strings and iterators/iterables into
-    Buffers.
-
-    :param input: Convert inputs where applicable to Buffers
-    :param output: Convert output to a Buffer
-    """
-    def decorator(f):
-        @functools.wraps(f)
-        def wrap(*args, **kwargs):
-            iterator = args[0]
-            if convert_in:
-                iterator = kwargs.get('iterator', iterator)
-                if not isinstance(iterator, Buffer):
-                    iterator = Buffer(iterator)
-            output = f(iterator, *args[1:], **kwargs)
-            if convert_out:
-                return Buffer(output)
-            return output
-        return wrap
-    return decorator
-
-
 ##########
 # Tokens #
 ##########
@@ -277,7 +249,8 @@ class Token(str):
 Token.Empty = Token('', position=0)
 
 
-# General Buffer class
+# TODO: Rename to Buffer (formerly MixedBuffer) and StringBuffer
+# but needs test refactoring to change defaults
 class Buffer:
     """Converts string or iterable into a navigable iterator of strings.
 
@@ -302,9 +275,17 @@ class Buffer:
     '23'
     >>> Buffer('asdf')[:10]
     'asdf'
+    >>> def gen():
+    ...     for i in range(10):
+    ...         yield i
+    >>> list(gen())
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    >>> list(Buffer(gen()))
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     """
 
-    def __init__(self, iterator, join=Token.join):
+    def __init__(self, iterator, join=Token.join, empty=lambda: '',
+            init=lambda content, index: Token(content, index)):
         """Initialization for Buffer.
 
         :param iterator: iterator or iterable
@@ -315,6 +296,8 @@ class Buffer:
         self.__queue = []
         self.__i = 0
         self.__join = join
+        self.__init = init
+        self.__empty = empty
 
     # noinspection PyPep8Naming
     def hasNext(self):
@@ -364,8 +347,16 @@ class Buffer:
         of the buffer.
 
         :param condition: set of valid strings
+
+        >>> buf = Buffer(map(str, range(9)))
+        >>> _ = buf.forward_until(lambda x: int(x) > 3)
+        >>> c = buf.forward_until(lambda x: int(x) > 6)
+        >>> c
+        '456'
+        >>> c.position
+        4
         """
-        c = Token('', self.peek().position)
+        c = self.__init(self.__empty(), self.peek().position)
         while self.hasNext() and not condition(self.peek() if peek else self):
             c += self.forward(1)
         return c
@@ -400,7 +391,7 @@ class Buffer:
     def __next__(self):
         """Implements next."""
         while self.__i >= len(self.__queue):
-            self.__queue.append(Token(
+            self.__queue.append(self.__init(
                 next(self.__iterator), self.__i))
         self.__i += 1
         return self.__queue[self.__i - 1]
@@ -477,3 +468,55 @@ class CharToLineOffset(object):
         else:
             char_no = char_pos - self.line_break_positions[line_no - 1] - 1
         return line_no, char_no
+
+
+class MixedBuffer(Buffer):
+
+    def __init__(self, iterator):
+        """Initialization for Buffer, accepting types beyond strings.
+
+        :param iterator: iterator or iterable
+        :param func join: function to join multiple buffer elements
+        """
+        super().__init__(iterator,
+            join=lambda x: x, empty=lambda x: [],
+            init=lambda content, index: content)
+
+
+##############
+# Decorators #
+##############
+
+
+def to_buffer(convert_in=True, convert_out=True, Buffer=Buffer):
+    """Decorator converting all strings and iterators/iterables into
+    Buffers.
+
+    :param bool convert_in: Convert inputs where applicable to Buffers
+    :param bool convert_out: Convert output to a Buffer
+    :param type Buffer: Type of Buffer to convert into
+    """
+    def decorator(f):
+        @functools.wraps(f)
+        def wrap(*args, **kwargs):
+            iterator = args[0]
+            if convert_in:
+                iterator = kwargs.get('iterator', iterator)
+                if not isinstance(iterator, Buffer):
+                    iterator = Buffer(iterator)
+            output = f(iterator, *args[1:], **kwargs)
+            if convert_out:
+                return Buffer(output)
+            return output
+        return wrap
+    return decorator
+
+
+def to_mixed_buffer(convert_in=True, convert_out=True):
+    """Decorator converting all strings and iterators/iterables into Mixed
+    Buffers.
+
+    :param bool convert_in: Convert inputs where applicable to Buffers
+    :param bool convert_out: Convert output to a Buffer
+    """
+    return to_buffer(convert_in, convert_out, Buffer=MixedBuffer)
