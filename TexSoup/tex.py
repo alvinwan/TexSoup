@@ -12,11 +12,11 @@ def read(tex, skip_envs=()):
     :param Union[str,iterable] tex: LaTeX source
     :return TexEnv: the global environment
     """
-    if isinstance(tex, str):
-        tex = tex
-    else:
+    if not isinstance(tex, str):
         tex = ''.join(itertools.chain(*tex))
-    buf, children = tokenize(categorize(tex)), []
+    buf = categorize(tex)
+    buf = tokenize(buf)
+    children = []
     while buf.hasNext():
         children.append(read_tex(buf, skip_envs=skip_envs))
     return TexEnv('[tex]', children), tex
