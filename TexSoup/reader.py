@@ -14,11 +14,22 @@ from TexSoup.tokens import (
 import string
 
 
-__all__ = ['read_tex']
+__all__ = ['read_expr', 'read_tex']
+
+
+def read_tex(buf, skip_envs=()):
+    r"""Parse all expressions in buffer
+
+    :param Buffer buf: a buffer of tokens
+    :param Tuple[str] skip_envs: environments to skip parsing
+    :return: Iterable[TexExpr]
+    """
+    while buf.hasNext():
+        yield read_expr(buf, skip_envs=skip_envs)
 
 
 @to_buffer(convert_out=False)
-def read_tex(src, skip_envs=(), context=None):
+def read_expr(src, skip_envs=(), context=None):
     r"""Read next expression from buffer
 
     :param Buffer src: a buffer of tokens
@@ -112,7 +123,7 @@ def read_item(src):
             not src.startswith(r'\end') and
             not (isinstance(last, TexText) and
                  last._text.strip(" ").endswith('\n\n') and len(extra) > 1)):
-        last = read_tex(src)
+        last = read_expr(src)
         extra.append(last)
     return extra, arg
 
@@ -153,7 +164,7 @@ def read_env(src, expr, skip_envs=()):
         contents = [src.forward_until(
             lambda s: s.startswith('\\end'), peek=False)]
     while src.hasNext() and not src.startswith('\\end{%s}' % expr.name):
-        contents.append(read_tex(src))
+        contents.append(read_expr(src))
     if not src.startswith('\\end{%s}' % expr.name):
         end = src.peek((0, 6))
         explanation = 'Instead got %s' % end if end else 'Reached end of file.'
@@ -181,7 +192,7 @@ def read_args(src, args=None):
     # Unlimited whitespace before first argument
     candidate_index = src.num_forward_until(lambda s: not s.isspace())
     while src.peek().isspace():
-        args.append(read_tex(src, context=args))
+        args.append(read_expr(src, context=args))
 
     # Restricted to only one line break after first argument
     line_breaks = 0
@@ -193,10 +204,10 @@ def read_args(src, args=None):
             if src.peek((0, space_index)).count("\n") <= 1 \
                     and src.peek(space_index) is not None \
                     and src.peek(space_index).category in ARG_START_TOKENS:
-                args.append(read_tex(src, context=args))
+                args.append(read_expr(src, context=args))
         else:
             line_breaks = 0
-            tex_text = read_tex(src, context=args)
+            tex_text = read_expr(src, context=args)
             args.append(tex_text)
 
     if not args:
@@ -221,5 +232,5 @@ def read_arg(src, c):
             content.append(next(src))
             break
         else:
-            content.append(read_tex(src))
+            content.append(read_expr(src))
     return Arg.parse(content)

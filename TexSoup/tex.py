@@ -1,4 +1,4 @@
-from TexSoup.reader import read_tex
+from TexSoup.reader import read_expr, read_tex
 from TexSoup.data import *
 from TexSoup.utils import *
 from TexSoup.tokens import tokenize
@@ -16,7 +16,5 @@ def read(tex, skip_envs=()):
         tex = ''.join(itertools.chain(*tex))
     buf = categorize(tex)
     buf = tokenize(buf)
-    children = []
-    while buf.hasNext():
-        children.append(read_tex(buf, skip_envs=skip_envs))
-    return TexEnv('[tex]', children), tex
+    buf = read_tex(buf, skip_envs=skip_envs)
+    return TexEnv('[tex]', buf), tex
