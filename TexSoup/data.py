@@ -680,6 +680,14 @@ class TexExpr(object):
         >>> expr2 = TexExpr('textbf', ('\n', 'hi'), preserve_whitespace=True)
         >>> list(expr2.contents)
         ['\n', 'hi']
+        >>> expr = TexExpr('textbf', ('\n', 'hi'))
+        >>> expr.contents = ('hehe', '👻')
+        >>> list(expr.contents)
+        ['hehe', '👻']
+        >>> expr.contents = 35
+        Traceback (most recent call last):
+            ...
+        TypeError: Contents must be a string or iterable of strings
         """
         for content in self.all:
             if isinstance(content, TexText):
