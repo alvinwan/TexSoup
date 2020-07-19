@@ -46,10 +46,10 @@ def read_expr(src, skip_envs=(), context=None):
     c = next(src)
     # TODO: assemble and use groups
     if c.category == TC.MathSwitch:
-        expr = TexEnv(c, [], nobegin=True)
+        expr = TexEnv(c, begin=c, end=c, contents=[])
         return read_math_env(src, expr)
     elif c.category == TC.MathGroupStart:
-        if c.startswith(TexDisplayMathEnv.start()):
+        if c.startswith(TexDisplayMathEnv.begin):
             expr = TexDisplayMathEnv([])
         else:
             expr = TexMathEnv([])
@@ -63,7 +63,7 @@ def read_expr(src, skip_envs=(), context=None):
         elif command == 'begin':
             # allow whitespace TODO: should be built into command tokenization
             forward_until_non_whitespace(src)
-            mode, expr, _ = 'begin', TexEnv(src.peek(1)), src.forward(3)
+            mode, expr, _ = 'begin', TexNamedEnv(src.peek(1)), src.forward(3)
         else:
             mode, expr = 'command', TexCmd(command)
 

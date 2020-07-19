@@ -9,7 +9,7 @@ import re
 from TexSoup.utils import CharToLineOffset, Token
 
 __all__ = ['TexNode', 'TexCmd', 'TexEnv', 'Arg', 'OArg', 'RArg', 'TexArgs',
-           'TexText', 'TexMathEnv', 'TexDisplayMathEnv']
+           'TexText', 'TexMathEnv', 'TexDisplayMathEnv', 'TexNamedEnv']
 
 
 #############
@@ -67,7 +67,7 @@ class TexNode(object):
 
     def __iter__(self):
         """
-        >>> node = TexNode(TexEnv('lstlisting', ('hai', 'there')))
+        >>> node = TexNode(TexNamedEnv('lstlisting', ('hai', 'there')))
         >>> list(node)
         ['hai', 'there']
         """
@@ -744,44 +744,38 @@ class TexExpr(object):
 
 
 class TexEnv(TexExpr):
-    r"""Abstraction for a LaTeX command, denoted by ``\begin{env}`` and
-    ``\end{env}``. Contains three attributes:
+    r"""Abstraction for a LaTeX command, with starting and ending markers.
+    Contains three attributes:
 
-    1. the environment name itself,
-    2. the environment arguments, whether optional or required, and
+    1. a human-readable environment name,
+    2. the environment delimiters
     3. the environment's contents.
 
-    >>> t = TexEnv('tabular', ['\n0 & 0 & * \\\\\n1 & 1 & * \\\\\n'],
-    ...     [RArg('c | c c')])
+    >>> t = TexEnv('displaymath', r'\[', r'\]',
+    ...     ['\\mathcal{M} \\circ \\mathcal{A}'])
     >>> t
-    TexEnv('tabular', ['\n0 & 0 & * \\\\\n1 & 1 & * \\\\\n'], [RArg('c | c c')])
+    TexEnv('displaymath', ['\\mathcal{M} \\circ \\mathcal{A}'], [])
     >>> print(t)
-    \begin{tabular}{c | c c}
-    0 & 0 & * \\
-    1 & 1 & * \\
-    \end{tabular}
+    \[\mathcal{M} \circ \mathcal{A}\]
     >>> len(list(t.children))
     0
     """
 
-    def __init__(self, name, contents=(), args=(), preserve_whitespace=False,
-                 nobegin=False, begin=False, end=False):
-        """Initialization for Tex environment.
+    def __init__(self, name, begin, end, contents=(), args=(),
+            preserve_whitespace=False):
+        r"""Initialization for Tex environment.
 
         :param str name: name of environment
+        :param str begin: string denoting start of environment
+        :param str end: string denoting end of environment
         :param iterable contents: list of contents
         :param iterable args: list of Tex Arguments
         :param bool preserve_whitespace: If false, elements containing only
             whitespace will be removed from contents.
-        :param bool nobegin: Disable \begin{...} notation.
         """
         super().__init__(name, contents, args, preserve_whitespace)
-
-        self.nobegin = nobegin
-        self.begin = begin if begin else (
-            self.name if self.nobegin else "\\begin{%s}" % self.name)
-        self.end = end if end else (
-            self.name if self.nobegin else "\\end{%s}" % self.name)
+        self.begin = begin
+        self.end = end
 
     def __match__(self, name=None, attrs=()):
         """Check if given attributes match environment."""
@@ -799,15 +793,51 @@ class TexEnv(TexExpr):
                 self.begin + str(self.args), contents, self.end)
 
     def __repr__(self):
-        if not self.args:
-            return "TexEnv('%s')" % self.name
-        return "TexEnv('%s', %s, %s)" % (
-            self.name, repr(self._contents), repr(self.args))
+        if not self.args and not self._contents:
+            return "%s('%s')" % (self.__class__.__name__, self.name)
+        return "%s('%s', %s, %s)" % (
+            self.__class__.__name__, self.name, repr(self._contents),
+            repr(self.args))
 
 
-class TexMathEnv(TexEnv):
+class TexNamedEnv(TexEnv):
+    r"""Abstraction for a LaTeX command, denoted by ``\begin{env}`` and
+    ``\end{env}``. Contains three attributes:
 
-    fmt = None
+    1. the environment name itself,
+    2. the environment arguments, whether optional or required, and
+    3. the environment's contents.
+
+    >>> t = TexNamedEnv('tabular', ['\n0 & 0 & * \\\\\n1 & 1 & * \\\\\n'],
+    ...     [RArg('c | c c')])
+    >>> t
+    TexNamedEnv('tabular', ['\n0 & 0 & * \\\\\n1 & 1 & * \\\\\n'], [RArg('c | c c')])
+    >>> print(t)
+    \begin{tabular}{c | c c}
+    0 & 0 & * \\
+    1 & 1 & * \\
+    \end{tabular}
+    >>> len(list(t.children))
+    0
+    """
+
+    def __init__(self, name, contents=(), args=(), preserve_whitespace=False):
+        """Initialization for Tex environment.
+
+        :param str name: name of environment
+        :param iterable contents: list of contents
+        :param iterable args: list of Tex Arguments
+        :param bool preserve_whitespace: If false, elements containing only
+            whitespace will be removed from contents.
+        """
+        super().__init__(name, r"\begin{%s}" % name, r"\end{%s}" % name,
+            contents, args, preserve_whitespace)
+
+
+class TexUnNamedEnv(TexEnv):
+
+    begin = None
+    end = None
 
     def __init__(self, contents=(), args=(), preserve_whitespace=False):
         """Initialization for Tex environment.
@@ -817,32 +847,22 @@ class TexMathEnv(TexEnv):
         :param bool preserve_whitespace: If false, elements containing only
             whitespace will be removed from contents.
         """
-        super().__init__(self.name, contents, args, preserve_whitespace,
-            nobegin=True, begin=self.start(), end=self.end())
-
-    @classmethod
-    def delims(cls):
-        return cls.fmt.split('%s')
-
-    @classmethod
-    def start(cls):
-        return cls.delims()[0]
-
-    @classmethod
-    def end(cls):
-        return cls.delims()[-1]
+        super().__init__(self.name, self.begin, self.end,
+            contents, args, preserve_whitespace)
 
 
-class TexDisplayMathEnv(TexMathEnv):
+class TexDisplayMathEnv(TexUnNamedEnv):
 
     name = 'displaymath'
-    fmt = r'\[%s\]'
+    begin = r'\['
+    end = r'\]'
 
 
-class TexMathEnv(TexMathEnv):
+class TexMathEnv(TexUnNamedEnv):
 
     name = 'math'
-    fmt = r'\(%s\)'
+    begin = r'\('
+    end = r'\)'
 
 
 class TexCmd(TexExpr):
