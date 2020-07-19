@@ -254,7 +254,7 @@ class TexNode(object):
         if isinstance(self.expr, TexCmd):
             assert len(self.expr.args) == 1, \
                 '.string is only valid for commands with one argument'
-            return self.expr.args[0].value
+            return self.expr.args[0].string
 
         contents = list(self.contents)
         if isinstance(self.expr, TexEnv):
@@ -607,6 +607,21 @@ class TexExpr(object):
     # MAGIC METHODS #
     #################
 
+    def __eq__(self, other):
+        """Check if two expressions are equal. This is useful when defining
+        data structures over TexExprs.
+
+        >>> exprs = [
+        ...     TexExpr('cake', ['flour', 'taro']),
+        ...     TexExpr('corgi', ['derp', 'collar', 'drool', 'sass'])
+        ... ]
+        >>> exprs[0] in exprs
+        True
+        >>> TexExpr('cake', ['flour', 'taro']) in exprs
+        True
+        """
+        return str(other) == str(self)
+
     def __match__(self, name=None, attrs=()):
         """Check if given attributes match current object."""
         # TODO: this should re-parse the name, instead of hardcoding here
@@ -644,7 +659,7 @@ class TexExpr(object):
         True
         """
         for arg in self.args:
-            for expr in arg:
+            for expr in arg.contents:
                 yield expr
         for content in self._contents:
             yield content
@@ -683,6 +698,16 @@ class TexExpr(object):
         else:
             raise TypeError("Contents must be a string or iterable of strings")
         self._contents = contents
+
+    @property
+    def string(self):
+        """All contents stringified. A convenience property
+
+        >>> a = TexExpr('hello', ['naw'])
+        >>> a.string
+        'naw'
+        """
+        return ''.join(map(str, self._contents))
 
     ##################
     # PUBLIC METHODS #
@@ -980,14 +1005,7 @@ class TexText(TexExpr):
 
 
 class Arg(TexExpr):
-    """Abstraction for a LaTeX expression argument.
-
-    >>> arg = RArg('huehue')
-    >>> arg[0]
-    'h'
-    >>> arg[1:]
-    'uehue'
-    """
+    """Abstraction for a LaTeX expression argument."""
 
     def __init__(self, *contents, preserve_whitespace=False):
         """Initialize argument using list of expressions.
@@ -999,43 +1017,17 @@ class Arg(TexExpr):
             self.__class__.__name__, contents,
             preserve_whitespace=preserve_whitespace)
 
-    def __eq__(self, other):
-        return isinstance(other, Arg) and \
-            self.value == other.value and \
-            self.type == other.type
-
-    def __getitem__(self, i):
-        return self.value[i]
-
-    def __iter__(self):
-        return iter(self._contents)
-
-    def __lt__(self, other):
-        return self.value < other.value
-
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__,
                            ', '.join(map(repr, self._contents)))
 
     def __str__(self):
-        return '%s%s%s' % (self.begin, self.value, self.end)
-
-    @property
-    def value(self):
-        """Argument value, without format.
-
-        >>> arg = RArg('hello')
-        >>> arg
-        RArg('hello')
-        >>> arg.value
-        'hello'
-        """
-        return ''.join(map(str, self._contents))
+        return '%s%s%s' % (self.begin, self.string, self.end)
 
     # TODO: should be moved to parser. Not supposed to be part of data
     # structure
-    @staticmethod
-    def parse(s):
+    @classmethod
+    def parse(cls, s):
         """Parse a string or list and return an Argument object.
 
         :param Union[str,iterable] s: Either a string or a list, where the
@@ -1060,20 +1052,10 @@ class Arg(TexExpr):
                 ' mistyped closing punctuation, misalignment.' %
                 (str(s)))
         for arg in arg_type:
-            if arg.__is__(s):
-                return arg(arg.__strip__(s))
+            if s.startswith(arg.begin) and s.endswith(arg.end):
+                return arg(s[len(arg.begin):-len(arg.end)])
         raise TypeError('Malformed argument. Must be an Arg or a string in '
                         'either brackets or curly braces.')
-
-    @classmethod
-    def __is__(cls, s):
-        """Test if string matches this argument's format."""
-        return s.startswith(cls.begin) and s.endswith(cls.end)
-
-    @classmethod
-    def __strip__(cls, s):
-        """Strip string of format."""
-        return s[len(cls.begin):-len(cls.end)]
 
 
 class OArg(Arg):
@@ -1244,20 +1226,6 @@ class TexArgs(list):
         super().reverse()
         self.all.reverse()
 
-    def sort(self):
-        r"""Sort both the list and the proxy `.all`.
-
-        Since it doesn't make sense to sort the proxy, all whitespace is
-        dropped.
-
-        >>> args = TexArgs(['\n', RArg('arg1'), OArg('arg2')])
-        >>> args.sort()
-        >>> len(args) == len(args.all)
-        True
-        """
-        super().sort()
-        self.all = list(self)
-
     def clear(self):
         r"""Clear both the list and the proxy `.all`.
 
@@ -1300,7 +1268,7 @@ class TexArgs(list):
         False
         """
         if isinstance(item, str):
-            return any([item == arg.value for arg in self])
+            return any([item == arg.string for arg in self])
         return super().__contains__(item)
 
     def __str__(self):
