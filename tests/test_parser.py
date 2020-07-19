@@ -486,9 +486,9 @@ def test_unclosed_math_environments():
 
 def test_arg_parse():
     """Test arg parsing errors."""
-    from TexSoup.data import Arg
+    from TexSoup.data import TexGroup
     with pytest.raises(TypeError):
-        Arg.parse(('{', ']'))
+        TexGroup.parse(('{', ']'))
 
     with pytest.raises(TypeError):
-        Arg.parse('\section[{')
+        TexGroup.parse('\section[{')

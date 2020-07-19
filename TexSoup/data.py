@@ -1,14 +1,14 @@
 """TexSoup transforms a LaTeX document into a complex tree of various Python
 objects, but all objects fall into one of the following three categories:
 
-``TexNode``, ``TexExpr`` (environments and commands), and ``Arg`` s.
+``TexNode``, ``TexExpr`` (environments and commands), and ``TexGroup`` s.
 """
 
 import itertools
 import re
 from TexSoup.utils import CharToLineOffset, Token
 
-__all__ = ['TexNode', 'TexCmd', 'TexEnv', 'Arg', 'OArg', 'RArg', 'TexArgs',
+__all__ = ['TexNode', 'TexCmd', 'TexEnv', 'TexGroup', 'BracketGroup', 'BraceGroup', 'TexArgs',
            'TexText', 'TexMathEnv', 'TexDisplayMathEnv', 'TexNamedEnv']
 
 
@@ -126,7 +126,7 @@ class TexNode(object):
         >>> from TexSoup import TexSoup
         >>> soup = TexSoup(r'''\newcommand{reverseconcat}[3]{#3#2#1}''')
         >>> soup.newcommand.args
-        [RArg('reverseconcat'), OArg('3'), RArg('#3#2#1')]
+        [BraceGroup('reverseconcat'), BracketGroup('3'), BraceGroup('#3#2#1')]
         >>> soup.newcommand.args = soup.newcommand.args[:2]
         >>> soup.newcommand
         \newcommand{reverseconcat}[3]
@@ -849,9 +849,9 @@ class TexNamedEnv(TexEnv):
     3. the environment's contents.
 
     >>> t = TexNamedEnv('tabular', ['\n0 & 0 & * \\\\\n1 & 1 & * \\\\\n'],
-    ...     [RArg('c | c c')])
+    ...     [BraceGroup('c | c c')])
     >>> t
-    TexNamedEnv('tabular', ['\n0 & 0 & * \\\\\n1 & 1 & * \\\\\n'], [RArg('c | c c')])
+    TexNamedEnv('tabular', ['\n0 & 0 & * \\\\\n1 & 1 & * \\\\\n'], [BraceGroup('c | c c')])
     >>> print(t)
     \begin{tabular}{c | c c}
     0 & 0 & * \\
@@ -876,6 +876,7 @@ class TexNamedEnv(TexEnv):
 
 class TexUnNamedEnv(TexEnv):
 
+    name = None
     begin = None
     end = None
 
@@ -887,6 +888,8 @@ class TexUnNamedEnv(TexEnv):
         :param bool preserve_whitespace: If false, elements containing only
             whitespace will be removed from contents.
         """
+        assert self.name, 'Name must be non-falsey'
+        assert self.begin and self.end, 'Delimiters must be non-falsey'
         super().__init__(self.name, self.begin, self.end,
             contents, args, preserve_whitespace)
 
@@ -911,10 +914,10 @@ class TexCmd(TexExpr):
     1. the command name itself and
     2. the command arguments, whether optional or required.
 
-    >>> textit = TexCmd('textit', args=[RArg('slant')])
-    >>> t = TexCmd('textbf', args=[RArg('big ', textit, '.')])
+    >>> textit = TexCmd('textit', args=[BraceGroup('slant')])
+    >>> t = TexCmd('textbf', args=[BraceGroup('big ', textit, '.')])
     >>> t
-    TexCmd('textbf', [RArg('big ', TexCmd('textit', [RArg('slant')]), '.')])
+    TexCmd('textbf', [BraceGroup('big ', TexCmd('textit', [BraceGroup('slant')]), '.')])
     >>> print(t)
     \textbf{big \textit{slant}.}
     >>> children = list(map(str, t.children))
@@ -1012,8 +1015,11 @@ class TexText(TexExpr):
 #############
 
 
-class Arg(TexExpr):
-    """Abstraction for a LaTeX expression argument."""
+class TexGroup(TexUnNamedEnv):
+    """Abstraction for a LaTeX environment with single-character delimiters.
+
+    Used primarily to identify and associate arguments with commands.
+    """
 
     def __init__(self, *contents, preserve_whitespace=False):
         """Initialize argument using list of expressions.
@@ -1021,16 +1027,11 @@ class Arg(TexExpr):
         :param Union[str,TexCmd,TexEnv] exprs: Tex expressions contained in the
             argument. Can be other commands or environments, or even strings.
         """
-        super().__init__(
-            self.__class__.__name__, contents,
-            preserve_whitespace=preserve_whitespace)
+        super().__init__(contents, preserve_whitespace=preserve_whitespace)
 
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__,
                            ', '.join(map(repr, self._contents)))
-
-    def __str__(self):
-        return '%s%s%s' % (self.begin, self.string, self.end)
 
     # TODO: should be moved to parser. Not supposed to be part of data
     # structure
@@ -1041,10 +1042,10 @@ class Arg(TexExpr):
         :param Union[str,iterable] s: Either a string or a list, where the
             first and last elements are valid argument delimiters.
 
-        >>> Arg.parse(RArg('arg0'))
-        RArg('arg0')
-        >>> Arg.parse('[arg0]')
-        OArg('arg0')
+        >>> TexGroup.parse(BraceGroup('arg0'))
+        BraceGroup('arg0')
+        >>> TexGroup.parse('[arg0]')
+        BracketGroup('arg0')
         """
         if isinstance(s, arg_type):
             return s
@@ -1062,27 +1063,27 @@ class Arg(TexExpr):
         for arg in arg_type:
             if s.startswith(arg.begin) and s.endswith(arg.end):
                 return arg(s[len(arg.begin):-len(arg.end)])
-        raise TypeError('Malformed argument. Must be an Arg or a string in '
-                        'either brackets or curly braces.')
+        raise TypeError('Malformed argument: %s. Must be an TexGroup or a string in'
+                        ' either brackets or curly braces.' % s)
 
 
-class OArg(Arg):
+class BracketGroup(TexGroup):
     """Optional argument, denoted as ``[arg]``"""
 
     begin = '['
     end = ']'
-    type = 'optional'
+    name = 'BracketGroup'
 
 
-class RArg(Arg):
+class BraceGroup(TexGroup):
     """Required argument, denoted as ``{arg}``."""
 
     begin = '{'
     end = '}'
-    type = 'required'
+    name = 'BraceGroup'
 
 
-arg_type = (OArg, RArg)
+arg_type = (BracketGroup, BraceGroup)
 
 
 class TexArgs(list):
@@ -1090,17 +1091,17 @@ class TexArgs(list):
 
     Additional support for conversion from and to unparsed argument strings.
 
-    >>> arguments = TexArgs(['\n', RArg('arg0'), '[arg1]', '{arg2}'])
+    >>> arguments = TexArgs(['\n', BraceGroup('arg0'), '[arg1]', '{arg2}'])
     >>> arguments
-    [RArg('arg0'), OArg('arg1'), RArg('arg2')]
+    [BraceGroup('arg0'), BracketGroup('arg1'), BraceGroup('arg2')]
     >>> arguments.all
-    ['\n', RArg('arg0'), OArg('arg1'), RArg('arg2')]
+    ['\n', BraceGroup('arg0'), BracketGroup('arg1'), BraceGroup('arg2')]
     >>> arguments[2]
-    RArg('arg2')
+    BraceGroup('arg2')
     >>> len(arguments)
     3
     >>> arguments[:2]
-    [RArg('arg0'), OArg('arg1')]
+    [BraceGroup('arg0'), BracketGroup('arg1')]
     >>> isinstance(arguments[:2], TexArgs)
     True
     """
@@ -1112,22 +1113,22 @@ class TexArgs(list):
 
     def __coerce(self, arg):
         if isinstance(arg, str) and not arg.isspace():
-            arg = Arg.parse(arg)
+            arg = TexGroup.parse(arg)
         return arg
 
     def append(self, arg):
         """Append whitespace, an unparsed argument string, or an argument
         object.
 
-        :param Arg arg: argument to add to the end of the list
+        :param TexGroup arg: argument to add to the end of the list
 
-        >>> arguments = TexArgs([RArg('arg0'), '[arg1]', '{arg2}'])
+        >>> arguments = TexArgs([BraceGroup('arg0'), '[arg1]', '{arg2}'])
         >>> arguments.append('[arg3]')
         >>> arguments[3]
-        OArg('arg3')
-        >>> arguments.append(RArg('arg4'))
+        BracketGroup('arg3')
+        >>> arguments.append(BraceGroup('arg4'))
         >>> arguments[4]
-        RArg('arg4')
+        BraceGroup('arg4')
         >>> len(arguments)
         5
         >>> arguments.append('\\n')
@@ -1142,14 +1143,14 @@ class TexArgs(list):
         """Extend mixture of unparsed argument strings, arguments objects, and
         whitespace.
 
-        :param List[Arg] args: Arguments to add to end of the list
+        :param List[TexGroup] args: Arguments to add to end of the list
 
-        >>> arguments = TexArgs([RArg('arg0'), '[arg1]', '{arg2}'])
-        >>> arguments.extend(['[arg3]', RArg('arg4'), '\\t'])
+        >>> arguments = TexArgs([BraceGroup('arg0'), '[arg1]', '{arg2}'])
+        >>> arguments.extend(['[arg3]', BraceGroup('arg4'), '\\t'])
         >>> len(arguments)
         5
         >>> arguments[4]
-        RArg('arg4')
+        BraceGroup('arg4')
         """
         for arg in args:
             self.append(arg)
@@ -1159,23 +1160,23 @@ class TexArgs(list):
         object.
 
         :param int i: Index to insert argument into
-        :param Arg arg: Argument to insert
+        :param TexGroup arg: Argument to insert
 
-        >>> arguments = TexArgs(['\n', RArg('arg0'), '[arg2]'])
+        >>> arguments = TexArgs(['\n', BraceGroup('arg0'), '[arg2]'])
         >>> arguments.insert(1, '[arg1]')
         >>> len(arguments)
         3
         >>> arguments
-        [RArg('arg0'), OArg('arg1'), OArg('arg2')]
+        [BraceGroup('arg0'), BracketGroup('arg1'), BracketGroup('arg2')]
         >>> arguments.all
-        ['\n', RArg('arg0'), OArg('arg1'), OArg('arg2')]
+        ['\n', BraceGroup('arg0'), BracketGroup('arg1'), BracketGroup('arg2')]
         >>> arguments.insert(10, '[arg3]')
         >>> arguments[3]
-        OArg('arg3')
+        BracketGroup('arg3')
         """
         arg = self.__coerce(arg)
 
-        if isinstance(arg, Arg):
+        if isinstance(arg, TexGroup):
             super().insert(i, arg)
 
         if len(self) <= 1:
@@ -1191,14 +1192,14 @@ class TexArgs(list):
     def remove(self, item):
         """Remove either an unparsed argument string or an argument object.
 
-        :param Union[str,Arg] item: Item to remove
+        :param Union[str,TexGroup] item: Item to remove
 
-        >>> arguments = TexArgs([RArg('arg0'), '[arg2]', '{arg3}'])
+        >>> arguments = TexArgs([BraceGroup('arg0'), '[arg2]', '{arg3}'])
         >>> arguments.remove('{arg0}')
         >>> len(arguments)
         2
         >>> arguments[0]
-        OArg('arg2')
+        BracketGroup('arg2')
         """
         item = self.__coerce(item)
         self.all.remove(item)
@@ -1209,13 +1210,13 @@ class TexArgs(list):
 
         :param int i: Index to pop from the list
 
-        >>> arguments = TexArgs([RArg('arg0'), '[arg2]', '{arg3}'])
+        >>> arguments = TexArgs([BraceGroup('arg0'), '[arg2]', '{arg3}'])
         >>> arguments.pop(1)
-        OArg('arg2')
+        BracketGroup('arg2')
         >>> len(arguments)
         2
         >>> arguments[0]
-        RArg('arg0')
+        BraceGroup('arg0')
         """
         item = super().pop(i)
         j = self.all.index(item)
@@ -1224,12 +1225,12 @@ class TexArgs(list):
     def reverse(self):
         r"""Reverse both the list and the proxy `.all`.
 
-        >>> args = TexArgs(['\n', RArg('arg1'), OArg('arg2')])
+        >>> args = TexArgs(['\n', BraceGroup('arg1'), BracketGroup('arg2')])
         >>> args.reverse()
         >>> args.all
-        [OArg('arg2'), RArg('arg1'), '\n']
+        [BracketGroup('arg2'), BraceGroup('arg1'), '\n']
         >>> args
-        [OArg('arg2'), RArg('arg1')]
+        [BracketGroup('arg2'), BraceGroup('arg1')]
         """
         super().reverse()
         self.all.reverse()
@@ -1237,7 +1238,7 @@ class TexArgs(list):
     def clear(self):
         r"""Clear both the list and the proxy `.all`.
 
-        >>> args = TexArgs(['\n', RArg('arg1'), OArg('arg2')])
+        >>> args = TexArgs(['\n', BraceGroup('arg1'), BracketGroup('arg2')])
         >>> args.clear()
         >>> len(args) == len(args.all) == 0
         True
@@ -1248,14 +1249,14 @@ class TexArgs(list):
     def __getitem__(self, key):
         """Standard list slicing.
 
-        Returns TexArgs object for subset of list and returns an Arg object
+        Returns TexArgs object for subset of list and returns an TexGroup object
         for single items.
 
-        >>> arguments = TexArgs([RArg('arg0'), '[arg1]', '{arg2}'])
+        >>> arguments = TexArgs([BraceGroup('arg0'), '[arg1]', '{arg2}'])
         >>> arguments[2]
-        RArg('arg2')
+        BraceGroup('arg2')
         >>> arguments[:2]
-        [RArg('arg0'), OArg('arg1')]
+        [BraceGroup('arg0'), BracketGroup('arg1')]
         """
         value = super().__getitem__(key)
         if isinstance(value, list):
@@ -1268,9 +1269,9 @@ class TexArgs(list):
         >>> arguments = TexArgs(['{arg0}', '[arg1]'])
         >>> 'arg0' in arguments
         True
-        >>> OArg('arg0') in arguments
+        >>> BracketGroup('arg0') in arguments
         False
-        >>> RArg('arg0') in arguments
+        >>> BraceGroup('arg0') in arguments
         True
         >>> 'arg3' in arguments
         False
@@ -1291,6 +1292,6 @@ class TexArgs(list):
         """Makes list of arguments command-line friendly.
 
         >>> TexArgs(['{a}', '[b]', '{c}'])
-        [RArg('a'), OArg('b'), RArg('c')]
+        [BraceGroup('a'), BracketGroup('b'), BraceGroup('c')]
         """
         return '[%s]' % ', '.join(map(repr, self))
