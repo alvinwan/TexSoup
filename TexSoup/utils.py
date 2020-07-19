@@ -376,7 +376,7 @@ class Buffer:
         self.__i -= j
         return self[self.__i:self.__i + j]
 
-    def peek(self, j=(0, 1)):
+    def peek(self, j=0):
         """Peek at the next value(s), without advancing the Buffer.
 
         Return None if index is out of range.
@@ -477,6 +477,10 @@ class MixedBuffer(Buffer):
 
         :param iterator: iterator or iterable
         :param func join: function to join multiple buffer elements
+
+        >>> buf = MixedBuffer([324, 'adsf', lambda x: x])
+        >>> buf.peek()
+        324
         """
         super().__init__(iterator,
             join=lambda x: x, empty=lambda x: [],
