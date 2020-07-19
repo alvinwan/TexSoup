@@ -34,7 +34,7 @@ def to_dictionary(tex_tree):
             str_tree.append({i.name: "\\" + i.name + str(i.args)})
         elif isinstance(i, TexSoup.TexText):
             str_tree.append(str(i.text))
-        elif isinstance(i, TexSoup.Arg):
+        elif isinstance(i, TexSoup.TexGroup):
             str_tree.append(["{", to_dictionary(TexSoup.TexSoup(i.value).expr.all), "}"])
         else:
             str_tree.append(str(i))

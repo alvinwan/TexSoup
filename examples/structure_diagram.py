@@ -26,7 +26,7 @@ def tex_read(tex_soup, prefix=" |- "):
             result += textwrap.indent("\\" + tex_code.name + str(tex_code.args), prefix, lambda line: True)
         elif isinstance(tex_code, TexSoup.TexText):
             result += textwrap.indent(tex_code.text.strip(), prefix, lambda line: True)
-        elif isinstance(tex_code, TexSoup.Arg):
+        elif isinstance(tex_code, TexSoup.TexGroup):
             result += tex_read((prefix + "{" + "\n"
                                 + textwrap.indent(tex_read(TexSoup.TexSoup(tex_code.value).expr.all), "\t")
                                 + "\n" + prefix + "}").splitlines(), prefix="")

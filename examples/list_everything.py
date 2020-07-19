@@ -28,7 +28,7 @@ def everything(tex_tree):
             result.append(["\\" + tex_code.name + str(tex_code.args)])
         elif isinstance(tex_code, TexSoup.TexText):
             result.append(tex_code.text)
-        elif isinstance(tex_code, TexSoup.Arg):
+        elif isinstance(tex_code, TexSoup.TexGroup):
             result.append(["{", everything(TexSoup.TexSoup(tex_code.value).expr.all), "}"])
         else:
             result.append([str(tex_code)])

@@ -240,7 +240,7 @@ def read_arg(src, c):
     :param Buffer src: a buffer of tokens
     :param str c: argument token (starting token)
     :return: the parsed argument
-    :rtype: Arg
+    :rtype: TexGroup
     """
     content = [c]
     while src.hasNext():
@@ -249,4 +249,4 @@ def read_arg(src, c):
             break
         else:
             content.append(read_expr(src))
-    return Arg.parse(content)
+    return TexGroup.parse(content)
