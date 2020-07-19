@@ -39,6 +39,8 @@ TC = IntEnum('TokenCode', (
     # temporary (Replace with macros support)
     'PunctuationCommandName',
     'SizeCommand',
+    'Spacer',
+    'Skip',
 ), start=max(CC))
 
 
@@ -286,7 +288,8 @@ def tokenize_symbols(text, prev=None):
         CC.OpenBracket:     TC.OpenBracket,
         CC.CloseBracket:    TC.CloseBracket,
         CC.OpenParen:       TC.OpenParen,
-        CC.CloseParen:      TC.CloseParen
+        CC.CloseParen:      TC.CloseParen,
+        # CC.Spacer:          TC.Spacer
     }
     if text.peek().category in mapping.keys():
         result = text.forward(1)

@@ -1,7 +1,7 @@
 """Parsing mechanisms should not be directly invoked publicly, as they are
 subject to change."""
 
-from TexSoup.utils import Token, to_mixed_buffer
+from TexSoup.utils import Token, Buffer, MixedBuffer
 from TexSoup.data import *
 from TexSoup.tokens import (
     TC,
@@ -24,22 +24,42 @@ def read_tex(buf, skip_envs=()):
     :param Tuple[str] skip_envs: environments to skip parsing
     :return: Iterable[TexExpr]
     """
-    buf = read_exprs(buf, read_expr, skip_envs=skip_envs)
+    buf = Buffer(read_exprs(buf, read_skip, skip_envs=skip_envs))
+    buf = MixedBuffer(read_exprs(buf, read_expr, skip_envs=skip_envs))
     buf = read_exprs(buf, wrap_expr)
     return buf
 
 
-@to_mixed_buffer(convert_in=False)
 def read_exprs(buf, read, **kwargs):
     while buf.hasNext():
         yield read(buf, **kwargs)
 
 
-def read_expr(src, skip_envs=(), context=None):
-    r"""Read next expression from buffer
+def read_skip(src, skip_envs=()):
+    r"""Group skipped envs into single token.
 
     :param Buffer src: a buffer of tokens
     :param Tuple[str] skip_envs: environments to skip parsing
+    """
+    c = next(src)
+    position = src.position  # grab position before advancing buffer
+
+    if c.category == TC.Escape and src.peek() == 'begin':
+        name, (arg,), steps = read_command(src, n_required_args=1)
+        if arg in skip_envs:
+            token = Token(src.forward(steps), position)
+            token += src.forward_until(lambda s:
+                s.startswith(r'\\end{%s}' % name), peek=False)
+            token += src.forward(3)
+            token.category = TC.Skip
+            return token
+    return c
+
+
+def read_expr(src, context=None):
+    r"""Read next expression from buffer
+
+    :param Buffer src: a buffer of tokens
     :param TexExpr context: parent expression
     :return: [TexExpr, Token]
     """
@@ -56,13 +76,14 @@ def read_expr(src, skip_envs=(), context=None):
         return read_math_env(src, expr)
     elif c.category == TC.Escape:
         # TODO: reduce to command-parsing only -- assemble envs in 2nd pass
-        command = Token(src.forward(1), src.position)
+        command = Token(next(src), src.position)
         if command == 'item':
             contents, arg = read_item(src)
             mode, expr = 'command', TexCmd(command, contents, arg)
         elif command == 'begin':
             # allow whitespace TODO: should be built into command tokenization
             forward_until_non_whitespace(src)
+            assert src.peek(1) not in skip_envs
             mode, expr, _ = 'begin', TexNamedEnv(src.peek(1)), src.forward(3)
         else:
             mode, expr = 'command', TexCmd(command)
@@ -72,7 +93,8 @@ def read_expr(src, skip_envs=(), context=None):
         if mode == 'begin':
             read_env(src, expr, skip_envs=skip_envs)
         return expr
-    if c.category in ARG_START_TOKENS and isinstance(context, TexArgs) or c == '{':
+    if c.category == TC.OpenBracket and isinstance(context, TexArgs) or \
+            c.category == TC.GroupStart:
         return read_arg(src, c)
 
     assert isinstance(c, Token)
@@ -101,7 +123,7 @@ def forward_until_non_whitespace(src):
     while (src.hasNext() and
             any([src.peek().startswith(sub) for sub in string.whitespace])
             and not any(t.strip(" ").endswith(c) for c in END_OF_LINE_TOKENS)):
-        t += src.forward(1)
+        t += next(src)
     return t
 
 
@@ -160,7 +182,7 @@ def read_math_env(src, expr):
         explanation = 'Instead got %s' % end if end else 'Reached end of file.'
         raise EOFError('Expecting %s. %s' % (expr.end, explanation))
     else:
-        src.forward(1)
+        next(src)
     expr.append(content)
     return expr
 
@@ -250,3 +272,101 @@ def read_arg(src, c):
         else:
             content.append(read_expr(src))
     return TexGroup.parse(content)
+
+
+# TODO: move spacer tokenization to tokenizer
+# WARNING: This method is flawed: Spacer detection only works for first
+# instance of spacer in text. Will need to refactor generic string tokenization
+# which can only occur after refactoring item, arg, and env readers above,
+# which in turn, rely on the skip_env reader.
+def read_spacer(buf):
+    r"""Extracts the next spacer, if there is one, before non-whitespace
+
+    Define a spacer to be a contiguous string of only whitespace, with at most
+    one line break.
+
+    >>> from TexSoup.category import categorize
+    >>> from TexSoup.tokens import tokenize
+    >>> read_spacer(Buffer(tokenize(categorize('   \t    \n'))))
+    ('   \t    \n', '')
+    >>> read_spacer(Buffer(tokenize(categorize('   \t    \n\t \n  \t\n'))))
+    ('   \t    \n\t ', '\n  \t\n')
+    >>> read_spacer(Buffer(tokenize(categorize('{'))))
+    ('', '')
+    >>> read_spacer(Buffer(tokenize(categorize('   \t    \na'))))
+    ('   \t    \n', '')
+    >>> read_spacer(Buffer(tokenize(categorize('   \t    \n\t \n  \t\na'))))
+    ('   \t    \n\t ', '\n  \t\n')
+    """
+    if not buf.peek().category == TC.Text:
+        return '', ''
+
+    text = next(buf)
+    whitespace = ''
+    for c in text:
+        if c not in string.whitespace:
+            break
+        whitespace += c
+
+    words = whitespace.split('\n', 2)
+    if not words[2:]:
+        return '\n'.join(words[:2]), ''
+    return '\n'.join(words[:2]), '\n' + '\n'.join(words[2:])
+
+
+# TODO: refactor after generic string tokenizer fixed
+# TODO: hard-coded to 1 required arg
+def read_command(buf, n_required_args=-1, n_optional_args=-1):
+    r"""Parses command and all arguments. Assumes escape has just been parsed.
+
+    Here are rules for command name and argument parsing:
+
+    1. No whitespace is allowed between escape and command name. e.g., \ textbf
+       is the "command" "\" and the text "textbf". Only \textbf is the bold
+       command.
+    2. One spacer is allowed between the command name and the first argument,
+       optional or required.
+    3. If command has 1 required argument and the command name is followed by a
+       a spacer, the first character after that spacer is used as the first
+       argument. This first character can be a line break OR a non-whitespace
+       character. The same applies for all subsequent required arguments: The
+       first character after an optional spacer is used.
+
+    >>> from TexSoup.category import categorize
+    >>> from TexSoup.tokens import tokenize
+    >>> buf = Buffer(tokenize(categorize('\section   \t    \n\t{wallawalla}')))
+    >>> next(buf)
+    '\\'
+    >>> read_command(buf)
+    ('section', ('wallawalla',), 5)
+    >>> buf = Buffer(tokenize(categorize('\section   \t    \n\t \n{bingbang}')))
+    >>> _ = next(buf)
+    >>> read_command(buf)
+    ('section', (), 2)
+    >>> buf = Buffer(tokenize(categorize('\section{ooheeeee}')))
+    >>> _ = next(buf)
+    >>> read_command(buf)
+    ('section', ('ooheeeee',), 4)
+
+    # Broken because abcd is incorrectly tokenized with leading space
+    # >>> buf = Buffer(tokenize(categorize('\section abcd')))
+    # >>> _ = next(buf)
+    # >>> read_command(buf)
+    # ('section', ('a',), 2)
+    """
+    token = Token('', buf.position)
+    steps = 1
+    name = next(buf)
+    args = ()
+
+    spacer, rest = read_spacer(buf)
+    if not rest:
+        token += spacer  # TODO: category = TC.Spacer; TODO: use token?
+
+        if buf.peek().category == TC.GroupStart:
+            _, args, _ = next(buf), (next(buf),), next(buf)
+            steps += 3
+    if spacer:
+        steps += 1
+    buf.backward(steps)
+    return name, args, steps
