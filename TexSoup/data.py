@@ -38,8 +38,8 @@ class TexNode(object):
             command or an environment containing other commands
         :param str src: LaTeX source string
         """
-        assert isinstance(expr, (TexCmd, TexEnv, TexText)
-                          ), 'Created from TexExpr'
+        assert isinstance(expr, TexExpr), \
+            'Expression given to node must be a valid TexExpr'
         super().__init__()
         self.expr = expr
         self.parent = None
@@ -265,10 +265,6 @@ class TexNode(object):
 
     @string.setter
     def string(self, string):
-        assert isinstance(string, (list, str)), \
-            "`string` must be of type `list` or `str`"
-        if isinstance(string, str):
-            string = [string]
         self.expr.args[0].contents = string
 
     @property
@@ -449,7 +445,7 @@ class TexNode(object):
         # TODO: needs abstraction for removing from arg
         for arg in parent.args:
             if self.expr in arg.contents:
-                arg.contents.remove(self.expr)
+                arg._contents.remove(self.expr)
 
     def find(self, name=None, **attrs):
         r"""First descendant node matching criteria.
@@ -597,7 +593,7 @@ class TexExpr(object):
     """
 
     def __init__(self, name, contents=(), args=(), preserve_whitespace=False):
-        self.name = name.strip()
+        self.name = name.strip()  # TODO: should not ever have space
         self.args = TexArgs(args)
         self.parent = None
         self._contents = list(contents) or []
@@ -676,6 +672,17 @@ class TexExpr(object):
             is_whitespace = isinstance(content, str) and content.isspace()
             if not is_whitespace or self.preserve_whitespace:
                 yield content
+
+    @contents.setter
+    def contents(self, contents):
+        if isinstance(contents, str):
+            contents = [TexText(contents)]
+        elif isinstance(contents, (list, tuple)) and \
+                all(isinstance(content, str) for content in contents):
+            contents = list(map(TexText, contents))
+        else:
+            raise TypeError("Contents must be a string or iterable of strings")
+        self._contents = contents
 
     ##################
     # PUBLIC METHODS #
@@ -972,7 +979,7 @@ class TexText(TexExpr):
 #############
 
 
-class Arg(object):
+class Arg(TexExpr):
     """Abstraction for a LaTeX expression argument.
 
     >>> arg = RArg('huehue')
@@ -980,24 +987,17 @@ class Arg(object):
     'h'
     >>> arg[1:]
     'uehue'
-    >>> arg2 = RArg(arg)
-    >>> arg2 == arg
-    True
     """
 
-    fmt = "%s"
-
-    def __new__(cls, *exprs):
+    def __init__(self, *contents, preserve_whitespace=False):
         """Initialize argument using list of expressions.
 
         :param Union[str,TexCmd,TexEnv] exprs: Tex expressions contained in the
             argument. Can be other commands or environments, or even strings.
         """
-        if len(exprs) == 1 and isinstance(exprs[0], Arg):
-            return exprs[0]
-        arg = super(Arg, cls).__new__(cls)
-        arg.contents = list(exprs)
-        return arg
+        super().__init__(
+            self.__class__.__name__, contents,
+            preserve_whitespace=preserve_whitespace)
 
     def __eq__(self, other):
         return isinstance(other, Arg) and \
@@ -1008,17 +1008,17 @@ class Arg(object):
         return self.value[i]
 
     def __iter__(self):
-        return iter(self.contents)
+        return iter(self._contents)
 
     def __lt__(self, other):
         return self.value < other.value
 
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__,
-                           ', '.join(map(repr, self.contents)))
+                           ', '.join(map(repr, self._contents)))
 
     def __str__(self):
-        return self.fmt % self.value
+        return '%s%s%s' % (self.begin, self.value, self.end)
 
     @property
     def value(self):
@@ -1030,8 +1030,10 @@ class Arg(object):
         >>> arg.value
         'hello'
         """
-        return ''.join(map(str, self.contents))
+        return ''.join(map(str, self._contents))
 
+    # TODO: should be moved to parser. Not supposed to be part of data
+    # structure
     @staticmethod
     def parse(s):
         """Parse a string or list and return an Argument object.
@@ -1048,7 +1050,7 @@ class Arg(object):
             return s
         if isinstance(s, (list, tuple)):
             for arg in arg_type:
-                if [s[0], s[-1]] == arg.delims():
+                if s[0] == arg.begin and s[-1] == arg.end:
                     return arg(*s[1:-1])
             raise TypeError(
                 'Malformed argument. First and last elements must '
@@ -1064,38 +1066,29 @@ class Arg(object):
                         'either brackets or curly braces.')
 
     @classmethod
-    def delims(cls):
-        """Returns delimiters specific to an argument type.
-
-        >>> RArg.delims()
-        ['{', '}']
-        >>> OArg.delims()
-        ['[', ']']
-        """
-        return cls.fmt.split('%s')
-
-    @classmethod
     def __is__(cls, s):
         """Test if string matches this argument's format."""
-        return s.startswith(cls.delims()[0]) and s.endswith(cls.delims()[1])
+        return s.startswith(cls.begin) and s.endswith(cls.end)
 
     @classmethod
     def __strip__(cls, s):
         """Strip string of format."""
-        return s[len(cls.delims()[0]):-len(cls.delims()[1])]
+        return s[len(cls.begin):-len(cls.end)]
 
 
 class OArg(Arg):
     """Optional argument, denoted as ``[arg]``"""
 
-    fmt = '[%s]'
+    begin = '['
+    end = ']'
     type = 'optional'
 
 
 class RArg(Arg):
     """Required argument, denoted as ``{arg}``."""
 
-    fmt = '{%s}'
+    begin = '{'
+    end = '}'
     type = 'required'
 
 
