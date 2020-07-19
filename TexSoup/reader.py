@@ -46,7 +46,7 @@ def read_skip(src, skip_envs=()):
     position = src.position  # grab position before advancing buffer
 
     if c.category == TC.Escape and src.peek() == 'begin':
-        name, (arg,), steps = read_command(src, n_required_args=1)
+        name, (arg,), steps = peek_command(src, n_required_args=1)
         if arg in skip_envs:
             token = Token(src.forward(steps), position)
             token += src.forward_until(lambda s:
@@ -229,13 +229,13 @@ def read_args(src, args=None):
 
     # Unlimited whitespace before first argument
     candidate_index = src.num_forward_until(lambda s: not s.isspace())
-    while src.peek().isspace():
+    while src.hasNext() and src.peek().isspace():
         args.append(read_expr(src, context=args))
 
     # Restricted to only one line break after first argument
     line_breaks = 0
-    while src.peek().category in ARG_START_TOKENS or \
-            (src.peek().isspace() and line_breaks == 0):
+    while src.hasNext() and src.peek().category in ARG_START_TOKENS or \
+            (src.hasNext() and src.peek().isspace() and line_breaks == 0):
         space_index = src.num_forward_until(lambda s: not s.isspace())
         if space_index > 0:
             line_breaks += 1
@@ -316,7 +316,7 @@ def read_spacer(buf):
 
 # TODO: refactor after generic string tokenizer fixed
 # TODO: hard-coded to 1 required arg
-def read_command(buf, n_required_args=-1, n_optional_args=-1):
+def peek_command(buf, n_required_args=-1, n_optional_args=-1):
     r"""Parses command and all arguments. Assumes escape has just been parsed.
 
     Here are rules for command name and argument parsing:
@@ -337,21 +337,21 @@ def read_command(buf, n_required_args=-1, n_optional_args=-1):
     >>> buf = Buffer(tokenize(categorize('\section   \t    \n\t{wallawalla}')))
     >>> next(buf)
     '\\'
-    >>> read_command(buf)
+    >>> peek_command(buf)
     ('section', ('wallawalla',), 5)
     >>> buf = Buffer(tokenize(categorize('\section   \t    \n\t \n{bingbang}')))
     >>> _ = next(buf)
-    >>> read_command(buf)
+    >>> peek_command(buf)
     ('section', (), 2)
     >>> buf = Buffer(tokenize(categorize('\section{ooheeeee}')))
     >>> _ = next(buf)
-    >>> read_command(buf)
+    >>> peek_command(buf)
     ('section', ('ooheeeee',), 4)
 
     # Broken because abcd is incorrectly tokenized with leading space
     # >>> buf = Buffer(tokenize(categorize('\section abcd')))
     # >>> _ = next(buf)
-    # >>> read_command(buf)
+    # >>> peek_command(buf)
     # ('section', ('a',), 2)
     """
     token = Token('', buf.position)
