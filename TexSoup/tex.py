@@ -17,4 +17,4 @@ def read(tex, skip_envs=()):
     buf = categorize(tex)
     buf = tokenize(buf)
     buf = read_tex(buf, skip_envs=skip_envs)
-    return TexEnv('[tex]', buf), tex
+    return TexEnv('[tex]', begin='', end='', contents=buf), tex
