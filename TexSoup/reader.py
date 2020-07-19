@@ -25,7 +25,7 @@ def read_tex(buf, skip_envs=()):
     :return: Iterable[TexExpr]
     """
     buf = Buffer(read_exprs(buf, read_skip, skip_envs=skip_envs))
-    buf = MixedBuffer(read_exprs(buf, read_expr, skip_envs=skip_envs))
+    buf = MixedBuffer(read_exprs(buf, read_expr))
     buf = read_exprs(buf, wrap_expr)
     return buf
 
@@ -40,6 +40,7 @@ def read_skip(src, skip_envs=()):
 
     :param Buffer src: a buffer of tokens
     :param Tuple[str] skip_envs: environments to skip parsing
+    :return: Token
     """
     c = next(src)
     position = src.position  # grab position before advancing buffer
@@ -83,7 +84,6 @@ def read_expr(src, context=None):
         elif command == 'begin':
             # allow whitespace TODO: should be built into command tokenization
             forward_until_non_whitespace(src)
-            assert src.peek(1) not in skip_envs
             mode, expr, _ = 'begin', TexNamedEnv(src.peek(1)), src.forward(3)
         else:
             mode, expr = 'command', TexCmd(command)
@@ -91,7 +91,7 @@ def read_expr(src, context=None):
         expr.args = read_args(src, expr.args)
 
         if mode == 'begin':
-            read_env(src, expr, skip_envs=skip_envs)
+            read_env(src, expr)
         return expr
     if c.category == TC.OpenBracket and isinstance(context, TexArgs) or \
             c.category == TC.GroupStart:

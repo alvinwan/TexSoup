@@ -510,13 +510,3 @@ def to_buffer(convert_in=True, convert_out=True, Buffer=Buffer):
             return output
         return wrap
     return decorator
-
-
-def to_mixed_buffer(convert_in=True, convert_out=True):
-    """Decorator converting all strings and iterators/iterables into Mixed
-    Buffers.
-
-    :param bool convert_in: Convert inputs where applicable to Buffers
-    :param bool convert_out: Convert output to a Buffer
-    """
-    return to_buffer(convert_in, convert_out, Buffer=MixedBuffer)
