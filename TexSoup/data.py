@@ -836,13 +836,13 @@ class TexMathEnv(TexEnv):
 class TexDisplayMathEnv(TexMathEnv):
 
     name = 'displaymath'
-    fmt = '\[%s\]'
+    fmt = r'\[%s\]'
 
 
 class TexMathEnv(TexMathEnv):
 
     name = 'math'
-    fmt = '\(%s\)'
+    fmt = r'\(%s\)'
 
 
 class TexCmd(TexExpr):
@@ -1108,8 +1108,6 @@ class TexArgs(list):
         self.extend(args)
 
     def __coerce(self, arg):
-        if isinstance(arg, TexText):
-            arg = arg._text
         if isinstance(arg, str) and not arg.isspace():
             arg = Arg.parse(arg)
         return arg
