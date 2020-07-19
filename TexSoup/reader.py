@@ -1,7 +1,7 @@
 """Parsing mechanisms should not be directly invoked publicly, as they are
 subject to change."""
 
-from TexSoup.utils import Token, to_buffer
+from TexSoup.utils import Token, to_mixed_buffer
 from TexSoup.data import *
 from TexSoup.tokens import (
     TC,
@@ -24,24 +24,28 @@ def read_tex(buf, skip_envs=()):
     :param Tuple[str] skip_envs: environments to skip parsing
     :return: Iterable[TexExpr]
     """
+    buf = read_exprs(buf, read_expr, skip_envs=skip_envs)
+    buf = read_exprs(buf, wrap_expr)
+    return buf
+
+
+@to_mixed_buffer(convert_in=False)
+def read_exprs(buf, read, **kwargs):
     while buf.hasNext():
-        yield read_expr(buf, skip_envs=skip_envs)
+        yield read(buf, **kwargs)
 
 
-@to_buffer(convert_out=False)
 def read_expr(src, skip_envs=(), context=None):
     r"""Read next expression from buffer
 
     :param Buffer src: a buffer of tokens
     :param Tuple[str] skip_envs: environments to skip parsing
     :param TexExpr context: parent expression
-    :return: TexExpr
+    :return: [TexExpr, Token]
     """
     c = next(src)
     # TODO: assemble and use groups
-    if c.category == TC.Comment:
-        return c
-    elif c.category == TC.MathSwitch:
+    if c.category == TC.MathSwitch:
         expr = TexEnv(c, [], nobegin=True)
         return read_math_env(src, expr)
     elif c.category == TC.MathGroupStart:
@@ -72,7 +76,19 @@ def read_expr(src, skip_envs=(), context=None):
         return read_arg(src, c)
 
     assert isinstance(c, Token)
-    return TexText(c)
+    return c
+
+
+def wrap_expr(src):
+    """Wrap next expression in buffer with TexExpr object if still a token
+
+    :param Buffer src: a buffer of tokens
+    :return: TexExpr
+    """
+    c = next(src)
+    if isinstance(c, Token):
+        return TexText(c)
+    return c
 
 
 def stringify(string):

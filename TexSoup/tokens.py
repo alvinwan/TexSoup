@@ -186,7 +186,7 @@ def tokenize_line_comment(text, prev=None):
     >>> _ = next(b), next(b)
     >>> tokenize_line_comment(b)
     '%'
-    >>> tokenize_line_comment(categorize('\%'))
+    >>> tokenize_line_comment(categorize(r'\%'))
     """
     result = Token('', text.position)
     if text.peek().category == CC.Comment and (
