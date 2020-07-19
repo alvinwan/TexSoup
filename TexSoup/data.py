@@ -955,22 +955,29 @@ class TexText(TexExpr):
 class Arg(object):
     """Abstraction for a LaTeX expression argument.
 
-    >>> arg = Arg('huehue')
+    >>> arg = RArg('huehue')
     >>> arg[0]
     'h'
     >>> arg[1:]
     'uehue'
+    >>> arg2 = RArg(arg)
+    >>> arg2 == arg
+    True
     """
 
     fmt = "%s"
 
-    def __init__(self, *exprs):
+    def __new__(cls, *exprs):
         """Initialize argument using list of expressions.
 
         :param Union[str,TexCmd,TexEnv] exprs: Tex expressions contained in the
             argument. Can be other commands or environments, or even strings.
         """
-        self.contents = list(exprs)
+        if len(exprs) == 1 and isinstance(exprs[0], Arg):
+            return exprs[0]
+        arg = super(Arg, cls).__new__(cls)
+        arg.contents = list(exprs)
+        return arg
 
     def __eq__(self, other):
         return isinstance(other, Arg) and \
