@@ -32,25 +32,29 @@ SIGNATURES = {
 __all__ = ['read_expr', 'read_tex']
 
 
-def read_tex(buf, skip_envs=()):
+def read_tex(buf, skip_envs=(), tolerance=0):
     r"""Parse all expressions in buffer
 
     :param Buffer buf: a buffer of tokens
     :param Tuple[str] skip_envs: environments to skip parsing
+    :param int tolerance: error tolerance level (only supports 0 or 1)
     :return: iterable over parsed expressions
     :rtype: Iterable[TexExpr]
     """
     while buf.hasNext():
-        yield read_expr(buf, skip_envs=SKIP_ENVS + skip_envs)
+        yield read_expr(buf,
+            skip_envs=SKIP_ENVS + skip_envs,
+            tolerance=tolerance)
 
 
 # TODO: skip envs nested in args or even just brace group won't be skipped
 # (skip_env kwarg needs to be propagated)
-def read_expr(src, skip_envs=()):
+def read_expr(src, skip_envs=(), tolerance=0):
     r"""Read next expression from buffer
 
     :param Buffer src: a buffer of tokens
-    :param TexExpr context: parent expression
+    :param Tuple[str] skip_envs: environments to skip parsing
+    :param int tolerance: error tolerance level (only supports 0 or 1)
     :return: parsed expression
     :rtype: [TexExpr, Token]
     """
@@ -74,7 +78,7 @@ def read_expr(src, skip_envs=()):
             if expr.name in skip_envs:
                 read_skip_env(src, expr)
             else:
-                read_env(src, expr)
+                read_env(src, expr, tolerance=tolerance)
         else:
             src.forward(1)
             expr = TexCmd(name)
@@ -231,7 +235,7 @@ def read_skip_env(src, expr):
     return expr
 
 
-def read_env(src, expr):
+def read_env(src, expr, tolerance=0):
     r"""Read the environment from buffer.
 
     Advances the buffer until right after the end of the environment. Adds
@@ -239,6 +243,7 @@ def read_env(src, expr):
 
     :param Buffer src: a buffer of tokens
     :param TexExpr expr: expression for the environment
+    :param int tolerance: error tolerance level (only supports 0 or 1)
     :rtype: TexExpr
 
     >>> from TexSoup.category import categorize
@@ -251,6 +256,9 @@ def read_env(src, expr):
     Traceback (most recent call last):
         ...
     EOFError: [Line: 0, Offset: 1] ...
+    >>> buf = tokenize(categorize(' tingtang \\end\n\n{nope}walla'))
+    >>> read_env(buf, TexNamedEnv('foobar'), tolerance=1)  # error tolerance
+    TexNamedEnv('foobar', [' tingtang '], [])
     """
     contents = []
     while src.hasNext():
@@ -259,9 +267,11 @@ def read_env(src, expr):
             if name == 'end':
                 break
         contents.append(read_expr(src))
-    if not src.hasNext() or not args or args[0].string != expr.name:
+    error = not src.hasNext() or not args or args[0].string != expr.name
+    if error and tolerance == 0:
         unclosed_env_handler(src, expr, src.peek((0, 6)))
-    src.forward(5)
+    elif not error:
+        src.forward(5)
     expr.append(*contents)
     return expr
 
