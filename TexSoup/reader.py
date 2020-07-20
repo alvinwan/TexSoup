@@ -156,8 +156,9 @@ def unclosed_env_handler(src, expr, end):
     """
     clo = CharToLineOffset(str(src))
     explanation = 'Instead got %s' % end if end else 'Reached end of file.'
+    line, offset = clo(src.position)
     raise EOFError('[Line: %d, Offset: %d] "%s" env expecting %s. %s' % (
-        *clo(src.position), expr.name, expr.end, explanation))
+        line, offset, expr.name, expr.end, explanation))
 
 
 def read_math_env(src, expr):
