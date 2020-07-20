@@ -237,16 +237,6 @@ class Token(str):
             start = len(self.text) + start
         return Token(self.text[i], self.position + start, self.category)
 
-    def split(self, sep=None, maxsplit=-1):
-        result = []
-        split_res = self.text.split(sep=sep, maxsplit=maxsplit)
-        txt = self.text
-        cur_offset = 0
-        for s in split_res:
-            cur_offset = txt.find(s, cur_offset)
-            result.append(Token(s, self.position + cur_offset, self.category))
-        return result
-
     def strip(self, *args, **kwargs):
         stripped = self.text.strip(*args, **kwargs)
         offset = self.text.find(stripped)

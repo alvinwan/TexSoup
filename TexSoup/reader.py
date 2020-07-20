@@ -3,14 +3,14 @@ subject to change."""
 
 from TexSoup.utils import Token, Buffer, MixedBuffer, CharToLineOffset
 from TexSoup.data import *
+from TexSoup.data import arg_type
 from TexSoup.tokens import (
     TC,
     tokenize,
-    ARG_START_TOKENS,
-    ARG_END_TOKENS,
     SKIP_ENVS,
 )
 import string
+import sys
 
 
 MATH_ENVS = (
@@ -20,6 +20,7 @@ MATH_ENVS = (
     TexMathEnv
 )
 MATH_TOKEN_TO_ENV = {env.token_begin: env for env in MATH_ENVS}
+ARG_BEGIN_TO_END = {arg.token_begin: arg.token_end for arg in arg_type}
 
 
 __all__ = ['read_expr', 'read_tex']
@@ -30,18 +31,22 @@ def read_tex(buf, skip_envs=()):
 
     :param Buffer buf: a buffer of tokens
     :param Tuple[str] skip_envs: environments to skip parsing
-    :return: Iterable[TexExpr]
+    :return: iterable over parsed expressions
+    :rtype: Iterable[TexExpr]
     """
     while buf.hasNext():
         yield read_expr(buf, skip_envs=SKIP_ENVS + skip_envs)
 
 
-def read_expr(src, context=None, skip_envs=()):
+# TODO: skip envs nested in args or even just brace group won't be skipped
+# (skip_env kwarg needs to be propagated)
+def read_expr(src, skip_envs=()):
     r"""Read next expression from buffer
 
     :param Buffer src: a buffer of tokens
     :param TexExpr context: parent expression
-    :return: [TexExpr, Token]
+    :return: parsed expression
+    :rtype: [TexExpr, Token]
     """
     c = next(src)
     # TODO: assemble and use groups
@@ -50,7 +55,7 @@ def read_expr(src, context=None, skip_envs=()):
         return read_math_env(src, expr)
     elif c.category == TC.Escape:
         # TODO: reduce to command-parsing only -- assemble envs in 2nd pass
-        name, args, steps = peek_command(src, n_required_args=1)
+        name, args, steps = peek_command(src)
         if name == 'item':
             contents, arg = read_item(src)
             expr = TexCmd(name, contents, arg)
@@ -67,10 +72,9 @@ def read_expr(src, context=None, skip_envs=()):
         else:
             src.forward(1)
             expr = TexCmd(name)
-            expr.args = read_args(src, expr.args)
+            expr.args = read_args(src, args=expr.args)
         return expr
-    if c.category == TC.OpenBracket and isinstance(context, TexArgs) or \
-            c.category == TC.GroupStart:
+    if c.category == TC.GroupStart:
         return read_arg(src, c)
 
     assert isinstance(c, Token)
@@ -257,45 +261,141 @@ def read_env(src, expr):
 ############
 
 
-def read_args(src, args=None):
+# TODO: handle macro-weirdness e.g., \def\blah[#1][[[[[[[[#2{"#1 . #2"}
+# TODO: add newcommand macro
+def read_args(src, n_required=-1, n_optional=-1, args=None):
     r"""Read all arguments from buffer.
 
-    Advances buffer until end of last valid arguments. There can be any number
-    of whitespace characters between command and the first argument.
-    However, after that first argument, the command can only tolerate one
-    successive line break, before discontinuing the chain of arguments.
+    This function assumes that the command name has already been parsed. By
+    default, LaTeX allows only up to 9 arguments of both types, optional
+    and required. If `n_optional` is not set, all valid bracket groups are
+    captured. If `n_required` is not set, all valid brace groups are
+    captured.
 
+    :param Buffer src: a buffer of tokens
     :param TexArgs args: existing arguments to extend
+    :param int n_required: Number of required arguments. If < 0, all valid
+                           brace groups will be captured.
+    :param int n_optional: Number of optional arguments. If < 0, all valid
+                           bracket groups will be captured.
     :return: parsed arguments
     :rtype: TexArgs
+
+    >>> from TexSoup.category import categorize
+    >>> from TexSoup.tokens import tokenize
+    >>> test = lambda s, *a, **k: read_args(tokenize(categorize(s)), *a, **k)
+    >>> test('[walla]{walla}{ba]ng}')  # 'regular' arg parse
+    [BracketGroup('walla'), BraceGroup('walla'), BraceGroup('ba', ']', 'ng')]
+    >>> test('\t[wa]\n{lla}\n\n{b[ing}')  # interspersed spacers + 2 newlines
+    [BracketGroup('wa'), BraceGroup('lla')]
+    >>> test('\t[\t{a]}bs', 2, 0)  # use char as arg, since no opt args
+    [BraceGroup('['), BraceGroup('a', ']')]
+    >>> test('\n[hue]\t[\t{a]}', 2, 1)  # check stop opt arg capture
+    [BracketGroup('hue'), BraceGroup('['), BraceGroup('a', ']')]
+    >>> test('\t\\item')
+    []
+    >>> test('   \t    \n\t \n{bingbang}')
+    []
+    >>> test('[tempt]{ing}[WITCH]{doctorrrr}', 0, 0)
+    []
     """
     args = args or TexArgs()
+    if n_required == 0 and n_optional == 0:
+        return args
 
-    # Unlimited whitespace before first argument
-    candidate_index = src.num_forward_until(lambda s: not s.isspace())
-    while src.hasNext() and src.peek().isspace():
-        args.append(read_expr(src, context=args))
+    n_optional = read_arg_optional(src, args, n_optional)
+    n_required = read_arg_required(src, args, n_required)
 
-    # Restricted to only one line break after first argument
-    line_breaks = 0
-    while src.hasNext() and src.peek().category in ARG_START_TOKENS or \
-            (src.hasNext() and src.peek().isspace() and line_breaks == 0):
-        space_index = src.num_forward_until(lambda s: not s.isspace())
-        if space_index > 0:
-            line_breaks += 1
-            if src.peek((0, space_index)).count("\n") <= 1 \
-                    and src.peek(space_index) is not None \
-                    and src.peek(space_index).category in ARG_START_TOKENS:
-                args.append(read_expr(src, context=args))
-        else:
-            line_breaks = 0
-            tex_text = read_expr(src, context=args)
-            args.append(tex_text)
-
-    if not args:
-        src.backward(candidate_index)
-
+    if src.hasNext() and src.peek().category == TC.OpenBracket:
+        n_optional = read_arg_optional(src, args, n_optional)
+    if src.hasNext() and src.peek().category == TC.GroupStart:
+        n_required = read_arg_required(src, args, n_required)
     return args
+
+
+def read_arg_optional(src, args, n_optional=-1):
+    """Read next optional argument from buffer.
+
+    If the command has remaining optional arguments, look for:
+       a. A spacer. Skip the spacer if it exists.
+       b. A bracket delimiter. If the optional argument is bracket-delimited,
+          the contents of the bracket group are used as the argument.
+
+    :param Buffer src: a buffer of tokens
+    :param TexArgs args: existing arguments to extend
+    :param int n_optional: Number of optional arguments. If < 0, all valid
+                           bracket groups will be captured.
+    :return: number of remaining optional arguments
+    :rtype: int
+    """
+    while n_optional != 0:
+        spacer, no_optional_args = read_spacer(src)
+        if no_optional_args:
+            src.backward(1)
+            break
+        if not (src.hasNext() and src.peek().category == TC.OpenBracket):
+            break
+        args.append(read_arg(src, next(src)))
+        n_optional -= 1
+    return n_optional
+
+
+def read_arg_required(src, args, n_required=-1):
+    """Read next required argument from buffer.
+
+    If the command has remaining required arguments, look for:
+       a. A spacer. Skip the spacer if it exists.
+       b. A curly-brace delimiter. If the required argument is brace-delimited,
+          the contents of the brace group are used as the argument.
+       c. Spacer or not, if a brace group is not found, simply use the next
+          character.
+
+    :param Buffer src: a buffer of tokens
+    :param TexArgs args: existing arguments to extend
+    :param int n_required: Number of required arguments. If < 0, all valid
+                           brace groups will be captured.
+    :return: number of remaining optional arguments
+    :rtype: int
+
+    >>> from TexSoup.category import categorize
+    >>> from TexSoup.tokens import tokenize
+    >>> buf = tokenize(categorize('{wal]la}{ba ng}'))
+    >>> args = TexArgs()
+    >>> read_arg_required(buf, args)  # 'regular' arg parse
+    -3
+    >>> args
+    [BraceGroup('wal', ']', 'la'), BraceGroup('ba ng')]
+    """
+    while n_required != 0:
+        spacer, ungrouped_required_chars = read_spacer(src)
+
+        # TODO: technically may drop text from buffer that is not used. Fix
+        # after fixing generic string tokeinzation
+        while n_required > 0 and ungrouped_required_chars:
+            args.append('{%s}' % ungrouped_required_chars[0])
+            spacer, ungrouped_required_chars = read_spacer(
+                Buffer([TexText(ungrouped_required_chars[1:])]))
+            n_required -= 1
+
+        if ungrouped_required_chars:
+            src.backward()
+
+        if n_required == 0 or (n_required < 0 and ungrouped_required_chars):
+            break
+
+        if src.hasNext() and src.peek().category == TC.GroupStart:
+            args.append(read_arg(src, next(src)))
+            n_required -= 1
+            continue
+        elif src.hasNext() and n_required > 0:
+            args.append('{%s}' % next(src))
+            n_required -= 1
+            continue
+
+        if spacer:
+            src.backward(1)
+        break
+    return n_required
 
 
 def read_arg(src, c):
@@ -310,7 +410,7 @@ def read_arg(src, c):
     """
     content = [c]
     while src.hasNext():
-        if src.peek().category in ARG_END_TOKENS:
+        if src.peek().category == ARG_BEGIN_TO_END[c.category]:
             content.append(next(src))
             break
         else:
@@ -366,37 +466,30 @@ def read_spacer(buf):
 def peek_command(buf, n_required_args=-1, n_optional_args=-1, skip=0):
     r"""Parses command and all arguments. Assumes escape has just been parsed.
 
-    Here are rules for command name and argument parsing:
+    Here are the rules for command name parsing:
 
-    1. No whitespace is allowed between escape and command name. e.g., \ textbf
-       is the "command" "\" and the text "textbf". Only \textbf is the bold
-       command.
-    2. One spacer is allowed between the command name and the first argument,
-       optional or required.
-    3. If command has 1 required argument and the command name is followed by a
-       a spacer, the first character after that spacer is used as the first
-       argument. This first character can be a line break OR a non-whitespace
-       character. The same applies for all subsequent required arguments: The
-       first character after an optional spacer is used.
+    No whitespace is allowed between escape and command name. e.g., \ textbf
+    is the "command" "\" and the text "textbf". Only \textbf is the bold
+    command.
 
     >>> from TexSoup.category import categorize
     >>> from TexSoup.tokens import tokenize
-    >>> buf = Buffer(tokenize(categorize('\section   \t    \n\t{wallawalla}')))
+    >>> buf = Buffer(tokenize(categorize('\\section  \t    \n\t{wallawalla}')))
     >>> next(buf)
     '\\'
     >>> peek_command(buf)
     ('section', [BraceGroup('wallawalla')], 5)
-    >>> buf = Buffer(tokenize(categorize('\section   \t    \n\t \n{bingbang}')))
+    >>> buf = Buffer(tokenize(categorize('\\section  \t   \n\t \n{bingbang}')))
     >>> _ = next(buf)
     >>> peek_command(buf)
-    ('section', [], 2)
-    >>> buf = Buffer(tokenize(categorize('\section{ooheeeee}')))
+    ('section', [], 1)
+    >>> buf = Buffer(tokenize(categorize('\\section{ooheeeee}')))
     >>> _ = next(buf)
     >>> peek_command(buf)
     ('section', [BraceGroup('ooheeeee')], 4)
 
     # Broken because abcd is incorrectly tokenized with leading space
-    # >>> buf = Buffer(tokenize(categorize('\section abcd')))
+    # >>> buf = Buffer(tokenize(categorize('\\section abcd')))
     # >>> _ = next(buf)
     # >>> peek_command(buf)
     # ('section', ('a',), 2)
@@ -405,14 +498,9 @@ def peek_command(buf, n_required_args=-1, n_optional_args=-1, skip=0):
     for _ in range(skip):
         next(buf)
 
-    token, name, args = Token('', buf.position), next(buf), TexArgs()
-
-    spacer, rest = read_spacer(buf)
-    if not rest:
-        token += spacer  # TODO: category = TC.Spacer; TODO: use token?
-
-        if buf.hasNext() and buf.peek().category == TC.GroupStart:
-            args = read_args(buf, args=args)
+    name = next(buf)
+    token = Token('', buf.position)
+    args = read_args(buf, n_required_args, n_optional_args)
 
     steps = buf.position - position
     buf.backward(steps)

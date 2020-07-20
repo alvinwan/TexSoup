@@ -11,10 +11,6 @@ from TexSoup.utils import IntEnum, TC
 import itertools
 import string
 
-
-ARG_START_TOKENS = [TC.OpenBracket, TC.GroupStart]
-ARG_END_TOKENS = [TC.CloseBracket, TC.GroupEnd]
-
 # TODO: misnomer, what does ALL_TOKENS actually contain?
 ALL_TOKENS = ('\\', '{', '[', ']', '}', '%', r'\[', r'\(', r'\]', r'\)', '$', '$$')
 
