@@ -295,6 +295,22 @@ def test_comment_after_escape():
     hi\\%""")
     assert len(list(soup2.document.contents)) == 3
 
+    soup3 = TexSoup(r"""
+    \documentclass{article}
+    \usepackage{graphicx}
+    \begin{document}
+    \begin{equation}
+    \scalebox{2.0}{$x =
+    \begin{cases}
+    1, & \text{if } y=1 \\
+    0, & \text{otherwise}
+    \end{cases}$}
+    \end{equation}
+    \end{document}
+    """)
+    assert soup3.equation
+    assert soup3.scalebox
+
 
 def test_items_with_labels():
     """Items can have labels with square brackets such as in the description
