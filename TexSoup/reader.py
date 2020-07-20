@@ -13,6 +13,15 @@ from TexSoup.tokens import (
 import string
 
 
+MATH_ENVS = (
+    TexDisplayMathModeEnv,
+    TexMathModeEnv,
+    TexDisplayMathEnv,
+    TexMathEnv
+)
+MATH_TOKEN_TO_ENV = {env.token_begin: env for env in MATH_ENVS}
+
+
 __all__ = ['read_expr', 'read_tex']
 
 
@@ -45,7 +54,7 @@ def read_skip(src, skip_envs=()):
     >>> from TexSoup.tokens import tokenize
     >>> buf = tokenize(categorize(r'\begin{foobar} \textbf{aa \end{foobar}'))
     >>> read_skip(buf, skip_envs=('foobar',)).category
-    <TokenCode.Skip: 41>
+    <TokenCode.Skip: 44>
     """
     c = next(src)
     position = src.position  # grab position before advancing buffer
@@ -71,14 +80,8 @@ def read_expr(src, context=None):
     """
     c = next(src)
     # TODO: assemble and use groups
-    if c.category == TC.MathSwitch:
-        expr = TexEnv(c, begin=c, end=c, contents=[])
-        return read_math_env(src, expr)
-    elif c.category == TC.MathGroupStart:
-        if c.startswith(TexDisplayMathEnv.begin):
-            expr = TexDisplayMathEnv([])
-        else:
-            expr = TexMathEnv([])
+    if c.category in MATH_TOKEN_TO_ENV.keys():
+        expr = MATH_TOKEN_TO_ENV[c.category]([])
         return read_math_env(src, expr)
     elif c.category == TC.Escape:
         # TODO: reduce to command-parsing only -- assemble envs in 2nd pass
@@ -115,10 +118,6 @@ def wrap_expr(src):
     if isinstance(c, Token):
         return TexText(c)
     return c
-
-
-def stringify(string):
-    return Token.join(string.split(' '), glue=' ')
 
 
 def read_item(src):
@@ -192,12 +191,22 @@ def read_math_env(src, expr):
     :param Buffer src: a buffer of tokens
     :param TexExpr expr: expression for the environment
     :rtype: TexExpr
+
+    >>> from TexSoup.category import categorize
+    >>> from TexSoup.tokens import tokenize
+    >>> buf = tokenize(categorize(r'\min_x \|Xw-y\|_2^2'))
+    >>> read_math_env(buf, TexMathModeEnv())
+    Traceback (most recent call last):
+        ...
+    EOFError: [Line: 0, Offset: 7] "$" env expecting $. Reached end of file.
     """
-    content = src.forward_until(lambda s: s.startswith(expr.end), peek=False)
+    content = src.forward_until(lambda c: c.category == expr.token_end)
     if not src.startswith(expr.end):
         end = src.peek()
+        clo = CharToLineOffset(str(src))
         explanation = 'Instead got %s' % end if end else 'Reached end of file.'
-        raise EOFError('Expecting %s. %s' % (expr.end, explanation))
+        raise EOFError('[Line: %d, Offset: %d] "%s" env expecting %s. %s' % (
+            *clo(src.position), expr.name, expr.end, explanation))
     else:
         next(src)
     expr.append(content)
@@ -335,6 +344,7 @@ def read_spacer(buf):
 
 # TODO: refactor after generic string tokenizer fixed
 # TODO: hard-coded to 1 required arg
+# TODO: make this a reader, with a generic peek decorator or wrapper
 def peek_command(buf, n_required_args=-1, n_optional_args=-1, skip=0):
     r"""Parses command and all arguments. Assumes escape has just been parsed.
 

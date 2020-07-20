@@ -6,10 +6,12 @@ objects, but all objects fall into one of the following three categories:
 
 import itertools
 import re
-from TexSoup.utils import CharToLineOffset, Token
+from TexSoup.utils import CharToLineOffset, Token, TC
 
-__all__ = ['TexNode', 'TexCmd', 'TexEnv', 'TexGroup', 'BracketGroup', 'BraceGroup', 'TexArgs',
-           'TexText', 'TexMathEnv', 'TexDisplayMathEnv', 'TexNamedEnv']
+__all__ = ['TexNode', 'TexCmd', 'TexEnv', 'TexGroup', 'BracketGroup',
+           'BraceGroup', 'TexArgs', 'TexText', 'TexMathEnv',
+           'TexDisplayMathEnv', 'TexNamedEnv', 'TexMathModeEnv',
+           'TexDisplayMathModeEnv']
 
 
 #############
@@ -894,11 +896,31 @@ class TexUnNamedEnv(TexEnv):
             contents, args, preserve_whitespace)
 
 
+class TexDisplayMathModeEnv(TexUnNamedEnv):
+
+    name = '$$'
+    begin = '$$'
+    end = '$$'
+    token_begin = TC.DisplayMathSwitch
+    token_end = TC.DisplayMathSwitch
+
+
+class TexMathModeEnv(TexUnNamedEnv):
+
+    name = '$'
+    begin = '$'
+    end = '$'
+    token_begin = TC.MathSwitch
+    token_end = TC.MathSwitch
+
+
 class TexDisplayMathEnv(TexUnNamedEnv):
 
     name = 'displaymath'
     begin = r'\['
     end = r'\]'
+    token_begin = TC.DisplayMathGroupStart
+    token_end = TC.DisplayMathGroupEnd
 
 
 class TexMathEnv(TexUnNamedEnv):
@@ -906,6 +928,8 @@ class TexMathEnv(TexUnNamedEnv):
     name = 'math'
     begin = r'\('
     end = r'\)'
+    token_begin = TC.MathGroupStart
+    token_end = TC.MathGroupEnd
 
 
 class TexCmd(TexExpr):

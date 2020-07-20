@@ -43,6 +43,36 @@ CC = IntEnum('CategoryCodes', (
 ))
 
 
+# Only includes items that cannot cause failures
+TC = IntEnum('TokenCode', (
+    'Escape',
+    'GroupStart',
+    'GroupEnd',
+    'Comment',
+    'MergedSpacer',  # whitespace allowed between <command name> and arguments
+    'EscapedComment',
+    'MathSwitch',
+    'DisplayMathSwitch',
+    'MathGroupStart',
+    'MathGroupEnd',
+    'DisplayMathGroupStart',
+    'DisplayMathGroupEnd',
+    'LineBreak',
+    'CommandName',
+    'Text',
+    'OpenBracket',
+    'CloseBracket',
+    'OpenParen',
+    'CloseParen',
+
+    # temporary (Replace with macros support)
+    'PunctuationCommandName',
+    'SizeCommand',
+    'Spacer',
+    'Skip',
+), start=max(CC))
+
+
 class Token(str):
     """Enhanced string object with knowledge of global position."""
 
@@ -300,9 +330,9 @@ class Buffer:
         self.__empty = empty
 
     # noinspection PyPep8Naming
-    def hasNext(self):
+    def hasNext(self, n=1):
         """Returns whether or not there is another element."""
-        return bool(self.peek())
+        return bool(self.peek(n - 1))
 
     def startswith(self, s):
         """Check if iterator starts with s, beginning from the current
