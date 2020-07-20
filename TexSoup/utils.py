@@ -68,8 +68,7 @@ TC = IntEnum('TokenCode', (
     # temporary (Replace with macros support)
     'PunctuationCommandName',
     'SizeCommand',
-    'Spacer',
-    'Skip',
+    'Spacer'
 ), start=max(CC))
 
 
