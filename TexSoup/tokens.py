@@ -12,11 +12,6 @@ import itertools
 import string
 
 
-# Core category codes
-# https://www.overleaf.com/learn/latex/Table_of_TeX_category_codes
-END_OF_LINE_TOKENS  = ('\n', '\r')
-
-
 # Only includes items that cannot cause failures
 TC = IntEnum('TokenCode', (
     'Escape',
