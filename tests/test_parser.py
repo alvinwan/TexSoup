@@ -367,7 +367,8 @@ def test_math_environment_escape():
     """Tests $ escapes in math environment."""
     soup = TexSoup(r"$ \$ $")
     contents = list(soup.contents)
-    assert r'\$' in contents[0][0], 'Dollar sign not escaped!'
+    assert r'\$' in contents[0][0], \
+        'Dollar sign not escaped! Contents: %s' % contents
 
 
 def test_punctuation_command_structure():

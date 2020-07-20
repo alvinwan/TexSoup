@@ -7,36 +7,9 @@ token at a time.
 from TexSoup.utils import to_buffer, Buffer, Token, CC
 from TexSoup.data import arg_type
 from TexSoup.category import categorize  # used for tests
-from TexSoup.utils import IntEnum
+from TexSoup.utils import IntEnum, TC
 import itertools
 import string
-
-
-# Only includes items that cannot cause failures
-TC = IntEnum('TokenCode', (
-    'Escape',
-    'GroupStart',
-    'GroupEnd',
-    'Comment',
-    'MergedSpacer',  # whitespace allowed between <command name> and arguments
-    'EscapedComment',
-    'MathSwitch',
-    'MathGroupStart',
-    'MathGroupEnd',
-    'LineBreak',
-    'CommandName',
-    'Text',
-    'OpenBracket',
-    'CloseBracket',
-    'OpenParen',
-    'CloseParen',
-
-    # temporary (Replace with macros support)
-    'PunctuationCommandName',
-    'SizeCommand',
-    'Spacer',
-    'Skip',
-), start=max(CC))
 
 
 # Supersets of category codes
@@ -209,9 +182,10 @@ def tokenize_math_sym_switch(text, prev=None):
     if text.peek().category == CC.MathSwitch:
         if text.peek(1) and text.peek(1).category == CC.MathSwitch:
             result = Token(text.forward(2), text.position)
+            result.category = TC.DisplayMathSwitch
         else:
             result = Token(text.forward(1), text.position)
-        result.category = TC.MathSwitch
+            result.category = TC.MathSwitch
         return result
 
 
@@ -227,12 +201,18 @@ def tokenize_math_asym_switch(text, prev=None):
     '\\]'
     >>> tokenize_math_asym_switch(categorize(r'[]'))
     """
-    if text.peek((0, 2)) in MATH_START_TOKENS + MATH_END_TOKENS:
+    mapping = {
+        (CC.Escape, CC.OpenBracket):    TC.DisplayMathGroupStart,
+        (CC.Escape, CC.CloseBracket):   TC.DisplayMathGroupEnd,
+        (CC.Escape, CC.OpenParen):      TC.MathGroupStart,
+        (CC.Escape, CC.CloseParen):     TC.MathGroupEnd
+    }
+    if not text.hasNext(2):
+        return
+    key = (text.peek().category, text.peek(1).category)
+    if key in mapping:
         result = text.forward(2)
-        if result in MATH_START_TOKENS:
-            result.category = TC.MathGroupStart
-        else:
-            result.category = TC.MathGroupEnd
+        result.category = mapping[key]
         return result
 
 
