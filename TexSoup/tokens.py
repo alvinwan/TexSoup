@@ -12,15 +12,11 @@ import itertools
 import string
 
 
-# Supersets of category codes
-MATH_START_TOKENS = (r'\[', r'\(')  # TODO: how to do this cleanly?
-MATH_END_TOKENS = (r'\]', r'\)')
-
 ARG_START_TOKENS = [TC.OpenBracket, TC.GroupStart]
 ARG_END_TOKENS = [TC.CloseBracket, TC.GroupEnd]
 
 # TODO: misnomer, what does ALL_TOKENS actually contain?
-ALL_TOKENS = ('\\', '{', '[', ']', '}', '%',) + MATH_START_TOKENS + MATH_END_TOKENS + ('$', '$$')
+ALL_TOKENS = ('\\', '{', '[', ']', '}', '%', r'\[', r'\(', r'\]', r'\)', '$', '$$')
 
 # Custom higher-level combinations of primitives
 SKIP_ENVS = ('verbatim', 'equation', 'lstlisting', 'align', 'alignat',

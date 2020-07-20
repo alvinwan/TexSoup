@@ -9,21 +9,21 @@ import string
 others = set(string.printable) - set(string.ascii_letters) - set('{}\\$&\n\r#^_~%\x00\x7d \t[]()')
 CATEGORY_CODES = {
     CC.Escape:     '\\',
-    CC.GroupStart:  '{',  # not used
-    CC.GroupEnd:    '}',  # not used
-    CC.MathSwitch:  '$',  # $$ checked in tokenize_math
+    CC.GroupStart:  '{',
+    CC.GroupEnd:    '}',
+    CC.MathSwitch:  '$',
     CC.Alignment:   '&',  # not used
     CC.EndOfLine:   ('\n', '\r'),
     CC.Macro:       '#',  # not used
     CC.Superscript: '^',  # not used
     CC.Subscript:   '_',  # not used
-    CC.Ignored:     chr(0),  # not used
-    CC.Spacer:      (chr(32), chr(9)),    # not used
+    CC.Ignored:     chr(0),
+    CC.Spacer:      (chr(32), chr(9)),
     CC.Letter:      tuple(string.ascii_letters),  # + lots of unicode
-    CC.Other:       tuple(others),  # not defined, just anything left
+    CC.Other:       tuple(others),
     CC.Active:      '~',  # not used
     CC.Comment:     '%',
-    CC.Invalid:      chr(127),  # not used
+    CC.Invalid:      chr(127),
 
     # custom
     CC.OpenBracket: '[',
