@@ -274,6 +274,28 @@ def test_comment_unparsed():
     assert '%' not in str(soup.caption)
 
 
+def test_comment_after_escape():
+    """Tests that comments after escapes work."""
+    soup = TexSoup(r"""\documentclass{article}
+    \begin{document}
+     \\%
+    \end{document}
+    """)
+    assert len(list(soup.document.contents)) == 2
+
+    soup2 = TexSoup(r"""\documentclass{article}
+    \begin{document}
+
+    hi\\%
+
+
+    there
+
+    \end{document}
+    hi\\%""")
+    assert len(list(soup2.document.contents)) == 3
+
+
 def test_items_with_labels():
     """Items can have labels with square brackets such as in the description
     environment. See Issue #32."""
