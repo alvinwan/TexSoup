@@ -1,7 +1,7 @@
 """Parsing mechanisms should not be directly invoked publicly, as they are
 subject to change."""
 
-from TexSoup.utils import Token, Buffer, MixedBuffer
+from TexSoup.utils import Token, Buffer, MixedBuffer, CharToLineOffset
 from TexSoup.data import *
 from TexSoup.tokens import (
     TC,
@@ -9,7 +9,6 @@ from TexSoup.tokens import (
     ARG_START_TOKENS,
     ARG_END_TOKENS,
     SKIP_ENVS,
-    END_OF_LINE_TOKENS,
 )
 import string
 
@@ -41,13 +40,19 @@ def read_skip(src, skip_envs=()):
     :param Buffer src: a buffer of tokens
     :param Tuple[str] skip_envs: environments to skip parsing
     :return: Token
+
+    >>> from TexSoup.category import categorize
+    >>> from TexSoup.tokens import tokenize
+    >>> buf = tokenize(categorize(r'\begin{foobar} \textbf{aa \end{foobar}'))
+    >>> read_skip(buf, skip_envs=('foobar',)).category
+    <TokenCode.Skip: 41>
     """
     c = next(src)
     position = src.position  # grab position before advancing buffer
 
     if c.category == TC.Escape and src.peek() == 'begin':
-        name, (arg,), steps = peek_command(src, n_required_args=1)
-        if arg in skip_envs:
+        name, args, steps = peek_command(src, n_required_args=1)
+        if args[0].string in skip_envs:
             token = Token(src.forward(steps), position)
             token += src.forward_until(lambda s:
                 s.startswith(r'\\end{%s}' % name), peek=False)
@@ -77,21 +82,20 @@ def read_expr(src, context=None):
         return read_math_env(src, expr)
     elif c.category == TC.Escape:
         # TODO: reduce to command-parsing only -- assemble envs in 2nd pass
-        command = Token(next(src), src.position)
-        if command == 'item':
+        name, args, steps = peek_command(src, n_required_args=1)
+        if name == 'item':
             contents, arg = read_item(src)
-            mode, expr = 'command', TexCmd(command, contents, arg)
-        elif command == 'begin':
-            # allow whitespace TODO: should be built into command tokenization
-            forward_until_non_whitespace(src)
-            mode, expr, _ = 'begin', TexNamedEnv(src.peek(1)), src.forward(3)
-        else:
-            mode, expr = 'command', TexCmd(command)
-
-        expr.args = read_args(src, expr.args)
-
-        if mode == 'begin':
+            expr = TexCmd(name, contents, arg)
+        elif name == 'begin':
+            assert args, 'Begin command must be followed by an env name.'
+            expr = TexNamedEnv(args[0].string)
+            expr.args = args[1:]
+            src.forward(steps)
             read_env(src, expr)
+        else:
+            src.forward(1)
+            expr = TexCmd(name)
+            expr.args = read_args(src, expr.args)
         return expr
     if c.category == TC.OpenBracket and isinstance(context, TexArgs) or \
             c.category == TC.GroupStart:
@@ -117,18 +121,8 @@ def stringify(string):
     return Token.join(string.split(' '), glue=' ')
 
 
-def forward_until_non_whitespace(src):
-    """Catch the first non-whitespace character."""
-    t = Token('', src.peek().position)
-    while (src.hasNext() and
-            any([src.peek().startswith(sub) for sub in string.whitespace])
-            and not any(t.strip(" ").endswith(c) for c in END_OF_LINE_TOKENS)):
-        t += next(src)
-    return t
-
-
 def read_item(src):
-    r"""Read the item content.
+    r"""Read the item content. Assumes escape has just been parsed.
 
     There can be any number of whitespace characters between \item and the
     first non-whitespace character. Any amount of whitespace between subsequent
@@ -141,28 +135,27 @@ def read_item(src):
 
     >>> from TexSoup.category import categorize
     >>> from TexSoup.tokens import tokenize
-    >>> buf = tokenize(categorize(r'\item aaa {bbb} ccc\end{itemize}'))
-    >>> next(buf), next(buf)
-    ('\\', 'item')
-    >>> read_item(buf)
+    >>> def read_item_from(string, skip=1):
+    ...     buf = tokenize(categorize(string))
+    ...     _ = buf.forward(skip)
+    ...     return read_item(buf)
+    >>> read_item_from(r'\item aaa {bbb} ccc\end{itemize}')
     (['aaa ', BraceGroup('bbb'), ' ccc'], [])
-    >>> buf = tokenize(categorize(r'\item aaa \textbf{itemize}\item no'))
-    >>> _ = buf.forward(2)
-    >>> read_item(buf)
+    >>> read_item_from(r'\item aaa \textbf{itemize}\item no')
     (['aaa ', TexCmd('textbf', [BraceGroup('itemize')])], [])
-    >>> buf = tokenize(categorize(r'\item[aaa] yith\item no'))
-    >>> _ = buf.forward(2)
-    >>> read_item(buf)
-    ([' yith'], [BracketGroup('aaa')])
-    >>> buf = tokenize(categorize(r'''\begin{itemize}
+    >>> read_item_from(r'\item[aaa] yith\item no')
+    (['yith'], [BracketGroup('aaa')])
+    >>> read_item_from('\\item\n[aaa] yith\\item no')
+    (['yith'], [BracketGroup('aaa')])
+    >>> read_item_from(r'\item WITCH [nuuu] DOCTORRRR 👩🏻‍⚕️')
+    (['WITCH ', '[', 'nuuu', ']', ' DOCTORRRR 👩🏻‍⚕️'], [])
+    >>> read_item_from(r'''\begin{itemize}
     ... \item
     ... \item first item
-    ... \end{itemize}'''))
-    >>> buf.forward(8)
-    '\\begin{itemize}\n\\item'
-    >>> read_item(buf)
+    ... \end{itemize}''', skip=7)
     ([], [])
     """
+    assert next(src) == 'item'
     args, extras = [], []
 
     # TODO: fix when spacer tokenization updated
@@ -171,17 +164,23 @@ def read_item(src):
         extras.append(rest)
 
     # TODO: use peek_command instead of manually parsing optional arg
-    if src.peek().category == TC.OpenBracket:
+    if not rest and src.hasNext() and src.peek().category == TC.OpenBracket:
         c = next(src)
         args.append(read_arg(src, c))
 
+        # remove leading spacer after arguments, due to quirk in Item repr
+        # which adds space after args.
+        spacer, rest = read_spacer(src)
+        if rest:
+            extras.append(rest)
+
     while src.hasNext():
         if src.peek().category == TC.Escape:
-            cmd_name, cmd_args, steps = peek_command(src, n_required_args=1, skip=1)
+            cmd_name, cmd_args, steps = peek_command(src, 1, skip=1)
             if cmd_name in ('end', 'item'):
                 return extras, args
         extras.append(read_expr(src))
-    return extra, args
+    return extras, args
 
 
 def read_math_env(src, expr):
@@ -316,7 +315,7 @@ def read_spacer(buf):
     >>> read_spacer(Buffer(tokenize(categorize('   \t    \n\t \n  \t\na'))))
     ('   \t    \n\t ', '\n  \t\na')
     """
-    if not buf.peek().category == TC.Text:
+    if not buf.hasNext() or not buf.peek().category == TC.Text:
         return '', ''
 
     text, lines = next(buf), 1
@@ -358,15 +357,15 @@ def peek_command(buf, n_required_args=-1, n_optional_args=-1, skip=0):
     >>> next(buf)
     '\\'
     >>> peek_command(buf)
-    ('section', ('wallawalla',), 5)
+    ('section', [BraceGroup('wallawalla')], 5)
     >>> buf = Buffer(tokenize(categorize('\section   \t    \n\t \n{bingbang}')))
     >>> _ = next(buf)
     >>> peek_command(buf)
-    ('section', (), 2)
+    ('section', [], 2)
     >>> buf = Buffer(tokenize(categorize('\section{ooheeeee}')))
     >>> _ = next(buf)
     >>> peek_command(buf)
-    ('section', ('ooheeeee',), 4)
+    ('section', [BraceGroup('ooheeeee')], 4)
 
     # Broken because abcd is incorrectly tokenized with leading space
     # >>> buf = Buffer(tokenize(categorize('\section abcd')))
@@ -374,22 +373,19 @@ def peek_command(buf, n_required_args=-1, n_optional_args=-1, skip=0):
     # >>> peek_command(buf)
     # ('section', ('a',), 2)
     """
-    steps = 1 + skip
+    position = buf.position
     for _ in range(skip):
         next(buf)
 
-    token = Token('', buf.position)
-    name = next(buf)
-    args = ()
+    token, name, args = Token('', buf.position), next(buf), TexArgs()
 
     spacer, rest = read_spacer(buf)
     if not rest:
         token += spacer  # TODO: category = TC.Spacer; TODO: use token?
 
-        if buf.peek().category == TC.GroupStart:
-            _, args, _ = next(buf), (next(buf),), next(buf)
-            steps += 3
-    if spacer:
-        steps += 1
+        if buf.hasNext() and buf.peek().category == TC.GroupStart:
+            args = read_args(buf, args=args)
+
+    steps = buf.position - position
     buf.backward(steps)
     return name, args, steps
