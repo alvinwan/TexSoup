@@ -1097,6 +1097,8 @@ class BracketGroup(TexGroup):
     begin = '['
     end = ']'
     name = 'BracketGroup'
+    token_begin = TC.OpenBracket
+    token_end = TC.CloseBracket
 
 
 class BraceGroup(TexGroup):
@@ -1105,6 +1107,8 @@ class BraceGroup(TexGroup):
     begin = '{'
     end = '}'
     name = 'BraceGroup'
+    token_begin = TC.GroupStart
+    token_end = TC.GroupEnd
 
 
 arg_type = (BracketGroup, BraceGroup)
