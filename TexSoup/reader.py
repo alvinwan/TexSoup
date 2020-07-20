@@ -225,6 +225,17 @@ def read_env(src, expr):
     :param Buffer src: a buffer of tokens
     :param TexExpr expr: expression for the environment
     :rtype: TexExpr
+
+    >>> from TexSoup.category import categorize
+    >>> from TexSoup.tokens import tokenize
+    >>> buf = tokenize(categorize(' tingtang \\end\n{foobar}walla'))
+    >>> read_env(buf, TexNamedEnv('foobar'))
+    TexNamedEnv('foobar', [' tingtang '], [])
+    >>> buf = tokenize(categorize(' tingtang \\end\n\n{foobar}walla'))
+    >>> read_env(buf, TexNamedEnv('foobar')) #doctest: +ELLIPSIS
+    Traceback (most recent call last):
+        ...
+    EOFError: [Line: 0, Offset: 1] ...
     """
     contents = []
     while src.hasNext():
@@ -233,7 +244,7 @@ def read_env(src, expr):
             if name == 'end':
                 break
         contents.append(read_expr(src))
-    if not src.hasNext() or args[0].string != expr.name:
+    if not src.hasNext() or not args or args[0].string != expr.name:
         unclosed_env_handler(src, expr, src.peek((0, 6)))
     src.forward(5)
     expr.append(*contents)
