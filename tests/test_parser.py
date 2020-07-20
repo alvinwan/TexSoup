@@ -316,6 +316,14 @@ def test_nested_commands():
     assert len(list(soup.emph.contents)) == 3
 
 
+def test_def_item():
+    """Tests that def with more 'complex' argument + item body parses."""
+    soup = TexSoup(r"""
+    \def\itemeqn{\item\abovedisplayskip=2pt\abovedisplayshortskip=0pt~\vspace*{-\baselineskip}}
+    """)
+    assert soup.item is not None
+
+
 ##############
 # FORMATTING #
 ##############
@@ -485,7 +493,7 @@ def test_arg_parse():
     """Test arg parsing errors."""
     from TexSoup.data import TexGroup
     with pytest.raises(TypeError):
-        TexGroup.parse(('{', ']'))
+        TexGroup.parse('{]')
 
     with pytest.raises(TypeError):
         TexGroup.parse('\section[{')
