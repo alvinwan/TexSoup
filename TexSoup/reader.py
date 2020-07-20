@@ -131,39 +131,57 @@ def read_item(src):
     r"""Read the item content.
 
     There can be any number of whitespace characters between \item and the
-    first non-whitespace character. However, after that first non-whitespace
-    character, the item can only tolerate one successive line break at a time.
+    first non-whitespace character. Any amount of whitespace between subsequent
+    characters is also allowed.
 
     \item can also take an argument.
 
     :param Buffer src: a buffer of tokens
     :return: contents of the item and any item arguments
+
+    >>> from TexSoup.category import categorize
+    >>> from TexSoup.tokens import tokenize
+    >>> buf = tokenize(categorize(r'\item aaa {bbb} ccc\end{itemize}'))
+    >>> next(buf), next(buf)
+    ('\\', 'item')
+    >>> read_item(buf)
+    (['aaa ', BraceGroup('bbb'), ' ccc'], [])
+    >>> buf = tokenize(categorize(r'\item aaa \textbf{itemize}\item no'))
+    >>> _ = buf.forward(2)
+    >>> read_item(buf)
+    (['aaa ', TexCmd('textbf', [BraceGroup('itemize')])], [])
+    >>> buf = tokenize(categorize(r'\item[aaa] yith\item no'))
+    >>> _ = buf.forward(2)
+    >>> read_item(buf)
+    ([' yith'], [BracketGroup('aaa')])
+    >>> buf = tokenize(categorize(r'''\begin{itemize}
+    ... \item
+    ... \item first item
+    ... \end{itemize}'''))
+    >>> buf.forward(8)
+    '\\begin{itemize}\n\\item'
+    >>> read_item(buf)
+    ([], [])
     """
+    args, extras = [], []
 
-    # Item argument such as in description environment
-    arg = []
-    extra = []
+    # TODO: fix when spacer tokenization updated
+    spacer, rest = read_spacer(src)
+    if rest:
+        extras.append(rest)
 
-    if src.peek().category in ARG_START_TOKENS:
+    # TODO: use peek_command instead of manually parsing optional arg
+    if src.peek().category == TC.OpenBracket:
         c = next(src)
-        a = read_arg(src, c)
-        arg.append(a)
+        args.append(read_arg(src, c))
 
-    if not src.hasNext():
-        return extra, arg
-
-    last = stringify(forward_until_non_whitespace(src))
-    extra.append(last.lstrip(" "))
-
-    while (src.hasNext() and not str(src).strip(" ").startswith('\n\n') and
-            not src.startswith(r'\item') and
-            # TODO: replace witth regex? r"\\\s+?end"
-            not src.startswith(r'\end') and
-            not (isinstance(last, TexText) and
-                 last._text.strip(" ").endswith('\n\n') and len(extra) > 1)):
-        last = read_expr(src)
-        extra.append(last)
-    return extra, arg
+    while src.hasNext():
+        if src.peek().category == TC.Escape:
+            cmd_name, cmd_args, steps = peek_command(src, n_required_args=1, skip=1)
+            if cmd_name in ('end', 'item'):
+                return extras, args
+        extras.append(read_expr(src))
+    return extra, args
 
 
 def read_math_env(src, expr):
@@ -294,29 +312,31 @@ def read_spacer(buf):
     >>> read_spacer(Buffer(tokenize(categorize('{'))))
     ('', '')
     >>> read_spacer(Buffer(tokenize(categorize('   \t    \na'))))
-    ('   \t    \n', '')
+    ('   \t    \n', 'a')
     >>> read_spacer(Buffer(tokenize(categorize('   \t    \n\t \n  \t\na'))))
-    ('   \t    \n\t ', '\n  \t\n')
+    ('   \t    \n\t ', '\n  \t\na')
     """
     if not buf.peek().category == TC.Text:
         return '', ''
 
-    text = next(buf)
-    whitespace = ''
+    text, lines = next(buf), 1
+    spacer, rest, is_spacer = '', '', True
     for c in text:
-        if c not in string.whitespace:
-            break
-        whitespace += c
+        if c == '\n':  # TODO: change to token code
+            lines += 1
+        if is_spacer and lines > 2 or not c.isspace():
+            is_spacer = False
+        if is_spacer:
+            spacer += c
+        else:
+            rest += c
 
-    words = whitespace.split('\n', 2)
-    if not words[2:]:
-        return '\n'.join(words[:2]), ''
-    return '\n'.join(words[:2]), '\n' + '\n'.join(words[2:])
+    return spacer, rest
 
 
 # TODO: refactor after generic string tokenizer fixed
 # TODO: hard-coded to 1 required arg
-def peek_command(buf, n_required_args=-1, n_optional_args=-1):
+def peek_command(buf, n_required_args=-1, n_optional_args=-1, skip=0):
     r"""Parses command and all arguments. Assumes escape has just been parsed.
 
     Here are rules for command name and argument parsing:
@@ -354,8 +374,11 @@ def peek_command(buf, n_required_args=-1, n_optional_args=-1):
     # >>> peek_command(buf)
     # ('section', ('a',), 2)
     """
+    steps = 1 + skip
+    for _ in range(skip):
+        next(buf)
+
     token = Token('', buf.position)
-    steps = 1
     name = next(buf)
     args = ()
 
