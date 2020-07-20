@@ -32,46 +32,11 @@ def read_tex(buf, skip_envs=()):
     :param Tuple[str] skip_envs: environments to skip parsing
     :return: Iterable[TexExpr]
     """
-    buf = Buffer(read_exprs(buf, read_skip, skip_envs=skip_envs))
-    buf = MixedBuffer(read_exprs(buf, read_expr))
-    buf = read_exprs(buf, wrap_expr)
-    return buf
-
-
-def read_exprs(buf, read, **kwargs):
     while buf.hasNext():
-        yield read(buf, **kwargs)
+        yield read_expr(buf, skip_envs=SKIP_ENVS + skip_envs)
 
 
-def read_skip(src, skip_envs=()):
-    r"""Group skipped envs into single token.
-
-    :param Buffer src: a buffer of tokens
-    :param Tuple[str] skip_envs: environments to skip parsing
-    :return: Token
-
-    >>> from TexSoup.category import categorize
-    >>> from TexSoup.tokens import tokenize
-    >>> buf = tokenize(categorize(r'\begin{foobar} \textbf{aa \end{foobar}'))
-    >>> read_skip(buf, skip_envs=('foobar',)).category
-    <TokenCode.Skip: 44>
-    """
-    c = next(src)
-    position = src.position  # grab position before advancing buffer
-
-    if c.category == TC.Escape and src.peek() == 'begin':
-        name, args, steps = peek_command(src, n_required_args=1)
-        if args[0].string in skip_envs:
-            token = Token(src.forward(steps), position)
-            token += src.forward_until(lambda s:
-                s.startswith(r'\\end{%s}' % name), peek=False)
-            token += src.forward(3)
-            token.category = TC.Skip
-            return token
-    return c
-
-
-def read_expr(src, context=None):
+def read_expr(src, context=None, skip_envs=()):
     r"""Read next expression from buffer
 
     :param Buffer src: a buffer of tokens
@@ -94,7 +59,11 @@ def read_expr(src, context=None):
             expr = TexNamedEnv(args[0].string)
             expr.args = args[1:]
             src.forward(steps)
-            read_env(src, expr)
+
+            if expr.name in skip_envs:
+                read_skip_env(src, expr)
+            else:
+                read_env(src, expr)
         else:
             src.forward(1)
             expr = TexCmd(name)
@@ -105,19 +74,12 @@ def read_expr(src, context=None):
         return read_arg(src, c)
 
     assert isinstance(c, Token)
-    return c
+    return TexText(c)
 
 
-def wrap_expr(src):
-    """Wrap next expression in buffer with TexExpr object if still a token
-
-    :param Buffer src: a buffer of tokens
-    :return: TexExpr
-    """
-    c = next(src)
-    if isinstance(c, Token):
-        return TexText(c)
-    return c
+################
+# ENVIRONMENTS #
+################
 
 
 def read_item(src):
@@ -182,6 +144,22 @@ def read_item(src):
     return extras, args
 
 
+def unclosed_env_handler(src, expr, end):
+    """Handle unclosed environments.
+
+    Currently raises an end-of-file error. In the future, this can be the hub
+    for unclosed-environment fault tolerance.
+
+    :param Buffer src: a buffer of tokens
+    :param TexExpr expr: expression for the environment
+    :param end str: Actual end token (as opposed to expected)
+    """
+    clo = CharToLineOffset(str(src))
+    explanation = 'Instead got %s' % end if end else 'Reached end of file.'
+    raise EOFError('[Line: %d, Offset: %d] "%s" env expecting %s. %s' % (
+        *clo(src.position), expr.name, expr.end, explanation))
+
+
 def read_math_env(src, expr):
     r"""Read the environment from buffer.
 
@@ -201,19 +179,44 @@ def read_math_env(src, expr):
     EOFError: [Line: 0, Offset: 7] "$" env expecting $. Reached end of file.
     """
     content = src.forward_until(lambda c: c.category == expr.token_end)
-    if not src.startswith(expr.end):
-        end = src.peek()
-        clo = CharToLineOffset(str(src))
-        explanation = 'Instead got %s' % end if end else 'Reached end of file.'
-        raise EOFError('[Line: %d, Offset: %d] "%s" env expecting %s. %s' % (
-            *clo(src.position), expr.name, expr.end, explanation))
-    else:
-        next(src)
+    if not src.hasNext() or src.peek().category != expr.token_end:
+        unclosed_env_handler(src, expr, src.peek())
+    next(src)
     expr.append(content)
     return expr
 
 
-def read_env(src, expr, skip_envs=()):
+def read_skip_env(src, expr):
+    r"""Read the environment from buffer, WITHOUT parsing contents
+
+    Advances the buffer until right after the end of the environment. Adds
+    UNparsed content to the expression automatically.
+
+    :param Buffer src: a buffer of tokens
+    :param TexExpr expr: expression for the environment
+    :rtype: TexExpr
+
+    >>> from TexSoup.category import categorize
+    >>> from TexSoup.tokens import tokenize
+    >>> buf = tokenize(categorize(r' \textbf{aa \end{foobar}ha'))
+    >>> read_skip_env(buf, TexNamedEnv('foobar'))
+    TexNamedEnv('foobar', [' \\textbf{aa '], [])
+    >>> buf = tokenize(categorize(r' \textbf{aa ha'))
+    >>> read_skip_env(buf, TexNamedEnv('foobar'))
+    Traceback (most recent call last):
+        ...
+    EOFError: [Line: 0, Offset: 5] "foobar" env expecting \end{foobar}. Reached end of file.
+    """
+    condition = lambda s: s.startswith('\\end{%s}' % expr.name)
+    contents = [src.forward_until(condition, peek=False)]
+    if not src.startswith('\\end{%s}' % expr.name):
+        unclosed_env_handler(src, expr, src.peek((0, 6)))
+    src.forward(5)
+    expr.append(*contents)
+    return expr
+
+
+def read_env(src, expr):
     r"""Read the environment from buffer.
 
     Advances the buffer until right after the end of the environment. Adds
@@ -224,19 +227,22 @@ def read_env(src, expr, skip_envs=()):
     :rtype: TexExpr
     """
     contents = []
-    if expr.name in SKIP_ENVS + skip_envs:
-        contents = [src.forward_until(
-            lambda s: s.startswith('\\end'), peek=False)]
-    while src.hasNext() and not src.startswith('\\end{%s}' % expr.name):
+    while src.hasNext():
+        if src.peek().category == TC.Escape:
+            name, args, steps = peek_command(src, n_required_args=1, skip=1)
+            if name == 'end':
+                break
         contents.append(read_expr(src))
-    if not src.startswith('\\end{%s}' % expr.name):
-        end = src.peek((0, 6))
-        explanation = 'Instead got %s' % end if end else 'Reached end of file.'
-        raise EOFError('Expecting \\end{%s}. %s' % (expr.name, explanation))
-    else:
-        src.forward(5)
+    if not src.hasNext() or args[0].string != expr.name:
+        unclosed_env_handler(src, expr, src.peek((0, 6)))
+    src.forward(5)
     expr.append(*contents)
     return expr
+
+
+############
+# COMMANDS #
+############
 
 
 def read_args(src, args=None):
