@@ -1057,33 +1057,19 @@ class TexGroup(TexUnNamedEnv):
         return '%s(%s)' % (self.__class__.__name__,
                            ', '.join(map(repr, self._contents)))
 
-    # TODO: should be moved to parser. Not supposed to be part of data
-    # structure
     @classmethod
     def parse(cls, s):
         """Parse a string or list and return an Argument object.
 
+        Naive implementation, does not parse expressions in provided string.
+
         :param Union[str,iterable] s: Either a string or a list, where the
             first and last elements are valid argument delimiters.
 
-        >>> TexGroup.parse(BraceGroup('arg0'))
-        BraceGroup('arg0')
         >>> TexGroup.parse('[arg0]')
         BracketGroup('arg0')
         """
-        if isinstance(s, arg_type):
-            return s
-        if isinstance(s, (list, tuple)):
-            for arg in arg_type:
-                if s[0] == arg.begin and s[-1] == arg.end:
-                    return arg(*s[1:-1])
-            raise TypeError(
-                'Malformed argument. First and last elements must '
-                'match a valid argument format. In this case, TexSoup'
-                ' could not find matching punctuation for: %s.\n'
-                'Common issues include: Unescaped special characters,'
-                ' mistyped closing punctuation, misalignment.' %
-                (str(s)))
+        assert isinstance(s, str)
         for arg in arg_type:
             if s.startswith(arg.begin) and s.endswith(arg.end):
                 return arg(s[len(arg.begin):-len(arg.end)])

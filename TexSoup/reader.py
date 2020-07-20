@@ -20,7 +20,13 @@ MATH_ENVS = (
     TexMathEnv
 )
 MATH_TOKEN_TO_ENV = {env.token_begin: env for env in MATH_ENVS}
-ARG_BEGIN_TO_END = {arg.token_begin: arg.token_end for arg in arg_type}
+ARG_BEGIN_TO_ENV = {arg.token_begin: arg for arg in arg_type}
+
+SIGNATURES = {
+    'def': (2, 0),
+    'textbf': (1, 0),
+    'section': (1, 0)
+}
 
 
 __all__ = ['read_expr', 'read_tex']
@@ -119,8 +125,10 @@ def read_item(src):
     ... \item first item
     ... \end{itemize}''', skip=7)
     ([], [])
+    >>> read_item_from(r'''\def\itemeqn{\item}''', skip=6)
+    ([], [])
     """
-    assert next(src) == 'item'
+    assert next(src) == 'item', src.backward(1)
     args, extras = [], []
 
     # TODO: fix when spacer tokenization updated
@@ -144,6 +152,8 @@ def read_item(src):
             cmd_name, cmd_args, steps = peek_command(src, 1, skip=1)
             if cmd_name in ('end', 'item'):
                 return extras, args
+        elif src.peek().category == TC.GroupEnd:
+            break
         extras.append(read_expr(src))
     return extras, args
 
@@ -399,7 +409,7 @@ def read_arg_required(src, args, n_required=-1):
 
 
 def read_arg(src, c):
-    """Read the argument from buffer.
+    r"""Read the argument from buffer.
 
     Advances buffer until right before the end of the argument.
 
@@ -407,15 +417,31 @@ def read_arg(src, c):
     :param str c: argument token (starting token)
     :return: the parsed argument
     :rtype: TexGroup
+
+    >>> from TexSoup.category import categorize
+    >>> from TexSoup.tokens import tokenize
+    >>> s = r'''{\item\abovedisplayskip=2pt\abovedisplayshortskip=0pt~\vspace*{-\baselineskip}}'''
+    >>> buf = tokenize(categorize(s))
+    >>> read_arg(buf, next(buf))
+    BraceGroup(TexCmd('item'))
     """
     content = [c]
+    arg = ARG_BEGIN_TO_ENV[c.category]
     while src.hasNext():
-        if src.peek().category == ARG_BEGIN_TO_END[c.category]:
-            content.append(next(src))
-            break
+        if src.peek().category == arg.token_end:
+            src.forward()
+            return arg(*content[1:])
         else:
             content.append(read_expr(src))
-    return TexGroup.parse(content)
+
+    clo = CharToLineOffset(str(src))
+    line, offset = clo(c.position)
+    raise TypeError(
+        '[Line: %d, Offset %d] Malformed argument. First and last elements '
+        'must match a valid argument format. In this case, TexSoup'
+        ' could not find matching punctuation for: %s.\n'
+        'Just finished parsing: %s' %
+        (line, offset, c, content))
 
 
 # TODO: move spacer tokenization to tokenizer
@@ -474,25 +500,25 @@ def peek_command(buf, n_required_args=-1, n_optional_args=-1, skip=0):
 
     >>> from TexSoup.category import categorize
     >>> from TexSoup.tokens import tokenize
-    >>> buf = Buffer(tokenize(categorize('\\section  \t    \n\t{wallawalla}')))
+    >>> buf = Buffer(tokenize(categorize('\\sect  \t    \n\t{wallawalla}')))
     >>> next(buf)
     '\\'
     >>> peek_command(buf)
-    ('section', [BraceGroup('wallawalla')], 5)
-    >>> buf = Buffer(tokenize(categorize('\\section  \t   \n\t \n{bingbang}')))
+    ('sect', [BraceGroup('wallawalla')], 5)
+    >>> buf = Buffer(tokenize(categorize('\\sect  \t   \n\t \n{bingbang}')))
     >>> _ = next(buf)
     >>> peek_command(buf)
-    ('section', [], 1)
-    >>> buf = Buffer(tokenize(categorize('\\section{ooheeeee}')))
+    ('sect', [], 1)
+    >>> buf = Buffer(tokenize(categorize('\\sect{ooheeeee}')))
     >>> _ = next(buf)
     >>> peek_command(buf)
-    ('section', [BraceGroup('ooheeeee')], 4)
+    ('sect', [BraceGroup('ooheeeee')], 4)
 
     # Broken because abcd is incorrectly tokenized with leading space
-    # >>> buf = Buffer(tokenize(categorize('\\section abcd')))
+    # >>> buf = Buffer(tokenize(categorize('\\sect abcd')))
     # >>> _ = next(buf)
     # >>> peek_command(buf)
-    # ('section', ('a',), 2)
+    # ('sect', ('a',), 2)
     """
     position = buf.position
     for _ in range(skip):
@@ -500,6 +526,8 @@ def peek_command(buf, n_required_args=-1, n_optional_args=-1, skip=0):
 
     name = next(buf)
     token = Token('', buf.position)
+    if n_required_args < 0 and n_optional_args < 0:
+        n_required_args, n_optional_args = SIGNATURES.get(name, (-1, -1))
     args = read_args(buf, n_required_args, n_optional_args)
 
     steps = buf.position - position
