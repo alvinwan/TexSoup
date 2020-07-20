@@ -5,7 +5,7 @@
 [![Build Status](https://travis-ci.org/alvinwan/TexSoup.svg?branch=master)](https://travis-ci.org/alvinwan/TexSoup)
 [![Coverage Status](https://coveralls.io/repos/github/alvinwan/TexSoup/badge.svg?branch=master)](https://coveralls.io/github/alvinwan/TexSoup?branch=master)
 
-TexSoup is a Python3 package for searching, navigating, and modifying LaTeX documents.
+TexSoup is a fault-tolerant, Python3 package for searching, navigating, and modifying LaTeX documents.
 
 - [Getting Started](https://github.com/alvinwan/TexSoup#Getting-Started)
 - [Installation](https://github.com/alvinwan/TexSoup#Installation)
@@ -14,9 +14,6 @@ TexSoup is a Python3 package for searching, navigating, and modifying LaTeX docu
 Created by [Alvin Wan](http://alvinwan.com) + [contributors](https://github.com/alvinwan/TexSoup/graphs/contributors).
 
 # Getting Started
-
-- [Quickstart Guide: how and when to use TexSoup](http://texsoup.alvinwan.com/docs/quickstart.html)
-- [Example Use Cases: counting references, resolving imports, and more](https://github.com/alvinwan/TexSoup/tree/master/examples)
 
 To parse a $LaTeX$ document, pass an open filehandle or a string into the
 `TexSoup` constructor.
@@ -73,7 +70,12 @@ life & common
 [\item red lemon, \item life]
 ```
 
-Does this look promising? [See more in the Quickstart Guide &rarr;](https://texsoup.alvinwan.com/docs/quickstart.html)
+For more use cases, see [the Quickstart Guide](https://texsoup.alvinwan.com/docs/quickstart.html). Or, try TexSoup [online, via repl.it &rarr;](https://repl.it/@ALVINWAN1/texsoup)
+
+Links:
+
+- [Quickstart Guide: how and when to use TexSoup](http://texsoup.alvinwan.com/docs/quickstart.html)
+- [Example Use Cases: counting references, resolving imports, and more](https://github.com/alvinwan/TexSoup/tree/master/examples)
 
 # Installation
 
