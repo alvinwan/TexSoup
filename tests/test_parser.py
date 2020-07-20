@@ -535,3 +535,26 @@ def test_arg_parse():
 
     with pytest.raises(TypeError):
         TexGroup.parse('\section[{')
+
+
+###################
+# FAULT TOLERANCE #
+###################
+
+
+def test_tolerance_env_unclosed():
+    """Test that unclosed envs are tolerated"""
+    with pytest.raises(EOFError):
+        TexSoup(r"""
+        \begin{enva}
+        \begin{envb}
+        \end{enva}
+        \end{envb}""")
+
+    soup = TexSoup(r"""
+    \begin{enva}
+    \begin{envb}
+    \end{enva}
+    \end{envb}""", tolerance=1)
+    assert len(list(soup.enva.contents)) == 1
+    assert soup.end

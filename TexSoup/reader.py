@@ -85,7 +85,7 @@ def read_expr(src, skip_envs=(), tolerance=0):
             expr.args = read_args(src, args=expr.args)
         return expr
     if c.category == TC.GroupStart:
-        return read_arg(src, c)
+        return read_arg(src, c, tolerance=tolerance)
 
     assert isinstance(c, Token)
     return TexText(c)
@@ -96,7 +96,7 @@ def read_expr(src, skip_envs=(), tolerance=0):
 ################
 
 
-def read_item(src):
+def read_item(src, tolerance=0):
     r"""Read the item content. Assumes escape has just been parsed.
 
     There can be any number of whitespace characters between \item and the
@@ -106,6 +106,7 @@ def read_item(src):
     \item can also take an argument.
 
     :param Buffer src: a buffer of tokens
+    :param int tolerance: error tolerance level (only supports 0 or 1)
     :return: contents of the item and any item arguments
 
     >>> from TexSoup.category import categorize
@@ -143,7 +144,7 @@ def read_item(src):
     # TODO: use peek_command instead of manually parsing optional arg
     if not rest and src.hasNext() and src.peek().category == TC.OpenBracket:
         c = next(src)
-        args.append(read_arg(src, c))
+        args.append(read_arg(src, c, tolerance=tolerance))
 
         # remove leading spacer after arguments, due to quirk in Item repr
         # which adds space after args.
@@ -158,7 +159,7 @@ def read_item(src):
                 return extras, args
         elif src.peek().category == TC.GroupEnd:
             break
-        extras.append(read_expr(src))
+        extras.append(read_expr(src, tolerance=tolerance))
     return extras, args
 
 
@@ -266,7 +267,7 @@ def read_env(src, expr, tolerance=0):
             name, args, steps = peek_command(src, n_required_args=1, skip=1)
             if name == 'end':
                 break
-        contents.append(read_expr(src))
+        contents.append(read_expr(src, tolerance=tolerance))
     error = not src.hasNext() or not args or args[0].string != expr.name
     if error and tolerance == 0:
         unclosed_env_handler(src, expr, src.peek((0, 6)))
@@ -283,7 +284,7 @@ def read_env(src, expr, tolerance=0):
 
 # TODO: handle macro-weirdness e.g., \def\blah[#1][[[[[[[[#2{"#1 . #2"}
 # TODO: add newcommand macro
-def read_args(src, n_required=-1, n_optional=-1, args=None):
+def read_args(src, n_required=-1, n_optional=-1, args=None, tolerance=0):
     r"""Read all arguments from buffer.
 
     This function assumes that the command name has already been parsed. By
@@ -298,6 +299,7 @@ def read_args(src, n_required=-1, n_optional=-1, args=None):
                            brace groups will be captured.
     :param int n_optional: Number of optional arguments. If < 0, all valid
                            bracket groups will be captured.
+    :param int tolerance: error tolerance level (only supports 0 or 1)
     :return: parsed arguments
     :rtype: TexArgs
 
@@ -323,17 +325,17 @@ def read_args(src, n_required=-1, n_optional=-1, args=None):
     if n_required == 0 and n_optional == 0:
         return args
 
-    n_optional = read_arg_optional(src, args, n_optional)
-    n_required = read_arg_required(src, args, n_required)
+    n_optional = read_arg_optional(src, args, n_optional, tolerance)
+    n_required = read_arg_required(src, args, n_required, tolerance)
 
     if src.hasNext() and src.peek().category == TC.OpenBracket:
-        n_optional = read_arg_optional(src, args, n_optional)
+        n_optional = read_arg_optional(src, args, n_optional, tolerance)
     if src.hasNext() and src.peek().category == TC.GroupStart:
-        n_required = read_arg_required(src, args, n_required)
+        n_required = read_arg_required(src, args, n_required, tolerance)
     return args
 
 
-def read_arg_optional(src, args, n_optional=-1):
+def read_arg_optional(src, args, n_optional=-1, tolerance=0):
     """Read next optional argument from buffer.
 
     If the command has remaining optional arguments, look for:
@@ -345,6 +347,7 @@ def read_arg_optional(src, args, n_optional=-1):
     :param TexArgs args: existing arguments to extend
     :param int n_optional: Number of optional arguments. If < 0, all valid
                            bracket groups will be captured.
+    :param int tolerance: error tolerance level (only supports 0 or 1)
     :return: number of remaining optional arguments
     :rtype: int
     """
@@ -355,12 +358,12 @@ def read_arg_optional(src, args, n_optional=-1):
             break
         if not (src.hasNext() and src.peek().category == TC.OpenBracket):
             break
-        args.append(read_arg(src, next(src)))
+        args.append(read_arg(src, next(src), tolerance=tolerance))
         n_optional -= 1
     return n_optional
 
 
-def read_arg_required(src, args, n_required=-1):
+def read_arg_required(src, args, n_required=-1, tolerance=0):
     """Read next required argument from buffer.
 
     If the command has remaining required arguments, look for:
@@ -374,6 +377,7 @@ def read_arg_required(src, args, n_required=-1):
     :param TexArgs args: existing arguments to extend
     :param int n_required: Number of required arguments. If < 0, all valid
                            brace groups will be captured.
+    :param int tolerance: error tolerance level (only supports 0 or 1)
     :return: number of remaining optional arguments
     :rtype: int
 
@@ -404,7 +408,7 @@ def read_arg_required(src, args, n_required=-1):
             break
 
         if src.hasNext() and src.peek().category == TC.GroupStart:
-            args.append(read_arg(src, next(src)))
+            args.append(read_arg(src, next(src), tolerance=tolerance))
             n_required -= 1
             continue
         elif src.hasNext() and n_required > 0:
@@ -418,13 +422,14 @@ def read_arg_required(src, args, n_required=-1):
     return n_required
 
 
-def read_arg(src, c):
+def read_arg(src, c, tolerance=0):
     r"""Read the argument from buffer.
 
     Advances buffer until right before the end of the argument.
 
     :param Buffer src: a buffer of tokens
     :param str c: argument token (starting token)
+    :param int tolerance: error tolerance level (only supports 0 or 1)
     :return: the parsed argument
     :rtype: TexGroup
 
@@ -442,7 +447,7 @@ def read_arg(src, c):
             src.forward()
             return arg(*content[1:])
         else:
-            content.append(read_expr(src))
+            content.append(read_expr(src, tolerance=tolerance))
 
     clo = CharToLineOffset(str(src))
     line, offset = clo(c.position)
