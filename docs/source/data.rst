@@ -21,17 +21,44 @@ Expressions
 .. autoclass:: TexCmd()
   :members:
 
-Arguments
+Groups
 -----------------------------------
 
-.. autoclass:: Arg()
+.. autoclass:: TexGroup()
   :members:
 
-.. autoclass:: OArg()
+.. autoclass:: BracketGroup()
   :members:
 
-.. autoclass:: RArg()
+.. autoclass:: BraceGroup()
   :members:
 
 .. autoclass:: TexArgs()
+  :members:
+
+Environments
+-----------------------------------
+
+.. autoclass:: TexNamedEnv()
+  :members:
+
+.. autoclass:: TexUnNamedEnv()
+  :members:
+
+.. autoclass:: TexMathEnv()
+  :members:
+
+.. autoclass:: TexDisplayMathEnv()
+  :members:
+
+.. autoclass:: TexMathModeEnv()
+  :members:
+
+.. autoclass:: TexDisplayMathModeEnv()
+  :members:
+
+Text
+----------------------------------
+
+.. autoclass:: TexText()
   :members:

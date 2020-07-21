@@ -6,8 +6,22 @@ Utilities
 Tokens
 -----------------------------------
 
-.. autoclass:: TokenWithPosition
+.. autoclass:: CC
+  :members:
+
+.. autoclass:: TC
+  :members:
+
+.. autoclass:: Token
   :members:
 
 .. autoclass:: CharToLineOffset
   :members:
+
+Buffer
+-----------------------------------
+
+.. autoclass:: Buffer
+  :members:
+
+.. autofunction:: to_buffer

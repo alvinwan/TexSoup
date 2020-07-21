@@ -1,16 +1,12 @@
 Quick Start
 ===================================
 
-The below illustrates major categories of features that TexSoup supports--how it
-works, when it works, and how to leverage its utilities.
-
-.. note:: Full disclaimer: I'm a big fan of BeautifulSoup documentation and
-          modeled these guides after theirs.
+The below illustrates some basic TexSoup functions.
 
 How to Use
 -----------------------------------
 
-Here is a LaTeX document that we'll be using as an example throughout::
+Here is a :math:`\LaTeX` document::
 
   >>> tex_doc = """
   ... \begin{document}
@@ -29,12 +25,8 @@ Here is a LaTeX document that we'll be using as an example throughout::
   ... \end{document}
   ... """
 
-There are two ways to input $\LaTeX$ into TexSoup. Either pass in
-
-1. a file buffer (`open('file.tex')`) OR
-2. a string
-
-Below, we demonstrate using the string defined above::
+Call :code:`TexSoup` on this string to re-represent this document as a
+nested data structure::
 
   >>> from TexSoup import TexSoup
   >>> soup = TexSoup(tex_doc)
@@ -54,8 +46,7 @@ Below, we demonstrate using the string defined above::
   \end{tabular}
   \end{document}
 
-With the soupified :math:`\LaTeX`, you can now search and traverse the document tree.
-The code below demonstrates the basic functions that TexSoup provides.::
+Here are a few ways to navigate the TexSoup data structure::
 
   >>> soup.section
   \section{Hello \textit{world}.}
@@ -74,21 +65,22 @@ The code below demonstrates the basic functions that TexSoup provides.::
   'c c'
   >>> soup.item
   \item red lemon
-  ...
+
   >>> list(soup.find_all('item'))
   [\item red lemon
-  , \item life
+    , \item life
   ]
 
-One possible task is searching for references to a figure. For this (slightly)
-more advanced search, include arguments. For example, to search for all
-references to a particular label, search for ``ref{<label>}``. This way you can
-count the number of times a particular label is referenced.::
+One task may be to find all references. To do this, simply search for
+``\ref{<label>}``. You can even report each reference's line number::
 
   >>> soup.count(r'\ref{table:synonyms}')
   1
+  >>> for cmd in soup.find_all(r'\ref{table:synonyms}'):
+  ...   soup.char_pos_to_line(cmd.position)
+  (8, 49)
 
-Another possible task is extracting all text from the page::
+Another task may be to extract all text from the page::
 
   >>> list(soup.text)
   ['Hello ', 'world', '.', 'Watermelon', '\n\n(n.) A sacred fruit. Also known as:\n\n', 'red lemon\n', 'life\n', '\n\nHere is the prevalence of each synonym.\n\n', '\nred lemon & uncommon \\\\ ', '\nlife & common\n']
@@ -100,14 +92,16 @@ structures, without a wrapper ``TexNode``, use the main parsing utility,
 data structure.
 
   >>> from TexSoup import read
-  >>> expr = read('\section{textbf}')
+  >>> expr, _ = read('\section{textbf}')
   >>> expr
-  TexCmd('section', [RArg('textbf')])
+  [TexCmd('section', [BraceGroup('textbf')])]
   >>> print(expr)
   \section{textbf}
 
-Does this look promising? If so, see installation and more detailed usage
-instructions below.
+
+Does this look promising? If so,
+`try TexSoup online <https://repl.it/@ALVINWAN1/texsoup>`_ or read on to
+install.
 
 How to Install
 -----------------------------------
@@ -122,9 +116,3 @@ Alternatively, you can install the package from source::
   git clone https://github.com/alvinwan/TexSoup.git
   cd TexSoup
   python setup.py install
-
-Making a Soup
------------------------------------
-
-To parse a $LaTeX$ document, pass an open filehandle or a string into the
-`TexSoup` constructor.
