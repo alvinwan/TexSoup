@@ -1,0 +1,731 @@
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Tokenizing Mechanics &mdash; TexSoup master documentation</title>
+  
+
+  
+  
+    <link rel="apple-touch-icon" sizes="180x180" href="_static/images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="_static/images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="_static/images/favicon-16x16.png">
+    <link rel="manifest" href="_static/images/site.webmanifest">
+    <link rel="mask-icon" href="_static/images/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="theme-color" content="#ffffff">
+  
+  
+  
+    <link rel="canonical" href="http://texsoup.alvinwan.com/tokenizer.html"/>
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
+    <link rel="stylesheet" href="_static/css/theme-mod.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Parsing Mechanics" href="parser.html" />
+    <link rel="prev" title="Categorizing Mechanics" href="categorizer.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+</head>
+<div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://texsoup.alvinwan.com/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+        
+          <li>
+            <a href="https://texsoup.alvinwan.com/">Home</a>
+          </li>
+        
+          <li class="active">
+            <a href="https://texsoup.alvinwan.com/docs/">Docs</a>
+          </li>
+        
+          <li>
+            <a href="https://github.com/alvinwan/texsoup">Github</a>
+          </li>
+        
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+
+  </div>
+</div>
+
+
+<body class="pytorch-body">
+
+   
+
+  
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+
+            
+              
+              
+                <div class="version">
+                  master (0.3.0 )
+                </div>
+              
+            
+
+            
+
+
+  
+
+
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+            
+          </div>
+
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#how-to-use">How to Use</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#how-to-install">How to Install</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="soup.html">What’s in the Soup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="soup.html#making-a-soup">Making a Soup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="soup.html#kinds-of-objects">Kinds of Objects</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="navigation.html">Navigation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="searching.html">Search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modification.html">Modification</a></li>
+</ul>
+<p class="caption"><span class="caption-text">How it Works</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="categorizer.html">Categorizing Mechanics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="categorizer.html#categorizer">Categorizer</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tokenizing Mechanics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#tokenizer">Tokenizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#escape-tokenizer">Escape Tokenizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#math-tokenizer">Math Tokenizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#command-tokenizer">Command Tokenizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#text-tokenizer">Text Tokenizer</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="parser.html">Parsing Mechanics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="parser.html#parser">Parser</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parser.html#environment-parser">Environment Parser</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parser.html#argument-parser">Argument Parser</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parser.html#command-parser">Command Parser</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Package Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="main.html">Main Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html">Data Structures</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="data.html#node">Node</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data.html#expressions">Expressions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data.html#groups">Groups</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data.html#environments">Environments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data.html#text">Text</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#tokens">Tokens</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#buffer">Buffer</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="index.html">
+          
+            Docs
+          
+        </a> &gt;
+      </li>
+
+        
+      <li>Tokenizing Mechanics</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="_sources/tokenizer.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">
+          Shortcuts
+        </div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <div class="section" id="module-TexSoup.tokens">
+<span id="tokenizing-mechanics"></span><h1>Tokenizing Mechanics<a class="headerlink" href="#module-TexSoup.tokens" title="Permalink to this headline">¶</a></h1>
+<p>Tokenization for all input.</p>
+<p>Translates string into iterable <cite>TexSoup.utils.Buffer</cite>, yielding one
+token at a time.</p>
+<div class="section" id="tokenizer">
+<h2>Tokenizer<a class="headerlink" href="#tokenizer" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="TexSoup.tokens.tokenize">
+<code class="sig-prename descclassname">TexSoup.tokens.</code><code class="sig-name descname">tokenize</code><span class="sig-paren">(</span><em class="sig-param">text</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/tokens.html#tokenize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.tokens.tokenize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generator for LaTeX tokens on text, ignoring comments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>text</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>,</em><em>iterator</em><em>,</em><a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a><em>]</em>) – LaTeX to process</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="o">*</span><span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">%}&#39;</span><span class="p">)))</span>
+<span class="go">\\ %}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="o">*</span><span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\textbf{hello </span><span class="se">\\</span><span class="s1">%}&#39;</span><span class="p">)))</span>
+<span class="go">\ textbf { hello \\ %}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="o">*</span><span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\textbf{Do play \textit</span><span class="si">{nice}</span><span class="s1">.}&#39;</span><span class="p">)))</span>
+<span class="go">\ textbf { Do play  \ textit { nice } . }</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="o">*</span><span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\begin</span><span class="si">{tabular}</span><span class="s1"> 0 &amp; 1 </span><span class="se">\\</span><span class="s1"> 2 &amp; 0 \end</span><span class="si">{tabular}</span><span class="s1">&#39;</span><span class="p">)))</span>
+<span class="go">\ begin { tabular }  0 &amp; 1 \\ 2 &amp; 0  \ end { tabular }</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="TexSoup.tokens.next_token">
+<code class="sig-prename descclassname">TexSoup.tokens.</code><code class="sig-name descname">next_token</code><span class="sig-paren">(</span><em class="sig-param">text</em>, <em class="sig-param">prev=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/tokens.html#next_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.tokens.next_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the next possible token, advancing the iterator to the next
+position to start processing from.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>text</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>,</em><em>iterator</em><em>,</em><a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a><em>]</em>) – LaTeX to process</p>
+</dd>
+<dt class="field-even">Return str</dt>
+<dd class="field-even"><p>the token</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\textbf{Do play\textit</span><span class="si">{nice}</span><span class="s1">.}   $$\min_w \|w\|_2^2$$&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">next_token</span><span class="p">(</span><span class="n">b</span><span class="p">),</span> <span class="n">next_token</span><span class="p">(</span><span class="n">b</span><span class="p">),</span> <span class="n">next_token</span><span class="p">(</span><span class="n">b</span><span class="p">),</span> <span class="n">next_token</span><span class="p">(</span><span class="n">b</span><span class="p">))</span>
+<span class="go">\ textbf { Do play</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">next_token</span><span class="p">(</span><span class="n">b</span><span class="p">),</span> <span class="n">next_token</span><span class="p">(</span><span class="n">b</span><span class="p">),</span> <span class="n">next_token</span><span class="p">(</span><span class="n">b</span><span class="p">),</span> <span class="n">next_token</span><span class="p">(</span><span class="n">b</span><span class="p">))</span>
+<span class="go">\ textit { nice</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">next_token</span><span class="p">(</span><span class="n">b</span><span class="p">))</span>
+<span class="go">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">next_token</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="s1">&#39;.}&#39;</span><span class="p">)))</span>
+<span class="go">.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">next_token</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="go">&#39;.&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">next_token</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="go">&#39;}&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="escape-tokenizer">
+<h2>Escape Tokenizer<a class="headerlink" href="#escape-tokenizer" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="TexSoup.tokens.tokenize_escaped_symbols">
+<code class="sig-prename descclassname">TexSoup.tokens.</code><code class="sig-name descname">tokenize_escaped_symbols</code><span class="sig-paren">(</span><em class="sig-param">text</em>, <em class="sig-param">prev=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/tokens.html#tokenize_escaped_symbols"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.tokens.tokenize_escaped_symbols" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process an escaped symbol.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>text</strong> (<a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a>) – iterator over line, with current position</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tokenize_escaped_symbols</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">))</span>
+<span class="go">&#39;\\\\&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tokenize_escaped_symbols</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">%&#39;</span><span class="p">))</span>
+<span class="go">&#39;\\\\&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tokenize_escaped_symbols</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\}&#39;</span><span class="p">))</span>
+<span class="go">&#39;\\}&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tokenize_escaped_symbols</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\%&#39;</span><span class="p">))</span>
+<span class="go">&#39;\\%&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tokenize_escaped_symbols</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\ %&#39;</span><span class="p">))</span>  <span class="c1"># not even one spacer is allowed</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="TexSoup.tokens.tokenize_line_comment">
+<code class="sig-prename descclassname">TexSoup.tokens.</code><code class="sig-name descname">tokenize_line_comment</code><span class="sig-paren">(</span><em class="sig-param">text</em>, <em class="sig-param">prev=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/tokens.html#tokenize_line_comment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.tokens.tokenize_line_comment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process a line comment</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>text</strong> (<a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a>) – iterator over line, with current position</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tokenize_line_comment</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%he</span><span class="s1">llo world</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">))</span>
+<span class="go">&#39;%hello world\\&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tokenize_line_comment</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="s1">&#39;hello %world&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tokenize_line_comment</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="s1">&#39;%}hello world&#39;</span><span class="p">))</span>
+<span class="go">&#39;%}hello world&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tokenize_line_comment</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="s1">&#39;%}  &#39;</span><span class="p">))</span>
+<span class="go">&#39;%}  &#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tokenize_line_comment</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%he</span><span class="s1">llo</span><span class="se">\n</span><span class="s1"> world&#39;</span><span class="p">))</span>
+<span class="go">&#39;%hello&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">%&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">b</span><span class="p">),</span> <span class="nb">next</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tokenize_line_comment</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="go">&#39;%&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tokenize_line_comment</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\%&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="TexSoup.tokens.tokenize_line_break">
+<code class="sig-prename descclassname">TexSoup.tokens.</code><code class="sig-name descname">tokenize_line_break</code><span class="sig-paren">(</span><em class="sig-param">text</em>, <em class="sig-param">prev=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/tokens.html#tokenize_line_break"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.tokens.tokenize_line_break" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract LaTeX line breaks.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tokenize_line_break</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">aaa&#39;</span><span class="p">))</span>
+<span class="go">&#39;\\\\&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tokenize_line_break</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\aaa&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="TexSoup.tokens.tokenize_ignore">
+<code class="sig-prename descclassname">TexSoup.tokens.</code><code class="sig-name descname">tokenize_ignore</code><span class="sig-paren">(</span><em class="sig-param">text</em>, <em class="sig-param">prev=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/tokens.html#tokenize_ignore"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.tokens.tokenize_ignore" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter out ignored or invalid characters</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="o">*</span><span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">hello&#39;</span><span class="p">)))</span>
+<span class="go">hello</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="math-tokenizer">
+<h2>Math Tokenizer<a class="headerlink" href="#math-tokenizer" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="TexSoup.tokens.tokenize_math_sym_switch">
+<code class="sig-prename descclassname">TexSoup.tokens.</code><code class="sig-name descname">tokenize_math_sym_switch</code><span class="sig-paren">(</span><em class="sig-param">text</em>, <em class="sig-param">prev=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/tokens.html#tokenize_math_sym_switch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.tokens.tokenize_math_sym_switch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Group characters in math switches.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>text</strong> (<a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a>) – iterator over line, with current position</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tokenize_math_sym_switch</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\min_x$ \command&#39;</span><span class="p">))</span>
+<span class="go">&#39;$&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tokenize_math_sym_switch</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$$\min_x$$ \command&#39;</span><span class="p">))</span>
+<span class="go">&#39;$$&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="TexSoup.tokens.tokenize_math_asym_switch">
+<code class="sig-prename descclassname">TexSoup.tokens.</code><code class="sig-name descname">tokenize_math_asym_switch</code><span class="sig-paren">(</span><em class="sig-param">text</em>, <em class="sig-param">prev=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/tokens.html#tokenize_math_asym_switch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.tokens.tokenize_math_asym_switch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Group characters in begin-end-style math switches</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>text</strong> (<a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a>) – iterator over line, with current position</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tokenize_math_asym_switch</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\[asf&#39;</span><span class="p">))</span>
+<span class="go">&#39;\\[&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tokenize_math_asym_switch</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\] sdf&#39;</span><span class="p">))</span>
+<span class="go">&#39;\\]&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tokenize_math_asym_switch</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[]&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="TexSoup.tokens.tokenize_punctuation_command_name">
+<code class="sig-prename descclassname">TexSoup.tokens.</code><code class="sig-name descname">tokenize_punctuation_command_name</code><span class="sig-paren">(</span><em class="sig-param">text</em>, <em class="sig-param">prev=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/tokens.html#tokenize_punctuation_command_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.tokens.tokenize_punctuation_command_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process command that augments or modifies punctuation.</p>
+<p>This is important to the tokenization of a string, as opening or closing
+punctuation is not supposed to match.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>text</strong> (<a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a>) – iterator over text, with current position</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="command-tokenizer">
+<h2>Command Tokenizer<a class="headerlink" href="#command-tokenizer" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="TexSoup.tokens.tokenize_command_name">
+<code class="sig-prename descclassname">TexSoup.tokens.</code><code class="sig-name descname">tokenize_command_name</code><span class="sig-paren">(</span><em class="sig-param">text</em>, <em class="sig-param">prev=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/tokens.html#tokenize_command_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.tokens.tokenize_command_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract most restrictive subset possibility for command name.</p>
+<p>Parser can later join allowed spacers and macros to assemble the final
+command name and arguments.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\bf{&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tokenize_command_name</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="go">&#39;bf&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\bf,&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tokenize_command_name</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="go">&#39;bf&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\bf*{&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tokenize_command_name</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="go">&#39;bf*&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="text-tokenizer">
+<h2>Text Tokenizer<a class="headerlink" href="#text-tokenizer" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="TexSoup.tokens.tokenize_symbols">
+<code class="sig-prename descclassname">TexSoup.tokens.</code><code class="sig-name descname">tokenize_symbols</code><span class="sig-paren">(</span><em class="sig-param">text</em>, <em class="sig-param">prev=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/tokens.html#tokenize_symbols"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.tokens.tokenize_symbols" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process singletone symbols as standalone tokens.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>text</strong> (<a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a>) – iterator over line, with current position. Escape is
+isolated if not part of escaped char</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">next</span><span class="p">(</span><span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\begin turing&#39;</span><span class="p">)))</span>
+<span class="go">&#39;\\&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">next</span><span class="p">(</span><span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\bf  </span><span class="si">{turing}</span><span class="s1">&#39;</span><span class="p">)))</span>
+<span class="go">&#39;\\&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">next</span><span class="p">(</span><span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;{]}&#39;</span><span class="p">)))</span><span class="o">.</span><span class="n">category</span>
+<span class="go">&lt;TokenCode.GroupStart: 23&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="TexSoup.tokens.tokenize_string">
+<code class="sig-prename descclassname">TexSoup.tokens.</code><code class="sig-name descname">tokenize_string</code><span class="sig-paren">(</span><em class="sig-param">text</em>, <em class="sig-param">delimiters=None</em>, <em class="sig-param">prev=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/tokens.html#tokenize_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.tokens.tokenize_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process a string of text</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>text</strong> (<a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a>) – iterator over line, with current position</p></li>
+<li><p><strong>delimiters</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em>,</em><em>iterable</em><em>,</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – defines the delimiters</p></li>
+</ul>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tokenize_string</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="s1">&#39;hello&#39;</span><span class="p">))</span>
+<span class="go">&#39;hello&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;hello again\command&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tokenize_string</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="go">&#39;hello again&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">peek</span><span class="p">())</span>
+<span class="go">\</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">tokenize_string</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;0 &amp; 1 </span><span class="se">\\</span><span class="s1">\command&#39;</span><span class="p">)))</span>
+<span class="go">0 &amp; 1 \\</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+             </article>
+             
+            </div>
+            <!-- Only change in this file is to change attribution from rtd to pytorch -->
+
+<footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="parser.html" class="btn btn-neutral float-right" title="Parsing Mechanics" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
+      
+      
+        <a href="categorizer.html" class="btn btn-neutral" title="Categorizing Mechanics" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Alvin Wan.
+
+    </p>
+  </div>
+    
+      <div class="built-with">
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/pytorch/pytorch_sphinx_theme">theme</a> provided by <a href="https://pytorch.org">PyTorch</a>.
+      </div>
+     
+
+</footer>
+          </div>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">Tokenizing Mechanics</a><ul>
+<li><a class="reference internal" href="#tokenizer">Tokenizer</a></li>
+<li><a class="reference internal" href="#escape-tokenizer">Escape Tokenizer</a></li>
+<li><a class="reference internal" href="#math-tokenizer">Math Tokenizer</a></li>
+<li><a class="reference internal" href="#command-tokenizer">Command Tokenizer</a></li>
+<li><a class="reference internal" href="#text-tokenizer">Text Tokenizer</a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/language_data.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js"></script>
+         <script src="_static/katex_autorenderer.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+   
+
+  <!-- Begin Footer -->
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+  </div>
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://texsoup.alvinwan.com/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+      
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://texsoup.alvinwan.com/">TexSoup</a></li>
+            
+            <li><a href="https://texsoup.alvinwan.com/docs/quickstart.html">Getting Started</a></li>
+            
+          </ul>
+        </div>
+      
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">Support</li>
+            
+            <li><a href="https://texsoup.alvinwan.com/docs/">Docs</a></li>
+            
+            <li><a href="https://github.com/alvinwan/texsoup/issues">Github Issues</a></li>
+            
+          </ul>
+        </div>
+      
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">Related</li>
+            
+            <li><a href="https://github.com/alvinwan/md2py">Markdown2Python</a></li>
+            
+            <li><a href="https://github.com/alvinwan/tex2py">LaTeX2Python</a></li>
+            
+          </ul>
+        </div>
+      
+      </div>
+    </div>
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">I analyze traffic using Google Analytics, which uses cookies. By continuing to use this site, you agree to allow this usage of cookies.</p>
+    <img class="close-button" src="_static/images/pytorch-x.svg">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://texsoup.alvinwan.com/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+        
+          <li>
+            <a href="https://texsoup.alvinwan.com/">Home</a>
+          </li>
+        
+          <li class="active">
+            <a href="https://texsoup.alvinwan.com/docs/">Docs</a>
+          </li>
+        
+          <li>
+            <a href="https://github.com/alvinwan/texsoup">Github</a>
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+  <!-- Google Analytics -->
+  <script>
+    (function(i, s, o, g, r, a, m)
+    {
+      i['GoogleAnalyticsObject'] = r;
+      i[r] = i[r] || function()
+      {
+        (i[r].q = i[r].q || []).push(arguments)
+      }, i[r].l = 1 * new Date();
+      a = s.createElement(o),
+        m = s.getElementsByTagName(o)[0];
+      a.async = 1;
+      a.src = g;
+      m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+    ga('create', 'UA-32800241-3', 'alvinwan.com');
+    ga('send', 'pageview');
+  </script>
+</body>
+</html>

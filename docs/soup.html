@@ -1,0 +1,634 @@
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>What’s in the Soup &mdash; TexSoup master documentation</title>
+  
+
+  
+  
+    <link rel="apple-touch-icon" sizes="180x180" href="_static/images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="_static/images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="_static/images/favicon-16x16.png">
+    <link rel="manifest" href="_static/images/site.webmanifest">
+    <link rel="mask-icon" href="_static/images/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="theme-color" content="#ffffff">
+  
+  
+  
+    <link rel="canonical" href="http://texsoup.alvinwan.com/soup.html"/>
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
+    <link rel="stylesheet" href="_static/css/theme-mod.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Navigation" href="navigation.html" />
+    <link rel="prev" title="Quick Start" href="quickstart.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+</head>
+<div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://texsoup.alvinwan.com/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+        
+          <li>
+            <a href="https://texsoup.alvinwan.com/">Home</a>
+          </li>
+        
+          <li class="active">
+            <a href="https://texsoup.alvinwan.com/docs/">Docs</a>
+          </li>
+        
+          <li>
+            <a href="https://github.com/alvinwan/texsoup">Github</a>
+          </li>
+        
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+
+  </div>
+</div>
+
+
+<body class="pytorch-body">
+
+   
+
+  
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+
+            
+              
+              
+                <div class="version">
+                  master (0.3.0 )
+                </div>
+              
+            
+
+            
+
+
+  
+
+
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+            
+          </div>
+
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#how-to-use">How to Use</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#how-to-install">How to Install</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">What’s in the Soup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#making-a-soup">Making a Soup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kinds-of-objects">Kinds of Objects</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="navigation.html">Navigation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="searching.html">Search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modification.html">Modification</a></li>
+</ul>
+<p class="caption"><span class="caption-text">How it Works</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="categorizer.html">Categorizing Mechanics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="categorizer.html#categorizer">Categorizer</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tokenizer.html">Tokenizing Mechanics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tokenizer.html#tokenizer">Tokenizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tokenizer.html#escape-tokenizer">Escape Tokenizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tokenizer.html#math-tokenizer">Math Tokenizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tokenizer.html#command-tokenizer">Command Tokenizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tokenizer.html#text-tokenizer">Text Tokenizer</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="parser.html">Parsing Mechanics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="parser.html#parser">Parser</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parser.html#environment-parser">Environment Parser</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parser.html#argument-parser">Argument Parser</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parser.html#command-parser">Command Parser</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Package Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="main.html">Main Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html">Data Structures</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="data.html#node">Node</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data.html#expressions">Expressions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data.html#groups">Groups</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data.html#environments">Environments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data.html#text">Text</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#tokens">Tokens</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#buffer">Buffer</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="index.html">
+          
+            Docs
+          
+        </a> &gt;
+      </li>
+
+        
+      <li>What’s in the Soup</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="_sources/soup.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">
+          Shortcuts
+        </div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <div class="section" id="what-s-in-the-soup">
+<h1>What’s in the Soup<a class="headerlink" href="#what-s-in-the-soup" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="making-a-soup">
+<h2>Making a Soup<a class="headerlink" href="#making-a-soup" title="Permalink to this headline">¶</a></h2>
+<p>To parse a <span class="math">\(\LaTeX\)</span> document, pass an open filehandle or a string into the
+<code class="code docutils literal notranslate"><span class="pre">TexSoup</span></code> constructor:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="kn">import</span> <span class="n">TexSoup</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;main.tex&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup2</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\begin</span><span class="si">{document}</span><span class="s1">Hello world!\end</span><span class="si">{document}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Access TexSoup’s underlying data structures using <code class="code docutils literal notranslate"><span class="pre">.expr</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup2</span><span class="o">.</span><span class="n">expr</span>
+<span class="go">[TexNamedEnv(&#39;document&#39;, [&#39;Hello world!&#39;], [])]</span>
+</pre></div>
+</div>
+<p>Alternatively, compute the data structure only:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="kn">import</span> <span class="n">read</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup3</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\begin</span><span class="si">{document}</span><span class="s1">Hello world!\end</span><span class="si">{document}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup3</span>
+<span class="go">[TexNamedEnv(&#39;document&#39;, [&#39;Hello world!&#39;], [])]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="kinds-of-objects">
+<h2>Kinds of Objects<a class="headerlink" href="#kinds-of-objects" title="Permalink to this headline">¶</a></h2>
+<p>TexSoup translates a <span class="math">\(\LaTeX\)</span> document into a tree of Python objects.
+There are only three <em>kinds</em> of objects: commands, environments, and
+text.</p>
+<div class="section" id="command">
+<h3>Command<a class="headerlink" href="#command" title="Permalink to this headline">¶</a></h3>
+<p>A <code class="code docutils literal notranslate"><span class="pre">TexCmd</span></code> corresponds to a command in the original document:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;I am \textbf{\large Large and bold}&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">textbf</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span>
+<span class="go">\textbf{\large Large and bold}</span>
+</pre></div>
+</div>
+<p>You can access the underlying data structures using <code class="code docutils literal notranslate"><span class="pre">.expr</span></code>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span><span class="o">.</span><span class="n">expr</span>
+<span class="go">TexCmd(&#39;textbf&#39;, [BraceGroup(TexCmd(&#39;large&#39;), &#39; Large and bold&#39;)])</span>
+</pre></div>
+</div>
+<p>Every command has a name:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span><span class="o">.</span><span class="n">name</span>
+<span class="go">&#39;textbf&#39;</span>
+</pre></div>
+</div>
+<p>You can change the command’s name too. This change will be reflected when you
+convert the TexSoup back to <span class="math">\(\LaTeX\)</span>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;textit&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span>
+<span class="go">\textit{\large Large and bold}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span>
+<span class="go">I am \textit{\large Large and bold}</span>
+</pre></div>
+</div>
+<p>Commands may have any number of arguments, stored in <code class="code docutils literal notranslate"><span class="pre">.args</span></code> as a list.
+Our command has just one argument:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="go">&#39;{\\large Large and bold}&#39;</span>
+</pre></div>
+</div>
+<p>You can add, remove, and modify arguments, treating <code class="code docutils literal notranslate"><span class="pre">.args</span></code> as a list:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{moar}</span><span class="s1">&#39;</span><span class="p">)</span>  <span class="c1"># add arguments</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+<span class="go">&#39;{\\large Large and bold}{moar}&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;{\large Large and bold}&#39;</span><span class="p">)</span>  <span class="c1"># remove arguments</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+<span class="go">&#39;{moar}&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">string</span> <span class="o">=</span> <span class="s1">&#39;floating&#39;</span>  <span class="c1"># modify arguments</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+<span class="go">&#39;{floating}&#39;</span>
+</pre></div>
+</div>
+<p>All arguments are represented using TexSoup’s underlying data structures:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span><span class="o">.</span><span class="n">args</span>
+<span class="go">[BraceGroup(&#39;floating&#39;)]</span>
+</pre></div>
+</div>
+<p>The above commands all apply to optional arguments as well. Note
+that all changes are reflected when we convert the soup back to <span class="math">\(\LaTeX\)</span>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;[optional]&#39;</span><span class="p">)</span>  <span class="c1"># add optional arg</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+<span class="go">&#39;{floating}[optional]&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;[optional]&#39;</span><span class="p">)</span>  <span class="c1"># remove optional arg</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+<span class="go">&#39;{floating}&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span>
+<span class="go">I am \textit{floating}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="text">
+<h3>Text<a class="headerlink" href="#text" title="Permalink to this headline">¶</a></h3>
+<p>A <code class="code docutils literal notranslate"><span class="pre">TexText</span></code> represents floating bits of text:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span>
+<span class="go">I am \textit{floating}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">text</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">contents</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">text</span>
+<span class="go">&#39;I am &#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+<span class="go">&lt;class &#39;TexSoup.data.TexText&#39;&gt;</span>
+</pre></div>
+</div>
+<p>You can set the <code class="code docutils literal notranslate"><span class="pre">.text</span></code> attribute. As before, this will be reflected
+when you convert the data structure back into <span class="math">\(\LaTeX\)</span>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">text</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s1">&#39;I am not &#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span>
+<span class="go">I am not \textit{floating}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="environment">
+<h3>Environment<a class="headerlink" href="#environment" title="Permalink to this headline">¶</a></h3>
+<p>Environments, or <code class="code docutils literal notranslate"><span class="pre">TexEnv</span></code>, are split into three types:</p>
+<ol class="arabic simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">TexNamedEnv</span></code>: The typical environments you think of, with a begin
+and an end, such as <code class="code docutils literal notranslate"><span class="pre">\begin{itemize}...\end{itemize}</span></code>.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">TexUnNamedEnv</span></code>: Special environments such as math <code class="code docutils literal notranslate"><span class="pre">\(...\)</span></code>.
+All math environments fall in this category.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">TexGroup</span></code>: Unnamed environments with single-character delimiters,
+like <code class="code docutils literal notranslate"><span class="pre">{...}</span></code>.</p></li>
+</ol>
+<p>You can access environments by name:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Haha \begin</span><span class="si">{itemize}</span><span class="s1">[label=\alph]\item Huehue\end</span><span class="si">{itemize}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">env</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">itemize</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">env</span>
+<span class="go">\begin{itemize}[label=\alph]\item Huehue\end{itemize}</span>
+</pre></div>
+</div>
+<p>Every environment’s name can be accessed and modified using <code class="code docutils literal notranslate"><span class="pre">.name</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">env</span><span class="o">.</span><span class="n">name</span>
+<span class="go">&#39;itemize&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">env</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;enumerate&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">env</span>
+<span class="go">\begin{enumerate}[label=\alph]\item Huehue\end{enumerate}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span>
+<span class="go">Haha \begin{enumerate}[label=\alph]\item Huehue\end{enumerate}</span>
+</pre></div>
+</div>
+<p>As with commands, environments store arguments in a list <code class="code docutils literal notranslate"><span class="pre">.args</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+<span class="go">&#39;[label=\\alph]&#39;</span>
+</pre></div>
+</div>
+<p>Each environment will contain variable amounts of content, accessible via
+<code class="code docutils literal notranslate"><span class="pre">.contents</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">contents</span><span class="p">)</span>
+<span class="go">[\item Huehue]</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+             </article>
+             
+            </div>
+            <!-- Only change in this file is to change attribution from rtd to pytorch -->
+
+<footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="navigation.html" class="btn btn-neutral float-right" title="Navigation" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
+      
+      
+        <a href="quickstart.html" class="btn btn-neutral" title="Quick Start" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Alvin Wan.
+
+    </p>
+  </div>
+    
+      <div class="built-with">
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/pytorch/pytorch_sphinx_theme">theme</a> provided by <a href="https://pytorch.org">PyTorch</a>.
+      </div>
+     
+
+</footer>
+          </div>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">What’s in the Soup</a><ul>
+<li><a class="reference internal" href="#making-a-soup">Making a Soup</a></li>
+<li><a class="reference internal" href="#kinds-of-objects">Kinds of Objects</a><ul>
+<li><a class="reference internal" href="#command">Command</a></li>
+<li><a class="reference internal" href="#text">Text</a></li>
+<li><a class="reference internal" href="#environment">Environment</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/language_data.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js"></script>
+         <script src="_static/katex_autorenderer.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+   
+
+  <!-- Begin Footer -->
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+  </div>
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://texsoup.alvinwan.com/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+      
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://texsoup.alvinwan.com/">TexSoup</a></li>
+            
+            <li><a href="https://texsoup.alvinwan.com/docs/quickstart.html">Getting Started</a></li>
+            
+          </ul>
+        </div>
+      
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">Support</li>
+            
+            <li><a href="https://texsoup.alvinwan.com/docs/">Docs</a></li>
+            
+            <li><a href="https://github.com/alvinwan/texsoup/issues">Github Issues</a></li>
+            
+          </ul>
+        </div>
+      
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">Related</li>
+            
+            <li><a href="https://github.com/alvinwan/md2py">Markdown2Python</a></li>
+            
+            <li><a href="https://github.com/alvinwan/tex2py">LaTeX2Python</a></li>
+            
+          </ul>
+        </div>
+      
+      </div>
+    </div>
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">I analyze traffic using Google Analytics, which uses cookies. By continuing to use this site, you agree to allow this usage of cookies.</p>
+    <img class="close-button" src="_static/images/pytorch-x.svg">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://texsoup.alvinwan.com/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+        
+          <li>
+            <a href="https://texsoup.alvinwan.com/">Home</a>
+          </li>
+        
+          <li class="active">
+            <a href="https://texsoup.alvinwan.com/docs/">Docs</a>
+          </li>
+        
+          <li>
+            <a href="https://github.com/alvinwan/texsoup">Github</a>
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+  <!-- Google Analytics -->
+  <script>
+    (function(i, s, o, g, r, a, m)
+    {
+      i['GoogleAnalyticsObject'] = r;
+      i[r] = i[r] || function()
+      {
+        (i[r].q = i[r].q || []).push(arguments)
+      }, i[r].l = 1 * new Date();
+      a = s.createElement(o),
+        m = s.getElementsByTagName(o)[0];
+      a.async = 1;
+      a.src = g;
+      m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+    ga('create', 'UA-32800241-3', 'alvinwan.com');
+    ga('send', 'pageview');
+  </script>
+</body>
+</html>

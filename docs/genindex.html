@@ -23,7 +23,7 @@
   
   
   
-    <link rel="canonical" href="http://texsoup.alvinwan.comgenindex.html"/>
+    <link rel="canonical" href="http://texsoup.alvinwan.com/genindex.html"/>
   
 
   
@@ -37,7 +37,7 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
     <link rel="stylesheet" href="_static/css/theme-mod.css" type="text/css" />
     <link rel="index" title="Index" href="#" />
@@ -98,7 +98,7 @@
               
               
                 <div class="version">
-                  master (0.2.1 )
+                  master (0.3.0 )
                 </div>
               
             
@@ -131,18 +131,36 @@
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#how-to-use">How to Use</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#how-to-install">How to Install</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#making-a-soup">Making a Soup</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="soup.html">What’s in the Soup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="soup.html#making-a-soup">Making a Soup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="soup.html#kinds-of-objects">Kinds of Objects</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="navigation.html">Navigation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="searching.html">Search</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modification.html">Modification</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Notes</span></p>
+<p class="caption"><span class="caption-text">How it Works</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="categorizer.html">Categorizing Mechanics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="categorizer.html#categorizer">Categorizer</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tokenizer.html">Tokenizing Mechanics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tokenizer.html#tokenizer">Tokenizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tokenizer.html#escape-tokenizer">Escape Tokenizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tokenizer.html#math-tokenizer">Math Tokenizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tokenizer.html#command-tokenizer">Command Tokenizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tokenizer.html#text-tokenizer">Text Tokenizer</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="parser.html">Parsing Mechanics</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="parser.html#tokenizer">Tokenizer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="parser.html#mapper">Mapper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parser.html#parser">Parser</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parser.html#environment-parser">Environment Parser</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parser.html#argument-parser">Argument Parser</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parser.html#command-parser">Command Parser</a></li>
 </ul>
 </li>
 </ul>
@@ -152,11 +170,14 @@
 <li class="toctree-l1"><a class="reference internal" href="data.html">Data Structures</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="data.html#node">Node</a></li>
 <li class="toctree-l2"><a class="reference internal" href="data.html#expressions">Expressions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="data.html#arguments">Arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data.html#groups">Groups</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data.html#environments">Environments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data.html#text">Text</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html">Utilities</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="utils.html#tokens">Tokens</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#buffer">Buffer</a></li>
 </ul>
 </li>
 </ul>
@@ -234,28 +255,29 @@
 
 <div class="genindex-jumpbox">
  <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
  | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
+ | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#N"><strong>N</strong></a>
- | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
- | <a href="#V"><strong>V</strong></a>
+ | <a href="#U"><strong>U</strong></a>
  
 </div>
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="data.html#TexSoup.data.TexExpr.all">all (TexSoup.data.TexExpr attribute)</a>
+      <li><a href="data.html#TexSoup.data.TexExpr.all">all() (TexSoup.data.TexExpr property)</a>
 
       <ul>
-        <li><a href="data.html#TexSoup.data.TexNode.all">(TexSoup.data.TexNode attribute)</a>
+        <li><a href="data.html#TexSoup.data.TexNode.all">(TexSoup.data.TexNode property)</a>
 </li>
       </ul></li>
       <li><a href="data.html#TexSoup.data.TexArgs.append">append() (TexSoup.data.TexArgs method)</a>
@@ -268,9 +290,23 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="data.html#TexSoup.data.Arg">Arg (class in TexSoup.data)</a>
+      <li><a href="data.html#TexSoup.data.TexNode.args">args() (TexSoup.data.TexNode property)</a>
 </li>
-      <li><a href="data.html#TexSoup.data.TexNode.args">args (TexSoup.data.TexNode attribute)</a>
+  </ul></td>
+</tr></table>
+
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="utils.html#TexSoup.utils.Buffer.backward">backward() (TexSoup.utils.Buffer method)</a>
+</li>
+      <li><a href="data.html#TexSoup.data.BraceGroup">BraceGroup (class in TexSoup.data)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="data.html#TexSoup.data.BracketGroup">BracketGroup (class in TexSoup.data)</a>
+</li>
+      <li><a href="utils.html#TexSoup.utils.Buffer">Buffer (class in TexSoup.utils)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -278,20 +314,24 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="categorizer.html#TexSoup.category.categorize">categorize() (in module TexSoup.category)</a>
+</li>
+      <li><a href="utils.html#TexSoup.utils.CC">CC (in module TexSoup.utils)</a>
+</li>
       <li><a href="data.html#TexSoup.data.TexNode.char_pos_to_line">char_pos_to_line() (TexSoup.data.TexNode method)</a>
 </li>
       <li><a href="utils.html#TexSoup.utils.CharToLineOffset">CharToLineOffset (class in TexSoup.utils)</a>
 </li>
-      <li><a href="data.html#TexSoup.data.TexNode.children">children (TexSoup.data.TexNode attribute)</a>
-</li>
-      <li><a href="data.html#TexSoup.data.TexArgs.clear">clear() (TexSoup.data.TexArgs method)</a>
+      <li><a href="data.html#TexSoup.data.TexNode.children">children() (TexSoup.data.TexNode property)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="data.html#TexSoup.data.TexExpr.contents">contents (TexSoup.data.TexExpr attribute)</a>
+      <li><a href="data.html#TexSoup.data.TexArgs.clear">clear() (TexSoup.data.TexArgs method)</a>
+</li>
+      <li><a href="data.html#TexSoup.data.TexExpr.contents">contents() (TexSoup.data.TexExpr property)</a>
 
       <ul>
-        <li><a href="data.html#TexSoup.data.TexNode.contents">(TexSoup.data.TexNode attribute)</a>
+        <li><a href="data.html#TexSoup.data.TexNode.contents">(TexSoup.data.TexNode property)</a>
 </li>
       </ul></li>
       <li><a href="data.html#TexSoup.data.TexNode.copy">copy() (TexSoup.data.TexNode method)</a>
@@ -308,15 +348,17 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="data.html#TexSoup.data.Arg.delims">delims() (TexSoup.data.Arg class method)</a>
-</li>
-      <li><a href="data.html#TexSoup.data.TexNode.descendants">descendants (TexSoup.data.TexNode attribute)</a>
+      <li><a href="data.html#TexSoup.data.TexNode.descendants">descendants() (TexSoup.data.TexNode property)</a>
 </li>
   </ul></td>
 </tr></table>
 
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="utils.html#TexSoup.utils.Buffer.endswith">endswith() (TexSoup.utils.Buffer method)</a>
+</li>
+  </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="data.html#TexSoup.data.TexArgs.extend">extend() (TexSoup.data.TexArgs method)</a>
 </li>
@@ -328,9 +370,21 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="data.html#TexSoup.data.TexNode.find">find() (TexSoup.data.TexNode method)</a>
 </li>
+      <li><a href="data.html#TexSoup.data.TexNode.find_all">find_all() (TexSoup.data.TexNode method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="data.html#TexSoup.data.TexNode.find_all">find_all() (TexSoup.data.TexNode method)</a>
+      <li><a href="utils.html#TexSoup.utils.Buffer.forward">forward() (TexSoup.utils.Buffer method)</a>
+</li>
+      <li><a href="utils.html#TexSoup.utils.Buffer.forward_until">forward_until() (TexSoup.utils.Buffer method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="utils.html#TexSoup.utils.Buffer.hasNext">hasNext() (TexSoup.utils.Buffer method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -352,7 +406,7 @@
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="utils.html#TexSoup.utils.TokenWithPosition.lstrip">lstrip() (TexSoup.utils.TokenWithPosition method)</a>
+      <li><a href="utils.html#TexSoup.utils.Token.lstrip">lstrip() (TexSoup.utils.Token method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -360,19 +414,13 @@
 <h2 id="N">N</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="data.html#TexSoup.data.TexNode.name">name (TexSoup.data.TexNode attribute)</a>
+      <li><a href="data.html#TexSoup.data.TexNode.name">name() (TexSoup.data.TexNode property)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="parser.html#TexSoup.reader.next_token">next_token() (in module TexSoup.reader)</a>
+      <li><a href="tokenizer.html#TexSoup.tokens.next_token">next_token() (in module TexSoup.tokens)</a>
 </li>
-  </ul></td>
-</tr></table>
-
-<h2 id="O">O</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="data.html#TexSoup.data.OArg">OArg (class in TexSoup.data)</a>
+      <li><a href="utils.html#TexSoup.utils.Buffer.num_forward_until">num_forward_until() (TexSoup.utils.Buffer method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -380,11 +428,17 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="data.html#TexSoup.data.Arg.parse">parse() (TexSoup.data.Arg static method)</a>
+      <li><a href="data.html#TexSoup.data.TexGroup.parse">parse() (TexSoup.data.TexGroup class method)</a>
+</li>
+      <li><a href="utils.html#TexSoup.utils.Buffer.peek">peek() (TexSoup.utils.Buffer method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="parser.html#TexSoup.reader.peek_command">peek_command() (in module TexSoup.reader)</a>
+</li>
       <li><a href="data.html#TexSoup.data.TexArgs.pop">pop() (TexSoup.data.TexArgs method)</a>
+</li>
+      <li><a href="data.html#TexSoup.data.TexNode.position">position() (TexSoup.data.TexNode property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -392,22 +446,30 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="data.html#TexSoup.data.RArg">RArg (class in TexSoup.data)</a>
-</li>
       <li><a href="parser.html#TexSoup.reader.read_arg">read_arg() (in module TexSoup.reader)</a>
+</li>
+      <li><a href="parser.html#TexSoup.reader.read_arg_optional">read_arg_optional() (in module TexSoup.reader)</a>
+</li>
+      <li><a href="parser.html#TexSoup.reader.read_arg_required">read_arg_required() (in module TexSoup.reader)</a>
 </li>
       <li><a href="parser.html#TexSoup.reader.read_args">read_args() (in module TexSoup.reader)</a>
 </li>
       <li><a href="parser.html#TexSoup.reader.read_env">read_env() (in module TexSoup.reader)</a>
 </li>
+      <li><a href="parser.html#TexSoup.reader.read_expr">read_expr() (in module TexSoup.reader)</a>
+</li>
       <li><a href="parser.html#TexSoup.reader.read_item">read_item() (in module TexSoup.reader)</a>
 </li>
       <li><a href="parser.html#TexSoup.reader.read_math_env">read_math_env() (in module TexSoup.reader)</a>
 </li>
-      <li><a href="parser.html#TexSoup.reader.read_tex">read_tex() (in module TexSoup.reader)</a>
+      <li><a href="parser.html#TexSoup.reader.read_skip_env">read_skip_env() (in module TexSoup.reader)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="parser.html#TexSoup.reader.read_spacer">read_spacer() (in module TexSoup.reader)</a>
+</li>
+      <li><a href="parser.html#TexSoup.reader.read_tex">read_tex() (in module TexSoup.reader)</a>
+</li>
       <li><a href="data.html#TexSoup.data.TexArgs.remove">remove() (TexSoup.data.TexArgs method)</a>
 
       <ul>
@@ -422,7 +484,7 @@
 </li>
       <li><a href="data.html#TexSoup.data.TexArgs.reverse">reverse() (TexSoup.data.TexArgs method)</a>
 </li>
-      <li><a href="utils.html#TexSoup.utils.TokenWithPosition.rstrip">rstrip() (TexSoup.utils.TokenWithPosition method)</a>
+      <li><a href="utils.html#TexSoup.utils.Token.rstrip">rstrip() (TexSoup.utils.Token method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -430,25 +492,43 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="data.html#TexSoup.data.TexArgs.sort">sort() (TexSoup.data.TexArgs method)</a>
+      <li><a href="utils.html#TexSoup.utils.Buffer.startswith">startswith() (TexSoup.utils.Buffer method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="data.html#TexSoup.data.TexNode.string">string (TexSoup.data.TexNode attribute)</a>
+      <li><a href="data.html#TexSoup.data.TexExpr.string">string() (TexSoup.data.TexExpr property)</a>
+
+      <ul>
+        <li><a href="data.html#TexSoup.data.TexNode.string">(TexSoup.data.TexNode property)</a>
 </li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="utils.html#TexSoup.utils.TC">TC (in module TexSoup.utils)</a>
+</li>
       <li><a href="data.html#TexSoup.data.TexArgs">TexArgs (class in TexSoup.data)</a>
 </li>
       <li><a href="data.html#TexSoup.data.TexCmd">TexCmd (class in TexSoup.data)</a>
 </li>
+      <li><a href="data.html#TexSoup.data.TexDisplayMathEnv">TexDisplayMathEnv (class in TexSoup.data)</a>
+</li>
+      <li><a href="data.html#TexSoup.data.TexDisplayMathModeEnv">TexDisplayMathModeEnv (class in TexSoup.data)</a>
+</li>
       <li><a href="data.html#TexSoup.data.TexEnv">TexEnv (class in TexSoup.data)</a>
 </li>
       <li><a href="data.html#TexSoup.data.TexExpr">TexExpr (class in TexSoup.data)</a>
+</li>
+      <li><a href="data.html#TexSoup.data.TexGroup">TexGroup (class in TexSoup.data)</a>
+</li>
+      <li><a href="data.html#TexSoup.data.TexMathEnv">TexMathEnv (class in TexSoup.data)</a>
+</li>
+      <li><a href="data.html#TexSoup.data.TexMathModeEnv">TexMathModeEnv (class in TexSoup.data)</a>
+</li>
+      <li><a href="data.html#TexSoup.data.TexNamedEnv">TexNamedEnv (class in TexSoup.data)</a>
 </li>
       <li><a href="data.html#TexSoup.data.TexNode">TexNode (class in TexSoup.data)</a>
 </li>
@@ -456,41 +536,57 @@
 </li>
       <li><a href="main.html#TexSoup.TexSoup">TexSoup() (in module TexSoup)</a>
 </li>
+      <li><a href="categorizer.html#module-TexSoup.category">TexSoup.category (module)</a>
+</li>
       <li><a href="data.html#module-TexSoup.data">TexSoup.data (module)</a>
 </li>
       <li><a href="parser.html#module-TexSoup.reader">TexSoup.reader (module)</a>
 </li>
-      <li><a href="utils.html#module-TexSoup.utils">TexSoup.utils (module)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="data.html#TexSoup.data.TexNode.text">text (TexSoup.data.TexNode attribute)</a>
+      <li><a href="tokenizer.html#module-TexSoup.tokens">TexSoup.tokens (module)</a>
 </li>
-      <li><a href="parser.html#TexSoup.reader.token">token() (in module TexSoup.reader)</a>
+      <li><a href="utils.html#module-TexSoup.utils">TexSoup.utils (module)</a>
 </li>
-      <li><a href="parser.html#TexSoup.reader.tokenize">tokenize() (in module TexSoup.reader)</a>
+      <li><a href="data.html#TexSoup.data.TexNode.text">text() (TexSoup.data.TexNode property)</a>
 </li>
-      <li><a href="parser.html#TexSoup.reader.tokenize_argument">tokenize_argument() (in module TexSoup.reader)</a>
+      <li><a href="data.html#TexSoup.data.TexText">TexText (class in TexSoup.data)</a>
 </li>
-      <li><a href="parser.html#TexSoup.reader.tokenize_command">tokenize_command() (in module TexSoup.reader)</a>
+      <li><a href="data.html#TexSoup.data.TexUnNamedEnv">TexUnNamedEnv (class in TexSoup.data)</a>
 </li>
-      <li><a href="parser.html#TexSoup.reader.tokenize_line_comment">tokenize_line_comment() (in module TexSoup.reader)</a>
+      <li><a href="utils.html#TexSoup.utils.to_buffer">to_buffer() (in module TexSoup.utils)</a>
 </li>
-      <li><a href="parser.html#TexSoup.reader.tokenize_math">tokenize_math() (in module TexSoup.reader)</a>
+      <li><a href="utils.html#TexSoup.utils.Token">Token (class in TexSoup.utils)</a>
 </li>
-      <li><a href="parser.html#TexSoup.reader.tokenize_punctuation_command">tokenize_punctuation_command() (in module TexSoup.reader)</a>
+      <li><a href="tokenizer.html#TexSoup.tokens.tokenize">tokenize() (in module TexSoup.tokens)</a>
 </li>
-      <li><a href="parser.html#TexSoup.reader.tokenize_string">tokenize_string() (in module TexSoup.reader)</a>
+      <li><a href="tokenizer.html#TexSoup.tokens.tokenize_command_name">tokenize_command_name() (in module TexSoup.tokens)</a>
 </li>
-      <li><a href="utils.html#TexSoup.utils.TokenWithPosition">TokenWithPosition (class in TexSoup.utils)</a>
+      <li><a href="tokenizer.html#TexSoup.tokens.tokenize_escaped_symbols">tokenize_escaped_symbols() (in module TexSoup.tokens)</a>
+</li>
+      <li><a href="tokenizer.html#TexSoup.tokens.tokenize_ignore">tokenize_ignore() (in module TexSoup.tokens)</a>
+</li>
+      <li><a href="tokenizer.html#TexSoup.tokens.tokenize_line_break">tokenize_line_break() (in module TexSoup.tokens)</a>
+</li>
+      <li><a href="tokenizer.html#TexSoup.tokens.tokenize_line_comment">tokenize_line_comment() (in module TexSoup.tokens)</a>
+</li>
+      <li><a href="tokenizer.html#TexSoup.tokens.tokenize_math_asym_switch">tokenize_math_asym_switch() (in module TexSoup.tokens)</a>
+</li>
+      <li><a href="tokenizer.html#TexSoup.tokens.tokenize_math_sym_switch">tokenize_math_sym_switch() (in module TexSoup.tokens)</a>
+</li>
+      <li><a href="tokenizer.html#TexSoup.tokens.tokenize_punctuation_command_name">tokenize_punctuation_command_name() (in module TexSoup.tokens)</a>
+</li>
+      <li><a href="tokenizer.html#TexSoup.tokens.tokenize_string">tokenize_string() (in module TexSoup.tokens)</a>
+</li>
+      <li><a href="tokenizer.html#TexSoup.tokens.tokenize_symbols">tokenize_symbols() (in module TexSoup.tokens)</a>
 </li>
   </ul></td>
 </tr></table>
 
-<h2 id="V">V</h2>
+<h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="data.html#TexSoup.data.Arg.value">value (TexSoup.data.Arg attribute)</a>
+      <li><a href="parser.html#TexSoup.reader.unclosed_env_handler">unclosed_env_handler() (in module TexSoup.reader)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -513,7 +609,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, Alvin Wan.
+        &copy; Copyright 2020, Alvin Wan.
 
     </p>
   </div>
@@ -543,23 +639,14 @@
   
 
      
-       <script type="text/javascript">
-           var DOCUMENTATION_OPTIONS = {
-               URL_ROOT:'./',
-               VERSION:'master',
-               LANGUAGE:'None',
-               COLLAPSE_INDEX:false,
-               FILE_SUFFIX:'.html',
-               HAS_SOURCE:  true,
-               SOURCELINK_SUFFIX: '.txt'
-           };
-       </script>
-         <script type="text/javascript" src="_static/jquery.js"></script>
-         <script type="text/javascript" src="_static/underscore.js"></script>
-         <script type="text/javascript" src="_static/doctools.js"></script>
-         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"></script>
-         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"></script>
-         <script type="text/javascript" src="_static/katex_autorenderer.js"></script>
+       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/language_data.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js"></script>
+         <script src="_static/katex_autorenderer.js"></script>
      
 
   

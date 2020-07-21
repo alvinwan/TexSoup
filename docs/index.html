@@ -22,7 +22,7 @@
   
   
   
-    <link rel="canonical" href="http://texsoup.alvinwan.comindex.html"/>
+    <link rel="canonical" href="http://texsoup.alvinwan.com/index.html"/>
   
 
   
@@ -36,7 +36,7 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
     <link rel="stylesheet" href="_static/css/theme-mod.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
@@ -98,7 +98,7 @@
               
               
                 <div class="version">
-                  master (0.2.1 )
+                  master (0.3.0 )
                 </div>
               
             
@@ -131,18 +131,36 @@
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#how-to-use">How to Use</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#how-to-install">How to Install</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#making-a-soup">Making a Soup</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="soup.html">What’s in the Soup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="soup.html#making-a-soup">Making a Soup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="soup.html#kinds-of-objects">Kinds of Objects</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="navigation.html">Navigation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="searching.html">Search</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modification.html">Modification</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Notes</span></p>
+<p class="caption"><span class="caption-text">How it Works</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="categorizer.html">Categorizing Mechanics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="categorizer.html#categorizer">Categorizer</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tokenizer.html">Tokenizing Mechanics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tokenizer.html#tokenizer">Tokenizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tokenizer.html#escape-tokenizer">Escape Tokenizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tokenizer.html#math-tokenizer">Math Tokenizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tokenizer.html#command-tokenizer">Command Tokenizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tokenizer.html#text-tokenizer">Text Tokenizer</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="parser.html">Parsing Mechanics</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="parser.html#tokenizer">Tokenizer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="parser.html#mapper">Mapper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parser.html#parser">Parser</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parser.html#environment-parser">Environment Parser</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parser.html#argument-parser">Argument Parser</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parser.html#command-parser">Command Parser</a></li>
 </ul>
 </li>
 </ul>
@@ -152,11 +170,14 @@
 <li class="toctree-l1"><a class="reference internal" href="data.html">Data Structures</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="data.html#node">Node</a></li>
 <li class="toctree-l2"><a class="reference internal" href="data.html#expressions">Expressions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="data.html#arguments">Arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data.html#groups">Groups</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data.html#environments">Environments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data.html#text">Text</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html">Utilities</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="utils.html#tokens">Tokens</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#buffer">Buffer</a></li>
 </ul>
 </li>
 </ul>
@@ -233,23 +254,24 @@
               
   <div class="section" id="texsoup-documentation">
 <h1>TexSoup documentation<a class="headerlink" href="#texsoup-documentation" title="Permalink to this headline">¶</a></h1>
-<p>TexSoup parses valid <span class="math">\(LaTeX\)</span> and provides a variety of BeautifulSoup-esque
-methods and Pythonic idioms for iterating and searching the parse tree. Unlike
-BeautifulSoup however, TexSoup is modeled after an interpreter, providing a set
-of Pythonic structures for processing environments, commands, and arguments.
-TexSoup only supports Python3.</p>
+<p>TexSoup is a Python3 library for pulling data from <span class="math">\(\LaTeX\)</span> files. It
+turns even invalid sources into a BeautifulSoup-esque structure that you can
+navigate, search, and modify.</p>
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Guides</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="soup.html">What’s in the Soup</a></li>
 <li class="toctree-l1"><a class="reference internal" href="navigation.html">Navigation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="searching.html">Search</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modification.html">Modification</a></li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">Notes</span></p>
+<p class="caption"><span class="caption-text">How it Works</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="categorizer.html">Categorizing Mechanics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tokenizer.html">Tokenizing Mechanics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parser.html">Parsing Mechanics</a></li>
 </ul>
 </div>
@@ -265,7 +287,7 @@ TexSoup only supports Python3.</p>
 <div class="section" id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
-<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 </ul>
 </div>
 
@@ -293,7 +315,7 @@ TexSoup only supports Python3.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, Alvin Wan.
+        &copy; Copyright 2020, Alvin Wan.
 
     </p>
   </div>
@@ -329,23 +351,14 @@ TexSoup only supports Python3.</p>
   
 
      
-       <script type="text/javascript">
-           var DOCUMENTATION_OPTIONS = {
-               URL_ROOT:'./',
-               VERSION:'master',
-               LANGUAGE:'None',
-               COLLAPSE_INDEX:false,
-               FILE_SUFFIX:'.html',
-               HAS_SOURCE:  true,
-               SOURCELINK_SUFFIX: '.txt'
-           };
-       </script>
-         <script type="text/javascript" src="_static/jquery.js"></script>
-         <script type="text/javascript" src="_static/underscore.js"></script>
-         <script type="text/javascript" src="_static/doctools.js"></script>
-         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"></script>
-         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"></script>
-         <script type="text/javascript" src="_static/katex_autorenderer.js"></script>
+       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/language_data.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js"></script>
+         <script src="_static/katex_autorenderer.js"></script>
      
 
   

@@ -22,7 +22,7 @@
   
   
   
-    <link rel="canonical" href="http://texsoup.alvinwan.comquickstart.html"/>
+    <link rel="canonical" href="http://texsoup.alvinwan.com/quickstart.html"/>
   
 
   
@@ -36,12 +36,12 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
     <link rel="stylesheet" href="_static/css/theme-mod.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Navigation" href="navigation.html" />
+    <link rel="next" title="What’s in the Soup" href="soup.html" />
     <link rel="prev" title="TexSoup documentation" href="index.html" /> 
 
   
@@ -99,7 +99,7 @@
               
               
                 <div class="version">
-                  master (0.2.1 )
+                  master (0.3.0 )
                 </div>
               
             
@@ -132,18 +132,36 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#how-to-use">How to Use</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-to-install">How to Install</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#making-a-soup">Making a Soup</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="soup.html">What’s in the Soup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="soup.html#making-a-soup">Making a Soup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="soup.html#kinds-of-objects">Kinds of Objects</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="navigation.html">Navigation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="searching.html">Search</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modification.html">Modification</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Notes</span></p>
+<p class="caption"><span class="caption-text">How it Works</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="categorizer.html">Categorizing Mechanics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="categorizer.html#categorizer">Categorizer</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tokenizer.html">Tokenizing Mechanics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tokenizer.html#tokenizer">Tokenizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tokenizer.html#escape-tokenizer">Escape Tokenizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tokenizer.html#math-tokenizer">Math Tokenizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tokenizer.html#command-tokenizer">Command Tokenizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tokenizer.html#text-tokenizer">Text Tokenizer</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="parser.html">Parsing Mechanics</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="parser.html#tokenizer">Tokenizer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="parser.html#mapper">Mapper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parser.html#parser">Parser</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parser.html#environment-parser">Environment Parser</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parser.html#argument-parser">Argument Parser</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parser.html#command-parser">Command Parser</a></li>
 </ul>
 </li>
 </ul>
@@ -153,11 +171,14 @@
 <li class="toctree-l1"><a class="reference internal" href="data.html">Data Structures</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="data.html#node">Node</a></li>
 <li class="toctree-l2"><a class="reference internal" href="data.html#expressions">Expressions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="data.html#arguments">Arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data.html#groups">Groups</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data.html#environments">Environments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data.html#text">Text</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html">Utilities</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="utils.html#tokens">Tokens</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#buffer">Buffer</a></li>
 </ul>
 </li>
 </ul>
@@ -234,17 +255,11 @@
               
   <div class="section" id="quick-start">
 <h1>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h1>
-<p>The below illustrates major categories of features that TexSoup supports&#8211;how it
-works, when it works, and how to leverage its utilities.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Full disclaimer: I&#8217;m a big fan of BeautifulSoup documentation and
-modeled these guides after theirs.</p>
-</div>
+<p>The below illustrates some basic TexSoup functions.</p>
 <div class="section" id="how-to-use">
 <h2>How to Use<a class="headerlink" href="#how-to-use" title="Permalink to this headline">¶</a></h2>
-<p>Here is a LaTeX document that we&#8217;ll be using as an example throughout:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tex_doc</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<p>Here is a <span class="math">\(\LaTeX\)</span> document:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tex_doc</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="gp">... </span><span class="se">\b</span><span class="s2">egin</span><span class="si">{document}</span><span class="s2"></span>
 <span class="gp">... </span><span class="s2">\section{Hello </span><span class="se">\t</span><span class="s2">extit</span><span class="si">{world}</span><span class="s2">.}</span>
 <span class="gp">... </span><span class="s2">\subsection</span><span class="si">{Watermelon}</span><span class="s2"></span>
@@ -262,13 +277,9 @@ modeled these guides after theirs.</p>
 <span class="gp">... </span><span class="s2">&quot;&quot;&quot;</span>
 </pre></div>
 </div>
-<p>There are two ways to input $LaTeX$ into TexSoup. Either pass in</p>
-<ol class="arabic simple">
-<li>a file buffer (<cite>open(&#8216;file.tex&#8217;)</cite>) OR</li>
-<li>a string</li>
-</ol>
-<p>Below, we demonstrate using the string defined above:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="k">import</span> <span class="n">TexSoup</span>
+<p>Call <code class="code docutils literal notranslate"><span class="pre">TexSoup</span></code> on this string to re-represent this document as a
+nested data structure:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="kn">import</span> <span class="n">TexSoup</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="n">tex_doc</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span>
 <span class="go">\begin{document}</span>
@@ -287,9 +298,8 @@ modeled these guides after theirs.</p>
 <span class="go">\end{document}</span>
 </pre></div>
 </div>
-<p>With the soupified <span class="math">\(\LaTeX\)</span>, you can now search and traverse the document tree.
-The code below demonstrates the basic functions that TexSoup provides.:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">section</span>
+<p>Here are a few ways to navigate the TexSoup data structure:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">section</span>
 <span class="go">\section{Hello \textit{world}.}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">section</span><span class="o">.</span><span class="n">name</span>
 <span class="go">&#39;section&#39;</span>
@@ -306,60 +316,44 @@ The code below demonstrates the basic functions that TexSoup provides.:</p>
 <span class="go">&#39;c c&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">item</span>
 <span class="go">\item red lemon</span>
-<span class="gp">...</span>
+
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;item&#39;</span><span class="p">))</span>
 <span class="go">[\item red lemon</span>
-<span class="go">, \item life</span>
+<span class="go">  , \item life</span>
 <span class="go">]</span>
 </pre></div>
 </div>
-<p>One possible task is searching for references to a figure. For this (slightly)
-more advanced search, include arguments. For example, to search for all
-references to a particular label, search for <code class="docutils literal"><span class="pre">ref{&lt;label&gt;}</span></code>. This way you can
-count the number of times a particular label is referenced.:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\ref{table:synonyms}&#39;</span><span class="p">)</span>
+<p>One task may be to find all references. To do this, simply search for
+<code class="docutils literal notranslate"><span class="pre">\ref{&lt;label&gt;}</span></code>. You can even report each reference’s line number:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\ref{table:synonyms}&#39;</span><span class="p">)</span>
 <span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">cmd</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\ref{table:synonyms}&#39;</span><span class="p">):</span>
+<span class="gp">... </span>  <span class="n">soup</span><span class="o">.</span><span class="n">char_pos_to_line</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>
+<span class="go">(8, 49)</span>
 </pre></div>
 </div>
-<p>Another possible task is extracting all text from the page:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+<p>Another task may be to extract all text from the page:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
 <span class="go">[&#39;Hello &#39;, &#39;world&#39;, &#39;.&#39;, &#39;Watermelon&#39;, &#39;\n\n(n.) A sacred fruit. Also known as:\n\n&#39;, &#39;red lemon\n&#39;, &#39;life\n&#39;, &#39;\n\nHere is the prevalence of each synonym.\n\n&#39;, &#39;\nred lemon &amp; uncommon \\\\ &#39;, &#39;\nlife &amp; common\n&#39;]</span>
 </pre></div>
 </div>
-<p>If you need more flexibility and wish to build on top of the raw parse tree,
-you may use the underlying data structures. For direct access to the raw data
-structures, without a wrapper <code class="docutils literal"><span class="pre">TexNode</span></code>, use the main parsing utility,
-<code class="docutils literal"><span class="pre">read</span></code>, which translates any <span class="math">\(\LaTeX\)</span> string or iterator into a Python
-data structure.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="k">import</span> <span class="n">read</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">expr</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="s1">&#39;\section</span><span class="si">{textbf}</span><span class="s1">&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">expr</span>
-<span class="go">TexCmd(&#39;section&#39;, [RArg(&#39;textbf&#39;)])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span>
-<span class="go">\section{textbf}</span>
-</pre></div>
-</div>
-<p>Does this look promising? If so, see installation and more detailed usage
-instructions below.</p>
+<p>Does this look promising? If so,
+<a class="reference external" href="https://repl.it/&#64;ALVINWAN1/texsoup">try TexSoup online</a> or read on to
+install.</p>
 </div>
 <div class="section" id="how-to-install">
 <h2>How to Install<a class="headerlink" href="#how-to-install" title="Permalink to this headline">¶</a></h2>
-<p>TexSoup is published via PyPi, so you can install it via <code class="docutils literal"><span class="pre">pip</span></code>. The package
-name is <code class="docutils literal"><span class="pre">TexSoup</span></code>:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">TexSoup</span>
+<p>TexSoup is published via PyPi, so you can install it via <code class="docutils literal notranslate"><span class="pre">pip</span></code>. The package
+name is <code class="docutils literal notranslate"><span class="pre">TexSoup</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">TexSoup</span>
 </pre></div>
 </div>
 <p>Alternatively, you can install the package from source:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">alvinwan</span><span class="o">/</span><span class="n">TexSoup</span><span class="o">.</span><span class="n">git</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">alvinwan</span><span class="o">/</span><span class="n">TexSoup</span><span class="o">.</span><span class="n">git</span>
 <span class="n">cd</span> <span class="n">TexSoup</span>
 <span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="making-a-soup">
-<h2>Making a Soup<a class="headerlink" href="#making-a-soup" title="Permalink to this headline">¶</a></h2>
-<p>To parse a $LaTeX$ document, pass an open filehandle or a string into the
-<cite>TexSoup</cite> constructor.</p>
 </div>
 </div>
 
@@ -373,7 +367,7 @@ name is <code class="docutils literal"><span class="pre">TexSoup</span></code>:<
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="navigation.html" class="btn btn-neutral float-right" title="Navigation" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="soup.html" class="btn btn-neutral float-right" title="What’s in the Soup" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
         <a href="index.html" class="btn btn-neutral" title="TexSoup documentation" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
@@ -389,7 +383,7 @@ name is <code class="docutils literal"><span class="pre">TexSoup</span></code>:<
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, Alvin Wan.
+        &copy; Copyright 2020, Alvin Wan.
 
     </p>
   </div>
@@ -410,7 +404,6 @@ name is <code class="docutils literal"><span class="pre">TexSoup</span></code>:<
 <li><a class="reference internal" href="#">Quick Start</a><ul>
 <li><a class="reference internal" href="#how-to-use">How to Use</a></li>
 <li><a class="reference internal" href="#how-to-install">How to Install</a></li>
-<li><a class="reference internal" href="#making-a-soup">Making a Soup</a></li>
 </ul>
 </li>
 </ul>
@@ -427,23 +420,14 @@ name is <code class="docutils literal"><span class="pre">TexSoup</span></code>:<
   
 
      
-       <script type="text/javascript">
-           var DOCUMENTATION_OPTIONS = {
-               URL_ROOT:'./',
-               VERSION:'master',
-               LANGUAGE:'None',
-               COLLAPSE_INDEX:false,
-               FILE_SUFFIX:'.html',
-               HAS_SOURCE:  true,
-               SOURCELINK_SUFFIX: '.txt'
-           };
-       </script>
-         <script type="text/javascript" src="_static/jquery.js"></script>
-         <script type="text/javascript" src="_static/underscore.js"></script>
-         <script type="text/javascript" src="_static/doctools.js"></script>
-         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"></script>
-         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"></script>
-         <script type="text/javascript" src="_static/katex_autorenderer.js"></script>
+       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/language_data.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js"></script>
+         <script src="_static/katex_autorenderer.js"></script>
      
 
   
