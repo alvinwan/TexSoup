@@ -35,8 +35,3 @@ Text Tokenizer
 
 .. autofunction:: tokenize_symbols
 .. autofunction:: tokenize_string
-
-Utilities
----------------------------------
-
-.. autofunction:: token

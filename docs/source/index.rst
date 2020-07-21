@@ -15,6 +15,7 @@ navigate, search, and modify.
    :caption: Guides
 
    quickstart
+   soup
    navigation
    searching
    modification

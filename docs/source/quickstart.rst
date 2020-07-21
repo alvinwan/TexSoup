@@ -85,20 +85,6 @@ Another task may be to extract all text from the page::
   >>> list(soup.text)
   ['Hello ', 'world', '.', 'Watermelon', '\n\n(n.) A sacred fruit. Also known as:\n\n', 'red lemon\n', 'life\n', '\n\nHere is the prevalence of each synonym.\n\n', '\nred lemon & uncommon \\\\ ', '\nlife & common\n']
 
-If you need more flexibility and wish to build on top of the raw parse tree,
-you may use the underlying data structures. For direct access to the raw data
-structures, without a wrapper ``TexNode``, use the main parsing utility,
-``read``, which translates any :math:`\LaTeX` string or iterator into a Python
-data structure.
-
-  >>> from TexSoup import read
-  >>> expr, _ = read('\section{textbf}')
-  >>> expr
-  [TexCmd('section', [BraceGroup('textbf')])]
-  >>> print(expr)
-  \section{textbf}
-
-
 Does this look promising? If so,
 `try TexSoup online <https://repl.it/@ALVINWAN1/texsoup>`_ or read on to
 install.
