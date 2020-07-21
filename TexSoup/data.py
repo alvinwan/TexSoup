@@ -915,6 +915,8 @@ class TexEnv(TexExpr):
                 self.begin + str(self.args), contents, self.end)
 
     def __repr__(self):
+        if self.name == '[tex]':
+            return str(self._contents)
         if not self.args and not self._contents:
             return "%s('%s')" % (self.__class__.__name__, self.name)
         return "%s('%s', %s, %s)" % (

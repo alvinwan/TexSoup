@@ -528,13 +528,12 @@ def peek_command(buf, n_required_args=-1, n_optional_args=-1, skip=0):
     >>> _ = next(buf)
     >>> peek_command(buf)
     ('sect', [BraceGroup('ooheeeee')], 4)
-
+    """
     # Broken because abcd is incorrectly tokenized with leading space
     # >>> buf = Buffer(tokenize(categorize('\\sect abcd')))
     # >>> _ = next(buf)
     # >>> peek_command(buf)
     # ('sect', ('a',), 2)
-    """
     position = buf.position
     for _ in range(skip):
         next(buf)

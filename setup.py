@@ -27,7 +27,7 @@ class PyTest(test_command):
         sys.exit(errno)
 
 
-VERSION = '0.2.2'
+VERSION = '0.3.0'
 
 setup(
     name="TexSoup",

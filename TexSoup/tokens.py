@@ -224,7 +224,7 @@ def tokenize_line_break(text, prev=None):
 
 
 @token('ignore')
-def ignore(text, prev=None):
+def tokenize_ignore(text, prev=None):
     r"""Filter out ignored or invalid characters
 
     >>> print(*tokenize(categorize('\x00hello')))
