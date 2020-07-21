@@ -754,6 +754,8 @@ class TexExpr(object):
         >>> expr.string = 'huehue'
         >>> expr.string
         'huehue'
+        >>> type(expr.string)
+        <class 'TexSoup.data.TexText'>
         >>> str(expr)
         "TexExpr('hello', ['huehue'])"
         >>> expr.string = 35  #doctest:+ELLIPSIS
@@ -761,7 +763,7 @@ class TexExpr(object):
             ...
         TypeError: ...
         """
-        return ''.join(map(str, self._contents))
+        return TexText(''.join(map(str, self._contents)))
 
     @string.setter
     def string(self, s):
@@ -1079,7 +1081,7 @@ class TexCmd(TexExpr):
                 .format(self.name))
 
 
-class TexText(TexExpr):
+class TexText(TexExpr, str):
     r"""Abstraction for LaTeX text.
 
     Representing regular text objects in the parsed tree allows users to
@@ -1090,6 +1092,8 @@ class TexText(TexExpr):
     True
     >>> 'err' in obj
     False
+    >>> TexText('df ').strip()
+    'df'
     """
 
     _has_custom_contain = True

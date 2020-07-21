@@ -339,6 +339,7 @@ def read_arg_optional(src, args, n_optional=-1, tolerance=0):
     """Read next optional argument from buffer.
 
     If the command has remaining optional arguments, look for:
+
        a. A spacer. Skip the spacer if it exists.
        b. A bracket delimiter. If the optional argument is bracket-delimited,
           the contents of the bracket group are used as the argument.
@@ -367,6 +368,7 @@ def read_arg_required(src, args, n_required=-1, tolerance=0):
     """Read next required argument from buffer.
 
     If the command has remaining required arguments, look for:
+
        a. A spacer. Skip the spacer if it exists.
        b. A curly-brace delimiter. If the required argument is brace-delimited,
           the contents of the brace group are used as the argument.
@@ -507,11 +509,9 @@ def read_spacer(buf):
 def peek_command(buf, n_required_args=-1, n_optional_args=-1, skip=0):
     r"""Parses command and all arguments. Assumes escape has just been parsed.
 
-    Here are the rules for command name parsing:
-
-    No whitespace is allowed between escape and command name. e.g., \ textbf
-    is the "command" "\" and the text "textbf". Only \textbf is the bold
-    command.
+    No whitespace is allowed between escape and command name. e.g.,
+    :code:`\ textbf` is a backslash command, then text :code:`textbf`. Only
+    :code:`\textbf` is the bold command.
 
     >>> from TexSoup.category import categorize
     >>> from TexSoup.tokens import tokenize
