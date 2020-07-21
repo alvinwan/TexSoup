@@ -148,6 +148,29 @@ def test_change_string():
     soup = TexSoup(r"\newtheorem{Theo}{Theorem}")
     soup.newtheorem.args[0].string = soup.newtheorem.args[1].string.lower()
     assert soup.newtheorem.args[0].string == 'theorem'
+    assert str(soup.newtheorem) == r"\newtheorem{theorem}{Theorem}"
+    assert str(soup) == r"\newtheorem{theorem}{Theorem}"
+
+    soup = TexSoup(r'''
+    \begin{theorem}
+    \begin{equation}
+    t = s
+    \end{equation}
+    \end{theorem}
+    ''')
+    equation = soup.find('equation')
+    equation.name = 'eqn'
+    assert str(equation) == r'''\begin{eqn}
+    t = s
+    \end{eqn}'''
+
+
+def test_change_name():
+    """Change argument string value"""
+    soup = TexSoup(r"\textbf{Theo} haha")
+    soup.textbf.name = 'textit'
+    assert soup.textit
+    assert str(soup) == r"\textit{Theo} haha"
 
 
 #########

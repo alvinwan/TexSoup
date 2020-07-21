@@ -735,6 +735,8 @@ class TexExpr(object):
         >>> expr.string = 'huehue'
         >>> expr.string
         'huehue'
+        >>> str(expr)
+        "TexExpr('hello', ['huehue'])"
         >>> expr.string = 35  #doctest:+ELLIPSIS
         Traceback (most recent call last):
             ...
@@ -835,6 +837,9 @@ class TexEnv(TexExpr):
     0
     """
 
+    _begin = None
+    _end = None
+
     def __init__(self, name, begin, end, contents=(), args=(),
             preserve_whitespace=False):
         r"""Initialization for Tex environment.
@@ -846,10 +851,33 @@ class TexEnv(TexExpr):
         :param iterable args: list of Tex Arguments
         :param bool preserve_whitespace: If false, elements containing only
             whitespace will be removed from contents.
+
+        >>> env = TexEnv('math', '$', '$', [r'\$'])
+        >>> str(env)
+        '$\\$$'
+        >>> env.begin = '^^'
+        >>> str(env)
+        '^^\\$$'
         """
         super().__init__(name, contents, args, preserve_whitespace)
-        self.begin = begin
-        self.end = end
+        self._begin = begin
+        self._end = end
+
+    @property
+    def begin(self):
+        return self._begin
+
+    @begin.setter
+    def begin(self, begin):
+        self._begin = begin
+
+    @property
+    def end(self):
+        return self._end
+
+    @end.setter
+    def end(self, end):
+        self._end = end
 
     def __match__(self, name=None, attrs=()):
         """Check if given attributes match environment."""
@@ -882,6 +910,10 @@ class TexNamedEnv(TexEnv):
     2. the environment arguments, whether optional or required, and
     3. the environment's contents.
 
+    **Warning**: Note that *setting* TexNamedEnv.begin or TexNamedEnv.end
+    has no effect. The begin and end tokens are always constructed from
+    TexNamedEnv.name.
+
     >>> t = TexNamedEnv('tabular', ['\n0 & 0 & * \\\\\n1 & 1 & * \\\\\n'],
     ...     [BraceGroup('c | c c')])
     >>> t
@@ -893,6 +925,12 @@ class TexNamedEnv(TexEnv):
     \end{tabular}
     >>> len(list(t.children))
     0
+    >>> t = TexNamedEnv('equation', [r'5\sum_{i=0}^n i^2'])
+    >>> str(t)
+    '\\begin{equation}5\\sum_{i=0}^n i^2\\end{equation}'
+    >>> t.name = 'eqn'
+    >>> str(t)
+    '\\begin{eqn}5\\sum_{i=0}^n i^2\\end{eqn}'
     """
 
     def __init__(self, name, contents=(), args=(), preserve_whitespace=False):
@@ -906,6 +944,14 @@ class TexNamedEnv(TexEnv):
         """
         super().__init__(name, r"\begin{%s}" % name, r"\end{%s}" % name,
             contents, args, preserve_whitespace)
+
+    @property
+    def begin(self):
+        return r"\begin{%s}" % self.name
+
+    @property
+    def end(self):
+        return r"\end{%s}" % self.name
 
 
 class TexUnNamedEnv(TexEnv):
