@@ -143,6 +143,13 @@ def test_insert(chikin):
     assert str(chikin[0]) == 'asdfghjkl'
 
 
+def test_change_string():
+    """Change argument string value"""
+    soup = TexSoup(r"\newtheorem{Theo}{Theorem}")
+    soup.newtheorem.args[0].string = soup.newtheorem.args[1].string.lower()
+    assert soup.newtheorem.args[0].string == 'theorem'
+
+
 #########
 # TEXT #
 ########

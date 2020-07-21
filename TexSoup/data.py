@@ -193,6 +193,10 @@ class TexNode(object):
             else:
                 yield child
 
+    @contents.setter
+    def contents(self, contents):
+        self.expr.contents = contents
+
     @property
     def descendants(self):
         r"""Returns all descendants for this TeX element.
@@ -252,6 +256,9 @@ class TexNode(object):
         >>> soup = TexSoup(r'''\begin{equation}1+1\end{equation}''')
         >>> soup.equation.string
         '1+1'
+        >>> soup.equation.string = '2+2'
+        >>> soup.equation.string
+        '2+2'
         """
         if isinstance(self.expr, TexCmd):
             assert len(self.expr.args) == 1, \
@@ -267,7 +274,17 @@ class TexNode(object):
 
     @string.setter
     def string(self, string):
-        self.expr.args[0].contents = string
+        if isinstance(self.expr, TexCmd):
+            assert len(self.expr.args) == 1, \
+                '.string is only valid for commands with one argument'
+            self.expr.args[0].string = string
+
+        contents = list(self.contents)
+        if isinstance(self.expr, TexEnv):
+            assert len(contents) == 1 and \
+                isinstance(contents[0], (TexText, str)), \
+                '.string is only valid for environments with only text content'
+            self.contents = [string]
 
     @property
     def text(self):
@@ -686,10 +703,10 @@ class TexExpr(object):
         >>> expr.contents = ('hehe', '👻')
         >>> list(expr.contents)
         ['hehe', '👻']
-        >>> expr.contents = 35
+        >>> expr.contents = 35  #doctest:+ELLIPSIS
         Traceback (most recent call last):
             ...
-        TypeError: Contents must be a string or iterable of strings
+        TypeError: ...
         """
         for content in self.all:
             if isinstance(content, TexText):
@@ -700,24 +717,39 @@ class TexExpr(object):
 
     @contents.setter
     def contents(self, contents):
-        if isinstance(contents, str):
-            contents = [TexText(contents)]
-        elif isinstance(contents, (list, tuple)) and \
-                all(isinstance(content, str) for content in contents):
-            contents = list(map(TexText, contents))
-        else:
-            raise TypeError("Contents must be a string or iterable of strings")
-        self._contents = contents
+        if not isinstance(contents, (list, tuple)) or not all(
+                isinstance(content, (str, TexExpr)) for content in contents):
+            raise TypeError(
+                '.contents value "%s" must be a list or tuple of strings or '
+                'TexExprs' % contents)
+        _contents = [TexText(c) if isinstance(c, str) else c for c in contents]
+        self._contents = _contents
 
     @property
     def string(self):
         """All contents stringified. A convenience property
 
-        >>> a = TexExpr('hello', ['naw'])
-        >>> a.string
+        >>> expr = TexExpr('hello', ['naw'])
+        >>> expr.string
         'naw'
+        >>> expr.string = 'huehue'
+        >>> expr.string
+        'huehue'
+        >>> expr.string = 35  #doctest:+ELLIPSIS
+        Traceback (most recent call last):
+            ...
+        TypeError: ...
         """
         return ''.join(map(str, self._contents))
+
+    @string.setter
+    def string(self, s):
+        if not isinstance(s, str):
+            raise TypeError(
+                '.string value "%s" must be a string or TexText. To set '
+                'non-string content, use .contents' % s)
+        self.contents = [TexText(s)]
+
 
     ##################
     # PUBLIC METHODS #
