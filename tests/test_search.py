@@ -36,3 +36,13 @@ def test_commands_with_one_or_more_arguments():
     """)
     assert len(list(soup.find_all('section'))) == 2
     assert soup.find('title') is None
+
+
+def test_list_search():
+    """Tests that giving a list to search returns all matches """
+    soup = TexSoup(r"""
+    \section*{Chikin Tales}
+    \subsection{Chikin Fly}
+    \section{Chikin Sequel}
+    """)
+    assert len(list(soup.find_all(['section', 'section*']))) == 2

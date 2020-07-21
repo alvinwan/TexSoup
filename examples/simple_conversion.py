@@ -24,17 +24,17 @@ def to_dictionary(tex_tree):
             str_tree.append(
                 {
                     i.name: [
-                        {"begin": i.begin + str(i.arguments)},
+                        {"begin": i.begin + str(i.args)},
                         to_dictionary(i.all),
                         {"end": i.end},
                     ]
                 }
             )
         elif isinstance(i, TexSoup.TexCmd):
-            str_tree.append({i.name: "\\" + i.name + str(i.arguments)})
-        elif isinstance(i, TexSoup.TokenWithPosition):
+            str_tree.append({i.name: "\\" + i.name + str(i.args)})
+        elif isinstance(i, TexSoup.TexText):
             str_tree.append(str(i.text))
-        elif isinstance(i, TexSoup.Arg):
+        elif isinstance(i, TexSoup.TexGroup):
             str_tree.append(["{", to_dictionary(TexSoup.TexSoup(i.value).expr.all), "}"])
         else:
             str_tree.append(str(i))

@@ -28,7 +28,13 @@ def count(tex):
     labels = set(label.string for label in soup.find_all('label'))
 
     # create dictionary mapping label to number of references
-    return dict((label, soup.find_all('\ref{%s}' % label)) for label in labels)
+    label_refs = {}
+    for label in labels:
+        refs = soup.find_all('\\ref{%s}' % label)
+        pagerefs = soup.find_all('\\pageref{%s}' % label)
+        label_refs[label] = len(list(refs)) + len(list(pagerefs))
+
+    return label_refs
 
 
 if __name__ == '__main__':

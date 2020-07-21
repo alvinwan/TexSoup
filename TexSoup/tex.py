@@ -1,22 +1,22 @@
-from TexSoup.reader import *
+from TexSoup.reader import read_expr, read_tex
 from TexSoup.data import *
 from TexSoup.utils import *
+from TexSoup.tokens import tokenize
+from TexSoup.category import categorize
 import itertools
 
 
-def read(tex):
-    """Read and parse all LaTeX source
+def read(tex, skip_envs=(), tolerance=0):
+    """Read and parse all LaTeX source.
 
     :param Union[str,iterable] tex: LaTeX source
+    :param Union[str] skip_envs: names of environments to skip parsing
+    :param int tolerance: error tolerance level (only supports 0 or 1)
     :return TexEnv: the global environment
     """
-    if isinstance(tex, str):
-        tex = tex
-    else:
+    if not isinstance(tex, str):
         tex = ''.join(itertools.chain(*tex))
-    buf, children = Buffer(tokenize(tex)), []
-    while buf.hasNext():
-        content = read_tex(buf)
-        if content is not None:
-            children.append(content)
-    return TexEnv('[tex]', children), tex
+    buf = categorize(tex)
+    buf = tokenize(buf)
+    buf = read_tex(buf, skip_envs=skip_envs, tolerance=tolerance)
+    return TexEnv('[tex]', begin='', end='', contents=buf), tex

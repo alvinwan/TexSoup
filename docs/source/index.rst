@@ -6,13 +6,16 @@
 TexSoup documentation
 ===================================
 
-TexSoup parses valid LaTeX and provides a variety of BeautifulSoup-esque methods and Pythonic idioms for iterating and searching the parse tree
+TexSoup is a Python3 library for pulling data from :math:`\LaTeX` files. It
+turns even invalid sources into a BeautifulSoup-esque structure that you can
+navigate, search, and modify.
 
 .. toctree::
    :maxdepth: 1
    :caption: Guides
 
    quickstart
+   soup
    navigation
    searching
    modification
@@ -20,8 +23,10 @@ TexSoup parses valid LaTeX and provides a variety of BeautifulSoup-esque methods
 
 .. toctree::
    :maxdepth: 1
-   :caption: Notes
+   :caption: How it Works
 
+   categorizer
+   tokenizer
    parser
 
 .. toctree::

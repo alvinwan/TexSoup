@@ -7,7 +7,7 @@ tex document. To use it, run
 
     python resolve_imports.py
 
-after installing TexSoup.
+after installing TexSoup. The result is similar to the command `latexpand`.
 
 @author: Alvin Wan
 @site: alvinwan.com
@@ -28,15 +28,19 @@ def resolve(tex):
     # resolve subimports
     for subimport in soup.find_all('subimport'):
         path = subimport.args[0] + subimport.args[1]
-        subimport.replace(*resolve(open(path)).contents)
+        subimport.replace_with(*resolve(open(path)).contents)
 
     # resolve imports
     for _import in soup.find_all('import'):
-        _import.replace(*resolve(open(_import.args[0])).contents)
+        _import.replace_with(*resolve(open(_import.args[0])).contents)
 
     # resolve includes
     for include in soup.find_all('include'):
-        include.replace(*resolve(open(include.args[0])).contents)
+        include.replace_with(*resolve(open(include.args[0])).contents)
+
+    # resolve inputs
+    for _input in soup.find_all('input'):
+        _input.replace_with(*resolve(open(_input.args[0])).contents)
 
     return soup
 
@@ -44,5 +48,5 @@ def resolve(tex):
 if __name__ == '__main__':
     new_soup = resolve(open(input('Source Tex file:').strip()))
 
-    with open(input('Destination Tex file:').strip()) as f:
+    with open(input('Destination Tex file:').strip(), 'w') as f:
         f.write(repr(new_soup))

@@ -1,23 +1,27 @@
-"""TexSoup's main utility is the ``TexSoup`` function. Invoke this function on
-a LaTeX string or file handler to obtain a parse tree with navigation, search,
-and modification utilities.
+"""TexSoup's main utility is the ``TexSoup`` function.
+
+Invoke this function on a LaTeX string or file handler to obtain a parse
+tree with navigation, search, and modification utilities.
 """
 
-__version__ = '0.1.4'
+from TexSoup.tex import read
+from TexSoup.data import TexNode
 
-from TexSoup.tex import *
+__version__ = '0.3.0'
 
 
 # noinspection PyPep8Naming
-def TexSoup(tex_code):
+def TexSoup(tex_code, skip_envs=(), tolerance=0):
     r"""
-    At a high-level, parses provided Tex into a navigable, searchable structure.
-    This is accomplished in two steps:
+    At a high-level, parses provided Tex into a navigable, searchable
+    structure. This is accomplished in two steps:
 
     1. Tex is parsed, cleaned, and packaged.
     2. Structure fed to TexNodes for a searchable, coder-friendly interface.
 
     :param Union[str,iterable] tex_code: the Tex source
+    :param Union[str] skip_envs: names of environments to skip parsing
+    :param int tolerance: error tolerance level (only supports 0 or 1)
     :return: :class:`TexSoup.data.TexNode` object representing tex document
 
     >>> from TexSoup import TexSoup
@@ -57,7 +61,7 @@ def TexSoup(tex_code):
     red lemon & uncommon \\ \n
     life & common
     \end{tabular}
-    >>> soup.tabular.args[0].value
+    >>> soup.tabular.args[0].string
     'c c'
     >>> soup.itemize
     \begin{itemize}
@@ -66,7 +70,7 @@ def TexSoup(tex_code):
     \end{itemize}
     >>> soup.item
     \item red lemon
-    ...
+    <BLANKLINE>
     >>> list(soup.find_all('item'))
     [\item red lemon
     , \item life
@@ -75,10 +79,10 @@ def TexSoup(tex_code):
     >>> soup.textbf.delete()
     >>> 'Hello' not in repr(soup)
     True
-    >>> soup.textit.replace('S')
-    >>> soup.textit.replace('U', 'P')
+    >>> soup.textit.replace_with('S')
+    >>> soup.textit.replace_with('U', 'P')
     >>> soup
     SOUP
     """
-    parsed, src = read(tex_code)
+    parsed, src = read(tex_code, skip_envs=skip_envs, tolerance=tolerance)
     return TexNode(parsed, src=src)

@@ -78,7 +78,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'TexSoup'
-copyright = '2019, Alvin Wan'
+copyright = '2020, Alvin Wan'
 author = 'Alvin Wan'
 
 # The version info for the project you're documenting, acts as replacement for

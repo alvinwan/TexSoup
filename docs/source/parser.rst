@@ -3,25 +3,31 @@ Parsing Mechanics
 
 .. automodule:: TexSoup.reader
 
-Tokenizer
------------------------------------
-
-.. autofunction:: tokenize
-.. autofunction:: next_token
-
-.. autofunction:: token
-.. autofunction:: tokenize_punctuation_command
-.. autofunction:: tokenize_command
-.. autofunction:: tokenize_line_comment
-.. autofunction:: tokenize_argument
-.. autofunction:: tokenize_math
-.. autofunction:: tokenize_string
-
-Mapper
+Parser
 -----------------------------------
 
 .. autofunction:: read_tex
+.. autofunction:: read_expr
+.. autofunction:: read_spacer
+
+Environment Parser
+-----------------------------------
+
 .. autofunction:: read_item
+.. autofunction:: unclosed_env_handler
 .. autofunction:: read_math_env
+.. autofunction:: read_skip_env
 .. autofunction:: read_env
+
+Argument Parser
+-----------------------------------
+
+.. autofunction:: read_args
+.. autofunction:: read_arg_optional
+.. autofunction:: read_arg_required
 .. autofunction:: read_arg
+
+Command Parser
+-----------------------------------
+
+.. autofunction:: peek_command

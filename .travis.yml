@@ -3,10 +3,24 @@ language: python
 sudo: false
 
 python:
-  - "3.4.2"
+  - "3.4"
+  - "3.5"
+  - "3.6"
+  - "3.7"
+  - "3.8"
 
 install:
   - python setup.py install
+  - python setup.py easy_install $(python3 -c 'import distutils.core; print(" ".join(distutils.core.run_setup("setup.py").tests_require))')
+
+cache:
+  directories:
+  - "$HOME/.cache/pip"
+  - lib/python3.4/site-packages
+  - lib/python3.5/site-packages
+  - lib/python3.6/site-packages
+  - lib/python3.7/site-packages
+  - lib/python3.8/site-packages
 
 script:
   - py.test --cov

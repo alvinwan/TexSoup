@@ -1,17 +1,12 @@
 Quick Start
 ===================================
 
-The below illustrates major categories of features that TexSoup supports--how it
-works, when it works, and how to leverage its utilities.
-
-.. note:: Full disclaimer: I follow the same structure that the well-written
-          BeautifulSoup docs do. So, if the guides look well-organized, thank
-          BeautifulSoup. With that said, these are very much a work in progress.
+The below illustrates some basic TexSoup functions.
 
 How to Use
 -----------------------------------
 
-Here is a LaTeX document that we'll be using as an example throughout::
+Here is a :math:`\LaTeX` document::
 
   >>> tex_doc = """
   ... \begin{document}
@@ -30,7 +25,8 @@ Here is a LaTeX document that we'll be using as an example throughout::
   ... \end{document}
   ... """
 
-Pass this document to ``TexSoup`` to obtain a fully-fledged parse tree::
+Call :code:`TexSoup` on this string to re-represent this document as a
+nested data structure::
 
   >>> from TexSoup import TexSoup
   >>> soup = TexSoup(tex_doc)
@@ -50,7 +46,7 @@ Pass this document to ``TexSoup`` to obtain a fully-fledged parse tree::
   \end{tabular}
   \end{document}
 
-Here are some simple ways to navigate this parse tree::
+Here are a few ways to navigate the TexSoup data structure::
 
   >>> soup.section
   \section{Hello \textit{world}.}
@@ -69,22 +65,29 @@ Here are some simple ways to navigate this parse tree::
   'c c'
   >>> soup.item
   \item red lemon
-  ...
+
   >>> list(soup.find_all('item'))
   [\item red lemon
-  , \item life
+    , \item life
   ]
 
-One possible task is retrieving the number of references to a figure::
+One task may be to find all references. To do this, simply search for
+``\ref{<label>}``. You can even report each reference's line number::
 
   >>> soup.count(r'\ref{table:synonyms}')
   1
+  >>> for cmd in soup.find_all(r'\ref{table:synonyms}'):
+  ...   soup.char_pos_to_line(cmd.position)
+  (8, 49)
 
-Another possible task is extracting all text from the page::
+Another task may be to extract all text from the page::
 
   >>> list(soup.text)
   ['Hello ', 'world', '.', 'Watermelon', '\n\n(n.) A sacred fruit. Also known as:\n\n', 'red lemon\n', 'life\n', '\n\nHere is the prevalence of each synonym.\n\n', '\nred lemon & uncommon \\\\ ', '\nlife & common\n']
 
+Does this look promising? If so,
+`try TexSoup online <https://repl.it/@ALVINWAN1/texsoup>`_ or read on to
+install.
 
 How to Install
 -----------------------------------

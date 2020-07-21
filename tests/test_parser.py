@@ -71,10 +71,6 @@ def test_commands_envs_text():
     assert len(contents) == 6
     everything = list(doc.expr.all)
     assert len(everything) == 12
-    # arguments = str(doc.section.expr.arguments)
-    # assert arguments == "\n    [Tales]{Chikin Tales}"
-    # arguments_list = [str(arg) for arg in doc.section.expr.arguments]
-    # assert arguments_list == ['\n    ', '[Tales]', '{Chikin Tales}']
 
 
 #########
@@ -111,6 +107,17 @@ def test_command_name_parse():
     with_linebreak_with_arg = TexSoup(r"""\section
     {hula}""")
     assert with_linebreak_with_arg.section.string == 'hula'
+
+
+def test_command_env_name_parse():
+    """Tests that the begin/end command is parsed correctly."""
+
+    with_space = TexSoup(r"""\begin            {itemize}\end{itemize}""")
+    assert len(list(with_space.contents)) == 1
+
+    with_whitespace = TexSoup(r"""\begin
+{itemize}\end{itemize}""")
+    assert len(list(with_whitespace.contents)) == 1
 
 
 def test_commands_without_arguments():
@@ -267,6 +274,44 @@ def test_comment_unparsed():
     assert '%' not in str(soup.caption)
 
 
+def test_comment_after_escape():
+    """Tests that comments after escapes work."""
+    soup = TexSoup(r"""\documentclass{article}
+    \begin{document}
+     \\%
+    \end{document}
+    """)
+    assert len(list(soup.document.contents)) == 2
+
+    soup2 = TexSoup(r"""\documentclass{article}
+    \begin{document}
+
+    hi\\%
+
+
+    there
+
+    \end{document}
+    hi\\%""")
+    assert len(list(soup2.document.contents)) == 3
+
+    soup3 = TexSoup(r"""
+    \documentclass{article}
+    \usepackage{graphicx}
+    \begin{document}
+    \begin{equation}
+    \scalebox{2.0}{$x =
+    \begin{cases}
+    1, & \text{if } y=1 \\
+    0, & \text{otherwise}
+    \end{cases}$}
+    \end{equation}
+    \end{document}
+    """)
+    assert soup3.equation
+    assert soup3.scalebox
+
+
 def test_items_with_labels():
     """Items can have labels with square brackets such as in the description
     environment. See Issue #32."""
@@ -307,6 +352,14 @@ def test_nested_commands():
     soup = TexSoup(r'\emph{Some \textbf{bold} words}')
     assert soup.textbf is not None
     assert len(list(soup.emph.contents)) == 3
+
+
+def test_def_item():
+    """Tests that def with more 'complex' argument + item body parses."""
+    soup = TexSoup(r"""
+    \def\itemeqn{\item\abovedisplayskip=2pt\abovedisplayshortskip=0pt~\vspace*{-\baselineskip}}
+    """)
+    assert soup.item is not None
 
 
 ##############
@@ -356,7 +409,8 @@ def test_math_environment_escape():
     """Tests $ escapes in math environment."""
     soup = TexSoup(r"$ \$ $")
     contents = list(soup.contents)
-    assert r'\$' in contents[0][0], 'Dollar sign not escaped!'
+    assert r'\$' in contents[0][0], \
+        'Dollar sign not escaped! Contents: %s' % contents
 
 
 def test_punctuation_command_structure():
@@ -379,6 +433,33 @@ def test_non_punctuation_command_structure():
 
     soup = TexSoup(r"""\hspace*{0.2in} hello \hspace*{2in} world""")
     assert len(list(soup.contents)) == 4, '* not recognized as part of command.'
+
+
+def test_allow_unclosed_non_curly_braces():
+    """Tests that non-curly-brace 'delimiters' can be unclosed
+
+    Non-curly-brace delimiters only cause parse errors when parsing arguments
+    for a command.
+    """
+    soup = TexSoup("[)")
+    assert len(list(soup.contents)) == 2
+
+    soup = TexSoup(r"""
+    \documentclass{article}
+        \usepackage[utf8]{inputenc}
+    \begin{document}
+        \textbf{[}
+    \end{document}
+    """)
+    assert soup.textbf.string == '['
+
+    soup = TexSoup("[regular text]")
+    contents = list(soup.contents)
+    assert isinstance(contents[0], str)
+
+    soup = TexSoup("{regular text}[")
+    contents = list(soup.contents)
+    assert isinstance(contents[1], str)
 
 
 ##########
@@ -406,12 +487,13 @@ def test_buffer():
 
 def test_to_buffer():
     from TexSoup.utils import to_buffer
-    f = to_buffer(lambda x: x[:])
+    f = to_buffer(convert_out=False)(lambda x: x[:])
     assert f('asdf') == 'asdf'
-    g = to_buffer(lambda x: x)
+    g = to_buffer(convert_out=False)(lambda x: x)
     assert not g('').hasNext()
     assert next(g('asdf')) == 'a'
-
+    h = to_buffer()(lambda x: x)
+    assert str(f('asdf')) == 'asdf'
 
 ##########
 # ERRORS #
@@ -447,9 +529,32 @@ def test_unclosed_math_environments():
 
 def test_arg_parse():
     """Test arg parsing errors."""
-    from TexSoup.data import Arg
+    from TexSoup.data import TexGroup
     with pytest.raises(TypeError):
-        Arg.parse(('{', ']'))
+        TexGroup.parse('{]')
 
     with pytest.raises(TypeError):
-        Arg.parse('(]')
+        TexGroup.parse('\section[{')
+
+
+###################
+# FAULT TOLERANCE #
+###################
+
+
+def test_tolerance_env_unclosed():
+    """Test that unclosed envs are tolerated"""
+    with pytest.raises(EOFError):
+        TexSoup(r"""
+        \begin{enva}
+        \begin{envb}
+        \end{enva}
+        \end{envb}""")
+
+    soup = TexSoup(r"""
+    \begin{enva}
+    \begin{envb}
+    \end{enva}
+    \end{envb}""", tolerance=1)
+    assert len(list(soup.enva.contents)) == 1
+    assert soup.end

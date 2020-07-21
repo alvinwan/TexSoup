@@ -16,6 +16,10 @@
  * COLOR *
  *********/
 
+html p a, html p a:link, html p a:visited {
+  text-decoration-line: underline;
+}
+
 p a, p a:link, p a:visited {
   color:#999;
 }

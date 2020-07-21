@@ -1,6 +1,7 @@
 from TexSoup import TexSoup
-from TexSoup.utils import TokenWithPosition
+from TexSoup.utils import Token
 from tests.config import chikin
+import pytest
 import re
 
 ##############
@@ -44,10 +45,10 @@ def test_navigation_positions(chikin):
     assert chikin.char_pos_to_line(1) == (0, 1), 'documentclass'
     assert chikin.char_pos_to_line(172) == (11, 6), 'waddle'
 
-    assert isinstance(next(next(chikin.itemize.children).tokens), TokenWithPosition)
+    assert isinstance(next(next(chikin.itemize.children).contents), Token)
 
     # get position of first token
-    waddle_pos = next(next(chikin.itemize.children).tokens).position
+    waddle_pos = next(next(chikin.itemize.children).contents).position
     assert chikin.char_pos_to_line(waddle_pos) == (11, 6)
 
     # get position of item
@@ -77,6 +78,12 @@ def test_find_by_command(chikin):
     assert str(sections[1]) == r'\section{Chikin Scream}'
 
 
+def test_find_env():
+    """Find all equations in the document"""
+    soup = TexSoup(r"""\begin{equation}1+1\end{equation}""")
+    equations = soup.find_all(r'\begin{equation}')
+    assert len(list(equations)) > 0
+
 ################
 # MODIFICATION #
 ################
@@ -94,36 +101,95 @@ def test_delete_arg():
     soup.bar.delete()
 
 
+def test_delete_token():
+    """Delete Token"""
+    soup = TexSoup(r"""
+    \section{one}
+    text
+    \section{two}
+    delete me""")
+
+    assert 'delete me' in str(soup)
+    for node in soup.all:
+        if 'delete me' in node:
+            node.delete()
+    assert 'delete me' not in str(soup)
+
+
 def test_replace_single(chikin):
     """Replace an element in the parse tree"""
-    chikin.section.replace(chikin.subsection)
+    chikin.section.replace_with(chikin.subsection)
     assert 'Chikin Tales' not in str(chikin)
     assert len(list(chikin.find_all('subsection'))) == 4
 
 
 def test_replace_multiple(chikin):
     """Replace an element in the parse tree"""
-    chikin.section.replace(chikin.subsection, chikin.subsection)
+    chikin.section.replace_with(chikin.subsection, chikin.subsection)
     assert 'Chikin Tales' not in str(chikin)
     assert len(list(chikin.find_all('subsection'))) == 5
 
 
-def test_add_children(chikin):
+def test_append(chikin):
     """Add a child to the parse tree"""
-    chikin.itemize.add_children('asdfghjkl')
+    chikin.itemize.append('asdfghjkl')
     assert 'asdfghjkl' in str(chikin.itemize)
 
 
-def test_add_children_at(chikin):
+def test_insert(chikin):
     """Add a child to the parse tree at a specific position"""
-    chikin.add_children_at(0, 'asdfghjkl')
+    chikin.insert(0, 'asdfghjkl')
     assert 'asdfghjkl' in str(chikin)
     assert str(chikin[0]) == 'asdfghjkl'
+
+
+def test_change_string():
+    """Change argument string value"""
+    soup = TexSoup(r"\newtheorem{Theo}{Theorem}")
+    soup.newtheorem.args[0].string = soup.newtheorem.args[1].string.lower()
+    assert soup.newtheorem.args[0].string == 'theorem'
+    assert str(soup.newtheorem) == r"\newtheorem{theorem}{Theorem}"
+    assert str(soup) == r"\newtheorem{theorem}{Theorem}"
+
+    soup = TexSoup(r'''
+    \begin{theorem}
+    \begin{equation}
+    t = s
+    \end{equation}
+    \end{theorem}
+    ''')
+    equation = soup.find('equation')
+    equation.name = 'eqn'
+    assert str(equation) == r'''\begin{eqn}
+    t = s
+    \end{eqn}'''
+
+
+def test_change_name():
+    """Change argument string value"""
+    soup = TexSoup(r"\textbf{Theo} haha")
+    soup.textbf.name = 'textit'
+    assert soup.textit
+    assert str(soup) == r"\textit{Theo} haha"
+
+
+def test_access_position(chikin):
+    """Tests that commands, arguments, environments, and strings store pos"""
+    clo = chikin.char_pos_to_line
+
+    assert chikin.section.position == 52
+    assert chikin.section.args[0].position == 60
+    assert chikin.itemize.position == 150
+    contents = list(chikin.document.contents)
+    assert len(contents) > 2 and contents[2].position == 99, contents
+
+    assert clo(chikin.section.position) == (4, 0)
 
 
 #########
 # TEXT #
 ########
+
 def test_text(chikin):
     """Get text of document"""
     text = list(chikin.text)
@@ -147,3 +213,20 @@ def test_search_regex_precompiled_pattern(chikin):
     assert len(matches) == 1
     assert matches[0] == "unless ordered to squat"
     assert matches[0].position == 341
+
+
+###########
+# TEXSOUP #
+###########
+
+
+def test_skip_envs():
+    """Test envs with invalid latex are not parsed."""
+    with pytest.raises(TypeError):
+        soup = TexSoup(r"""will raise error \textbf{aaaaa""")
+
+    # no error, ignores verbatim
+    TexSoup(r"""\begin{verbatim} \textbf{aaaaa \end{verbatim}""")
+
+    # no error, customized to ignore foobar
+    TexSoup(r"""\begin{foobar} \textbf{aaaaa \end{foobar}""", skip_envs=('foobar',))
