@@ -287,6 +287,14 @@ class TexNode(object):
             self.contents = [string]
 
     @property
+    def position(self):
+        r"""Position of first character in expression, in original source.
+
+        Note this position is NOT updated as the parsed tree is modified.
+        """
+        return self.expr.position
+
+    @property
     def text(self):
         r"""All text in descendant nodes.
 
@@ -611,12 +619,23 @@ class TexExpr(object):
     abstract and is not directly instantiated.
     """
 
-    def __init__(self, name, contents=(), args=(), preserve_whitespace=False):
+    def __init__(self, name, contents=(), args=(), preserve_whitespace=False,
+            position=-1):
+        """Initialize a tex expression.
+
+        :param str name: name of environment
+        :param iterable contents: list of contents
+        :param iterable args: list of Tex Arguments
+        :param bool preserve_whitespace: If false, elements containing only
+            whitespace will be removed from contents.
+        :param int position: position of first character in original source
+        """
         self.name = name.strip()  # TODO: should not ever have space
         self.args = TexArgs(args)
         self.parent = None
         self._contents = list(contents) or []
         self.preserve_whitespace = preserve_whitespace
+        self.position = position
 
         for content in contents:
             if isinstance(content, (TexEnv, TexCmd)):
@@ -841,7 +860,7 @@ class TexEnv(TexExpr):
     _end = None
 
     def __init__(self, name, begin, end, contents=(), args=(),
-            preserve_whitespace=False):
+            preserve_whitespace=False, position=-1):
         r"""Initialization for Tex environment.
 
         :param str name: name of environment
@@ -851,6 +870,7 @@ class TexEnv(TexExpr):
         :param iterable args: list of Tex Arguments
         :param bool preserve_whitespace: If false, elements containing only
             whitespace will be removed from contents.
+        :param int position: position of first character in original source
 
         >>> env = TexEnv('math', '$', '$', [r'\$'])
         >>> str(env)
@@ -859,7 +879,7 @@ class TexEnv(TexExpr):
         >>> str(env)
         '^^\\$$'
         """
-        super().__init__(name, contents, args, preserve_whitespace)
+        super().__init__(name, contents, args, preserve_whitespace, position)
         self._begin = begin
         self._end = end
 
@@ -933,7 +953,8 @@ class TexNamedEnv(TexEnv):
     '\\begin{eqn}5\\sum_{i=0}^n i^2\\end{eqn}'
     """
 
-    def __init__(self, name, contents=(), args=(), preserve_whitespace=False):
+    def __init__(self, name, contents=(), args=(), preserve_whitespace=False,
+            position=-1):
         """Initialization for Tex environment.
 
         :param str name: name of environment
@@ -941,9 +962,10 @@ class TexNamedEnv(TexEnv):
         :param iterable args: list of Tex Arguments
         :param bool preserve_whitespace: If false, elements containing only
             whitespace will be removed from contents.
+        :param int position: position of first character in original source
         """
         super().__init__(name, r"\begin{%s}" % name, r"\end{%s}" % name,
-            contents, args, preserve_whitespace)
+            contents, args, preserve_whitespace, position=position)
 
     @property
     def begin(self):
@@ -960,18 +982,20 @@ class TexUnNamedEnv(TexEnv):
     begin = None
     end = None
 
-    def __init__(self, contents=(), args=(), preserve_whitespace=False):
+    def __init__(self, contents=(), args=(), preserve_whitespace=False,
+            position=-1):
         """Initialization for Tex environment.
 
         :param iterable contents: list of contents
         :param iterable args: list of Tex Arguments
         :param bool preserve_whitespace: If false, elements containing only
             whitespace will be removed from contents.
+        :param int position: position of first character in original source
         """
         assert self.name, 'Name must be non-falsey'
         assert self.begin and self.end, 'Delimiters must be non-falsey'
         super().__init__(self.name, self.begin, self.end,
-            contents, args, preserve_whitespace)
+            contents, args, preserve_whitespace, position=position)
 
 
 class TexDisplayMathModeEnv(TexUnNamedEnv):
@@ -1068,8 +1092,13 @@ class TexText(TexExpr):
 
     _has_custom_contain = True
 
-    def __init__(self, text):
-        super().__init__('text', [text])
+    def __init__(self, text, position=-1):
+        """Initialize text as tex expresssion.
+
+        :param str text: Text content
+        :param int position: position of first character in original source
+        """
+        super().__init__('text', [text], position=position)
         self._text = text
 
     def __contains__(self, other):
@@ -1123,13 +1152,15 @@ class TexGroup(TexUnNamedEnv):
     Used primarily to identify and associate arguments with commands.
     """
 
-    def __init__(self, *contents, preserve_whitespace=False):
+    def __init__(self, *contents, preserve_whitespace=False, position=-1):
         """Initialize argument using list of expressions.
 
         :param Union[str,TexCmd,TexEnv] exprs: Tex expressions contained in the
             argument. Can be other commands or environments, or even strings.
+        :param int position: position of first character in original source
         """
-        super().__init__(contents, preserve_whitespace=preserve_whitespace)
+        super().__init__(contents, preserve_whitespace=preserve_whitespace,
+            position=position)
 
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__,
@@ -1199,6 +1230,10 @@ class TexArgs(list):
     """
 
     def __init__(self, args=[]):
+        """List of arguments for a command.
+
+        :param list args: List of parsed or unparsed arguments
+        """
         super().__init__()
         self.all = []
         self.extend(args)

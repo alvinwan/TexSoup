@@ -173,6 +173,19 @@ def test_change_name():
     assert str(soup) == r"\textit{Theo} haha"
 
 
+def test_access_position(chikin):
+    """Tests that commands, arguments, environments, and strings store pos"""
+    clo = chikin.char_pos_to_line
+
+    assert chikin.section.position == 52
+    assert chikin.section.args[0].position == 60
+    assert chikin.itemize.position == 150
+    contents = list(chikin.document.contents)
+    assert len(contents) > 2 and contents[2].position == 99, contents
+
+    assert clo(chikin.section.position) == (4, 0)
+
+
 #########
 # TEXT #
 ########

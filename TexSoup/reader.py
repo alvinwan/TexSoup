@@ -61,17 +61,17 @@ def read_expr(src, skip_envs=(), tolerance=0):
     c = next(src)
     # TODO: assemble and use groups
     if c.category in MATH_TOKEN_TO_ENV.keys():
-        expr = MATH_TOKEN_TO_ENV[c.category]([])
+        expr = MATH_TOKEN_TO_ENV[c.category]([], position=c.position)
         return read_math_env(src, expr)
     elif c.category == TC.Escape:
         # TODO: reduce to command-parsing only -- assemble envs in 2nd pass
         name, args, steps = peek_command(src)
         if name == 'item':
             contents, arg = read_item(src)
-            expr = TexCmd(name, contents, arg)
+            expr = TexCmd(name, contents, arg, position=c.position)
         elif name == 'begin':
             assert args, 'Begin command must be followed by an env name.'
-            expr = TexNamedEnv(args[0].string)
+            expr = TexNamedEnv(args[0].string, position=c.position)
             expr.args = args[1:]
             src.forward(steps)
 
@@ -81,7 +81,7 @@ def read_expr(src, skip_envs=(), tolerance=0):
                 read_env(src, expr, tolerance=tolerance)
         else:
             src.forward(1)
-            expr = TexCmd(name)
+            expr = TexCmd(name, position=c.position)
             expr.args = read_args(src, args=expr.args)
         return expr
     if c.category == TC.GroupStart:
@@ -445,7 +445,7 @@ def read_arg(src, c, tolerance=0):
     while src.hasNext():
         if src.peek().category == arg.token_end:
             src.forward()
-            return arg(*content[1:])
+            return arg(*content[1:], position=c.position)
         else:
             content.append(read_expr(src, tolerance=tolerance))
 
