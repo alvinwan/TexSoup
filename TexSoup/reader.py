@@ -102,7 +102,7 @@ def read_expr(src, skip_envs=(), tolerance=0):
         else:
             expr = TexCmd(name, args=args, position=c.position)
         return expr
-    if c.category == TC.GroupStart:
+    if c.category == TC.GroupBegin:
         return read_arg(src, c, tolerance=tolerance)
 
     assert isinstance(c, Token)
@@ -325,9 +325,9 @@ def read_args(src, n_required=-1, n_optional=-1, args=None, tolerance=0):
     n_optional = read_arg_optional(src, args, n_optional, tolerance)
     n_required = read_arg_required(src, args, n_required, tolerance)
 
-    if src.hasNext() and src.peek().category == TC.OpenBracket:
+    if src.hasNext() and src.peek().category == TC.BracketBegin:
         n_optional = read_arg_optional(src, args, n_optional, tolerance)
-    if src.hasNext() and src.peek().category == TC.GroupStart:
+    if src.hasNext() and src.peek().category == TC.GroupBegin:
         n_required = read_arg_required(src, args, n_required, tolerance)
     return args
 
@@ -351,7 +351,7 @@ def read_arg_optional(src, args, n_optional=-1, tolerance=0):
     """
     while n_optional != 0:
         spacer = read_spacer(src)
-        if not (src.hasNext() and src.peek().category == TC.OpenBracket):
+        if not (src.hasNext() and src.peek().category == TC.BracketBegin):
             if spacer:
                 src.backward(1)
             break
@@ -393,7 +393,7 @@ def read_arg_required(src, args, n_required=-1, tolerance=0):
     while n_required != 0 and src.hasNext():
         spacer = read_spacer(src)
 
-        if src.hasNext() and src.peek().category == TC.GroupStart:
+        if src.hasNext() and src.peek().category == TC.GroupBegin:
             args.append(read_arg(src, next(src), tolerance=tolerance))
             n_required -= 1
             continue

@@ -17,7 +17,7 @@ def IntEnum(name, keys, start=1):
 
 CC = IntEnum('CategoryCodes', (
     'Escape',
-    'GroupStart',
+    'GroupBegin',
     'GroupEnd',
     'MathSwitch',
     'Alignment',
@@ -34,36 +34,36 @@ CC = IntEnum('CategoryCodes', (
     'Invalid',
 
     # custom
-    'MathGroupStart',
+    'MathGroupBegin',
     'MathGroupEnd',
-    'OpenBracket',
-    'CloseBracket',
-    'OpenParen',
-    'CloseParen'
+    'BracketBegin',
+    'BracketEnd',
+    'ParenBegin',
+    'ParenEnd'
 ))
 
 
 # Only includes items that cannot cause failures
 TC = IntEnum('TokenCode', (
     'Escape',
-    'GroupStart',
+    'GroupBegin',
     'GroupEnd',
     'Comment',
     'MergedSpacer',  # whitespace allowed between <command name> and arguments
     'EscapedComment',
     'MathSwitch',
     'DisplayMathSwitch',
-    'MathGroupStart',
+    'MathGroupBegin',
     'MathGroupEnd',
-    'DisplayMathGroupStart',
+    'DisplayMathGroupBegin',
     'DisplayMathGroupEnd',
     'LineBreak',
     'CommandName',
     'Text',
-    'OpenBracket',
-    'CloseBracket',
-    'OpenParen',
-    'CloseParen',
+    'BracketBegin',
+    'BracketEnd',
+    'ParenBegin',
+    'ParenEnd',
 
     # temporary (Replace with macros support)
     'PunctuationCommandName',
