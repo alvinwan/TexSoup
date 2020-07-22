@@ -134,13 +134,20 @@
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#how-to-install">How to Install</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="soup.html">What’s in the Soup</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="soup.html">Soup</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="soup.html#making-a-soup">Making a Soup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="soup.html#kinds-of-objects">Kinds of Objects</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="navigation.html">Navigation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="navigation.html">Navigation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="navigation.html#going-down">Going Down</a></li>
+<li class="toctree-l2"><a class="reference internal" href="navigation.html#going-up">Going Up</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Search</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#kinds-of-filters">Kinds of Filters</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="modification.html">Modification</a></li>
 </ul>
 <p class="caption"><span class="caption-text">How it Works</span></p>
@@ -254,11 +261,49 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <div class="section" id="search">
-<h1>Search<a class="headerlink" href="#search" title="Permalink to this headline">¶</a></h1>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This guide is coming soon. In the meantime, please see the package
-reference for a <a class="reference internal" href="data.html#TexSoup.data.TexNode" title="TexSoup.data.TexNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">TexSoup.data.TexNode</span></code></a>.</p>
+<span id="page-search"></span><h1>Search<a class="headerlink" href="#search" title="Permalink to this headline">¶</a></h1>
+<p>TexSoup supports a few search utilities, namely <code class="code docutils literal notranslate"><span class="pre">.find</span></code> and
+<code class="code docutils literal notranslate"><span class="pre">.find_all</span></code>. The interface for both is identical. Here’s the
+<span class="math">\(\LaTeX\)</span> document from the quickstart guide:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tex_doc</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="gp">... </span><span class="se">\b</span><span class="s2">egin</span><span class="si">{document}</span><span class="s2"></span>
+<span class="gp">... </span><span class="s2">\section{Hello </span><span class="se">\t</span><span class="s2">extit</span><span class="si">{world}</span><span class="s2">.}</span>
+<span class="gp">... </span><span class="s2">\subsection</span><span class="si">{Watermelon}</span><span class="s2"></span>
+<span class="gp">... </span><span class="s2">(n.) A sacred fruit. Also known as:</span>
+<span class="gp">... </span><span class="se">\b</span><span class="s2">egin</span><span class="si">{itemize}</span><span class="s2"></span>
+<span class="gp">... </span><span class="s2">  \item red lemon</span>
+<span class="gp">... </span><span class="s2">  \item life</span>
+<span class="gp">... </span><span class="s2">\end</span><span class="si">{itemize}</span><span class="s2"></span>
+<span class="gp">... </span><span class="s2">Here is the prevalence of each synonym, in Table </span><span class="se">\r</span><span class="s2">ef{table:synonyms}.</span>
+<span class="gp">... </span><span class="se">\b</span><span class="s2">egin</span><span class="si">{tabular}</span><span class="s2">{c c}\label{table:synonyms}</span>
+<span class="gp">... </span><span class="s2">  red lemon &amp; uncommon </span><span class="se">\\</span><span class="s2"> </span><span class="se">\n</span><span class="s2"></span>
+<span class="gp">... </span><span class="s2">  life &amp; common</span>
+<span class="gp">... </span><span class="s2">\end</span><span class="si">{tabular}</span><span class="s2"></span>
+<span class="gp">... </span><span class="s2">\end</span><span class="si">{document}</span><span class="s2"></span>
+<span class="gp">... </span><span class="s2">&quot;&quot;&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="kn">import</span> <span class="n">TexSoup</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="n">tex_doc</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="section" id="kinds-of-filters">
+<h2>Kinds of Filters<a class="headerlink" href="#kinds-of-filters" title="Permalink to this headline">¶</a></h2>
+<p>The simplest way to search is using a string filter:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;item&#39;</span><span class="p">)</span>
+<span class="go">[\item red lemon</span>
+<span class="go">  , \item life</span>
+<span class="go">]</span>
+</pre></div>
+</div>
+<p>If you pass in a list, TexSoup will return results that match <em>any</em> item in
+that list.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;item&#39;</span><span class="p">,</span> <span class="s1">&#39;textit&#39;</span><span class="p">)</span>
+<span class="go">[\textit{world}, \item red lemon</span>
+<span class="go">  , \item life</span>
+<span class="go">]</span>
+</pre></div>
+</div>
+<p>You can also use regex compiled objects or regex strings with
+<code class="code docutils literal notranslate"><span class="pre">.search_regex</span></code>.</p>
 </div>
 </div>
 
@@ -306,7 +351,10 @@ reference for a <a class="reference internal" href="data.html#TexSoup.data.TexNo
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">Search</a></li>
+<li><a class="reference internal" href="#">Search</a><ul>
+<li><a class="reference internal" href="#kinds-of-filters">Kinds of Filters</a></li>
+</ul>
+</li>
 </ul>
 
             </div>

@@ -134,13 +134,20 @@
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#how-to-install">How to Install</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="soup.html">What’s in the Soup</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="soup.html">Soup</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="soup.html#making-a-soup">Making a Soup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="soup.html#kinds-of-objects">Kinds of Objects</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="navigation.html">Navigation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="searching.html">Search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="navigation.html">Navigation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="navigation.html#going-down">Going Down</a></li>
+<li class="toctree-l2"><a class="reference internal" href="navigation.html#going-up">Going Up</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="searching.html">Search</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="searching.html#kinds-of-filters">Kinds of Filters</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="modification.html">Modification</a></li>
 </ul>
 <p class="caption"><span class="caption-text">How it Works</span></p>
@@ -281,7 +288,7 @@ not. This includes all LaTeX needed to reconstruct the original source.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
 <span class="gp">... </span><span class="s1">\newcommand</span><span class="si">{reverseconcat}</span><span class="s1">[3]{#3#2#1}</span>
 <span class="gp">... </span><span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">alls</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">all</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">alls</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">all</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">alls</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
 
@@ -393,7 +400,7 @@ only Tex expressions.</p>
 <span class="gp">... </span><span class="s1">    Random text!</span>
 <span class="gp">... </span><span class="s1">    \item Hello</span>
 <span class="gp">... </span><span class="s1">\end</span><span class="si">{itemize}</span><span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">next</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">itemize</span><span class="o">.</span><span class="n">children</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">itemize</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="go">\item Hello</span>
 </pre></div>
 </div>
@@ -418,9 +425,9 @@ only Tex expressions.</p>
 <span class="gp">... </span><span class="s1">    \item Hello</span>
 <span class="gp">... </span><span class="s1">\end</span><span class="si">{itemize}</span><span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">contents</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">itemize</span><span class="o">.</span><span class="n">contents</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">next</span><span class="p">(</span><span class="n">contents</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">contents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="go">&#39;\n    Random text!\n    &#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">next</span><span class="p">(</span><span class="n">contents</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">contents</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 <span class="go">\item Hello</span>
 </pre></div>
 </div>
@@ -562,14 +569,14 @@ the parse tree.</p>
 <span class="gp">... </span><span class="s1">\textit</span><span class="si">{eee}</span><span class="s1"></span>
 <span class="gp">... </span><span class="s1">\textit</span><span class="si">{ooo}</span><span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">gen</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;textit&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">next</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gen</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="go">\textit{eee}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">next</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gen</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 <span class="go">\textit{ooo}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">next</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;textbf&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;textbf&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 <span class="gt">Traceback (most recent call last):</span>
 <span class="c">...</span>
-<span class="gr">StopIteration</span>
+<span class="gr">IndexError</span>: <span class="n">list index out of range</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -759,7 +766,7 @@ Tex expressions.</p>
 <span class="gp">... </span><span class="s1">        \item Nested</span>
 <span class="gp">... </span><span class="s1">    \end</span><span class="si">{itemize}</span><span class="s1"></span>
 <span class="gp">... </span><span class="s1">\end</span><span class="si">{itemize}</span><span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">next</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">text</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="go">&#39; Nested\n    &#39;</span>
 </pre></div>
 </div>

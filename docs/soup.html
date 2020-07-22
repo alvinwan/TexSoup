@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>What’s in the Soup &mdash; TexSoup master documentation</title>
+  <title>Soup &mdash; TexSoup master documentation</title>
   
 
   
@@ -134,13 +134,20 @@
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#how-to-install">How to Install</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">What’s in the Soup</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Soup</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#making-a-soup">Making a Soup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#kinds-of-objects">Kinds of Objects</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="navigation.html">Navigation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="searching.html">Search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="navigation.html">Navigation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="navigation.html#going-down">Going Down</a></li>
+<li class="toctree-l2"><a class="reference internal" href="navigation.html#going-up">Going Up</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="searching.html">Search</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="searching.html#kinds-of-filters">Kinds of Filters</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="modification.html">Modification</a></li>
 </ul>
 <p class="caption"><span class="caption-text">How it Works</span></p>
@@ -221,7 +228,7 @@
       </li>
 
         
-      <li>What’s in the Soup</li>
+      <li>Soup</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
@@ -253,8 +260,8 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <div class="section" id="what-s-in-the-soup">
-<h1>What’s in the Soup<a class="headerlink" href="#what-s-in-the-soup" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="soup">
+<h1>Soup<a class="headerlink" href="#soup" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="making-a-soup">
 <h2>Making a Soup<a class="headerlink" href="#making-a-soup" title="Permalink to this headline">¶</a></h2>
 <p>To parse a <span class="math">\(\LaTeX\)</span> document, pass an open filehandle or a string into the
@@ -265,16 +272,17 @@
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup2</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\begin</span><span class="si">{document}</span><span class="s1">Hello world!\end</span><span class="si">{document}</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Access TexSoup’s underlying data structures using <code class="code docutils literal notranslate"><span class="pre">.expr</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup2</span><span class="o">.</span><span class="n">expr</span>
-<span class="go">[TexNamedEnv(&#39;document&#39;, [&#39;Hello world!&#39;], [])]</span>
-</pre></div>
-</div>
 <p>Alternatively, compute the data structure only:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="kn">import</span> <span class="n">read</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup3</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\begin</span><span class="si">{document}</span><span class="s1">Hello world!\end</span><span class="si">{document}</span><span class="s1">&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup3</span>
 <span class="go">[TexNamedEnv(&#39;document&#39;, [&#39;Hello world!&#39;], [])]</span>
+</pre></div>
+</div>
+<p>You can also ask TexSoup to tolerate <span class="math">\(\LaTeX\)</span> errors. In which case,
+TexSoup will make a best-effort guess:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup4</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\begin</span><span class="si">{itemize}</span><span class="s1">\item hullo\end</span><span class="si">{enumerate}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">\begin{itemize}\item hullo\end{itemize}\end{enumerate}</span>
 </pre></div>
 </div>
 </div>
@@ -456,7 +464,7 @@ like <code class="code docutils literal notranslate"><span class="pre">{...}</sp
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">What’s in the Soup</a><ul>
+<li><a class="reference internal" href="#">Soup</a><ul>
 <li><a class="reference internal" href="#making-a-soup">Making a Soup</a></li>
 <li><a class="reference internal" href="#kinds-of-objects">Kinds of Objects</a><ul>
 <li><a class="reference internal" href="#command">Command</a></li>
