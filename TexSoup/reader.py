@@ -129,19 +129,15 @@ def read_item(src, tolerance=0):
     ... \item
     ... \item first item
     ... \end{itemize}''', skip=7)
-    ([], [])
+    (['\n'], [])
     >>> read_item_from(r'''\def\itemeqn{\item}''', skip=6)
     ([], [])
     """
-    assert next(src) == 'item', src.backward(1)
-    args, extras = [], []
-
-    spacer = read_spacer(src)
-
-    # TODO: use peek_command instead of manually parsing optional arg
-    if src.hasNext() and src.peek().category == TC.OpenBracket:
-        c = next(src)
-        args.append(read_arg(src, c, tolerance=tolerance))
+    name, args, steps = peek_command(src, n_required_args=0, n_optional_args=1)
+    src.forward(steps)
+    
+    assert name == 'item', name
+    extras = []
 
     while src.hasNext():
         if src.peek().category == TC.Escape:
@@ -460,6 +456,7 @@ def read_spacer(buf):
     """
     if buf.hasNext() and buf.peek().category == TC.MergedSpacer:
         return next(buf)
+    return ''
 
 
 # TODO: make this a reader, with a generic peek decorator or wrapper
