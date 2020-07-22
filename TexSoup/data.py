@@ -1334,6 +1334,22 @@ class TexArgs(list):
         2
         >>> arguments[0]
         BracketGroup('arg2')
+        >>> arguments.remove(arguments[0])
+        >>> arguments[0]
+        BraceGroup('arg3')
+        >>> arguments.remove(BraceGroup('arg3'))
+        >>> len(arguments)
+        0
+        >>> arguments = TexArgs([
+        ...     BraceGroup(TexCmd('color')),
+        ...     BraceGroup(TexCmd('color', [BraceGroup('blue')]))
+        ... ])
+        >>> arguments.remove(arguments[0])
+        >>> len(arguments)
+        1
+        >>> arguments.remove(arguments[0])
+        >>> len(arguments)
+        0
         """
         item = self.__coerce(item)
         self.all.remove(item)
