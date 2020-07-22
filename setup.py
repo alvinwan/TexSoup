@@ -7,6 +7,10 @@ tests_require = ['pytest', 'pytest-cov==2.5.1',
 install_requires = []
 
 
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
+
 class PyTest(test_command):
     user_options = [('pytest-args=', 'a', "Arguments to pass to py.test")]
 
@@ -37,6 +41,8 @@ setup(
     description=("parses valid LaTeX and provides variety of Beautiful-Soup-"
                  "esque methods and Pythonic idioms for iterating over and "
                  "searching the parse tree"),
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     license="BSD",
     url="https://github.com/alvinwan/TexSoup",
     packages=['TexSoup'],
