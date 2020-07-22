@@ -45,14 +45,14 @@ def test_navigation_positions(chikin):
     assert chikin.char_pos_to_line(1) == (0, 1), 'documentclass'
     assert chikin.char_pos_to_line(172) == (11, 6), 'waddle'
 
-    assert isinstance(next(next(chikin.itemize.children).contents), Token)
+    assert isinstance(chikin.itemize.children[0].contents[0], Token)
 
     # get position of first token
-    waddle_pos = next(next(chikin.itemize.children).contents).position
+    waddle_pos = chikin.itemize.children[0].contents[0].position
     assert chikin.char_pos_to_line(waddle_pos) == (11, 5)
 
     # get position of item
-    enumerate_first_item_pos = next(chikin.enumerate.children).name.position
+    enumerate_first_item_pos = chikin.enumerate.children[0].name.position
     assert chikin.char_pos_to_line(enumerate_first_item_pos) == (22, 1)
 
     # get position of section
