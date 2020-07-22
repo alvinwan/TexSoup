@@ -119,7 +119,7 @@ def tokenize_escaped_symbols(text, prev=None):
     if text.peek().category == CC.Escape \
             and text.peek(1) \
             and text.peek(1).category in (
-                CC.Escape, CC.GroupStart, CC.GroupEnd, CC.MathSwitch,
+                CC.Escape, CC.GroupBegin, CC.GroupEnd, CC.MathSwitch,
                 CC.Comment):
         result = text.forward(2)
         result.category = TC.EscapedComment
@@ -191,10 +191,10 @@ def tokenize_math_asym_switch(text, prev=None):
     >>> tokenize_math_asym_switch(categorize(r'[]'))
     """
     mapping = {
-        (CC.Escape, CC.OpenBracket):    TC.DisplayMathGroupStart,
-        (CC.Escape, CC.CloseBracket):   TC.DisplayMathGroupEnd,
-        (CC.Escape, CC.OpenParen):      TC.MathGroupStart,
-        (CC.Escape, CC.CloseParen):     TC.MathGroupEnd
+        (CC.Escape, CC.BracketBegin):    TC.DisplayMathGroupBegin,
+        (CC.Escape, CC.BracketEnd):   TC.DisplayMathGroupEnd,
+        (CC.Escape, CC.ParenBegin):      TC.MathGroupBegin,
+        (CC.Escape, CC.ParenEnd):     TC.MathGroupEnd
     }
     if not text.hasNext(2):
         return
@@ -271,14 +271,14 @@ def tokenize_symbols(text, prev=None):
     >>> next(tokenize(categorize(r'\bf  {turing}')))
     '\\'
     >>> next(tokenize(categorize(r'{]}'))).category
-    <TokenCode.GroupStart: 23>
+    <TokenCode.GroupBegin: 23>
     """
     mapping = {
         CC.Escape:          TC.Escape,
-        CC.GroupStart:      TC.GroupStart,
+        CC.GroupBegin:      TC.GroupBegin,
         CC.GroupEnd:        TC.GroupEnd,
-        CC.OpenBracket:     TC.OpenBracket,
-        CC.CloseBracket:    TC.CloseBracket
+        CC.BracketBegin:     TC.BracketBegin,
+        CC.BracketEnd:    TC.BracketEnd
     }
     if text.peek().category in mapping.keys():
         result = text.forward(1)
@@ -357,11 +357,11 @@ def tokenize_string(text, prev=None):
     result = Token('', text.position, category=TC.Text)
     while text.hasNext() and text.peek().category not in (
             CC.Escape,
-            CC.GroupStart,
+            CC.GroupBegin,
             CC.GroupEnd,
             CC.MathSwitch,
-            CC.OpenBracket,
-            CC.CloseBracket,
+            CC.BracketBegin,
+            CC.BracketEnd,
             CC.Comment):
         result += next(text)
     return result

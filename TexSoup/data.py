@@ -1026,7 +1026,7 @@ class TexDisplayMathEnv(TexUnNamedEnv):
     name = 'displaymath'
     begin = r'\['
     end = r'\]'
-    token_begin = TC.DisplayMathGroupStart
+    token_begin = TC.DisplayMathGroupBegin
     token_end = TC.DisplayMathGroupEnd
 
 
@@ -1035,7 +1035,7 @@ class TexMathEnv(TexUnNamedEnv):
     name = 'math'
     begin = r'\('
     end = r'\)'
-    token_begin = TC.MathGroupStart
+    token_begin = TC.MathGroupBegin
     token_end = TC.MathGroupEnd
 
 
@@ -1199,8 +1199,8 @@ class BracketGroup(TexGroup):
     begin = '['
     end = ']'
     name = 'BracketGroup'
-    token_begin = TC.OpenBracket
-    token_end = TC.CloseBracket
+    token_begin = TC.BracketBegin
+    token_end = TC.BracketEnd
 
 
 class BraceGroup(TexGroup):
@@ -1209,7 +1209,7 @@ class BraceGroup(TexGroup):
     begin = '{'
     end = '}'
     name = 'BraceGroup'
-    token_begin = TC.GroupStart
+    token_begin = TC.GroupBegin
     token_end = TC.GroupEnd
 
 
