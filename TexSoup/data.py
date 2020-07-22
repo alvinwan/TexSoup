@@ -201,7 +201,6 @@ class TexNode(object):
         self.expr.contents = contents
 
     @property
-    @to_list
     def descendants(self):
         r"""Returns all descendants for this TeX element.
 
