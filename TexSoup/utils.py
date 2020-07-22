@@ -361,11 +361,11 @@ class Buffer:
     def forward_until(self, condition, peek=True):
         """Forward until one of the provided matches is found.
 
-        The returned string contains all characters found *before the condition
+        The returned string contains all characters found before the condition
         was met. In other words, the condition will be true for the remainder
         of the buffer.
 
-        :param condition: set of valid strings
+        :param Callable condition: lambda condition for the token to stop at
 
         >>> buf = Buffer(map(str, range(9)))
         >>> _ = buf.forward_until(lambda x: int(x) > 3)
