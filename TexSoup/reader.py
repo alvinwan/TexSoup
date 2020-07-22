@@ -88,7 +88,7 @@ def read_expr(src, skip_envs=(), tolerance=0):
         expr = MATH_TOKEN_TO_ENV[c.category]([], position=c.position)
         return read_math_env(src, expr)
     elif c.category == TC.Escape:
-        name, args = read_command(src)
+        name, args = read_command(src, tolerance=tolerance)
         if name == 'item':
             contents = read_item(src)
             expr = TexCmd(name, contents, args, position=c.position)
@@ -152,7 +152,8 @@ def read_item(src, tolerance=0):
 
     while src.hasNext():
         if src.peek().category == TC.Escape:
-            cmd_name, _ = make_read_peek(read_command)(src, 1, skip=1)
+            cmd_name, _ = make_read_peek(read_command)(
+                src, 1, skip=1, tolerance=tolerance)
             if cmd_name in ('end', 'item'):
                 return extras
         elif src.peek().category == TC.GroupEnd:
@@ -262,7 +263,8 @@ def read_env(src, expr, tolerance=0):
     contents = []
     while src.hasNext():
         if src.peek().category == TC.Escape:
-            name, args = make_read_peek(read_command)(src, 1, skip=1)
+            name, args = make_read_peek(read_command)(
+                src, 1, skip=1, tolerance=tolerance)
             if name == 'end':
                 break
         contents.append(read_expr(src, tolerance=tolerance))
@@ -426,6 +428,9 @@ def read_arg(src, c, tolerance=0):
     >>> buf = tokenize(categorize(s))
     >>> read_arg(buf, next(buf))
     BraceGroup(TexCmd('item'))
+    >>> buf = tokenize(categorize(r'{\incomplete! [complete]'))
+    >>> read_arg(buf, next(buf), tolerance=1)
+    BraceGroup(TexCmd('incomplete'), '! ', '[', 'complete', ']')
     """
     content = [c]
     arg = ARG_BEGIN_TO_ENV[c.category]
@@ -436,14 +441,16 @@ def read_arg(src, c, tolerance=0):
         else:
             content.append(read_expr(src, tolerance=tolerance))
 
-    clo = CharToLineOffset(str(src))
-    line, offset = clo(c.position)
-    raise TypeError(
-        '[Line: %d, Offset %d] Malformed argument. First and last elements '
-        'must match a valid argument format. In this case, TexSoup'
-        ' could not find matching punctuation for: %s.\n'
-        'Just finished parsing: %s' %
-        (line, offset, c, content))
+    if tolerance == 0:
+        clo = CharToLineOffset(str(src))
+        line, offset = clo(c.position)
+        raise TypeError(
+            '[Line: %d, Offset %d] Malformed argument. First and last elements '
+            'must match a valid argument format. In this case, TexSoup'
+            ' could not find matching punctuation for: %s.\n'
+            'Just finished parsing: %s' %
+            (line, offset, c, content))
+    return arg(*content[1:], position=c.position)
 
 
 def read_spacer(buf):
@@ -470,7 +477,8 @@ def read_spacer(buf):
     return ''
 
 
-def read_command(buf, n_required_args=-1, n_optional_args=-1, skip=0):
+def read_command(buf, n_required_args=-1, n_optional_args=-1, skip=0,
+                 tolerance=0):
     r"""Parses command and all arguments. Assumes escape has just been parsed.
 
     No whitespace is allowed between escape and command name. e.g.,
@@ -510,5 +518,6 @@ def read_command(buf, n_required_args=-1, n_optional_args=-1, skip=0):
     token = Token('', buf.position)
     if n_required_args < 0 and n_optional_args < 0:
         n_required_args, n_optional_args = SIGNATURES.get(name, (-1, -1))
-    args = read_args(buf, n_required_args, n_optional_args)
+    args = read_args(buf, n_required_args, n_optional_args,
+                     tolerance=tolerance)
     return name, args
