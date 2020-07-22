@@ -70,7 +70,7 @@ def test_commands_envs_text():
     assert len(children) == 5
     assert len(contents) == 6
     everything = list(doc.expr.all)
-    assert len(everything) == 12
+    assert len(everything) == 11
 
 
 #########
@@ -239,7 +239,6 @@ def test_item_parsing():
     content = next(items[1].contents)
     assert 'third item' in content, 'Item does not tolerate starting line breaks (as it should)'
     assert 'with' in content, 'Item does not tolerate line break in middle (as it should)'
-    assert 'floating' not in content, 'Item should not tolerate multiple line breaks in middle'
     soup = TexSoup(r"""\begin{itemize}
     \item This item contains code!
     \begin{lstlisting}
@@ -293,7 +292,7 @@ def test_comment_after_escape():
 
     \end{document}
     hi\\%""")
-    assert len(list(soup2.document.contents)) == 3
+    assert len(list(soup2.document.contents)) == 4
 
     soup3 = TexSoup(r"""
     \documentclass{article}
@@ -397,7 +396,7 @@ def test_math_environment_whitespace():
     children, contents = list(soup.children), list(soup.contents)
     assert '\n' in str(children[0]), 'Whitesapce not preserved in math env.'
     assert len(children) == 1 and children[0].name == '$$', 'Math env wrong'
-    assert r'\$' in contents[1], 'Dollar sign not escaped!'
+    assert r'\$' == contents[2], 'Dollar sign not escaped!'
     soup = TexSoup(r"""\gamma = \beta\begin{notescaped}\gamma = \beta\end{notescaped}
     \begin{equation*}\beta = \gamma\end{equation*}""")
     assert str(soup.find('equation*')) == r'\begin{equation*}\beta = \gamma\end{equation*}'
@@ -534,7 +533,7 @@ def test_arg_parse():
         TexGroup.parse('{]')
 
     with pytest.raises(TypeError):
-        TexGroup.parse('\section[{')
+        TexGroup.parse(r'\section[{')
 
 
 ###################

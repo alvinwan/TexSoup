@@ -878,8 +878,9 @@ class TexEnv(TexExpr):
         >>> str(env)
         '$\\$$'
         >>> env.begin = '^^'
+        >>> env.end = '**'
         >>> str(env)
-        '^^\\$$'
+        '^^\\$**'
         """
         super().__init__(name, contents, args, preserve_whitespace, position)
         self._begin = begin

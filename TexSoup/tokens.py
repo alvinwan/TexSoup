@@ -11,9 +11,6 @@ from TexSoup.utils import IntEnum, TC
 import itertools
 import string
 
-# TODO: misnomer, what does ALL_TOKENS actually contain?
-ALL_TOKENS = ('\\', '{', '[', ']', '}', '%', r'\[', r'\(', r'\]', r'\)', '$', '$$')
-
 # Custom higher-level combinations of primitives
 SKIP_ENVS = ('verbatim', 'equation', 'lstlisting', 'align', 'alignat',
              'equation*', 'align*', 'math', 'displaymath', 'split', 'array',
@@ -315,9 +312,8 @@ def tokenize_command_name(text, prev=None):
         return c
 
 
-# TODO: clean up
 @token('string')
-def tokenize_string(text, delimiters=None, prev=None):
+def tokenize_string(text, prev=None):
     r"""Process a string of text
 
     :param Buffer text: iterator over line, with current position
@@ -331,22 +327,16 @@ def tokenize_string(text, delimiters=None, prev=None):
     >>> print(b.peek())
     \
     >>> print(tokenize_string(categorize(r'0 & 1 \\\command')))
-    0 & 1 \\
+    0 & 1
     """
-    if delimiters is None:
-        delimiters = ALL_TOKENS
     result = Token('', text.position, category=TC.Text)
-    for c in text:
-        if c.category == CC.Escape and str(text.peek()) in delimiters and str(
-                c + text.peek()) not in delimiters:
-            c += next(text)
-        elif str(c) in delimiters:  # assumes all tokens are single characters
-            text.backward(1)
-            return result
-        result += c
-        if text.peek((0, 2)) == '\\\\':  # TODO: replace with constants
-            result += text.forward(2)
-        if text.peek((0, 2)) == '\n\n':  # TODO: replace with constants
-            result += text.forward(2)
-            return result
+    while text.hasNext() and text.peek().category not in (
+            CC.Escape,
+            CC.GroupStart,
+            CC.GroupEnd,
+            CC.MathSwitch,
+            CC.OpenBracket,
+            CC.CloseBracket,
+            CC.Comment):
+        result += next(text)
     return result
