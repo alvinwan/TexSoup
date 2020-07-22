@@ -44,8 +44,8 @@ def read_tex(buf, skip_envs=(), tolerance=0):
     """
     while buf.hasNext():
         yield read_expr(buf,
-            skip_envs=SKIP_ENVS + skip_envs,
-            tolerance=tolerance)
+                        skip_envs=SKIP_ENVS + skip_envs,
+                        tolerance=tolerance)
 
 
 def make_read_peek(f):
@@ -94,7 +94,8 @@ def read_expr(src, skip_envs=(), tolerance=0):
             expr = TexCmd(name, contents, args, position=c.position)
         elif name == 'begin':
             assert args, 'Begin command must be followed by an env name.'
-            expr = TexNamedEnv(args[0].string, args=args[1:], position=c.position)
+            expr = TexNamedEnv(
+                args[0].string, args=args[1:], position=c.position)
             if expr.name in skip_envs:
                 read_skip_env(src, expr)
             else:
@@ -224,7 +225,7 @@ def read_skip_env(src, expr):
         ...
     EOFError: ...
     """
-    condition = lambda s: s.startswith('\\end{%s}' % expr.name)
+    def condition(s): return s.startswith('\\end{%s}' % expr.name)
     contents = [src.forward_until(condition, peek=False)]
     if not src.startswith('\\end{%s}' % expr.name):
         unclosed_env_handler(src, expr, src.peek((0, 6)))

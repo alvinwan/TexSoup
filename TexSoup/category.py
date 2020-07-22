@@ -6,7 +6,8 @@ import string
 
 # Core category codes
 # https://www.overleaf.com/learn/latex/Table_of_TeX_category_codes
-others = set(string.printable) - set(string.ascii_letters) - set('{}\\$&\n\r#^_~%\x00\x7d \t[]()')
+others = set(string.printable) - set(string.ascii_letters) - \
+    set('{}\\$&\n\r#^_~%\x00\x7d \t[]()')
 CATEGORY_CODES = {
     CC.Escape:      '\\',
     CC.GroupBegin:  '{',
@@ -26,7 +27,7 @@ CATEGORY_CODES = {
     CC.Invalid:      chr(127),
 
     # custom
-    CC.BracketBegin:'[',
+    CC.BracketBegin: '[',
     CC.BracketEnd:  ']',
     CC.ParenBegin:  '(',
     CC.ParenEnd:    ')'
