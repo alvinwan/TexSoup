@@ -1,4 +1,4 @@
-What's in the Soup
+Soup
 ===================================
 
 Making a Soup
@@ -12,17 +12,18 @@ To parse a :math:`\LaTeX` document, pass an open filehandle or a string into the
     ...     soup = TexSoup(f)
     >>> soup2 = TexSoup(r'\begin{document}Hello world!\end{document}')
 
-Access TexSoup's underlying data structures using :code:`.expr`::
-
-    >>> soup2.expr
-    [TexNamedEnv('document', ['Hello world!'], [])]
-
 Alternatively, compute the data structure only::
 
     >>> from TexSoup import read
     >>> soup3, _ = read(r'\begin{document}Hello world!\end{document}')
     >>> soup3
     [TexNamedEnv('document', ['Hello world!'], [])]
+
+You can also ask TexSoup to tolerate :math:`\LaTeX` errors. In which case,
+TexSoup will make a best-effort guess::
+
+    >>> soup4 = TexSoup(r'\begin{itemize}\item hullo\end{enumerate}', tolerance=1)
+    \begin{itemize}\item hullo\end{itemize}\end{enumerate}
 
 
 Kinds of Objects
