@@ -309,7 +309,7 @@ class TexNode(object):
         ...     \end{itemize}
         ... \end{itemize}''')
         >>> next(soup.text)
-        'Nested\n    '
+        ' Nested\n    '
         """
         for descendant in self.contents:
             if isinstance(descendant, (TexText, Token)):
@@ -620,7 +620,7 @@ class TexExpr(object):
     """
 
     def __init__(self, name, contents=(), args=(), preserve_whitespace=False,
-            position=-1):
+                 position=-1):
         """Initialize a tex expression.
 
         :param str name: name of environment
@@ -773,7 +773,6 @@ class TexExpr(object):
                 'non-string content, use .contents' % s)
         self.contents = [TexText(s)]
 
-
     ##################
     # PUBLIC METHODS #
     ##################
@@ -862,7 +861,7 @@ class TexEnv(TexExpr):
     _end = None
 
     def __init__(self, name, begin, end, contents=(), args=(),
-            preserve_whitespace=False, position=-1):
+                 preserve_whitespace=False, position=-1):
         r"""Initialization for Tex environment.
 
         :param str name: name of environment
@@ -878,8 +877,9 @@ class TexEnv(TexExpr):
         >>> str(env)
         '$\\$$'
         >>> env.begin = '^^'
+        >>> env.end = '**'
         >>> str(env)
-        '^^\\$$'
+        '^^\\$**'
         """
         super().__init__(name, contents, args, preserve_whitespace, position)
         self._begin = begin
@@ -958,7 +958,7 @@ class TexNamedEnv(TexEnv):
     """
 
     def __init__(self, name, contents=(), args=(), preserve_whitespace=False,
-            position=-1):
+                 position=-1):
         """Initialization for Tex environment.
 
         :param str name: name of environment
@@ -969,7 +969,7 @@ class TexNamedEnv(TexEnv):
         :param int position: position of first character in original source
         """
         super().__init__(name, r"\begin{%s}" % name, r"\end{%s}" % name,
-            contents, args, preserve_whitespace, position=position)
+                         contents, args, preserve_whitespace, position=position)
 
     @property
     def begin(self):
@@ -987,7 +987,7 @@ class TexUnNamedEnv(TexEnv):
     end = None
 
     def __init__(self, contents=(), args=(), preserve_whitespace=False,
-            position=-1):
+                 position=-1):
         """Initialization for Tex environment.
 
         :param iterable contents: list of contents
@@ -999,7 +999,7 @@ class TexUnNamedEnv(TexEnv):
         assert self.name, 'Name must be non-falsey'
         assert self.begin and self.end, 'Delimiters must be non-falsey'
         super().__init__(self.name, self.begin, self.end,
-            contents, args, preserve_whitespace, position=position)
+                         contents, args, preserve_whitespace, position=position)
 
 
 class TexDisplayMathModeEnv(TexUnNamedEnv):
@@ -1025,7 +1025,7 @@ class TexDisplayMathEnv(TexUnNamedEnv):
     name = 'displaymath'
     begin = r'\['
     end = r'\]'
-    token_begin = TC.DisplayMathGroupStart
+    token_begin = TC.DisplayMathGroupBegin
     token_end = TC.DisplayMathGroupEnd
 
 
@@ -1034,7 +1034,7 @@ class TexMathEnv(TexUnNamedEnv):
     name = 'math'
     begin = r'\('
     end = r'\)'
-    token_begin = TC.MathGroupStart
+    token_begin = TC.MathGroupBegin
     token_end = TC.MathGroupEnd
 
 
@@ -1059,7 +1059,7 @@ class TexCmd(TexExpr):
 
     def __str__(self):
         if self._contents:
-            return '\\%s%s %s' % (self.name, self.args, ''.join(
+            return '\\%s%s%s' % (self.name, self.args, ''.join(
                 [str(e) for e in self._contents]))
         return '\\%s%s' % (self.name, self.args)
 
@@ -1166,7 +1166,7 @@ class TexGroup(TexUnNamedEnv):
         :param int position: position of first character in original source
         """
         super().__init__(contents, preserve_whitespace=preserve_whitespace,
-            position=position)
+                         position=position)
 
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__,
@@ -1198,8 +1198,8 @@ class BracketGroup(TexGroup):
     begin = '['
     end = ']'
     name = 'BracketGroup'
-    token_begin = TC.OpenBracket
-    token_end = TC.CloseBracket
+    token_begin = TC.BracketBegin
+    token_end = TC.BracketEnd
 
 
 class BraceGroup(TexGroup):
@@ -1208,7 +1208,7 @@ class BraceGroup(TexGroup):
     begin = '{'
     end = '}'
     name = 'BraceGroup'
-    token_begin = TC.GroupStart
+    token_begin = TC.GroupBegin
     token_end = TC.GroupEnd
 
 
@@ -1333,6 +1333,22 @@ class TexArgs(list):
         2
         >>> arguments[0]
         BracketGroup('arg2')
+        >>> arguments.remove(arguments[0])
+        >>> arguments[0]
+        BraceGroup('arg3')
+        >>> arguments.remove(BraceGroup('arg3'))
+        >>> len(arguments)
+        0
+        >>> arguments = TexArgs([
+        ...     BraceGroup(TexCmd('color')),
+        ...     BraceGroup(TexCmd('color', [BraceGroup('blue')]))
+        ... ])
+        >>> arguments.remove(arguments[0])
+        >>> len(arguments)
+        1
+        >>> arguments.remove(arguments[0])
+        >>> len(arguments)
+        0
         """
         item = self.__coerce(item)
         self.all.remove(item)

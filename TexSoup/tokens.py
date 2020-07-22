@@ -11,9 +11,6 @@ from TexSoup.utils import IntEnum, TC
 import itertools
 import string
 
-# TODO: misnomer, what does ALL_TOKENS actually contain?
-ALL_TOKENS = ('\\', '{', '[', ']', '}', '%', r'\[', r'\(', r'\]', r'\)', '$', '$$')
-
 # Custom higher-level combinations of primitives
 SKIP_ENVS = ('verbatim', 'equation', 'lstlisting', 'align', 'alignat',
              'equation*', 'align*', 'math', 'displaymath', 'split', 'array',
@@ -70,11 +67,11 @@ def tokenize(text):
     >>> print(*tokenize(categorize(r'\\%}')))
     \\ %}
     >>> print(*tokenize(categorize(r'\textbf{hello \\%}')))
-    \ textbf { hello \\ %}
+    \ textbf { hello  \\ %}
     >>> print(*tokenize(categorize(r'\textbf{Do play \textit{nice}.}')))
     \ textbf { Do play  \ textit { nice } . }
     >>> print(*tokenize(categorize(r'\begin{tabular} 0 & 1 \\ 2 & 0 \end{tabular}')))
-    \ begin { tabular }  0 & 1 \\ 2 & 0  \ end { tabular }
+    \ begin { tabular }  0 & 1  \\  2 & 0  \ end { tabular }
     """
     current_token = next_token(text)
     while current_token is not None:
@@ -122,7 +119,7 @@ def tokenize_escaped_symbols(text, prev=None):
     if text.peek().category == CC.Escape \
             and text.peek(1) \
             and text.peek(1).category in (
-                CC.Escape, CC.GroupStart, CC.GroupEnd, CC.MathSwitch,
+                CC.Escape, CC.GroupBegin, CC.GroupEnd, CC.MathSwitch,
                 CC.Comment):
         result = text.forward(2)
         result.category = TC.EscapedComment
@@ -194,10 +191,10 @@ def tokenize_math_asym_switch(text, prev=None):
     >>> tokenize_math_asym_switch(categorize(r'[]'))
     """
     mapping = {
-        (CC.Escape, CC.OpenBracket):    TC.DisplayMathGroupStart,
-        (CC.Escape, CC.CloseBracket):   TC.DisplayMathGroupEnd,
-        (CC.Escape, CC.OpenParen):      TC.MathGroupStart,
-        (CC.Escape, CC.CloseParen):     TC.MathGroupEnd
+        (CC.Escape, CC.BracketBegin):   TC.DisplayMathGroupBegin,
+        (CC.Escape, CC.BracketEnd):     TC.DisplayMathGroupEnd,
+        (CC.Escape, CC.ParenBegin):     TC.MathGroupBegin,
+        (CC.Escape, CC.ParenEnd):       TC.MathGroupEnd
     }
     if not text.hasNext(2):
         return
@@ -234,6 +231,34 @@ def tokenize_ignore(text, prev=None):
         text.forward(1)
 
 
+@token('spacers')
+def tokenize_spacers(text, prev=None):
+    r"""Combine spacers [ + line break [ + spacer]]
+
+    >>> tokenize_spacers(categorize('\t\n{there'))
+    '\t\n'
+    >>> tokenize_spacers(categorize('\t\nthere'))
+    >>> tokenize_spacers(categorize('      \t     '))
+    '      \t     '
+    >>> tokenize_spacers(categorize(r' ccc'))
+    """
+    result = Token('', text.position)
+    while text.hasNext() and text.peek().category == CC.Spacer:
+        result += text.forward(1)
+    if text.hasNext() and text.peek().category == CC.EndOfLine:
+        result += text.forward(1)
+    while text.hasNext() and text.peek().category == CC.Spacer:
+        result += text.forward(1)
+    result.category = TC.MergedSpacer
+
+    if text.hasNext() and text.peek().category in (CC.Letter, CC.Other):
+        text.backward(text.position - result.position)
+        return
+
+    if result:
+        return result
+
+
 @token('symbols')
 def tokenize_symbols(text, prev=None):
     r"""Process singletone symbols as standalone tokens.
@@ -246,17 +271,14 @@ def tokenize_symbols(text, prev=None):
     >>> next(tokenize(categorize(r'\bf  {turing}')))
     '\\'
     >>> next(tokenize(categorize(r'{]}'))).category
-    <TokenCode.GroupStart: 23>
+    <TokenCode.GroupBegin: 23>
     """
     mapping = {
         CC.Escape:          TC.Escape,
-        CC.GroupStart:      TC.GroupStart,
+        CC.GroupBegin:      TC.GroupBegin,
         CC.GroupEnd:        TC.GroupEnd,
-        CC.OpenBracket:     TC.OpenBracket,
-        CC.CloseBracket:    TC.CloseBracket,
-        CC.OpenParen:       TC.OpenParen,
-        CC.CloseParen:      TC.CloseParen,
-        # CC.Spacer:          TC.Spacer
+        CC.BracketBegin:     TC.BracketBegin,
+        CC.BracketEnd:    TC.BracketEnd
     }
     if text.peek().category in mapping.keys():
         result = text.forward(1)
@@ -315,9 +337,8 @@ def tokenize_command_name(text, prev=None):
         return c
 
 
-# TODO: clean up
 @token('string')
-def tokenize_string(text, delimiters=None, prev=None):
+def tokenize_string(text, prev=None):
     r"""Process a string of text
 
     :param Buffer text: iterator over line, with current position
@@ -330,23 +351,17 @@ def tokenize_string(text, delimiters=None, prev=None):
     'hello again'
     >>> print(b.peek())
     \
-    >>> print(tokenize_string(categorize(r'0 & 1 \\\command')))
-    0 & 1 \\
+    >>> print(tokenize_string(categorize(r'0 & 1\\\command')))
+    0 & 1
     """
-    if delimiters is None:
-        delimiters = ALL_TOKENS
     result = Token('', text.position, category=TC.Text)
-    for c in text:
-        if c.category == CC.Escape and str(text.peek()) in delimiters and str(
-                c + text.peek()) not in delimiters:
-            c += next(text)
-        elif str(c) in delimiters:  # assumes all tokens are single characters
-            text.backward(1)
-            return result
-        result += c
-        if text.peek((0, 2)) == '\\\\':  # TODO: replace with constants
-            result += text.forward(2)
-        if text.peek((0, 2)) == '\n\n':  # TODO: replace with constants
-            result += text.forward(2)
-            return result
+    while text.hasNext() and text.peek().category not in (
+            CC.Escape,
+            CC.GroupBegin,
+            CC.GroupEnd,
+            CC.MathSwitch,
+            CC.BracketBegin,
+            CC.BracketEnd,
+            CC.Comment):
+        result += next(text)
     return result

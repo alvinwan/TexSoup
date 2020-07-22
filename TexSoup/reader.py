@@ -9,6 +9,7 @@ from TexSoup.tokens import (
     tokenize,
     SKIP_ENVS,
 )
+import functools
 import string
 import sys
 
@@ -25,7 +26,7 @@ ARG_BEGIN_TO_ENV = {arg.token_begin: arg for arg in arg_type}
 SIGNATURES = {
     'def': (2, 0),
     'textbf': (1, 0),
-    'section': (1, 0)
+    'section': (1, 1)
 }
 
 
@@ -43,12 +44,36 @@ def read_tex(buf, skip_envs=(), tolerance=0):
     """
     while buf.hasNext():
         yield read_expr(buf,
-            skip_envs=SKIP_ENVS + skip_envs,
-            tolerance=tolerance)
+                        skip_envs=SKIP_ENVS + skip_envs,
+                        tolerance=tolerance)
 
 
-# TODO: skip envs nested in args or even just brace group won't be skipped
-# (skip_env kwarg needs to be propagated)
+def make_read_peek(f):
+    r"""Make any reader into a peek function.
+
+    The wrapped function still parses the next sequence of tokens in the
+    buffer but rolls back the buffer position afterwards.
+
+    >>> from TexSoup.category import categorize
+    >>> from TexSoup.tokens import tokenize
+    >>> def read(buf):
+    ...     buf.forward(3)
+    >>> buf = Buffer(tokenize(categorize(r'\item testing \textbf{hah}')))
+    >>> buf.position
+    0
+    >>> make_read_peek(read)(buf)
+    >>> buf.position
+    0
+    """
+    @functools.wraps(f)
+    def wrapper(buf, *args, **kwargs):
+        start = buf.position
+        ret = f(buf, *args, **kwargs)
+        buf.backward(buf.position - start)
+        return ret
+    return wrapper
+
+
 def read_expr(src, skip_envs=(), tolerance=0):
     r"""Read next expression from buffer
 
@@ -59,32 +84,26 @@ def read_expr(src, skip_envs=(), tolerance=0):
     :rtype: [TexExpr, Token]
     """
     c = next(src)
-    # TODO: assemble and use groups
     if c.category in MATH_TOKEN_TO_ENV.keys():
         expr = MATH_TOKEN_TO_ENV[c.category]([], position=c.position)
         return read_math_env(src, expr)
     elif c.category == TC.Escape:
-        # TODO: reduce to command-parsing only -- assemble envs in 2nd pass
-        name, args, steps = peek_command(src)
+        name, args = read_command(src, tolerance=tolerance)
         if name == 'item':
-            contents, arg = read_item(src)
-            expr = TexCmd(name, contents, arg, position=c.position)
+            contents = read_item(src)
+            expr = TexCmd(name, contents, args, position=c.position)
         elif name == 'begin':
             assert args, 'Begin command must be followed by an env name.'
-            expr = TexNamedEnv(args[0].string, position=c.position)
-            expr.args = args[1:]
-            src.forward(steps)
-
+            expr = TexNamedEnv(
+                args[0].string, args=args[1:], position=c.position)
             if expr.name in skip_envs:
                 read_skip_env(src, expr)
             else:
                 read_env(src, expr, tolerance=tolerance)
         else:
-            src.forward(1)
-            expr = TexCmd(name, position=c.position)
-            expr.args = read_args(src, args=expr.args)
+            expr = TexCmd(name, args=args, position=c.position)
         return expr
-    if c.category == TC.GroupStart:
+    if c.category == TC.GroupBegin:
         return read_arg(src, c, tolerance=tolerance)
 
     assert isinstance(c, Token)
@@ -111,56 +130,36 @@ def read_item(src, tolerance=0):
 
     >>> from TexSoup.category import categorize
     >>> from TexSoup.tokens import tokenize
-    >>> def read_item_from(string, skip=1):
+    >>> def read_item_from(string, skip=2):
     ...     buf = tokenize(categorize(string))
     ...     _ = buf.forward(skip)
     ...     return read_item(buf)
     >>> read_item_from(r'\item aaa {bbb} ccc\end{itemize}')
-    (['aaa ', BraceGroup('bbb'), ' ccc'], [])
+    [' aaa ', BraceGroup('bbb'), ' ccc']
     >>> read_item_from(r'\item aaa \textbf{itemize}\item no')
-    (['aaa ', TexCmd('textbf', [BraceGroup('itemize')])], [])
-    >>> read_item_from(r'\item[aaa] yith\item no')
-    (['yith'], [BracketGroup('aaa')])
-    >>> read_item_from('\\item\n[aaa] yith\\item no')
-    (['yith'], [BracketGroup('aaa')])
+    [' aaa ', TexCmd('textbf', [BraceGroup('itemize')])]
     >>> read_item_from(r'\item WITCH [nuuu] DOCTORRRR 👩🏻‍⚕️')
-    (['WITCH ', '[', 'nuuu', ']', ' DOCTORRRR 👩🏻‍⚕️'], [])
+    [' WITCH ', '[', 'nuuu', ']', ' DOCTORRRR 👩🏻‍⚕️']
     >>> read_item_from(r'''\begin{itemize}
     ... \item
     ... \item first item
-    ... \end{itemize}''', skip=7)
-    ([], [])
-    >>> read_item_from(r'''\def\itemeqn{\item}''', skip=6)
-    ([], [])
+    ... \end{itemize}''', skip=8)
+    ['\n']
+    >>> read_item_from(r'''\def\itemeqn{\item}''', skip=7)
+    []
     """
-    assert next(src) == 'item', src.backward(1)
-    args, extras = [], []
-
-    # TODO: fix when spacer tokenization updated
-    spacer, rest = read_spacer(src)
-    if rest:
-        extras.append(rest)
-
-    # TODO: use peek_command instead of manually parsing optional arg
-    if not rest and src.hasNext() and src.peek().category == TC.OpenBracket:
-        c = next(src)
-        args.append(read_arg(src, c, tolerance=tolerance))
-
-        # remove leading spacer after arguments, due to quirk in Item repr
-        # which adds space after args.
-        spacer, rest = read_spacer(src)
-        if rest:
-            extras.append(rest)
+    extras = []
 
     while src.hasNext():
         if src.peek().category == TC.Escape:
-            cmd_name, cmd_args, steps = peek_command(src, 1, skip=1)
+            cmd_name, _ = make_read_peek(read_command)(
+                src, 1, skip=1, tolerance=tolerance)
             if cmd_name in ('end', 'item'):
-                return extras, args
+                return extras
         elif src.peek().category == TC.GroupEnd:
             break
         extras.append(read_expr(src, tolerance=tolerance))
-    return extras, args
+    return extras
 
 
 def unclosed_env_handler(src, expr, end):
@@ -222,12 +221,12 @@ def read_skip_env(src, expr):
     >>> read_skip_env(buf, TexNamedEnv('foobar'))
     TexNamedEnv('foobar', [' \\textbf{aa '], [])
     >>> buf = tokenize(categorize(r' \textbf{aa ha'))
-    >>> read_skip_env(buf, TexNamedEnv('foobar'))
+    >>> read_skip_env(buf, TexNamedEnv('foobar'))  #doctest:+ELLIPSIS
     Traceback (most recent call last):
         ...
-    EOFError: [Line: 0, Offset: 5] "foobar" env expecting \end{foobar}. Reached end of file.
+    EOFError: ...
     """
-    condition = lambda s: s.startswith('\\end{%s}' % expr.name)
+    def condition(s): return s.startswith('\\end{%s}' % expr.name)
     contents = [src.forward_until(condition, peek=False)]
     if not src.startswith('\\end{%s}' % expr.name):
         unclosed_env_handler(src, expr, src.peek((0, 6)))
@@ -264,7 +263,8 @@ def read_env(src, expr, tolerance=0):
     contents = []
     while src.hasNext():
         if src.peek().category == TC.Escape:
-            name, args, steps = peek_command(src, n_required_args=1, skip=1)
+            name, args = make_read_peek(read_command)(
+                src, 1, skip=1, tolerance=tolerance)
             if name == 'end':
                 break
         contents.append(read_expr(src, tolerance=tolerance))
@@ -328,9 +328,9 @@ def read_args(src, n_required=-1, n_optional=-1, args=None, tolerance=0):
     n_optional = read_arg_optional(src, args, n_optional, tolerance)
     n_required = read_arg_required(src, args, n_required, tolerance)
 
-    if src.hasNext() and src.peek().category == TC.OpenBracket:
+    if src.hasNext() and src.peek().category == TC.BracketBegin:
         n_optional = read_arg_optional(src, args, n_optional, tolerance)
-    if src.hasNext() and src.peek().category == TC.GroupStart:
+    if src.hasNext() and src.peek().category == TC.GroupBegin:
         n_required = read_arg_required(src, args, n_required, tolerance)
     return args
 
@@ -353,11 +353,10 @@ def read_arg_optional(src, args, n_optional=-1, tolerance=0):
     :rtype: int
     """
     while n_optional != 0:
-        spacer, no_optional_args = read_spacer(src)
-        if no_optional_args:
-            src.backward(1)
-            break
-        if not (src.hasNext() and src.peek().category == TC.OpenBracket):
+        spacer = read_spacer(src)
+        if not (src.hasNext() and src.peek().category == TC.BracketBegin):
+            if spacer:
+                src.backward(1)
             break
         args.append(read_arg(src, next(src), tolerance=tolerance))
         n_optional -= 1
@@ -365,7 +364,7 @@ def read_arg_optional(src, args, n_optional=-1, tolerance=0):
 
 
 def read_arg_required(src, args, n_required=-1, tolerance=0):
-    """Read next required argument from buffer.
+    r"""Read next required argument from buffer.
 
     If the command has remaining required arguments, look for:
 
@@ -385,31 +384,19 @@ def read_arg_required(src, args, n_required=-1, tolerance=0):
 
     >>> from TexSoup.category import categorize
     >>> from TexSoup.tokens import tokenize
-    >>> buf = tokenize(categorize('{wal]la}{ba ng}'))
+    >>> buf = tokenize(categorize('{wal]la}\n{ba ng}\n'))
     >>> args = TexArgs()
     >>> read_arg_required(buf, args)  # 'regular' arg parse
     -3
     >>> args
     [BraceGroup('wal', ']', 'la'), BraceGroup('ba ng')]
+    >>> buf.hasNext() and buf.peek().category == TC.MergedSpacer
+    True
     """
-    while n_required != 0:
-        spacer, ungrouped_required_chars = read_spacer(src)
+    while n_required != 0 and src.hasNext():
+        spacer = read_spacer(src)
 
-        # TODO: technically may drop text from buffer that is not used. Fix
-        # after fixing generic string tokeinzation
-        while n_required > 0 and ungrouped_required_chars:
-            args.append('{%s}' % ungrouped_required_chars[0])
-            spacer, ungrouped_required_chars = read_spacer(
-                Buffer([TexText(ungrouped_required_chars[1:])]))
-            n_required -= 1
-
-        if ungrouped_required_chars:
-            src.backward()
-
-        if n_required == 0 or (n_required < 0 and ungrouped_required_chars):
-            break
-
-        if src.hasNext() and src.peek().category == TC.GroupStart:
+        if src.hasNext() and src.peek().category == TC.GroupBegin:
             args.append(read_arg(src, next(src), tolerance=tolerance))
             n_required -= 1
             continue
@@ -441,6 +428,9 @@ def read_arg(src, c, tolerance=0):
     >>> buf = tokenize(categorize(s))
     >>> read_arg(buf, next(buf))
     BraceGroup(TexCmd('item'))
+    >>> buf = tokenize(categorize(r'{\incomplete! [complete]'))
+    >>> read_arg(buf, next(buf), tolerance=1)
+    BraceGroup(TexCmd('incomplete'), '! ', '[', 'complete', ']')
     """
     content = [c]
     arg = ARG_BEGIN_TO_ENV[c.category]
@@ -451,21 +441,18 @@ def read_arg(src, c, tolerance=0):
         else:
             content.append(read_expr(src, tolerance=tolerance))
 
-    clo = CharToLineOffset(str(src))
-    line, offset = clo(c.position)
-    raise TypeError(
-        '[Line: %d, Offset %d] Malformed argument. First and last elements '
-        'must match a valid argument format. In this case, TexSoup'
-        ' could not find matching punctuation for: %s.\n'
-        'Just finished parsing: %s' %
-        (line, offset, c, content))
+    if tolerance == 0:
+        clo = CharToLineOffset(str(src))
+        line, offset = clo(c.position)
+        raise TypeError(
+            '[Line: %d, Offset %d] Malformed argument. First and last elements '
+            'must match a valid argument format. In this case, TexSoup'
+            ' could not find matching punctuation for: %s.\n'
+            'Just finished parsing: %s' %
+            (line, offset, c, content))
+    return arg(*content[1:], position=c.position)
 
 
-# TODO: move spacer tokenization to tokenizer
-# WARNING: This method is flawed: Spacer detection only works for first
-# instance of spacer in text. Will need to refactor generic string tokenization
-# which can only occur after refactoring item, arg, and env readers above,
-# which in turn, rely on the skip_env reader.
 def read_spacer(buf):
     r"""Extracts the next spacer, if there is one, before non-whitespace
 
@@ -475,38 +462,23 @@ def read_spacer(buf):
     >>> from TexSoup.category import categorize
     >>> from TexSoup.tokens import tokenize
     >>> read_spacer(Buffer(tokenize(categorize('   \t    \n'))))
-    ('   \t    \n', '')
+    '   \t    \n'
     >>> read_spacer(Buffer(tokenize(categorize('   \t    \n\t \n  \t\n'))))
-    ('   \t    \n\t ', '\n  \t\n')
+    '   \t    \n\t '
     >>> read_spacer(Buffer(tokenize(categorize('{'))))
-    ('', '')
+    ''
     >>> read_spacer(Buffer(tokenize(categorize('   \t    \na'))))
-    ('   \t    \n', 'a')
+    ''
     >>> read_spacer(Buffer(tokenize(categorize('   \t    \n\t \n  \t\na'))))
-    ('   \t    \n\t ', '\n  \t\na')
+    '   \t    \n\t '
     """
-    if not buf.hasNext() or not buf.peek().category == TC.Text:
-        return '', ''
-
-    text, lines = next(buf), 1
-    spacer, rest, is_spacer = '', '', True
-    for c in text:
-        if c == '\n':  # TODO: change to token code
-            lines += 1
-        if is_spacer and lines > 2 or not c.isspace():
-            is_spacer = False
-        if is_spacer:
-            spacer += c
-        else:
-            rest += c
-
-    return spacer, rest
+    if buf.hasNext() and buf.peek().category == TC.MergedSpacer:
+        return next(buf)
+    return ''
 
 
-# TODO: refactor after generic string tokenizer fixed
-# TODO: hard-coded to 1 required arg
-# TODO: make this a reader, with a generic peek decorator or wrapper
-def peek_command(buf, n_required_args=-1, n_optional_args=-1, skip=0):
+def read_command(buf, n_required_args=-1, n_optional_args=-1, skip=0,
+                 tolerance=0):
     r"""Parses command and all arguments. Assumes escape has just been parsed.
 
     No whitespace is allowed between escape and command name. e.g.,
@@ -518,23 +490,27 @@ def peek_command(buf, n_required_args=-1, n_optional_args=-1, skip=0):
     >>> buf = Buffer(tokenize(categorize('\\sect  \t    \n\t{wallawalla}')))
     >>> next(buf)
     '\\'
-    >>> peek_command(buf)
-    ('sect', [BraceGroup('wallawalla')], 5)
+    >>> read_command(buf)
+    ('sect', [BraceGroup('wallawalla')])
     >>> buf = Buffer(tokenize(categorize('\\sect  \t   \n\t \n{bingbang}')))
     >>> _ = next(buf)
-    >>> peek_command(buf)
-    ('sect', [], 1)
+    >>> read_command(buf)
+    ('sect', [])
     >>> buf = Buffer(tokenize(categorize('\\sect{ooheeeee}')))
     >>> _ = next(buf)
-    >>> peek_command(buf)
-    ('sect', [BraceGroup('ooheeeee')], 4)
+    >>> read_command(buf)
+    ('sect', [BraceGroup('ooheeeee')])
+    >>> buf = Buffer(tokenize(categorize(r'\item aaa {bbb} ccc\end{itemize}')))
+    >>> read_command(buf, skip=1)
+    ('item', [])
+    >>> buf.peek()
+    ' aaa '
     """
     # Broken because abcd is incorrectly tokenized with leading space
     # >>> buf = Buffer(tokenize(categorize('\\sect abcd')))
     # >>> _ = next(buf)
     # >>> peek_command(buf)
     # ('sect', ('a',), 2)
-    position = buf.position
     for _ in range(skip):
         next(buf)
 
@@ -542,8 +518,6 @@ def peek_command(buf, n_required_args=-1, n_optional_args=-1, skip=0):
     token = Token('', buf.position)
     if n_required_args < 0 and n_optional_args < 0:
         n_required_args, n_optional_args = SIGNATURES.get(name, (-1, -1))
-    args = read_args(buf, n_required_args, n_optional_args)
-
-    steps = buf.position - position
-    buf.backward(steps)
-    return name, args, steps
+    args = read_args(buf, n_required_args, n_optional_args,
+                     tolerance=tolerance)
+    return name, args

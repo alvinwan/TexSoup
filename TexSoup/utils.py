@@ -12,12 +12,12 @@ from enum import IntEnum as IntEnumBase
 def IntEnum(name, keys, start=1):
     """Explicitly define key-value pairs. For Python3.4 compatibility"""
     return IntEnumBase(name,
-        [(key, index) for index, key in enumerate(keys, start=start)])
+                       [(key, index) for index, key in enumerate(keys, start=start)])
 
 
 CC = IntEnum('CategoryCodes', (
     'Escape',
-    'GroupStart',
+    'GroupBegin',
     'GroupEnd',
     'MathSwitch',
     'Alignment',
@@ -34,36 +34,36 @@ CC = IntEnum('CategoryCodes', (
     'Invalid',
 
     # custom
-    'MathGroupStart',
+    'MathGroupBegin',
     'MathGroupEnd',
-    'OpenBracket',
-    'CloseBracket',
-    'OpenParen',
-    'CloseParen'
+    'BracketBegin',
+    'BracketEnd',
+    'ParenBegin',
+    'ParenEnd'
 ))
 
 
 # Only includes items that cannot cause failures
 TC = IntEnum('TokenCode', (
     'Escape',
-    'GroupStart',
+    'GroupBegin',
     'GroupEnd',
     'Comment',
     'MergedSpacer',  # whitespace allowed between <command name> and arguments
     'EscapedComment',
     'MathSwitch',
     'DisplayMathSwitch',
-    'MathGroupStart',
+    'MathGroupBegin',
     'MathGroupEnd',
-    'DisplayMathGroupStart',
+    'DisplayMathGroupBegin',
     'DisplayMathGroupEnd',
     'LineBreak',
     'CommandName',
     'Text',
-    'OpenBracket',
-    'CloseBracket',
-    'OpenParen',
-    'CloseParen',
+    'BracketBegin',
+    'BracketEnd',
+    'ParenBegin',
+    'ParenEnd',
 
     # temporary (Replace with macros support)
     'PunctuationCommandName',
@@ -304,7 +304,7 @@ class Buffer:
     """
 
     def __init__(self, iterator, join=Token.join, empty=lambda: '',
-            init=lambda content, index: Token(content, index)):
+                 init=lambda content, index: Token(content, index)):
         """Initialization for Buffer.
 
         :param iterator: iterator or iterable
@@ -361,11 +361,11 @@ class Buffer:
     def forward_until(self, condition, peek=True):
         """Forward until one of the provided matches is found.
 
-        The returned string contains all characters found *before the condition
+        The returned string contains all characters found before the condition
         was met. In other words, the condition will be true for the remainder
         of the buffer.
 
-        :param condition: set of valid strings
+        :param Callable condition: lambda condition for the token to stop at
 
         >>> buf = Buffer(map(str, range(9)))
         >>> _ = buf.forward_until(lambda x: int(x) > 3)
@@ -502,8 +502,8 @@ class MixedBuffer(Buffer):
         324
         """
         super().__init__(iterator,
-            join=lambda x: x, empty=lambda x: [],
-            init=lambda content, index: content)
+                         join=lambda x: x, empty=lambda x: [],
+                         init=lambda content, index: content)
 
 
 ##############

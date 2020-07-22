@@ -6,10 +6,11 @@ import string
 
 # Core category codes
 # https://www.overleaf.com/learn/latex/Table_of_TeX_category_codes
-others = set(string.printable) - set(string.ascii_letters) - set('{}\\$&\n\r#^_~%\x00\x7d \t[]()')
+others = set(string.printable) - set(string.ascii_letters) - \
+    set('{}\\$&\n\r#^_~%\x00\x7d \t[]()')
 CATEGORY_CODES = {
-    CC.Escape:     '\\',
-    CC.GroupStart:  '{',
+    CC.Escape:      '\\',
+    CC.GroupBegin:  '{',
     CC.GroupEnd:    '}',
     CC.MathSwitch:  '$',
     CC.Alignment:   '&',  # not used
@@ -26,10 +27,10 @@ CATEGORY_CODES = {
     CC.Invalid:      chr(127),
 
     # custom
-    CC.OpenBracket: '[',
-    CC.CloseBracket:']',
-    CC.OpenParen:   '(',
-    CC.CloseParen:  ')'
+    CC.BracketBegin: '[',
+    CC.BracketEnd:  ']',
+    CC.ParenBegin:  '(',
+    CC.ParenEnd:    ')'
 }
 
 
@@ -45,13 +46,13 @@ def categorize(text):
     >>> chars[1].category
     <CategoryCodes.Letter: 12>
     >>> chars[3].category
-    <CategoryCodes.GroupStart: 2>
+    <CategoryCodes.GroupBegin: 2>
     >>> chars[4].category
     <CategoryCodes.GroupEnd: 3>
     >>> chars[5].category
     <CategoryCodes.Comment: 15>
     >>> chars[6].category
-    <CategoryCodes.OpenBracket: 19>
+    <CategoryCodes.BracketBegin: 19>
     >>> chars[-2].category
     <CategoryCodes.Other: 13>
     >>> chars[-1].category

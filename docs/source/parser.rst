@@ -9,6 +9,7 @@ Parser
 .. autofunction:: read_tex
 .. autofunction:: read_expr
 .. autofunction:: read_spacer
+.. autofunction:: make_read_peek
 
 Environment Parser
 -----------------------------------
@@ -30,4 +31,4 @@ Argument Parser
 Command Parser
 -----------------------------------
 
-.. autofunction:: peek_command
+.. autofunction:: read_command
