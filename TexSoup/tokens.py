@@ -67,7 +67,7 @@ def tokenize(text):
     >>> print(*tokenize(categorize(r'\\%}')))
     \\ %}
     >>> print(*tokenize(categorize(r'\textbf{hello \\%}')))
-    \ textbf { hello \\ %}
+    \ textbf { hello  \\ %}
     >>> print(*tokenize(categorize(r'\textbf{Do play \textit{nice}.}')))
     \ textbf { Do play  \ textit { nice } . }
     >>> print(*tokenize(categorize(r'\begin{tabular} 0 & 1 \\ 2 & 0 \end{tabular}')))
@@ -351,7 +351,7 @@ def tokenize_string(text, prev=None):
     'hello again'
     >>> print(b.peek())
     \
-    >>> print(tokenize_string(categorize(r'0 & 1 \\\command')))
+    >>> print(tokenize_string(categorize(r'0 & 1\\\command')))
     0 & 1
     """
     result = Token('', text.position, category=TC.Text)
