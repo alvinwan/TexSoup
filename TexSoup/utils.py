@@ -12,7 +12,7 @@ from enum import IntEnum as IntEnumBase
 def IntEnum(name, keys, start=1):
     """Explicitly define key-value pairs. For Python3.4 compatibility"""
     return IntEnumBase(name,
-        [(key, index) for index, key in enumerate(keys, start=start)])
+                       [(key, index) for index, key in enumerate(keys, start=start)])
 
 
 CC = IntEnum('CategoryCodes', (
@@ -304,7 +304,7 @@ class Buffer:
     """
 
     def __init__(self, iterator, join=Token.join, empty=lambda: '',
-            init=lambda content, index: Token(content, index)):
+                 init=lambda content, index: Token(content, index)):
         """Initialization for Buffer.
 
         :param iterator: iterator or iterable
@@ -502,8 +502,8 @@ class MixedBuffer(Buffer):
         324
         """
         super().__init__(iterator,
-            join=lambda x: x, empty=lambda x: [],
-            init=lambda content, index: content)
+                         join=lambda x: x, empty=lambda x: [],
+                         init=lambda content, index: content)
 
 
 ##############

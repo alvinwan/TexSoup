@@ -191,10 +191,10 @@ def tokenize_math_asym_switch(text, prev=None):
     >>> tokenize_math_asym_switch(categorize(r'[]'))
     """
     mapping = {
-        (CC.Escape, CC.BracketBegin):    TC.DisplayMathGroupBegin,
-        (CC.Escape, CC.BracketEnd):   TC.DisplayMathGroupEnd,
-        (CC.Escape, CC.ParenBegin):      TC.MathGroupBegin,
-        (CC.Escape, CC.ParenEnd):     TC.MathGroupEnd
+        (CC.Escape, CC.BracketBegin):   TC.DisplayMathGroupBegin,
+        (CC.Escape, CC.BracketEnd):     TC.DisplayMathGroupEnd,
+        (CC.Escape, CC.ParenBegin):     TC.MathGroupBegin,
+        (CC.Escape, CC.ParenEnd):       TC.MathGroupEnd
     }
     if not text.hasNext(2):
         return

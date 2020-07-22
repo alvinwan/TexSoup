@@ -620,7 +620,7 @@ class TexExpr(object):
     """
 
     def __init__(self, name, contents=(), args=(), preserve_whitespace=False,
-            position=-1):
+                 position=-1):
         """Initialize a tex expression.
 
         :param str name: name of environment
@@ -773,7 +773,6 @@ class TexExpr(object):
                 'non-string content, use .contents' % s)
         self.contents = [TexText(s)]
 
-
     ##################
     # PUBLIC METHODS #
     ##################
@@ -862,7 +861,7 @@ class TexEnv(TexExpr):
     _end = None
 
     def __init__(self, name, begin, end, contents=(), args=(),
-            preserve_whitespace=False, position=-1):
+                 preserve_whitespace=False, position=-1):
         r"""Initialization for Tex environment.
 
         :param str name: name of environment
@@ -959,7 +958,7 @@ class TexNamedEnv(TexEnv):
     """
 
     def __init__(self, name, contents=(), args=(), preserve_whitespace=False,
-            position=-1):
+                 position=-1):
         """Initialization for Tex environment.
 
         :param str name: name of environment
@@ -970,7 +969,7 @@ class TexNamedEnv(TexEnv):
         :param int position: position of first character in original source
         """
         super().__init__(name, r"\begin{%s}" % name, r"\end{%s}" % name,
-            contents, args, preserve_whitespace, position=position)
+                         contents, args, preserve_whitespace, position=position)
 
     @property
     def begin(self):
@@ -988,7 +987,7 @@ class TexUnNamedEnv(TexEnv):
     end = None
 
     def __init__(self, contents=(), args=(), preserve_whitespace=False,
-            position=-1):
+                 position=-1):
         """Initialization for Tex environment.
 
         :param iterable contents: list of contents
@@ -1000,7 +999,7 @@ class TexUnNamedEnv(TexEnv):
         assert self.name, 'Name must be non-falsey'
         assert self.begin and self.end, 'Delimiters must be non-falsey'
         super().__init__(self.name, self.begin, self.end,
-            contents, args, preserve_whitespace, position=position)
+                         contents, args, preserve_whitespace, position=position)
 
 
 class TexDisplayMathModeEnv(TexUnNamedEnv):
@@ -1167,7 +1166,7 @@ class TexGroup(TexUnNamedEnv):
         :param int position: position of first character in original source
         """
         super().__init__(contents, preserve_whitespace=preserve_whitespace,
-            position=position)
+                         position=position)
 
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__,
