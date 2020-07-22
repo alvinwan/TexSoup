@@ -6,7 +6,7 @@ objects, but all objects fall into one of the following three categories:
 
 import itertools
 import re
-from TexSoup.utils import CharToLineOffset, Token, TC
+from TexSoup.utils import CharToLineOffset, Token, TC, to_list
 
 __all__ = ['TexNode', 'TexCmd', 'TexEnv', 'TexGroup', 'BracketGroup',
            'BraceGroup', 'TexArgs', 'TexText', 'TexMathEnv',
@@ -73,7 +73,7 @@ class TexNode(object):
         >>> list(node)
         ['hai', 'there']
         """
-        return self.contents
+        return iter(self.contents)
 
     def __match__(self, name=None, attrs=()):
         r"""Check if given attributes match current object
@@ -98,6 +98,7 @@ class TexNode(object):
     ##############
 
     @property
+    @to_list
     def all(self):
         r"""Returns all content in this node, regardless of whitespace or
         not. This includes all LaTeX needed to reconstruct the original source.
@@ -106,7 +107,7 @@ class TexNode(object):
         >>> soup = TexSoup(r'''
         ... \newcommand{reverseconcat}[3]{#3#2#1}
         ... ''')
-        >>> alls = list(soup.all)
+        >>> alls = soup.all
         >>> alls[0]
         <BLANKLINE>
         <BLANKLINE>
@@ -141,6 +142,7 @@ class TexNode(object):
         self.expr.args = args
 
     @property
+    @to_list
     def children(self):
         r"""Immediate children of this TeX element that are valid TeX objects.
 
@@ -156,7 +158,7 @@ class TexNode(object):
         ...     Random text!
         ...     \item Hello
         ... \end{itemize}''')
-        >>> next(soup.itemize.children)
+        >>> soup.itemize.children[0]
         \item Hello
         <BLANKLINE>
         """
@@ -166,6 +168,7 @@ class TexNode(object):
             yield node
 
     @property
+    @to_list
     def contents(self):
         r"""Any non-whitespace contents inside of this TeX element.
 
@@ -179,9 +182,9 @@ class TexNode(object):
         ...     \item Hello
         ... \end{itemize}''')
         >>> contents = soup.itemize.contents
-        >>> next(contents)
+        >>> contents[0]
         '\n    Random text!\n    '
-        >>> next(contents)
+        >>> contents[1]
         \item Hello
         <BLANKLINE>
         """
@@ -198,6 +201,7 @@ class TexNode(object):
         self.expr.contents = contents
 
     @property
+    @to_list
     def descendants(self):
         r"""Returns all descendants for this TeX element.
 
@@ -295,6 +299,7 @@ class TexNode(object):
         return self.expr.position
 
     @property
+    @to_list
     def text(self):
         r"""All text in descendant nodes.
 
@@ -308,7 +313,7 @@ class TexNode(object):
         ...         \item Nested
         ...     \end{itemize}
         ... \end{itemize}''')
-        >>> next(soup.text)
+        >>> soup.text[0]
         ' Nested\n    '
         """
         for descendant in self.contents:
@@ -492,10 +497,11 @@ class TexNode(object):
         >>> soup.find('textbf')
         """
         try:
-            return next(self.find_all(name, **attrs))
-        except StopIteration:
+            return self.find_all(name, **attrs)[0]
+        except IndexError:
             return None
 
+    @to_list
     def find_all(self, name=None, **attrs):
         r"""Return all descendant nodes matching criteria.
 
@@ -512,14 +518,14 @@ class TexNode(object):
         ... \textit{eee}
         ... \textit{ooo}''')
         >>> gen = soup.find_all('textit')
-        >>> next(gen)
+        >>> gen[0]
         \textit{eee}
-        >>> next(gen)
+        >>> gen[1]
         \textit{ooo}
-        >>> next(soup.find_all('textbf'))
+        >>> soup.find_all('textbf')[0]
         Traceback (most recent call last):
         ...
-        StopIteration
+        IndexError: list index out of range
         """
         for descendant in self.__descendants():
             if hasattr(descendant, '__match__') and \
@@ -687,6 +693,7 @@ class TexExpr(object):
     ##############
 
     @property
+    @to_list
     def all(self):
         r"""Returns all content in this expression, regardless of whitespace or
         not. This includes all LaTeX needed to reconstruct the original source.
@@ -703,10 +710,12 @@ class TexExpr(object):
             yield content
 
     @property
+    @to_list
     def children(self):
         return filter(lambda x: isinstance(x, (TexEnv, TexCmd)), self.contents)
 
     @property
+    @to_list
     def contents(self):
         r"""Returns all contents in this expression.
 

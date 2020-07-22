@@ -533,3 +533,21 @@ def to_buffer(convert_in=True, convert_out=True, Buffer=Buffer):
             return output
         return wrap
     return decorator
+
+
+def to_list(f):
+    """Converts generator or iterable output to list
+
+    >>> class A:
+    ...     @property
+    ...     @to_list
+    ...     def a(self):
+    ...         for i in range(3):
+    ...             yield i
+    >>> A().a
+    [0, 1, 2]
+    """
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        return list(f(*args, **kwargs))
+    return wrapper

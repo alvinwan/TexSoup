@@ -60,7 +60,7 @@ def test_commands_envs_text():
     \end{document}
     """)
     assert len(list(soup.children)) == 1
-    doc = next(soup.children)
+    doc = soup.children[0]
     assert doc.name == 'document'
     contents, children = list(doc.contents), list(doc.children)
     assert str(children[0]) == r'\title{Chikin}'
@@ -99,7 +99,7 @@ def test_command_name_parse():
     with_space_not_arg = TexSoup(r"""\item (10 points)""")
     assert with_space_not_arg.item is not None
     assert len(list(with_space_not_arg.item.contents)) == 1
-    assert next(with_space_not_arg.item.contents) == '(10 points)'
+    assert with_space_not_arg.item.contents[0] == '(10 points)'
 
     with_space_with_arg = TexSoup(r"""\section {hula}""")
     assert with_space_with_arg.section.string == 'hula'
@@ -200,7 +200,7 @@ def test_math_environment_weirdness():
     soup = TexSoup(r"""\begin{a} \end{a}$ b$""")
     assert '$' not in str(soup.a), 'Math env snuck into begin env.'
     soup = TexSoup(r"""\begin{a} $ b$ \end{a}""")
-    assert '$' in str(next(soup.a.contents)), 'Math env not found in begin env'
+    assert '$' in str(soup.a.contents[0]), 'Math env not found in begin env'
     soup = TexSoup(r"""\begin{verbatim} $ \end{verbatim}""")
     assert soup.verbatim is not None
     # GH48
@@ -236,7 +236,7 @@ def test_item_parsing():
     floating text
     \end{itemize}""")
     items = list(soup.find_all('item'))
-    content = next(items[1].contents)
+    content = items[1].contents[0]
     assert 'third item' in content, 'Item does not tolerate starting line breaks (as it should)'
     assert 'with' in content, 'Item does not tolerate line break in middle (as it should)'
     soup = TexSoup(r"""\begin{itemize}
