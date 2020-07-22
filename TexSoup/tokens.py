@@ -71,7 +71,7 @@ def tokenize(text):
     >>> print(*tokenize(categorize(r'\textbf{Do play \textit{nice}.}')))
     \ textbf { Do play  \ textit { nice } . }
     >>> print(*tokenize(categorize(r'\begin{tabular} 0 & 1 \\ 2 & 0 \end{tabular}')))
-    \ begin { tabular }  0 & 1 \\ 2 & 0  \ end { tabular }
+    \ begin { tabular }  0 & 1  \\  2 & 0  \ end { tabular }
     """
     current_token = next_token(text)
     while current_token is not None:
