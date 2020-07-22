@@ -22,7 +22,7 @@
   
   
   
-    <link rel="canonical" href="http://texsoup.alvinwan.com/tokenizer.html"/>
+    <link rel="canonical" href="https://texsoup.alvinwan.com/tokenizer.html"/>
   
 
   
@@ -272,11 +272,11 @@ token at a time.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="o">*</span><span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">%}&#39;</span><span class="p">)))</span>
 <span class="go">\\ %}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="o">*</span><span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\textbf{hello </span><span class="se">\\</span><span class="s1">%}&#39;</span><span class="p">)))</span>
-<span class="go">\ textbf { hello \\ %}</span>
+<span class="go">\ textbf { hello  \\ %}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="o">*</span><span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\textbf{Do play \textit</span><span class="si">{nice}</span><span class="s1">.}&#39;</span><span class="p">)))</span>
 <span class="go">\ textbf { Do play  \ textit { nice } . }</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="o">*</span><span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\begin</span><span class="si">{tabular}</span><span class="s1"> 0 &amp; 1 </span><span class="se">\\</span><span class="s1"> 2 &amp; 0 \end</span><span class="si">{tabular}</span><span class="s1">&#39;</span><span class="p">)))</span>
-<span class="go">\ begin { tabular }  0 &amp; 1 \\ 2 &amp; 0  \ end { tabular }</span>
+<span class="go">\ begin { tabular }  0 &amp; 1  \\  2 &amp; 0  \ end { tabular }</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -478,14 +478,14 @@ isolated if not part of escaped char</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">next</span><span class="p">(</span><span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\bf  </span><span class="si">{turing}</span><span class="s1">&#39;</span><span class="p">)))</span>
 <span class="go">&#39;\\&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">next</span><span class="p">(</span><span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;{]}&#39;</span><span class="p">)))</span><span class="o">.</span><span class="n">category</span>
-<span class="go">&lt;TokenCode.GroupStart: 23&gt;</span>
+<span class="go">&lt;TokenCode.GroupBegin: 23&gt;</span>
 </pre></div>
 </div>
 </dd></dl>
 
 <dl class="function">
 <dt id="TexSoup.tokens.tokenize_string">
-<code class="sig-prename descclassname">TexSoup.tokens.</code><code class="sig-name descname">tokenize_string</code><span class="sig-paren">(</span><em class="sig-param">text</em>, <em class="sig-param">delimiters=None</em>, <em class="sig-param">prev=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/tokens.html#tokenize_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.tokens.tokenize_string" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">TexSoup.tokens.</code><code class="sig-name descname">tokenize_string</code><span class="sig-paren">(</span><em class="sig-param">text</em>, <em class="sig-param">prev=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/tokens.html#tokenize_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.tokens.tokenize_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process a string of text</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -502,8 +502,8 @@ isolated if not part of escaped char</p>
 <span class="go">&#39;hello again&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">peek</span><span class="p">())</span>
 <span class="go">\</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">tokenize_string</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;0 &amp; 1 </span><span class="se">\\</span><span class="s1">\command&#39;</span><span class="p">)))</span>
-<span class="go">0 &amp; 1 \\</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">tokenize_string</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;0 &amp; 1</span><span class="se">\\</span><span class="s1">\command&#39;</span><span class="p">)))</span>
+<span class="go">0 &amp; 1</span>
 </pre></div>
 </div>
 </dd></dl>

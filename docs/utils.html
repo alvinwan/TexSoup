@@ -22,7 +22,7 @@
   
   
   
-    <link rel="canonical" href="http://texsoup.alvinwan.com/utils.html"/>
+    <link rel="canonical" href="https://texsoup.alvinwan.com/utils.html"/>
   
 
   
@@ -388,12 +388,12 @@ and navigate to some elements in the generated DVI/PDF via SyncTeX.</p>
 <dt id="TexSoup.utils.Buffer.forward_until">
 <code class="sig-name descname">forward_until</code><span class="sig-paren">(</span><em class="sig-param">condition</em>, <em class="sig-param">peek=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/utils.html#Buffer.forward_until"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.utils.Buffer.forward_until" title="Permalink to this definition">¶</a></dt>
 <dd><p>Forward until one of the provided matches is found.</p>
-<p>The returned string contains all characters found <a href="#id1"><span class="problematic" id="id2">*</span></a>before the condition
+<p>The returned string contains all characters found before the condition
 was met. In other words, the condition will be true for the remainder
 of the buffer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>condition</strong> – set of valid strings</p>
+<dd class="field-odd"><p><strong>condition</strong> (<em>Callable</em>) – lambda condition for the token to stop at</p>
 </dd>
 </dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">buf</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">)))</span>

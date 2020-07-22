@@ -22,7 +22,7 @@
   
   
   
-    <link rel="canonical" href="http://texsoup.alvinwan.com/data.html"/>
+    <link rel="canonical" href="https://texsoup.alvinwan.com/data.html"/>
   
 
   
@@ -760,7 +760,7 @@ Tex expressions.</p>
 <span class="gp">... </span><span class="s1">    \end</span><span class="si">{itemize}</span><span class="s1"></span>
 <span class="gp">... </span><span class="s1">\end</span><span class="si">{itemize}</span><span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">next</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
-<span class="go">&#39;Nested\n    &#39;</span>
+<span class="go">&#39; Nested\n    &#39;</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1132,6 +1132,22 @@ object.</p>
 <span class="go">2</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">arguments</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="go">BracketGroup(&#39;arg2&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">arguments</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">arguments</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">arguments</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">BraceGroup(&#39;arg3&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">arguments</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">BraceGroup</span><span class="p">(</span><span class="s1">&#39;arg3&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">arguments</span><span class="p">)</span>
+<span class="go">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">arguments</span> <span class="o">=</span> <span class="n">TexArgs</span><span class="p">([</span>
+<span class="gp">... </span>    <span class="n">BraceGroup</span><span class="p">(</span><span class="n">TexCmd</span><span class="p">(</span><span class="s1">&#39;color&#39;</span><span class="p">)),</span>
+<span class="gp">... </span>    <span class="n">BraceGroup</span><span class="p">(</span><span class="n">TexCmd</span><span class="p">(</span><span class="s1">&#39;color&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">BraceGroup</span><span class="p">(</span><span class="s1">&#39;blue&#39;</span><span class="p">)]))</span>
+<span class="gp">... </span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">arguments</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">arguments</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">arguments</span><span class="p">)</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">arguments</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">arguments</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">arguments</span><span class="p">)</span>
+<span class="go">0</span>
 </pre></div>
 </div>
 </dd></dl>

@@ -22,7 +22,7 @@
   
   
   
-    <link rel="canonical" href="http://texsoup.alvinwan.com/parser.html"/>
+    <link rel="canonical" href="https://texsoup.alvinwan.com/parser.html"/>
   
 
   
@@ -310,15 +310,35 @@ one line break.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.category</span> <span class="kn">import</span> <span class="n">categorize</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.tokens</span> <span class="kn">import</span> <span class="n">tokenize</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">read_spacer</span><span class="p">(</span><span class="n">Buffer</span><span class="p">(</span><span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="s1">&#39;   </span><span class="se">\t</span><span class="s1">    </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">))))</span>
-<span class="go">(&#39;   \t    \n&#39;, &#39;&#39;)</span>
+<span class="go">&#39;   \t    \n&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">read_spacer</span><span class="p">(</span><span class="n">Buffer</span><span class="p">(</span><span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="s1">&#39;   </span><span class="se">\t</span><span class="s1">    </span><span class="se">\n\t</span><span class="s1"> </span><span class="se">\n</span><span class="s1">  </span><span class="se">\t\n</span><span class="s1">&#39;</span><span class="p">))))</span>
-<span class="go">(&#39;   \t    \n\t &#39;, &#39;\n  \t\n&#39;)</span>
+<span class="go">&#39;   \t    \n\t &#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">read_spacer</span><span class="p">(</span><span class="n">Buffer</span><span class="p">(</span><span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="s1">&#39;{&#39;</span><span class="p">))))</span>
-<span class="go">(&#39;&#39;, &#39;&#39;)</span>
+<span class="go">&#39;&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">read_spacer</span><span class="p">(</span><span class="n">Buffer</span><span class="p">(</span><span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="s1">&#39;   </span><span class="se">\t</span><span class="s1">    </span><span class="se">\n</span><span class="s1">a&#39;</span><span class="p">))))</span>
-<span class="go">(&#39;   \t    \n&#39;, &#39;a&#39;)</span>
+<span class="go">&#39;&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">read_spacer</span><span class="p">(</span><span class="n">Buffer</span><span class="p">(</span><span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="s1">&#39;   </span><span class="se">\t</span><span class="s1">    </span><span class="se">\n\t</span><span class="s1"> </span><span class="se">\n</span><span class="s1">  </span><span class="se">\t\n</span><span class="s1">a&#39;</span><span class="p">))))</span>
-<span class="go">(&#39;   \t    \n\t &#39;, &#39;\n  \t\na&#39;)</span>
+<span class="go">&#39;   \t    \n\t &#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="TexSoup.reader.make_read_peek">
+<code class="sig-prename descclassname">TexSoup.reader.</code><code class="sig-name descname">make_read_peek</code><span class="sig-paren">(</span><em class="sig-param">f</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#make_read_peek"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.make_read_peek" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make any reader into a peek function.</p>
+<p>The wrapped function still parses the next sequence of tokens in the
+buffer but rolls back the buffer position afterwards.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.category</span> <span class="kn">import</span> <span class="n">categorize</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.tokens</span> <span class="kn">import</span> <span class="n">tokenize</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="n">buf</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">buf</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">buf</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\item testing \textbf</span><span class="si">{hah}</span><span class="s1">&#39;</span><span class="p">)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">buf</span><span class="o">.</span><span class="n">position</span>
+<span class="go">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">make_read_peek</span><span class="p">(</span><span class="n">read</span><span class="p">)(</span><span class="n">buf</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">buf</span><span class="o">.</span><span class="n">position</span>
+<span class="go">0</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -347,27 +367,23 @@ characters is also allowed.</p>
 </dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.category</span> <span class="kn">import</span> <span class="n">categorize</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.tokens</span> <span class="kn">import</span> <span class="n">tokenize</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">read_item_from</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">read_item_from</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
 <span class="gp">... </span>    <span class="n">buf</span> <span class="o">=</span> <span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="n">string</span><span class="p">))</span>
 <span class="gp">... </span>    <span class="n">_</span> <span class="o">=</span> <span class="n">buf</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">skip</span><span class="p">)</span>
 <span class="gp">... </span>    <span class="k">return</span> <span class="n">read_item</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">read_item_from</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\item aaa </span><span class="si">{bbb}</span><span class="s1"> ccc\end</span><span class="si">{itemize}</span><span class="s1">&#39;</span><span class="p">)</span>
-<span class="go">([&#39;aaa &#39;, BraceGroup(&#39;bbb&#39;), &#39; ccc&#39;], [])</span>
+<span class="go">[&#39; aaa &#39;, BraceGroup(&#39;bbb&#39;), &#39; ccc&#39;]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">read_item_from</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\item aaa \textbf</span><span class="si">{itemize}</span><span class="s1">\item no&#39;</span><span class="p">)</span>
-<span class="go">([&#39;aaa &#39;, TexCmd(&#39;textbf&#39;, [BraceGroup(&#39;itemize&#39;)])], [])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">read_item_from</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\item[aaa] yith\item no&#39;</span><span class="p">)</span>
-<span class="go">([&#39;yith&#39;], [BracketGroup(&#39;aaa&#39;)])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">read_item_from</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">item</span><span class="se">\n</span><span class="s1">[aaa] yith</span><span class="se">\\</span><span class="s1">item no&#39;</span><span class="p">)</span>
-<span class="go">([&#39;yith&#39;], [BracketGroup(&#39;aaa&#39;)])</span>
+<span class="go">[&#39; aaa &#39;, TexCmd(&#39;textbf&#39;, [BraceGroup(&#39;itemize&#39;)])]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">read_item_from</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\item WITCH [nuuu] DOCTORRRR 👩🏻‍⚕️&#39;</span><span class="p">)</span>
-<span class="go">([&#39;WITCH &#39;, &#39;[&#39;, &#39;nuuu&#39;, &#39;]&#39;, &#39; DOCTORRRR 👩🏻‍⚕️&#39;], [])</span>
+<span class="go">[&#39; WITCH &#39;, &#39;[&#39;, &#39;nuuu&#39;, &#39;]&#39;, &#39; DOCTORRRR 👩🏻‍⚕️&#39;]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">read_item_from</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;&#39;&#39;\begin</span><span class="si">{itemize}</span><span class="s1"></span>
 <span class="gp">... </span><span class="s1">\item</span>
 <span class="gp">... </span><span class="s1">\item first item</span>
-<span class="gp">... </span><span class="s1">\end</span><span class="si">{itemize}</span><span class="s1">&#39;&#39;&#39;</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
-<span class="go">([], [])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">read_item_from</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;&#39;&#39;\def\itemeqn{\item}&#39;&#39;&#39;</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
-<span class="go">([], [])</span>
+<span class="gp">... </span><span class="s1">\end</span><span class="si">{itemize}</span><span class="s1">&#39;&#39;&#39;</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="go">[&#39;\n&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">read_item_from</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;&#39;&#39;\def\itemeqn{\item}&#39;&#39;&#39;</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="go">[]</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -440,10 +456,10 @@ UNparsed content to the expression automatically.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">read_skip_env</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">TexNamedEnv</span><span class="p">(</span><span class="s1">&#39;foobar&#39;</span><span class="p">))</span>
 <span class="go">TexNamedEnv(&#39;foobar&#39;, [&#39; \\textbf{aa &#39;], [])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">buf</span> <span class="o">=</span> <span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39; \textbf{aa ha&#39;</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">read_skip_env</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">TexNamedEnv</span><span class="p">(</span><span class="s1">&#39;foobar&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">read_skip_env</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">TexNamedEnv</span><span class="p">(</span><span class="s1">&#39;foobar&#39;</span><span class="p">))</span>  
 <span class="gt">Traceback (most recent call last):</span>
     <span class="o">...</span>
-<span class="gr">EOFError</span>: <span class="n">[Line: 0, Offset: 5] &quot;foobar&quot; env expecting \end{foobar}. Reached end of file.</span>
+<span class="gr">EOFError</span>: <span class="n">...</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -599,12 +615,14 @@ brace groups will be captured.</p></li>
 </dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.category</span> <span class="kn">import</span> <span class="n">categorize</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.tokens</span> <span class="kn">import</span> <span class="n">tokenize</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">buf</span> <span class="o">=</span> <span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="s1">&#39;{wal]la}{ba ng}&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">buf</span> <span class="o">=</span> <span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="s1">&#39;{wal]la}</span><span class="se">\n</span><span class="s1">{ba ng}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">args</span> <span class="o">=</span> <span class="n">TexArgs</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">read_arg_required</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>  <span class="c1"># &#39;regular&#39; arg parse</span>
 <span class="go">-3</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">args</span>
 <span class="go">[BraceGroup(&#39;wal&#39;, &#39;]&#39;, &#39;la&#39;), BraceGroup(&#39;ba ng&#39;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">buf</span><span class="o">.</span><span class="n">hasNext</span><span class="p">()</span> <span class="ow">and</span> <span class="n">buf</span><span class="o">.</span><span class="n">peek</span><span class="p">()</span><span class="o">.</span><span class="n">category</span> <span class="o">==</span> <span class="n">TC</span><span class="o">.</span><span class="n">MergedSpacer</span>
+<span class="go">True</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -635,6 +653,9 @@ brace groups will be captured.</p></li>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">buf</span> <span class="o">=</span> <span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">read_arg</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="nb">next</span><span class="p">(</span><span class="n">buf</span><span class="p">))</span>
 <span class="go">BraceGroup(TexCmd(&#39;item&#39;))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">buf</span> <span class="o">=</span> <span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;{\incomplete! [complete]&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">read_arg</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="nb">next</span><span class="p">(</span><span class="n">buf</span><span class="p">),</span> <span class="n">tolerance</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">BraceGroup(TexCmd(&#39;incomplete&#39;), &#39;! &#39;, &#39;[&#39;, &#39;complete&#39;, &#39;]&#39;)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -643,8 +664,8 @@ brace groups will be captured.</p></li>
 <div class="section" id="command-parser">
 <h2>Command Parser<a class="headerlink" href="#command-parser" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
-<dt id="TexSoup.reader.peek_command">
-<code class="sig-prename descclassname">TexSoup.reader.</code><code class="sig-name descname">peek_command</code><span class="sig-paren">(</span><em class="sig-param">buf</em>, <em class="sig-param">n_required_args=-1</em>, <em class="sig-param">n_optional_args=-1</em>, <em class="sig-param">skip=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#peek_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.peek_command" title="Permalink to this definition">¶</a></dt>
+<dt id="TexSoup.reader.read_command">
+<code class="sig-prename descclassname">TexSoup.reader.</code><code class="sig-name descname">read_command</code><span class="sig-paren">(</span><em class="sig-param">buf</em>, <em class="sig-param">n_required_args=-1</em>, <em class="sig-param">n_optional_args=-1</em>, <em class="sig-param">skip=0</em>, <em class="sig-param">tolerance=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#read_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.read_command" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parses command and all arguments. Assumes escape has just been parsed.</p>
 <p>No whitespace is allowed between escape and command name. e.g.,
 <code class="code docutils literal notranslate"><span class="pre">\</span> <span class="pre">textbf</span></code> is a backslash command, then text <code class="code docutils literal notranslate"><span class="pre">textbf</span></code>. Only
@@ -654,16 +675,21 @@ brace groups will be captured.</p></li>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">buf</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">sect  </span><span class="se">\t</span><span class="s1">    </span><span class="se">\n\t</span><span class="si">{wallawalla}</span><span class="s1">&#39;</span><span class="p">)))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">next</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span>
 <span class="go">&#39;\\&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">peek_command</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span>
-<span class="go">(&#39;sect&#39;, [BraceGroup(&#39;wallawalla&#39;)], 5)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">read_command</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span>
+<span class="go">(&#39;sect&#39;, [BraceGroup(&#39;wallawalla&#39;)])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">buf</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">sect  </span><span class="se">\t</span><span class="s1">   </span><span class="se">\n\t</span><span class="s1"> </span><span class="se">\n</span><span class="si">{bingbang}</span><span class="s1">&#39;</span><span class="p">)))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">peek_command</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span>
-<span class="go">(&#39;sect&#39;, [], 1)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">read_command</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span>
+<span class="go">(&#39;sect&#39;, [])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">buf</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">sect</span><span class="si">{ooheeeee}</span><span class="s1">&#39;</span><span class="p">)))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">peek_command</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span>
-<span class="go">(&#39;sect&#39;, [BraceGroup(&#39;ooheeeee&#39;)], 4)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">read_command</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span>
+<span class="go">(&#39;sect&#39;, [BraceGroup(&#39;ooheeeee&#39;)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">buf</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\item aaa </span><span class="si">{bbb}</span><span class="s1"> ccc\end</span><span class="si">{itemize}</span><span class="s1">&#39;</span><span class="p">)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">read_command</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">(&#39;item&#39;, [])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">buf</span><span class="o">.</span><span class="n">peek</span><span class="p">()</span>
+<span class="go">&#39; aaa &#39;</span>
 </pre></div>
 </div>
 </dd></dl>
