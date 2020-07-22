@@ -137,7 +137,7 @@ html_theme_path = [pytorch_sphinx_theme.get_html_theme_path()]
 
 html_theme_options = {
     'pytorch_project': 'docs',
-    'canonical_url': 'http://texsoup.alvinwan.com',
+    'canonical_url': 'https://texsoup.alvinwan.com',
     'collapse_navigation': False,
     'display_version': True,
     'logo_only': True,
@@ -149,7 +149,7 @@ html_logo = '_static/images/logo-dark.svg'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static', '_images']
+html_static_path = ['_static']  # , '_images']
 
 
 # Called automatically by Sphinx, making this `conf.py` an "extension".
