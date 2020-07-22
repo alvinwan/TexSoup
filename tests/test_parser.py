@@ -70,7 +70,7 @@ def test_commands_envs_text():
     assert len(children) == 5
     assert len(contents) == 6
     everything = list(doc.expr.all)
-    assert len(everything) == 11
+    assert len(everything) == 12
 
 
 #########

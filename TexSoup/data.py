@@ -309,7 +309,7 @@ class TexNode(object):
         ...     \end{itemize}
         ... \end{itemize}''')
         >>> next(soup.text)
-        'Nested\n    '
+        ' Nested\n    '
         """
         for descendant in self.contents:
             if isinstance(descendant, (TexText, Token)):
@@ -1060,7 +1060,7 @@ class TexCmd(TexExpr):
 
     def __str__(self):
         if self._contents:
-            return '\\%s%s %s' % (self.name, self.args, ''.join(
+            return '\\%s%s%s' % (self.name, self.args, ''.join(
                 [str(e) for e in self._contents]))
         return '\\%s%s' % (self.name, self.args)
 

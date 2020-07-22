@@ -231,6 +231,34 @@ def tokenize_ignore(text, prev=None):
         text.forward(1)
 
 
+@token('spacers')
+def tokenize_spacers(text, prev=None):
+    r"""Combine spacers [ + line break [ + spacer]]
+
+    >>> tokenize_spacers(categorize('\t\n{there'))
+    '\t\n'
+    >>> tokenize_spacers(categorize('\t\nthere'))
+    >>> tokenize_spacers(categorize('      \t     '))
+    '      \t     '
+    >>> tokenize_spacers(categorize(r' ccc'))
+    """
+    result = Token('', text.position)
+    while text.hasNext() and text.peek().category == CC.Spacer:
+        result += text.forward(1)
+    if text.hasNext() and text.peek().category == CC.EndOfLine:
+        result += text.forward(1)
+    while text.hasNext() and text.peek().category == CC.Spacer:
+        result += text.forward(1)
+    result.category = TC.MergedSpacer
+
+    if text.hasNext() and text.peek().category in (CC.Letter, CC.Other):
+        text.backward(text.position - result.position)
+        return
+
+    if result:
+        return result
+
+
 @token('symbols')
 def tokenize_symbols(text, prev=None):
     r"""Process singletone symbols as standalone tokens.
@@ -250,10 +278,7 @@ def tokenize_symbols(text, prev=None):
         CC.GroupStart:      TC.GroupStart,
         CC.GroupEnd:        TC.GroupEnd,
         CC.OpenBracket:     TC.OpenBracket,
-        CC.CloseBracket:    TC.CloseBracket,
-        CC.OpenParen:       TC.OpenParen,
-        CC.CloseParen:      TC.CloseParen,
-        # CC.Spacer:          TC.Spacer
+        CC.CloseBracket:    TC.CloseBracket
     }
     if text.peek().category in mapping.keys():
         result = text.forward(1)

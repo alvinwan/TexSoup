@@ -49,7 +49,7 @@ def test_navigation_positions(chikin):
 
     # get position of first token
     waddle_pos = next(next(chikin.itemize.children).contents).position
-    assert chikin.char_pos_to_line(waddle_pos) == (11, 6)
+    assert chikin.char_pos_to_line(waddle_pos) == (11, 5)
 
     # get position of item
     enumerate_first_item_pos = next(chikin.enumerate.children).name.position
@@ -181,7 +181,7 @@ def test_access_position(chikin):
     assert chikin.section.args[0].position == 60
     assert chikin.itemize.position == 150
     contents = list(chikin.document.contents)
-    assert len(contents) > 2 and contents[2].position == 99, contents
+    assert len(contents) > 2 and contents[2].position == 100, contents
 
     assert clo(chikin.section.position) == (4, 0)
 
@@ -195,7 +195,7 @@ def test_text(chikin):
     text = list(chikin.text)
     assert 'Chikin Tales' in text
     assert 'Chikin Fly' in text
-    assert 'waddle\n' in text
+    assert ' waddle\n' in text
 
 
 def test_search_regex(chikin):
