@@ -505,12 +505,12 @@ def read_command(buf, n_required_args=-1, n_optional_args=-1, skip=0,
     ('item', [])
     >>> buf.peek()
     ' aaa '
-    """
-    # Broken because abcd is incorrectly tokenized with leading space
+    
     # >>> buf = Buffer(tokenize(categorize('\\sect abcd')))
     # >>> _ = next(buf)
-    # >>> peek_command(buf)
-    # ('sect', ('a',), 2)
+    # >>> read_command(buf)
+    # ('sect', ('a',))
+    """
     for _ in range(skip):
         next(buf)
 

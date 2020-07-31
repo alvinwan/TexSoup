@@ -102,7 +102,7 @@ def token(name):
 
 @token('escaped_symbols')
 def tokenize_escaped_symbols(text, prev=None):
-    r"""Process an escaped symbol.
+    r"""Process an escaped symbol or a known punctuation command.
 
     :param Buffer text: iterator over line, with current position
 
@@ -120,7 +120,8 @@ def tokenize_escaped_symbols(text, prev=None):
             and text.peek(1) \
             and text.peek(1).category in (
                 CC.Escape, CC.GroupBegin, CC.GroupEnd, CC.MathSwitch,
-                CC.Comment):
+                CC.Alignment, CC.Macro, CC.Superscript, CC.Subscript,
+                CC.Active, CC.Comment, CC.Other):
         result = text.forward(2)
         result.category = TC.EscapedComment
         return result

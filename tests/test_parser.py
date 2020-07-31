@@ -404,6 +404,21 @@ def test_math_environment_whitespace():
     assert str(soup.notescaped) == r'\begin{notescaped}\gamma = \beta\end{notescaped}'
 
 
+def test_non_letter_commands():
+    """
+    Tests that non-letters are still captured as an escaped sequence
+    (whether valid or not).
+    """
+    for punctuation in '!@#$%^&*_+-=~`<>,./?;:|':
+        tex = rf"""
+        \begin{{document}}
+        \lstinline{{\{punctuation} Word [a-z]+}}
+        \end{{document}}
+        """
+        soup = TexSoup(tex)
+        assert str(soup) == tex
+
+
 def test_math_environment_escape():
     """Tests $ escapes in math environment."""
     soup = TexSoup(r"$ \$ $")
