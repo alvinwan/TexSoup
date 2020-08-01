@@ -14,6 +14,8 @@ import string
 import sys
 
 
+MODE_MATH = 'mode:math'
+MODE_NON_MATH = 'mode:non-math'
 MATH_ENVS = (
     TexDisplayMathModeEnv,
     TexMathModeEnv,
@@ -74,12 +76,13 @@ def make_read_peek(f):
     return wrapper
 
 
-def read_expr(src, skip_envs=(), tolerance=0):
+def read_expr(src, skip_envs=(), tolerance=0, mode=MODE_NON_MATH):
     r"""Read next expression from buffer
 
     :param Buffer src: a buffer of tokens
     :param Tuple[str] skip_envs: environments to skip parsing
     :param int tolerance: error tolerance level (only supports 0 or 1)
+    :param str mode: math or not math mode
     :return: parsed expression
     :rtype: [TexExpr, Token]
     """
@@ -88,11 +91,13 @@ def read_expr(src, skip_envs=(), tolerance=0):
         expr = MATH_TOKEN_TO_ENV[c.category]([], position=c.position)
         return read_math_env(src, expr)
     elif c.category == TC.Escape:
-        name, args = read_command(src, tolerance=tolerance)
+        name, args = read_command(src, tolerance=tolerance, mode=mode)
         if name == 'item':
+            assert mode != MODE_MATH, 'Command \item invalid in math mode.'
             contents = read_item(src)
             expr = TexCmd(name, contents, args, position=c.position)
         elif name == 'begin':
+            assert mode != MODE_MATH, 'Environment invalid in math mode.'
             assert args, 'Begin command must be followed by an env name.'
             expr = TexNamedEnv(
                 args[0].string, args=args[1:], position=c.position)
@@ -284,7 +289,8 @@ def read_env(src, expr, tolerance=0):
 
 # TODO: handle macro-weirdness e.g., \def\blah[#1][[[[[[[[#2{"#1 . #2"}
 # TODO: add newcommand macro
-def read_args(src, n_required=-1, n_optional=-1, args=None, tolerance=0):
+def read_args(src, n_required=-1, n_optional=-1, args=None, tolerance=0,
+        mode=MODE_NON_MATH):
     r"""Read all arguments from buffer.
 
     This function assumes that the command name has already been parsed. By
@@ -300,6 +306,7 @@ def read_args(src, n_required=-1, n_optional=-1, args=None, tolerance=0):
     :param int n_optional: Number of optional arguments. If < 0, all valid
                            bracket groups will be captured.
     :param int tolerance: error tolerance level (only supports 0 or 1)
+    :param str mode: math or not math mode
     :return: parsed arguments
     :rtype: TexArgs
 
@@ -325,17 +332,18 @@ def read_args(src, n_required=-1, n_optional=-1, args=None, tolerance=0):
     if n_required == 0 and n_optional == 0:
         return args
 
-    n_optional = read_arg_optional(src, args, n_optional, tolerance)
-    n_required = read_arg_required(src, args, n_required, tolerance)
+    n_optional = read_arg_optional(src, args, n_optional, tolerance, mode)
+    n_required = read_arg_required(src, args, n_required, tolerance, mode)
 
     if src.hasNext() and src.peek().category == TC.BracketBegin:
-        n_optional = read_arg_optional(src, args, n_optional, tolerance)
+        n_optional = read_arg_optional(src, args, n_optional, tolerance, mode)
     if src.hasNext() and src.peek().category == TC.GroupBegin:
-        n_required = read_arg_required(src, args, n_required, tolerance)
+        n_required = read_arg_required(src, args, n_required, tolerance, mode)
     return args
 
 
-def read_arg_optional(src, args, n_optional=-1, tolerance=0):
+def read_arg_optional(
+        src, args, n_optional=-1, tolerance=0, mode=MODE_NON_MATH):
     """Read next optional argument from buffer.
 
     If the command has remaining optional arguments, look for:
@@ -349,6 +357,7 @@ def read_arg_optional(src, args, n_optional=-1, tolerance=0):
     :param int n_optional: Number of optional arguments. If < 0, all valid
                            bracket groups will be captured.
     :param int tolerance: error tolerance level (only supports 0 or 1)
+    :param str mode: math or not math mode
     :return: number of remaining optional arguments
     :rtype: int
     """
@@ -358,12 +367,13 @@ def read_arg_optional(src, args, n_optional=-1, tolerance=0):
             if spacer:
                 src.backward(1)
             break
-        args.append(read_arg(src, next(src), tolerance=tolerance))
+        args.append(read_arg(src, next(src), tolerance=tolerance, mode=mode))
         n_optional -= 1
     return n_optional
 
 
-def read_arg_required(src, args, n_required=-1, tolerance=0):
+def read_arg_required(
+        src, args, n_required=-1, tolerance=0, mode=MODE_NON_MATH):
     r"""Read next required argument from buffer.
 
     If the command has remaining required arguments, look for:
@@ -379,6 +389,7 @@ def read_arg_required(src, args, n_required=-1, tolerance=0):
     :param int n_required: Number of required arguments. If < 0, all valid
                            brace groups will be captured.
     :param int tolerance: error tolerance level (only supports 0 or 1)
+    :param str mode: math or not math mode
     :return: number of remaining optional arguments
     :rtype: int
 
@@ -397,7 +408,8 @@ def read_arg_required(src, args, n_required=-1, tolerance=0):
         spacer = read_spacer(src)
 
         if src.hasNext() and src.peek().category == TC.GroupBegin:
-            args.append(read_arg(src, next(src), tolerance=tolerance))
+            args.append(read_arg(
+                src, next(src), tolerance=tolerance, mode=mode))
             n_required -= 1
             continue
         elif src.hasNext() and n_required > 0:
@@ -411,7 +423,7 @@ def read_arg_required(src, args, n_required=-1, tolerance=0):
     return n_required
 
 
-def read_arg(src, c, tolerance=0):
+def read_arg(src, c, tolerance=0, mode=MODE_NON_MATH):
     r"""Read the argument from buffer.
 
     Advances buffer until right before the end of the argument.
@@ -419,6 +431,7 @@ def read_arg(src, c, tolerance=0):
     :param Buffer src: a buffer of tokens
     :param str c: argument token (starting token)
     :param int tolerance: error tolerance level (only supports 0 or 1)
+    :param str mode: math or not math mode
     :return: the parsed argument
     :rtype: TexGroup
 
@@ -439,7 +452,7 @@ def read_arg(src, c, tolerance=0):
             src.forward()
             return arg(*content[1:], position=c.position)
         else:
-            content.append(read_expr(src, tolerance=tolerance))
+            content.append(read_expr(src, tolerance=tolerance, mode=mode))
 
     if tolerance == 0:
         clo = CharToLineOffset(str(src))
@@ -478,7 +491,7 @@ def read_spacer(buf):
 
 
 def read_command(buf, n_required_args=-1, n_optional_args=-1, skip=0,
-                 tolerance=0):
+                 tolerance=0, mode=MODE_NON_MATH):
     r"""Parses command and all arguments. Assumes escape has just been parsed.
 
     No whitespace is allowed between escape and command name. e.g.,
@@ -505,7 +518,7 @@ def read_command(buf, n_required_args=-1, n_optional_args=-1, skip=0,
     ('item', [])
     >>> buf.peek()
     ' aaa '
-    
+
     # >>> buf = Buffer(tokenize(categorize('\\sect abcd')))
     # >>> _ = next(buf)
     # >>> read_command(buf)
@@ -519,5 +532,5 @@ def read_command(buf, n_required_args=-1, n_optional_args=-1, skip=0,
     if n_required_args < 0 and n_optional_args < 0:
         n_required_args, n_optional_args = SIGNATURES.get(name, (-1, -1))
     args = read_args(buf, n_required_args, n_optional_args,
-                     tolerance=tolerance)
+                     tolerance=tolerance, mode=mode)
     return name, args
