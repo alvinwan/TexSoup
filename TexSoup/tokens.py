@@ -12,15 +12,17 @@ import itertools
 import string
 
 # Custom higher-level combinations of primitives
-SKIP_ENVS = ('verbatim', 'equation', 'lstlisting', 'align', 'alignat',
-             'equation*', 'align*', 'math', 'displaymath', 'split', 'array',
-             'eqnarray', 'eqnarray*', 'multline', 'multline*', 'gather',
-             'gather*', 'flalign', 'flalign*',
-             '$', '$$', r'\[', r'\]', r'\(', r'\)')
-BRACKETS_DELIMITERS = {'(', ')', '<', '>', '[', ']', '{', '}',
-                       r'\{', r'\}', '.' '|', r'\langle', r'\rangle',
-                       r'\lfloor', '\rfloor', r'\lceil', r'\rceil',
-                       r'\ulcorner', r'\urcorner', r'\lbrack', r'\rbrack'}
+SKIP_ENVS = ('lstlisting', 'verbatim')
+MATH_ENVS = (
+    'align', 'align*', 'alignat', 'array', 'displaymath', 'eqnarray',
+    'eqnarray*', 'equation', 'equation*', 'flalign', 'flalign*', 'gather',
+    'gather*', 'math', 'multline', 'multline*', 'split'
+)
+BRACKETS_DELIMITERS = {
+    '(', ')', '<', '>', '[', ']', '{', '}', r'\{', r'\}', '.' '|', r'\langle',
+    r'\rangle', r'\lfloor', '\rfloor', r'\lceil', r'\rceil', r'\ulcorner',
+    r'\urcorner', r'\lbrack', r'\rbrack'
+}
 # TODO: looks like left-right do have to match
 SIZE_PREFIX = ('left', 'right', 'big', 'Big', 'bigg', 'Bigg')
 PUNCTUATION_COMMANDS = {command + bracket
