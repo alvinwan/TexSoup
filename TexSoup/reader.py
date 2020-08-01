@@ -7,7 +7,8 @@ from TexSoup.data import arg_type
 from TexSoup.tokens import (
     TC,
     tokenize,
-    SKIP_ENVS,
+    SKIP_ENV_NAMES,
+    MATH_ENV_NAMES,
 )
 import functools
 import string
@@ -16,13 +17,13 @@ import sys
 
 MODE_MATH = 'mode:math'
 MODE_NON_MATH = 'mode:non-math'
-MATH_ENVS = (
+MATH_SIMPLE_ENVS = (
     TexDisplayMathModeEnv,
     TexMathModeEnv,
     TexDisplayMathEnv,
     TexMathEnv
 )
-MATH_TOKEN_TO_ENV = {env.token_begin: env for env in MATH_ENVS}
+MATH_TOKEN_TO_ENV = {env.token_begin: env for env in MATH_SIMPLE_ENVS}
 ARG_BEGIN_TO_ENV = {arg.token_begin: arg for arg in arg_type}
 
 SIGNATURES = {
@@ -46,7 +47,7 @@ def read_tex(buf, skip_envs=(), tolerance=0):
     """
     while buf.hasNext():
         yield read_expr(buf,
-                        skip_envs=SKIP_ENVS + skip_envs,
+                        skip_envs=SKIP_ENV_NAMES + skip_envs,
                         tolerance=tolerance)
 
 
@@ -89,7 +90,7 @@ def read_expr(src, skip_envs=(), tolerance=0, mode=MODE_NON_MATH):
     c = next(src)
     if c.category in MATH_TOKEN_TO_ENV.keys():
         expr = MATH_TOKEN_TO_ENV[c.category]([], position=c.position)
-        return read_math_env(src, expr)
+        return read_math_env(src, expr, tolerance=tolerance)
     elif c.category == TC.Escape:
         name, args = read_command(src, tolerance=tolerance, mode=mode)
         if name == 'item':
@@ -97,14 +98,15 @@ def read_expr(src, skip_envs=(), tolerance=0, mode=MODE_NON_MATH):
             contents = read_item(src)
             expr = TexCmd(name, contents, args, position=c.position)
         elif name == 'begin':
-            assert mode != MODE_MATH, 'Environment invalid in math mode.'
             assert args, 'Begin command must be followed by an env name.'
             expr = TexNamedEnv(
                 args[0].string, args=args[1:], position=c.position)
+            if expr.name in MATH_ENV_NAMES:
+                mode = MODE_MATH
             if expr.name in skip_envs:
                 read_skip_env(src, expr)
             else:
-                read_env(src, expr, tolerance=tolerance)
+                read_env(src, expr, tolerance=tolerance, mode=mode)
         else:
             expr = TexCmd(name, args=args, position=c.position)
         return expr
@@ -175,6 +177,7 @@ def unclosed_env_handler(src, expr, end):
 
     :param Buffer src: a buffer of tokens
     :param TexExpr expr: expression for the environment
+    :param int tolerance: error tolerance level (only supports 0 or 1)
     :param end str: Actual end token (as opposed to expected)
     """
     clo = CharToLineOffset(str(src))
@@ -184,7 +187,7 @@ def unclosed_env_handler(src, expr, end):
         line, offset, expr.name, expr.end, explanation))
 
 
-def read_math_env(src, expr):
+def read_math_env(src, expr, tolerance=0):
     r"""Read the environment from buffer.
 
     Advances the buffer until right after the end of the environment. Adds
@@ -202,11 +205,13 @@ def read_math_env(src, expr):
         ...
     EOFError: [Line: 0, Offset: 7] "$" env expecting $. Reached end of file.
     """
-    content = src.forward_until(lambda c: c.category == expr.token_end)
+    contents = []
+    while src.hasNext() and src.peek().category != expr.token_end:
+        contents.append(read_expr(src, tolerance=tolerance, mode=MODE_MATH))
     if not src.hasNext() or src.peek().category != expr.token_end:
         unclosed_env_handler(src, expr, src.peek())
     next(src)
-    expr.append(content)
+    expr.append(*contents)
     return expr
 
 
@@ -240,7 +245,7 @@ def read_skip_env(src, expr):
     return expr
 
 
-def read_env(src, expr, tolerance=0):
+def read_env(src, expr, tolerance=0, mode=MODE_NON_MATH):
     r"""Read the environment from buffer.
 
     Advances the buffer until right after the end of the environment. Adds
@@ -249,6 +254,7 @@ def read_env(src, expr, tolerance=0):
     :param Buffer src: a buffer of tokens
     :param TexExpr expr: expression for the environment
     :param int tolerance: error tolerance level (only supports 0 or 1)
+    :param str mode: math or not math mode
     :rtype: TexExpr
 
     >>> from TexSoup.category import categorize
@@ -269,10 +275,10 @@ def read_env(src, expr, tolerance=0):
     while src.hasNext():
         if src.peek().category == TC.Escape:
             name, args = make_read_peek(read_command)(
-                src, 1, skip=1, tolerance=tolerance)
+                src, 1, skip=1, tolerance=tolerance, mode=mode)
             if name == 'end':
                 break
-        contents.append(read_expr(src, tolerance=tolerance))
+        contents.append(read_expr(src, tolerance=tolerance, mode=mode))
     error = not src.hasNext() or not args or args[0].string != expr.name
     if error and tolerance == 0:
         unclosed_env_handler(src, expr, src.peek((0, 6)))

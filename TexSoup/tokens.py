@@ -12,8 +12,8 @@ import itertools
 import string
 
 # Custom higher-level combinations of primitives
-SKIP_ENVS = ('lstlisting', 'verbatim')
-MATH_ENVS = (
+SKIP_ENV_NAMES = ('lstlisting', 'verbatim')
+MATH_ENV_NAMES = (
     'align', 'align*', 'alignat', 'array', 'displaymath', 'eqnarray',
     'eqnarray*', 'equation', 'equation*', 'flalign', 'flalign*', 'gather',
     'gather*', 'math', 'multline', 'multline*', 'split'

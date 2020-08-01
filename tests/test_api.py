@@ -186,6 +186,21 @@ def test_access_position(chikin):
     assert clo(chikin.section.position) == (4, 0)
 
 
+def test_math_env_change():
+    """Tests that commands in math environments can be found / modified"""
+    soup = TexSoup(r'\begin{align}\infer{A}{B}\infer{C}{D}\end{align}')
+    assert soup.infer is not None, repr(soup.expr)
+    for infer in soup.find_all('infer'):
+        infer.args = infer.args[::-1]
+    assert str(soup) == r'\begin{align}\infer{B}{A}\infer{D}{C}\end{align}'
+
+    soup = TexSoup(r'$$\infer{A}{B}\infer{C}{D}$$')
+    assert soup.infer is not None, repr(soup.expr)
+    for infer in soup.find_all('infer'):
+        infer.args = infer.args[::-1]
+    assert str(soup) == r'$$\infer{B}{A}\infer{D}{C}$$'
+
+
 #########
 # TEXT #
 ########
