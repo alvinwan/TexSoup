@@ -410,11 +410,11 @@ def test_non_letter_commands():
     (whether valid or not).
     """
     for punctuation in '!@#$%^&*_+-=~`<>,./?;:|':
-        tex = rf"""
+        tex = r"""
         \begin{{document}}
-        \lstinline{{\{punctuation} Word [a-z]+}}
+        \lstinline{{\{} Word [a-z]+}}
         \end{{document}}
-        """
+        """.format(punctuation)
         soup = TexSoup(tex)
         assert str(soup) == tex
 
