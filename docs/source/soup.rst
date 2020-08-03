@@ -1,3 +1,5 @@
+.. _page-soup:
+
 Soup
 ===================================
 
@@ -23,8 +25,20 @@ You can also ask TexSoup to tolerate :math:`\LaTeX` errors. In which case,
 TexSoup will make a best-effort guess::
 
     >>> soup4 = TexSoup(r'\begin{itemize}\item hullo\end{enumerate}', tolerance=1)
+    >>> soup4
     \begin{itemize}\item hullo\end{itemize}\end{enumerate}
 
+To output the soup, you can call :code:`str()` on a :class:`TexSoup.data.TexNode` object, or any nested
+data structure.
+
+    >>> soup4
+    \begin{itemize}\item hullo\end{itemize}\end{enumerate}
+    >>> str(soup4)
+    '\\begin{itemize}\\item hullo\\end{itemize}\\end{enumerate}'
+    >>> soup4.item
+    \item hullo
+    >>> str(soup4.item)
+    '\\item hullo'
 
 Kinds of Objects
 ------------------------------------

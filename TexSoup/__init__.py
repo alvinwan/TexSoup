@@ -7,7 +7,7 @@ tree with navigation, search, and modification utilities.
 from TexSoup.tex import read
 from TexSoup.data import TexNode
 
-__version__ = '0.3.0'
+__version__ = '0.3.1'
 
 
 # noinspection PyPep8Naming
