@@ -148,7 +148,12 @@
 <li class="toctree-l2"><a class="reference internal" href="searching.html#kinds-of-filters">Kinds of Filters</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Modification</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Modification</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#commands">Commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#arguments">Arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#environments">Environments</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption"><span class="caption-text">How it Works</span></p>
 <ul>
@@ -262,10 +267,96 @@
               
   <div class="section" id="modification">
 <h1>Modification<a class="headerlink" href="#modification" title="Permalink to this headline">¶</a></h1>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This guide is coming soon. In the meantime, please see the package
-reference for a <a class="reference internal" href="data.html#TexSoup.data.TexNode" title="TexSoup.data.TexNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">TexSoup.data.TexNode</span></code></a>.</p>
+<p>You can also modify the document using the TexSoup tree, then export the changes
+back to a <span class="math">\(\LaTeX\)</span> file.</p>
+<div class="section" id="commands">
+<h2>Commands<a class="headerlink" href="#commands" title="Permalink to this headline">¶</a></h2>
+<p>As mentioned in <a class="reference internal" href="soup.html#page-soup"><span class="std std-ref">Soup</span></a>, you can change commands and their arguments.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;I am \textbf{\large Large and bold}&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">textbf</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;textit&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span>
+<span class="go">\textit{\large Large and bold}</span>
+</pre></div>
+</div>
+<p>You can set <code class="code docutils literal notranslate"><span class="pre">.string</span></code> for any single-argument command (e.g., <code class="code docutils literal notranslate"><span class="pre">\section</span></code>).</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span><span class="o">.</span><span class="n">string</span> <span class="o">=</span> <span class="s1">&#39;corgis are the best&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span>
+<span class="go">\textit{corgis are the best}</span>
+</pre></div>
+</div>
+<p>You can do the same for any command in math mode.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup2</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$$\textrm</span><span class="si">{math}</span><span class="s1">\sum$$&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup2</span><span class="o">.</span><span class="n">textrm</span><span class="o">.</span><span class="n">string</span> <span class="o">=</span> <span class="s1">&#39;not math&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup2</span>
+<span class="go">$$\textrm{not math}\sum$$</span>
+</pre></div>
+</div>
+<p>You can also remove any command in-place, by calling <code class="code docutils literal notranslate"><span class="pre">.delete</span></code> on it.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup2</span><span class="o">.</span><span class="n">textrm</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup2</span>
+<span class="go">$$\sum$$</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="arguments">
+<h2>Arguments<a class="headerlink" href="#arguments" title="Permalink to this headline">¶</a></h2>
+<p>You can modify arguments just as you would a list.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{moar}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span>
+<span class="go">\textit{corgis are the best}{moar}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{moar}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span>
+<span class="go">\textit{corgis are the best}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s1">&#39;[moar]&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{crazy}</span><span class="s1">&#39;</span><span class="p">])</span>
+<span class="go">\textit{corgis are the best}[moar]{crazy}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">cmd</span><span class="o">.</span><span class="n">args</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span>
+<span class="go">\textit{corgis are the best}[moar]</span>
+</pre></div>
+</div>
+<p>Use the argument’s <code class="code docutils literal notranslate"><span class="pre">.string</span></code> attribute to modify the argument’s contents.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">string</span> <span class="o">=</span> <span class="s1">&#39;no&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span>
+<span class="go">\textit{no}[moar]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="environments">
+<h2>Environments<a class="headerlink" href="#environments" title="Permalink to this headline">¶</a></h2>
+<p>Use the <code class="code docutils literal notranslate"><span class="pre">.string</span></code> attribute to modify any environment with only text content
+(i.e., a verbatim or math environment).</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\begin</span><span class="si">{verbatim}</span><span class="s1">Huehue\end</span><span class="si">{verbatim}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">verbatim</span><span class="o">.</span><span class="n">string</span> <span class="o">=</span> <span class="s1">&#39;HUEHUE&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span>
+<span class="go">\begin{verbatim}HUEHUE\end{verbatim}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$$\text</span><span class="si">{math}</span><span class="s1">$$&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">string</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+</pre></div>
+</div>
+<p>You can add to an environment’s contents using list-like operations, like
+<code class="code docutils literal notranslate"><span class="pre">.append</span></code>, <code class="code docutils literal notranslate"><span class="pre">.remove</span></code>, <code class="code docutils literal notranslate"><span class="pre">.insert</span></code>, and <code class="code docutils literal notranslate"><span class="pre">.extend</span></code>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="kn">import</span> <span class="n">TexSoup</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="gp">... </span><span class="s1">\begin</span><span class="si">{itemize}</span><span class="s1"></span>
+<span class="gp">... </span><span class="s1">    \item Hello</span>
+<span class="gp">... </span><span class="s1">    \item Bye</span>
+<span class="gp">... </span><span class="s1">\end</span><span class="si">{itemize}</span><span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tmp</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">item</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">itemize</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">item</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">itemize</span>
+<span class="go">\begin{itemize}</span>
+<span class="go">\item Bye</span>
+<span class="go">\end{itemize}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">tmp</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span>
+<span class="go">\begin{itemize}</span>
+<span class="go">\item Hello</span>
+<span class="go">\item Bye</span>
+<span class="go">\end{itemize}</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="data.html#TexSoup.data.TexNode" title="TexSoup.data.TexNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">TexSoup.data.TexNode</span></code></a> for more utilities.</p>
 </div>
 </div>
 
@@ -313,7 +404,12 @@ reference for a <a class="reference internal" href="data.html#TexSoup.data.TexNo
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">Modification</a></li>
+<li><a class="reference internal" href="#">Modification</a><ul>
+<li><a class="reference internal" href="#commands">Commands</a></li>
+<li><a class="reference internal" href="#arguments">Arguments</a></li>
+<li><a class="reference internal" href="#environments">Environments</a></li>
+</ul>
+</li>
 </ul>
 
             </div>
