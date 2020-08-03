@@ -361,6 +361,12 @@ def test_def_item():
     assert soup.item is not None
 
 
+def test_grouping_optional_argument():
+    """Tests that grouping occurs correctly"""
+    soup = TexSoup(r"\begin{Theorem}[The argopt contains {$]\int_\infty$} the square bracket]\end{Theorem}")
+    assert len(soup.Theorem.args) == 1
+
+
 ##############
 # FORMATTING #
 ##############
