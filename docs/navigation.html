@@ -36,7 +36,7 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
     <link rel="stylesheet" href="_static/css/theme-mod.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
@@ -99,7 +99,7 @@
               
               
                 <div class="version">
-                  master (0.3.0 )
+                  master (0.3.1 )
                 </div>
               
             
@@ -267,8 +267,8 @@
               
   <div class="section" id="navigation">
 <h1>Navigation<a class="headerlink" href="#navigation" title="Permalink to this headline">¶</a></h1>
-<p>Here’s the <span class="math">\(\LaTeX\)</span> document from the quickstart guide:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tex_doc</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<p>Here&#8217;s the <span class="math">\(\LaTeX\)</span> document from the quickstart guide:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tex_doc</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="gp">... </span><span class="se">\b</span><span class="s2">egin</span><span class="si">{document}</span><span class="s2"></span>
 <span class="gp">... </span><span class="s2">\section{Hello </span><span class="se">\t</span><span class="s2">extit</span><span class="si">{world}</span><span class="s2">.}</span>
 <span class="gp">... </span><span class="s2">\subsection</span><span class="si">{Watermelon}</span><span class="s2"></span>
@@ -284,66 +284,66 @@
 <span class="gp">... </span><span class="s2">\end</span><span class="si">{tabular}</span><span class="s2"></span>
 <span class="gp">... </span><span class="s2">\end</span><span class="si">{document}</span><span class="s2"></span>
 <span class="gp">... </span><span class="s2">&quot;&quot;&quot;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="kn">import</span> <span class="n">TexSoup</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="k">import</span> <span class="n">TexSoup</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="n">tex_doc</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="section" id="going-down">
 <h2>Going Down<a class="headerlink" href="#going-down" title="Permalink to this headline">¶</a></h2>
 <p>Some expressions contain content. For example, environments may contain items.
-TexSoup provides attributes for navigating an environment’s children.</p>
+TexSoup provides attributes for navigating an environment&#8217;s children.</p>
 <p>Naviate by naming the expression you want. For example, to access italicized
-text, use <code class="code docutils literal notranslate"><span class="pre">soup.textit</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">textit</span>
+text, use <code class="code docutils literal"><span class="pre">soup.textit</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">textit</span>
 <span class="go">\textit{world}</span>
 </pre></div>
 </div>
 <p>You can use this to select expressions from a specific part of the document.
 For example, this retrieves the an item from an itemize environment:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">itemize</span><span class="o">.</span><span class="n">item</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">itemize</span><span class="o">.</span><span class="n">item</span>
 <span class="go">\item red lemon</span>
 </pre></div>
 </div>
 <p>Note accessing by name only returns the first result.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">item</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">item</span>
 <span class="go">\item red lemon</span>
 </pre></div>
 </div>
 <p>To access <em>all</em> items, use one of the utilities from <a class="reference internal" href="searching.html#page-search"><span class="std std-ref">Search</span></a>, such
-as <code class="code docutils literal notranslate"><span class="pre">find_all</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;item&#39;</span><span class="p">)</span>
+as <code class="code docutils literal"><span class="pre">find_all</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;item&#39;</span><span class="p">)</span>
 <span class="go">[\item red lemon</span>
 <span class="go">  , \item life</span>
 <span class="go">]</span>
 </pre></div>
 </div>
-<p>An environment’s contents are accessible via a list called <code class="code docutils literal notranslate"><span class="pre">contents</span></code>.
+<p>An environment&#8217;s contents are accessible via a list called <code class="code docutils literal"><span class="pre">contents</span></code>.
 Note that changing this list in-place will not affect the environment:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">itemize</span><span class="o">.</span><span class="n">contents</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">itemize</span><span class="o">.</span><span class="n">contents</span>
 <span class="go">[\item red lemon</span>
 <span class="go">  , \item life</span>
 <span class="go">]</span>
 </pre></div>
 </div>
-<p>There are several views into an environment’s content:</p>
+<p>There are several views into an environment&#8217;s content:</p>
 <ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">.children</span></code>: Nested Tex expressions. Does not include floating text.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">.content</span></code>: Nested Tex expressions and text. Does not contain whitespace-only text.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">.all</span></code>: Nested Tex expressions and text, regardless of whitespace or not. All information needed to reconstruct the original source.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">.descendants</span></code>: Tex expressions nested inside of Tex expressions.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">.text</span></code>: Used to “detex” a source file. Returns text from all descendants, without Tex expressions.</p></li>
+<li><code class="code docutils literal"><span class="pre">.children</span></code>: Nested Tex expressions. Does not include floating text.</li>
+<li><code class="code docutils literal"><span class="pre">.content</span></code>: Nested Tex expressions and text. Does not contain whitespace-only text.</li>
+<li><code class="code docutils literal"><span class="pre">.all</span></code>: Nested Tex expressions and text, regardless of whitespace or not. All information needed to reconstruct the original source.</li>
+<li><code class="code docutils literal"><span class="pre">.descendants</span></code>: Tex expressions nested inside of Tex expressions.</li>
+<li><code class="code docutils literal"><span class="pre">.text</span></code>: Used to &#8220;detex&#8221; a source file. Returns text from all descendants, without Tex expressions.</li>
 </ul>
 <p>If a command has only one required argument, or an environment has only one
-child, these values are made available as a <code class="code docutils literal notranslate"><span class="pre">.string</span></code>.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">textit</span><span class="o">.</span><span class="n">string</span>
+child, these values are made available as a <code class="code docutils literal"><span class="pre">.string</span></code>.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">textit</span><span class="o">.</span><span class="n">string</span>
 <span class="go">&#39;world&#39;</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="going-up">
 <h2>Going Up<a class="headerlink" href="#going-up" title="Permalink to this headline">¶</a></h2>
-<p>You can access an experssion’s parent with the <code class="code docutils literal notranslate"><span class="pre">.parent</span></code> attribute:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">textit</span><span class="o">.</span><span class="n">parent</span>
+<p>You can access an experssion&#8217;s parent with the <code class="code docutils literal"><span class="pre">.parent</span></code> attribute:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">textit</span><span class="o">.</span><span class="n">parent</span>
 <span class="go">\section{Hello \textit{world}.}</span>
 </pre></div>
 </div>
@@ -413,14 +413,23 @@ child, these values are made available as a <code class="code docutils literal n
   
 
      
-       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-         <script src="_static/jquery.js"></script>
-         <script src="_static/underscore.js"></script>
-         <script src="_static/doctools.js"></script>
-         <script src="_static/language_data.js"></script>
-         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script>
-         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js"></script>
-         <script src="_static/katex_autorenderer.js"></script>
+       <script type="text/javascript">
+           var DOCUMENTATION_OPTIONS = {
+               URL_ROOT:'./',
+               VERSION:'master',
+               LANGUAGE:'None',
+               COLLAPSE_INDEX:false,
+               FILE_SUFFIX:'.html',
+               HAS_SOURCE:  true,
+               SOURCELINK_SUFFIX: '.txt'
+           };
+       </script>
+         <script type="text/javascript" src="_static/jquery.js"></script>
+         <script type="text/javascript" src="_static/underscore.js"></script>
+         <script type="text/javascript" src="_static/doctools.js"></script>
+         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"></script>
+         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"></script>
+         <script type="text/javascript" src="_static/katex_autorenderer.js"></script>
      
 
   

@@ -36,7 +36,7 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
     <link rel="stylesheet" href="_static/css/theme-mod.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
@@ -99,7 +99,7 @@
               
               
                 <div class="version">
-                  master (0.3.0 )
+                  master (0.3.1 )
                 </div>
               
             
@@ -270,15 +270,15 @@
 <div class="section" id="making-a-soup">
 <h2>Making a Soup<a class="headerlink" href="#making-a-soup" title="Permalink to this headline">¶</a></h2>
 <p>To parse a <span class="math">\(\LaTeX\)</span> document, pass an open filehandle or a string into the
-<code class="code docutils literal notranslate"><span class="pre">TexSoup</span></code> constructor:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="kn">import</span> <span class="n">TexSoup</span>
+<code class="code docutils literal"><span class="pre">TexSoup</span></code> constructor:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="k">import</span> <span class="n">TexSoup</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;main.tex&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
 <span class="gp">... </span>    <span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup2</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\begin</span><span class="si">{document}</span><span class="s1">Hello world!\end</span><span class="si">{document}</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Alternatively, compute the data structure only:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="kn">import</span> <span class="n">read</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="k">import</span> <span class="n">read</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup3</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\begin</span><span class="si">{document}</span><span class="s1">Hello world!\end</span><span class="si">{document}</span><span class="s1">&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup3</span>
 <span class="go">[TexNamedEnv(&#39;document&#39;, [&#39;Hello world!&#39;], [])]</span>
@@ -286,14 +286,14 @@
 </div>
 <p>You can also ask TexSoup to tolerate <span class="math">\(\LaTeX\)</span> errors. In which case,
 TexSoup will make a best-effort guess:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup4</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\begin</span><span class="si">{itemize}</span><span class="s1">\item hullo\end</span><span class="si">{enumerate}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup4</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\begin</span><span class="si">{itemize}</span><span class="s1">\item hullo\end</span><span class="si">{enumerate}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup4</span>
 <span class="go">\begin{itemize}\item hullo\end{itemize}\end{enumerate}</span>
 </pre></div>
 </div>
-<p>To output the soup, you can call <code class="code docutils literal notranslate"><span class="pre">str()</span></code> on a <a class="reference internal" href="data.html#TexSoup.data.TexNode" title="TexSoup.data.TexNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">TexSoup.data.TexNode</span></code></a> object, or any nested
+<p>To output the soup, you can call <code class="code docutils literal"><span class="pre">str()</span></code> on a <a class="reference internal" href="data.html#TexSoup.data.TexNode" title="TexSoup.data.TexNode"><code class="xref py py-class docutils literal"><span class="pre">TexSoup.data.TexNode</span></code></a> object, or any nested
 data structure.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup4</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup4</span>
 <span class="go">\begin{itemize}\item hullo\end{itemize}\end{enumerate}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">soup4</span><span class="p">)</span>
 <span class="go">&#39;\\begin{itemize}\\item hullo\\end{itemize}\\end{enumerate}&#39;</span>
@@ -311,42 +311,42 @@ There are only three <em>kinds</em> of objects: commands, environments, and
 text.</p>
 <div class="section" id="command">
 <h3>Command<a class="headerlink" href="#command" title="Permalink to this headline">¶</a></h3>
-<p>A <code class="code docutils literal notranslate"><span class="pre">TexCmd</span></code> corresponds to a command in the original document:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;I am \textbf{\large Large and bold}&#39;</span><span class="p">)</span>
+<p>A <code class="code docutils literal"><span class="pre">TexCmd</span></code> corresponds to a command in the original document:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;I am \textbf{\large Large and bold}&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">textbf</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span>
 <span class="go">\textbf{\large Large and bold}</span>
 </pre></div>
 </div>
-<p>You can access the underlying data structures using <code class="code docutils literal notranslate"><span class="pre">.expr</span></code>.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span><span class="o">.</span><span class="n">expr</span>
+<p>You can access the underlying data structures using <code class="code docutils literal"><span class="pre">.expr</span></code>.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span><span class="o">.</span><span class="n">expr</span>
 <span class="go">TexCmd(&#39;textbf&#39;, [BraceGroup(TexCmd(&#39;large&#39;), &#39; Large and bold&#39;)])</span>
 </pre></div>
 </div>
 <p>Every command has a name:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span><span class="o">.</span><span class="n">name</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span><span class="o">.</span><span class="n">name</span>
 <span class="go">&#39;textbf&#39;</span>
 </pre></div>
 </div>
-<p>You can change the command’s name too. This change will be reflected when you
+<p>You can change the command&#8217;s name too. This change will be reflected when you
 convert the TexSoup back to <span class="math">\(\LaTeX\)</span>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;textit&#39;</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;textit&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span>
 <span class="go">\textit{\large Large and bold}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span>
 <span class="go">I am \textit{\large Large and bold}</span>
 </pre></div>
 </div>
-<p>Commands may have any number of arguments, stored in <code class="code docutils literal notranslate"><span class="pre">.args</span></code> as a list.
+<p>Commands may have any number of arguments, stored in <code class="code docutils literal"><span class="pre">.args</span></code> as a list.
 Our command has just one argument:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
 <span class="go">1</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 <span class="go">&#39;{\\large Large and bold}&#39;</span>
 </pre></div>
 </div>
-<p>You can add, remove, and modify arguments, treating <code class="code docutils literal notranslate"><span class="pre">.args</span></code> as a list:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{moar}</span><span class="s1">&#39;</span><span class="p">)</span>  <span class="c1"># add arguments</span>
+<p>You can add, remove, and modify arguments, treating <code class="code docutils literal"><span class="pre">.args</span></code> as a list:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{moar}</span><span class="s1">&#39;</span><span class="p">)</span>  <span class="c1"># add arguments</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
 <span class="go">&#39;{\\large Large and bold}{moar}&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;{\large Large and bold}&#39;</span><span class="p">)</span>  <span class="c1"># remove arguments</span>
@@ -357,14 +357,14 @@ Our command has just one argument:</p>
 <span class="go">&#39;{floating}&#39;</span>
 </pre></div>
 </div>
-<p>All arguments are represented using TexSoup’s underlying data structures:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span><span class="o">.</span><span class="n">args</span>
+<p>All arguments are represented using TexSoup&#8217;s underlying data structures:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span><span class="o">.</span><span class="n">args</span>
 <span class="go">[BraceGroup(&#39;floating&#39;)]</span>
 </pre></div>
 </div>
 <p>The above commands all apply to optional arguments as well. Note
 that all changes are reflected when we convert the soup back to <span class="math">\(\LaTeX\)</span>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;[optional]&#39;</span><span class="p">)</span>  <span class="c1"># add optional arg</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;[optional]&#39;</span><span class="p">)</span>  <span class="c1"># add optional arg</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
 <span class="go">&#39;{floating}[optional]&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;[optional]&#39;</span><span class="p">)</span>  <span class="c1"># remove optional arg</span>
@@ -377,8 +377,8 @@ that all changes are reflected when we convert the soup back to <span class="mat
 </div>
 <div class="section" id="text">
 <h3>Text<a class="headerlink" href="#text" title="Permalink to this headline">¶</a></h3>
-<p>A <code class="code docutils literal notranslate"><span class="pre">TexText</span></code> represents floating bits of text:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span>
+<p>A <code class="code docutils literal"><span class="pre">TexText</span></code> represents floating bits of text:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span>
 <span class="go">I am \textit{floating}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">text</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">contents</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">text</span>
@@ -387,9 +387,9 @@ that all changes are reflected when we convert the soup back to <span class="mat
 <span class="go">&lt;class &#39;TexSoup.data.TexText&#39;&gt;</span>
 </pre></div>
 </div>
-<p>You can set the <code class="code docutils literal notranslate"><span class="pre">.text</span></code> attribute. As before, this will be reflected
+<p>You can set the <code class="code docutils literal"><span class="pre">.text</span></code> attribute. As before, this will be reflected
 when you convert the data structure back into <span class="math">\(\LaTeX\)</span>.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">text</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s1">&#39;I am not &#39;</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">text</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s1">&#39;I am not &#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span>
 <span class="go">I am not \textit{floating}</span>
 </pre></div>
@@ -397,24 +397,24 @@ when you convert the data structure back into <span class="math">\(\LaTeX\)</spa
 </div>
 <div class="section" id="environment">
 <h3>Environment<a class="headerlink" href="#environment" title="Permalink to this headline">¶</a></h3>
-<p>Environments, or <code class="code docutils literal notranslate"><span class="pre">TexEnv</span></code>, are split into three types:</p>
+<p>Environments, or <code class="code docutils literal"><span class="pre">TexEnv</span></code>, are split into three types:</p>
 <ol class="arabic simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">TexNamedEnv</span></code>: The typical environments you think of, with a begin
-and an end, such as <code class="code docutils literal notranslate"><span class="pre">\begin{itemize}...\end{itemize}</span></code>.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">TexUnNamedEnv</span></code>: Special environments such as math <code class="code docutils literal notranslate"><span class="pre">\(...\)</span></code>.
-All math environments fall in this category.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">TexGroup</span></code>: Unnamed environments with single-character delimiters,
-like <code class="code docutils literal notranslate"><span class="pre">{...}</span></code>.</p></li>
+<li><code class="code docutils literal"><span class="pre">TexNamedEnv</span></code>: The typical environments you think of, with a begin
+and an end, such as <code class="code docutils literal"><span class="pre">\begin{itemize}...\end{itemize}</span></code>.</li>
+<li><code class="code docutils literal"><span class="pre">TexUnNamedEnv</span></code>: Special environments such as math <code class="code docutils literal"><span class="pre">\(...\)</span></code>.
+All math environments fall in this category.</li>
+<li><code class="code docutils literal"><span class="pre">TexGroup</span></code>: Unnamed environments with single-character delimiters,
+like <code class="code docutils literal"><span class="pre">{...}</span></code>.</li>
 </ol>
 <p>You can access environments by name:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Haha \begin</span><span class="si">{itemize}</span><span class="s1">[label=\alph]\item Huehue\end</span><span class="si">{itemize}</span><span class="s1">&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Haha \begin</span><span class="si">{itemize}</span><span class="s1">[label=\alph]\item Huehue\end</span><span class="si">{itemize}</span><span class="s1">&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">env</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">itemize</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">env</span>
 <span class="go">\begin{itemize}[label=\alph]\item Huehue\end{itemize}</span>
 </pre></div>
 </div>
-<p>Every environment’s name can be accessed and modified using <code class="code docutils literal notranslate"><span class="pre">.name</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">env</span><span class="o">.</span><span class="n">name</span>
+<p>Every environment&#8217;s name can be accessed and modified using <code class="code docutils literal"><span class="pre">.name</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">env</span><span class="o">.</span><span class="n">name</span>
 <span class="go">&#39;itemize&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">env</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;enumerate&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">env</span>
@@ -423,14 +423,14 @@ like <code class="code docutils literal notranslate"><span class="pre">{...}</sp
 <span class="go">Haha \begin{enumerate}[label=\alph]\item Huehue\end{enumerate}</span>
 </pre></div>
 </div>
-<p>As with commands, environments store arguments in a list <code class="code docutils literal notranslate"><span class="pre">.args</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+<p>As with commands, environments store arguments in a list <code class="code docutils literal"><span class="pre">.args</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
 <span class="go">&#39;[label=\\alph]&#39;</span>
 </pre></div>
 </div>
 <p>Each environment will contain variable amounts of content, accessible via
-<code class="code docutils literal notranslate"><span class="pre">.contents</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">contents</span><span class="p">)</span>
+<code class="code docutils literal"><span class="pre">.contents</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">contents</span><span class="p">)</span>
 <span class="go">[\item Huehue]</span>
 </pre></div>
 </div>
@@ -506,14 +506,23 @@ like <code class="code docutils literal notranslate"><span class="pre">{...}</sp
   
 
      
-       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-         <script src="_static/jquery.js"></script>
-         <script src="_static/underscore.js"></script>
-         <script src="_static/doctools.js"></script>
-         <script src="_static/language_data.js"></script>
-         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script>
-         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js"></script>
-         <script src="_static/katex_autorenderer.js"></script>
+       <script type="text/javascript">
+           var DOCUMENTATION_OPTIONS = {
+               URL_ROOT:'./',
+               VERSION:'master',
+               LANGUAGE:'None',
+               COLLAPSE_INDEX:false,
+               FILE_SUFFIX:'.html',
+               HAS_SOURCE:  true,
+               SOURCELINK_SUFFIX: '.txt'
+           };
+       </script>
+         <script type="text/javascript" src="_static/jquery.js"></script>
+         <script type="text/javascript" src="_static/underscore.js"></script>
+         <script type="text/javascript" src="_static/doctools.js"></script>
+         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"></script>
+         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"></script>
+         <script type="text/javascript" src="_static/katex_autorenderer.js"></script>
      
 
   

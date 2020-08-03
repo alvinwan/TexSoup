@@ -36,7 +36,7 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
     <link rel="stylesheet" href="_static/css/theme-mod.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
@@ -99,7 +99,7 @@
               
               
                 <div class="version">
-                  master (0.3.0 )
+                  master (0.3.1 )
                 </div>
               
             
@@ -273,54 +273,63 @@ subject to change.</p>
 <h2>Parser<a class="headerlink" href="#parser" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="TexSoup.reader.read_tex">
-<code class="sig-prename descclassname">TexSoup.reader.</code><code class="sig-name descname">read_tex</code><span class="sig-paren">(</span><em class="sig-param">buf</em>, <em class="sig-param">skip_envs=()</em>, <em class="sig-param">tolerance=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#read_tex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.read_tex" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">TexSoup.reader.</code><code class="descname">read_tex</code><span class="sig-paren">(</span><em>buf</em>, <em>skip_envs=()</em>, <em>tolerance=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#read_tex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.read_tex" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse all expressions in buffer</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>buf</strong> (<a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a>) – a buffer of tokens</p></li>
-<li><p><strong>skip_envs</strong> (<em>Tuple</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – environments to skip parsing</p></li>
-<li><p><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – error tolerance level (only supports 0 or 1)</p></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>buf</strong> (<a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a>) &#8211; a buffer of tokens</li>
+<li><strong>skip_envs</strong> (<em>Tuple</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em><em></em>) &#8211; environments to skip parsing</li>
+<li><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) &#8211; error tolerance level (only supports 0 or 1)</li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>iterable over parsed expressions</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Iterable[<a class="reference internal" href="data.html#TexSoup.data.TexExpr" title="TexSoup.data.TexExpr">TexExpr</a>]</p>
-</dd>
-</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">iterable over parsed expressions</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Iterable[<a class="reference internal" href="data.html#TexSoup.data.TexExpr" title="TexSoup.data.TexExpr">TexExpr</a>]</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="TexSoup.reader.read_expr">
-<code class="sig-prename descclassname">TexSoup.reader.</code><code class="sig-name descname">read_expr</code><span class="sig-paren">(</span><em class="sig-param">src</em>, <em class="sig-param">skip_envs=()</em>, <em class="sig-param">tolerance=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#read_expr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.read_expr" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">TexSoup.reader.</code><code class="descname">read_expr</code><span class="sig-paren">(</span><em>src</em>, <em>skip_envs=()</em>, <em>tolerance=0</em>, <em>mode='mode:non-math'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#read_expr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.read_expr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read next expression from buffer</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>src</strong> (<a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a>) – a buffer of tokens</p></li>
-<li><p><strong>skip_envs</strong> (<em>Tuple</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – environments to skip parsing</p></li>
-<li><p><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – error tolerance level (only supports 0 or 1)</p></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>src</strong> (<a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a>) &#8211; a buffer of tokens</li>
+<li><strong>skip_envs</strong> (<em>Tuple</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em><em></em>) &#8211; environments to skip parsing</li>
+<li><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) &#8211; error tolerance level (only supports 0 or 1)</li>
+<li><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) &#8211; math or not math mode</li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>parsed expression</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>[<a class="reference internal" href="data.html#TexSoup.data.TexExpr" title="TexSoup.data.TexExpr">TexExpr</a>, <a class="reference internal" href="utils.html#TexSoup.utils.Token" title="TexSoup.utils.Token">Token</a>]</p>
-</dd>
-</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">parsed expression</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">[<a class="reference internal" href="data.html#TexSoup.data.TexExpr" title="TexSoup.data.TexExpr">TexExpr</a>, <a class="reference internal" href="utils.html#TexSoup.utils.Token" title="TexSoup.utils.Token">Token</a>]</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="TexSoup.reader.read_spacer">
-<code class="sig-prename descclassname">TexSoup.reader.</code><code class="sig-name descname">read_spacer</code><span class="sig-paren">(</span><em class="sig-param">buf</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#read_spacer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.read_spacer" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">TexSoup.reader.</code><code class="descname">read_spacer</code><span class="sig-paren">(</span><em>buf</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#read_spacer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.read_spacer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extracts the next spacer, if there is one, before non-whitespace</p>
 <p>Define a spacer to be a contiguous string of only whitespace, with at most
 one line break.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.category</span> <span class="kn">import</span> <span class="n">categorize</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.tokens</span> <span class="kn">import</span> <span class="n">tokenize</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.category</span> <span class="k">import</span> <span class="n">categorize</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.tokens</span> <span class="k">import</span> <span class="n">tokenize</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">read_spacer</span><span class="p">(</span><span class="n">Buffer</span><span class="p">(</span><span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="s1">&#39;   </span><span class="se">\t</span><span class="s1">    </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">))))</span>
 <span class="go">&#39;   \t    \n&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">read_spacer</span><span class="p">(</span><span class="n">Buffer</span><span class="p">(</span><span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="s1">&#39;   </span><span class="se">\t</span><span class="s1">    </span><span class="se">\n\t</span><span class="s1"> </span><span class="se">\n</span><span class="s1">  </span><span class="se">\t\n</span><span class="s1">&#39;</span><span class="p">))))</span>
@@ -337,12 +346,12 @@ one line break.</p>
 
 <dl class="function">
 <dt id="TexSoup.reader.make_read_peek">
-<code class="sig-prename descclassname">TexSoup.reader.</code><code class="sig-name descname">make_read_peek</code><span class="sig-paren">(</span><em class="sig-param">f</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#make_read_peek"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.make_read_peek" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">TexSoup.reader.</code><code class="descname">make_read_peek</code><span class="sig-paren">(</span><em>f</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#make_read_peek"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.make_read_peek" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make any reader into a peek function.</p>
 <p>The wrapped function still parses the next sequence of tokens in the
 buffer but rolls back the buffer position afterwards.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.category</span> <span class="kn">import</span> <span class="n">categorize</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.tokens</span> <span class="kn">import</span> <span class="n">tokenize</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.category</span> <span class="k">import</span> <span class="n">categorize</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.tokens</span> <span class="k">import</span> <span class="n">tokenize</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="n">buf</span><span class="p">):</span>
 <span class="gp">... </span>    <span class="n">buf</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">buf</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\item testing \textbf</span><span class="si">{hah}</span><span class="s1">&#39;</span><span class="p">)))</span>
@@ -360,25 +369,29 @@ buffer but rolls back the buffer position afterwards.</p>
 <h2>Environment Parser<a class="headerlink" href="#environment-parser" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="TexSoup.reader.read_item">
-<code class="sig-prename descclassname">TexSoup.reader.</code><code class="sig-name descname">read_item</code><span class="sig-paren">(</span><em class="sig-param">src</em>, <em class="sig-param">tolerance=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#read_item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.read_item" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">TexSoup.reader.</code><code class="descname">read_item</code><span class="sig-paren">(</span><em>src</em>, <em>tolerance=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#read_item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.read_item" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read the item content. Assumes escape has just been parsed.</p>
 <p>There can be any number of whitespace characters between item and the
 first non-whitespace character. Any amount of whitespace between subsequent
 characters is also allowed.</p>
 <p>item can also take an argument.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>src</strong> (<a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a>) – a buffer of tokens</p></li>
-<li><p><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – error tolerance level (only supports 0 or 1)</p></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>src</strong> (<a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a>) &#8211; a buffer of tokens</li>
+<li><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) &#8211; error tolerance level (only supports 0 or 1)</li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>contents of the item and any item arguments</p>
-</dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.category</span> <span class="kn">import</span> <span class="n">categorize</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.tokens</span> <span class="kn">import</span> <span class="n">tokenize</span>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">contents of the item and any item arguments</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.category</span> <span class="k">import</span> <span class="n">categorize</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.tokens</span> <span class="k">import</span> <span class="n">tokenize</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">read_item_from</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
 <span class="gp">... </span>    <span class="n">buf</span> <span class="o">=</span> <span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="n">string</span><span class="p">))</span>
 <span class="gp">... </span>    <span class="n">_</span> <span class="o">=</span> <span class="n">buf</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">skip</span><span class="p">)</span>
@@ -402,40 +415,49 @@ characters is also allowed.</p>
 
 <dl class="function">
 <dt id="TexSoup.reader.unclosed_env_handler">
-<code class="sig-prename descclassname">TexSoup.reader.</code><code class="sig-name descname">unclosed_env_handler</code><span class="sig-paren">(</span><em class="sig-param">src</em>, <em class="sig-param">expr</em>, <em class="sig-param">end</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#unclosed_env_handler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.unclosed_env_handler" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">TexSoup.reader.</code><code class="descname">unclosed_env_handler</code><span class="sig-paren">(</span><em>src</em>, <em>expr</em>, <em>end</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#unclosed_env_handler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.unclosed_env_handler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Handle unclosed environments.</p>
 <p>Currently raises an end-of-file error. In the future, this can be the hub
 for unclosed-environment fault tolerance.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>src</strong> (<a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a>) – a buffer of tokens</p></li>
-<li><p><strong>expr</strong> (<a class="reference internal" href="data.html#TexSoup.data.TexExpr" title="TexSoup.data.TexExpr"><em>TexExpr</em></a>) – expression for the environment</p></li>
-<li><p><strong>str</strong> (<em>end</em>) – Actual end token (as opposed to expected)</p></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>src</strong> (<a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a>) &#8211; a buffer of tokens</li>
+<li><strong>expr</strong> (<a class="reference internal" href="data.html#TexSoup.data.TexExpr" title="TexSoup.data.TexExpr"><em>TexExpr</em></a>) &#8211; expression for the environment</li>
+<li><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) &#8211; error tolerance level (only supports 0 or 1)</li>
+<li><strong>str</strong> (<em>end</em>) &#8211; Actual end token (as opposed to expected)</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="TexSoup.reader.read_math_env">
-<code class="sig-prename descclassname">TexSoup.reader.</code><code class="sig-name descname">read_math_env</code><span class="sig-paren">(</span><em class="sig-param">src</em>, <em class="sig-param">expr</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#read_math_env"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.read_math_env" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">TexSoup.reader.</code><code class="descname">read_math_env</code><span class="sig-paren">(</span><em>src</em>, <em>expr</em>, <em>tolerance=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#read_math_env"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.read_math_env" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read the environment from buffer.</p>
 <p>Advances the buffer until right after the end of the environment. Adds
 parsed content to the expression automatically.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>src</strong> (<a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a>) – a buffer of tokens</p></li>
-<li><p><strong>expr</strong> (<a class="reference internal" href="data.html#TexSoup.data.TexExpr" title="TexSoup.data.TexExpr"><em>TexExpr</em></a>) – expression for the environment</p></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>src</strong> (<a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a>) &#8211; a buffer of tokens</li>
+<li><strong>expr</strong> (<a class="reference internal" href="data.html#TexSoup.data.TexExpr" title="TexSoup.data.TexExpr"><em>TexExpr</em></a>) &#8211; expression for the environment</li>
 </ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference internal" href="data.html#TexSoup.data.TexExpr" title="TexSoup.data.TexExpr">TexExpr</a></p>
-</dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.category</span> <span class="kn">import</span> <span class="n">categorize</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.tokens</span> <span class="kn">import</span> <span class="n">tokenize</span>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="data.html#TexSoup.data.TexExpr" title="TexSoup.data.TexExpr">TexExpr</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.category</span> <span class="k">import</span> <span class="n">categorize</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.tokens</span> <span class="k">import</span> <span class="n">tokenize</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">buf</span> <span class="o">=</span> <span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\min_x \|Xw-y\|_2^2&#39;</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">read_math_env</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">TexMathModeEnv</span><span class="p">())</span>
 <span class="gt">Traceback (most recent call last):</span>
@@ -447,23 +469,27 @@ parsed content to the expression automatically.</p>
 
 <dl class="function">
 <dt id="TexSoup.reader.read_skip_env">
-<code class="sig-prename descclassname">TexSoup.reader.</code><code class="sig-name descname">read_skip_env</code><span class="sig-paren">(</span><em class="sig-param">src</em>, <em class="sig-param">expr</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#read_skip_env"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.read_skip_env" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">TexSoup.reader.</code><code class="descname">read_skip_env</code><span class="sig-paren">(</span><em>src</em>, <em>expr</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#read_skip_env"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.read_skip_env" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read the environment from buffer, WITHOUT parsing contents</p>
 <p>Advances the buffer until right after the end of the environment. Adds
 UNparsed content to the expression automatically.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>src</strong> (<a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a>) – a buffer of tokens</p></li>
-<li><p><strong>expr</strong> (<a class="reference internal" href="data.html#TexSoup.data.TexExpr" title="TexSoup.data.TexExpr"><em>TexExpr</em></a>) – expression for the environment</p></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>src</strong> (<a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a>) &#8211; a buffer of tokens</li>
+<li><strong>expr</strong> (<a class="reference internal" href="data.html#TexSoup.data.TexExpr" title="TexSoup.data.TexExpr"><em>TexExpr</em></a>) &#8211; expression for the environment</li>
 </ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference internal" href="data.html#TexSoup.data.TexExpr" title="TexSoup.data.TexExpr">TexExpr</a></p>
-</dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.category</span> <span class="kn">import</span> <span class="n">categorize</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.tokens</span> <span class="kn">import</span> <span class="n">tokenize</span>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="data.html#TexSoup.data.TexExpr" title="TexSoup.data.TexExpr">TexExpr</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.category</span> <span class="k">import</span> <span class="n">categorize</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.tokens</span> <span class="k">import</span> <span class="n">tokenize</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">buf</span> <span class="o">=</span> <span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39; \textbf{aa \end</span><span class="si">{foobar}</span><span class="s1">ha&#39;</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">read_skip_env</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">TexNamedEnv</span><span class="p">(</span><span class="s1">&#39;foobar&#39;</span><span class="p">))</span>
 <span class="go">TexNamedEnv(&#39;foobar&#39;, [&#39; \\textbf{aa &#39;], [])</span>
@@ -478,24 +504,29 @@ UNparsed content to the expression automatically.</p>
 
 <dl class="function">
 <dt id="TexSoup.reader.read_env">
-<code class="sig-prename descclassname">TexSoup.reader.</code><code class="sig-name descname">read_env</code><span class="sig-paren">(</span><em class="sig-param">src</em>, <em class="sig-param">expr</em>, <em class="sig-param">tolerance=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#read_env"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.read_env" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">TexSoup.reader.</code><code class="descname">read_env</code><span class="sig-paren">(</span><em>src</em>, <em>expr</em>, <em>tolerance=0</em>, <em>mode='mode:non-math'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#read_env"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.read_env" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read the environment from buffer.</p>
 <p>Advances the buffer until right after the end of the environment. Adds
 parsed content to the expression automatically.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>src</strong> (<a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a>) – a buffer of tokens</p></li>
-<li><p><strong>expr</strong> (<a class="reference internal" href="data.html#TexSoup.data.TexExpr" title="TexSoup.data.TexExpr"><em>TexExpr</em></a>) – expression for the environment</p></li>
-<li><p><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – error tolerance level (only supports 0 or 1)</p></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>src</strong> (<a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a>) &#8211; a buffer of tokens</li>
+<li><strong>expr</strong> (<a class="reference internal" href="data.html#TexSoup.data.TexExpr" title="TexSoup.data.TexExpr"><em>TexExpr</em></a>) &#8211; expression for the environment</li>
+<li><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) &#8211; error tolerance level (only supports 0 or 1)</li>
+<li><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) &#8211; math or not math mode</li>
 </ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference internal" href="data.html#TexSoup.data.TexExpr" title="TexSoup.data.TexExpr">TexExpr</a></p>
-</dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.category</span> <span class="kn">import</span> <span class="n">categorize</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.tokens</span> <span class="kn">import</span> <span class="n">tokenize</span>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="data.html#TexSoup.data.TexExpr" title="TexSoup.data.TexExpr">TexExpr</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.category</span> <span class="k">import</span> <span class="n">categorize</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.tokens</span> <span class="k">import</span> <span class="n">tokenize</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">buf</span> <span class="o">=</span> <span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="s1">&#39; tingtang </span><span class="se">\\</span><span class="s1">end</span><span class="se">\n</span><span class="si">{foobar}</span><span class="s1">walla&#39;</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">read_env</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">TexNamedEnv</span><span class="p">(</span><span class="s1">&#39;foobar&#39;</span><span class="p">))</span>
 <span class="go">TexNamedEnv(&#39;foobar&#39;, [&#39; tingtang &#39;], [])</span>
@@ -516,34 +547,39 @@ parsed content to the expression automatically.</p>
 <h2>Argument Parser<a class="headerlink" href="#argument-parser" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="TexSoup.reader.read_args">
-<code class="sig-prename descclassname">TexSoup.reader.</code><code class="sig-name descname">read_args</code><span class="sig-paren">(</span><em class="sig-param">src</em>, <em class="sig-param">n_required=-1</em>, <em class="sig-param">n_optional=-1</em>, <em class="sig-param">args=None</em>, <em class="sig-param">tolerance=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#read_args"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.read_args" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">TexSoup.reader.</code><code class="descname">read_args</code><span class="sig-paren">(</span><em>src</em>, <em>n_required=-1</em>, <em>n_optional=-1</em>, <em>args=None</em>, <em>tolerance=0</em>, <em>mode='mode:non-math'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#read_args"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.read_args" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read all arguments from buffer.</p>
 <p>This function assumes that the command name has already been parsed. By
 default, LaTeX allows only up to 9 arguments of both types, optional
 and required. If <cite>n_optional</cite> is not set, all valid bracket groups are
 captured. If <cite>n_required</cite> is not set, all valid brace groups are
 captured.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>src</strong> (<a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a>) – a buffer of tokens</p></li>
-<li><p><strong>args</strong> (<a class="reference internal" href="data.html#TexSoup.data.TexArgs" title="TexSoup.data.TexArgs"><em>TexArgs</em></a>) – existing arguments to extend</p></li>
-<li><p><strong>n_required</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Number of required arguments. If &lt; 0, all valid
-brace groups will be captured.</p></li>
-<li><p><strong>n_optional</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Number of optional arguments. If &lt; 0, all valid
-bracket groups will be captured.</p></li>
-<li><p><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – error tolerance level (only supports 0 or 1)</p></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>src</strong> (<a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a>) &#8211; a buffer of tokens</li>
+<li><strong>args</strong> (<a class="reference internal" href="data.html#TexSoup.data.TexArgs" title="TexSoup.data.TexArgs"><em>TexArgs</em></a>) &#8211; existing arguments to extend</li>
+<li><strong>n_required</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) &#8211; Number of required arguments. If &lt; 0, all valid
+brace groups will be captured.</li>
+<li><strong>n_optional</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) &#8211; Number of optional arguments. If &lt; 0, all valid
+bracket groups will be captured.</li>
+<li><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) &#8211; error tolerance level (only supports 0 or 1)</li>
+<li><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) &#8211; math or not math mode</li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>parsed arguments</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="data.html#TexSoup.data.TexArgs" title="TexSoup.data.TexArgs">TexArgs</a></p>
-</dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.category</span> <span class="kn">import</span> <span class="n">categorize</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.tokens</span> <span class="kn">import</span> <span class="n">tokenize</span>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">parsed arguments</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="data.html#TexSoup.data.TexArgs" title="TexSoup.data.TexArgs">TexArgs</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.category</span> <span class="k">import</span> <span class="n">categorize</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.tokens</span> <span class="k">import</span> <span class="n">tokenize</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">test</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">:</span> <span class="n">read_args</span><span class="p">(</span><span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="n">s</span><span class="p">)),</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">test</span><span class="p">(</span><span class="s1">&#39;[walla]</span><span class="si">{walla}</span><span class="s1">{ba]ng}&#39;</span><span class="p">)</span>  <span class="c1"># &#39;regular&#39; arg parse</span>
 <span class="go">[BracketGroup(&#39;walla&#39;), BraceGroup(&#39;walla&#39;), BraceGroup(&#39;ba&#39;, &#39;]&#39;, &#39;ng&#39;)]</span>
@@ -565,68 +601,78 @@ bracket groups will be captured.</p></li>
 
 <dl class="function">
 <dt id="TexSoup.reader.read_arg_optional">
-<code class="sig-prename descclassname">TexSoup.reader.</code><code class="sig-name descname">read_arg_optional</code><span class="sig-paren">(</span><em class="sig-param">src</em>, <em class="sig-param">args</em>, <em class="sig-param">n_optional=-1</em>, <em class="sig-param">tolerance=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#read_arg_optional"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.read_arg_optional" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">TexSoup.reader.</code><code class="descname">read_arg_optional</code><span class="sig-paren">(</span><em>src</em>, <em>args</em>, <em>n_optional=-1</em>, <em>tolerance=0</em>, <em>mode='mode:non-math'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#read_arg_optional"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.read_arg_optional" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read next optional argument from buffer.</p>
 <p>If the command has remaining optional arguments, look for:</p>
 <blockquote>
 <div><ol class="loweralpha simple">
-<li><p>A spacer. Skip the spacer if it exists.</p></li>
-<li><p>A bracket delimiter. If the optional argument is bracket-delimited,
-the contents of the bracket group are used as the argument.</p></li>
+<li>A spacer. Skip the spacer if it exists.</li>
+<li>A bracket delimiter. If the optional argument is bracket-delimited,
+the contents of the bracket group are used as the argument.</li>
 </ol>
 </div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>src</strong> (<a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a>) – a buffer of tokens</p></li>
-<li><p><strong>args</strong> (<a class="reference internal" href="data.html#TexSoup.data.TexArgs" title="TexSoup.data.TexArgs"><em>TexArgs</em></a>) – existing arguments to extend</p></li>
-<li><p><strong>n_optional</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Number of optional arguments. If &lt; 0, all valid
-bracket groups will be captured.</p></li>
-<li><p><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – error tolerance level (only supports 0 or 1)</p></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>src</strong> (<a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a>) &#8211; a buffer of tokens</li>
+<li><strong>args</strong> (<a class="reference internal" href="data.html#TexSoup.data.TexArgs" title="TexSoup.data.TexArgs"><em>TexArgs</em></a>) &#8211; existing arguments to extend</li>
+<li><strong>n_optional</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) &#8211; Number of optional arguments. If &lt; 0, all valid
+bracket groups will be captured.</li>
+<li><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) &#8211; error tolerance level (only supports 0 or 1)</li>
+<li><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) &#8211; math or not math mode</li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>number of remaining optional arguments</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
-</dd>
-</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">number of remaining optional arguments</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="TexSoup.reader.read_arg_required">
-<code class="sig-prename descclassname">TexSoup.reader.</code><code class="sig-name descname">read_arg_required</code><span class="sig-paren">(</span><em class="sig-param">src</em>, <em class="sig-param">args</em>, <em class="sig-param">n_required=-1</em>, <em class="sig-param">tolerance=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#read_arg_required"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.read_arg_required" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">TexSoup.reader.</code><code class="descname">read_arg_required</code><span class="sig-paren">(</span><em>src</em>, <em>args</em>, <em>n_required=-1</em>, <em>tolerance=0</em>, <em>mode='mode:non-math'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#read_arg_required"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.read_arg_required" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read next required argument from buffer.</p>
 <p>If the command has remaining required arguments, look for:</p>
 <blockquote>
 <div><ol class="loweralpha simple">
-<li><p>A spacer. Skip the spacer if it exists.</p></li>
-<li><p>A curly-brace delimiter. If the required argument is brace-delimited,
-the contents of the brace group are used as the argument.</p></li>
-<li><p>Spacer or not, if a brace group is not found, simply use the next
-character.</p></li>
+<li>A spacer. Skip the spacer if it exists.</li>
+<li>A curly-brace delimiter. If the required argument is brace-delimited,
+the contents of the brace group are used as the argument.</li>
+<li>Spacer or not, if a brace group is not found, simply use the next
+character.</li>
 </ol>
 </div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>src</strong> (<a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a>) – a buffer of tokens</p></li>
-<li><p><strong>args</strong> (<a class="reference internal" href="data.html#TexSoup.data.TexArgs" title="TexSoup.data.TexArgs"><em>TexArgs</em></a>) – existing arguments to extend</p></li>
-<li><p><strong>n_required</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Number of required arguments. If &lt; 0, all valid
-brace groups will be captured.</p></li>
-<li><p><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – error tolerance level (only supports 0 or 1)</p></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>src</strong> (<a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a>) &#8211; a buffer of tokens</li>
+<li><strong>args</strong> (<a class="reference internal" href="data.html#TexSoup.data.TexArgs" title="TexSoup.data.TexArgs"><em>TexArgs</em></a>) &#8211; existing arguments to extend</li>
+<li><strong>n_required</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) &#8211; Number of required arguments. If &lt; 0, all valid
+brace groups will be captured.</li>
+<li><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) &#8211; error tolerance level (only supports 0 or 1)</li>
+<li><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) &#8211; math or not math mode</li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>number of remaining optional arguments</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
-</dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.category</span> <span class="kn">import</span> <span class="n">categorize</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.tokens</span> <span class="kn">import</span> <span class="n">tokenize</span>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">number of remaining optional arguments</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.category</span> <span class="k">import</span> <span class="n">categorize</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.tokens</span> <span class="k">import</span> <span class="n">tokenize</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">buf</span> <span class="o">=</span> <span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="s1">&#39;{wal]la}</span><span class="se">\n</span><span class="s1">{ba ng}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">args</span> <span class="o">=</span> <span class="n">TexArgs</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">read_arg_required</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>  <span class="c1"># &#39;regular&#39; arg parse</span>
@@ -641,26 +687,31 @@ brace groups will be captured.</p></li>
 
 <dl class="function">
 <dt id="TexSoup.reader.read_arg">
-<code class="sig-prename descclassname">TexSoup.reader.</code><code class="sig-name descname">read_arg</code><span class="sig-paren">(</span><em class="sig-param">src</em>, <em class="sig-param">c</em>, <em class="sig-param">tolerance=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#read_arg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.read_arg" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">TexSoup.reader.</code><code class="descname">read_arg</code><span class="sig-paren">(</span><em>src</em>, <em>c</em>, <em>tolerance=0</em>, <em>mode='mode:non-math'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#read_arg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.read_arg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read the argument from buffer.</p>
 <p>Advances buffer until right before the end of the argument.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>src</strong> (<a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a>) – a buffer of tokens</p></li>
-<li><p><strong>c</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – argument token (starting token)</p></li>
-<li><p><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – error tolerance level (only supports 0 or 1)</p></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>src</strong> (<a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a>) &#8211; a buffer of tokens</li>
+<li><strong>c</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) &#8211; argument token (starting token)</li>
+<li><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) &#8211; error tolerance level (only supports 0 or 1)</li>
+<li><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) &#8211; math or not math mode</li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>the parsed argument</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="data.html#TexSoup.data.TexGroup" title="TexSoup.data.TexGroup">TexGroup</a></p>
-</dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.category</span> <span class="kn">import</span> <span class="n">categorize</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.tokens</span> <span class="kn">import</span> <span class="n">tokenize</span>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the parsed argument</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="data.html#TexSoup.data.TexGroup" title="TexSoup.data.TexGroup">TexGroup</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.category</span> <span class="k">import</span> <span class="n">categorize</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.tokens</span> <span class="k">import</span> <span class="n">tokenize</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;&#39;&#39;{\item\abovedisplayskip=2pt\abovedisplayshortskip=0pt~\vspace*{-\baselineskip}}&#39;&#39;&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">buf</span> <span class="o">=</span> <span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">read_arg</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="nb">next</span><span class="p">(</span><span class="n">buf</span><span class="p">))</span>
@@ -677,13 +728,13 @@ brace groups will be captured.</p></li>
 <h2>Command Parser<a class="headerlink" href="#command-parser" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="TexSoup.reader.read_command">
-<code class="sig-prename descclassname">TexSoup.reader.</code><code class="sig-name descname">read_command</code><span class="sig-paren">(</span><em class="sig-param">buf</em>, <em class="sig-param">n_required_args=-1</em>, <em class="sig-param">n_optional_args=-1</em>, <em class="sig-param">skip=0</em>, <em class="sig-param">tolerance=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#read_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.read_command" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">TexSoup.reader.</code><code class="descname">read_command</code><span class="sig-paren">(</span><em>buf</em>, <em>n_required_args=-1</em>, <em>n_optional_args=-1</em>, <em>skip=0</em>, <em>tolerance=0</em>, <em>mode='mode:non-math'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/reader.html#read_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.reader.read_command" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parses command and all arguments. Assumes escape has just been parsed.</p>
 <p>No whitespace is allowed between escape and command name. e.g.,
-<code class="code docutils literal notranslate"><span class="pre">\</span> <span class="pre">textbf</span></code> is a backslash command, then text <code class="code docutils literal notranslate"><span class="pre">textbf</span></code>. Only
-<code class="code docutils literal notranslate"><span class="pre">\textbf</span></code> is the bold command.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.category</span> <span class="kn">import</span> <span class="n">categorize</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.tokens</span> <span class="kn">import</span> <span class="n">tokenize</span>
+<code class="code docutils literal"><span class="pre">\</span> <span class="pre">textbf</span></code> is a backslash command, then text <code class="code docutils literal"><span class="pre">textbf</span></code>. Only
+<code class="code docutils literal"><span class="pre">\textbf</span></code> is the bold command.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.category</span> <span class="k">import</span> <span class="n">categorize</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup.tokens</span> <span class="k">import</span> <span class="n">tokenize</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">buf</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="n">tokenize</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">sect  </span><span class="se">\t</span><span class="s1">    </span><span class="se">\n\t</span><span class="si">{wallawalla}</span><span class="s1">&#39;</span><span class="p">)))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">next</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span>
 <span class="go">&#39;\\&#39;</span>
@@ -704,6 +755,10 @@ brace groups will be captured.</p></li>
 <span class="go">&#39; aaa &#39;</span>
 </pre></div>
 </div>
+<p># &gt;&gt;&gt; buf = Buffer(tokenize(categorize(&#8216;\sect abcd&#8217;)))
+# &gt;&gt;&gt; _ = next(buf)
+# &gt;&gt;&gt; read_command(buf)
+# (&#8216;sect&#8217;, (&#8216;a&#8217;,))</p>
 </dd></dl>
 
 </div>
@@ -774,14 +829,23 @@ brace groups will be captured.</p></li>
   
 
      
-       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-         <script src="_static/jquery.js"></script>
-         <script src="_static/underscore.js"></script>
-         <script src="_static/doctools.js"></script>
-         <script src="_static/language_data.js"></script>
-         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script>
-         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js"></script>
-         <script src="_static/katex_autorenderer.js"></script>
+       <script type="text/javascript">
+           var DOCUMENTATION_OPTIONS = {
+               URL_ROOT:'./',
+               VERSION:'master',
+               LANGUAGE:'None',
+               COLLAPSE_INDEX:false,
+               FILE_SUFFIX:'.html',
+               HAS_SOURCE:  true,
+               SOURCELINK_SUFFIX: '.txt'
+           };
+       </script>
+         <script type="text/javascript" src="_static/jquery.js"></script>
+         <script type="text/javascript" src="_static/underscore.js"></script>
+         <script type="text/javascript" src="_static/doctools.js"></script>
+         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"></script>
+         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"></script>
+         <script type="text/javascript" src="_static/katex_autorenderer.js"></script>
      
 
   

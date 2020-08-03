@@ -36,7 +36,7 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
     <link rel="stylesheet" href="_static/css/theme-mod.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
@@ -99,7 +99,7 @@
               
               
                 <div class="version">
-                  master (0.3.0 )
+                  master (0.3.1 )
                 </div>
               
             
@@ -272,14 +272,17 @@
 <h2>Categorizer<a class="headerlink" href="#categorizer" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="TexSoup.category.categorize">
-<code class="sig-prename descclassname">TexSoup.category.</code><code class="sig-name descname">categorize</code><span class="sig-paren">(</span><em class="sig-param">text</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/category.html#categorize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.category.categorize" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">TexSoup.category.</code><code class="descname">categorize</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/category.html#categorize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.category.categorize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generator for category code tokens on text, ignoring comments.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>text</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>,</em><em>iterator</em><em>,</em><a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a><em>]</em>) – LaTeX to process</p>
-</dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">chars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\bf</span><span class="si">{}</span><span class="s1">%[ello+😂&#39;</span><span class="p">))</span>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>text</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>,</em><em>iterator</em><em>,</em><a class="reference internal" href="utils.html#TexSoup.utils.Buffer" title="TexSoup.utils.Buffer"><em>Buffer</em></a><em>]</em><em></em>) &#8211; LaTeX to process</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">chars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">categorize</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\bf</span><span class="si">{}</span><span class="s1">%[ello+😂&#39;</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">chars</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">category</span>
 <span class="go">&lt;CategoryCodes.Escape: 1&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">chars</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">category</span>
@@ -370,14 +373,23 @@
   
 
      
-       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-         <script src="_static/jquery.js"></script>
-         <script src="_static/underscore.js"></script>
-         <script src="_static/doctools.js"></script>
-         <script src="_static/language_data.js"></script>
-         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script>
-         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js"></script>
-         <script src="_static/katex_autorenderer.js"></script>
+       <script type="text/javascript">
+           var DOCUMENTATION_OPTIONS = {
+               URL_ROOT:'./',
+               VERSION:'master',
+               LANGUAGE:'None',
+               COLLAPSE_INDEX:false,
+               FILE_SUFFIX:'.html',
+               HAS_SOURCE:  true,
+               SOURCELINK_SUFFIX: '.txt'
+           };
+       </script>
+         <script type="text/javascript" src="_static/jquery.js"></script>
+         <script type="text/javascript" src="_static/underscore.js"></script>
+         <script type="text/javascript" src="_static/doctools.js"></script>
+         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"></script>
+         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"></script>
+         <script type="text/javascript" src="_static/katex_autorenderer.js"></script>
      
 
   

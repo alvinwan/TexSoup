@@ -36,7 +36,7 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
     <link rel="stylesheet" href="_static/css/theme-mod.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
@@ -98,7 +98,7 @@
               
               
                 <div class="version">
-                  master (0.3.0 )
+                  master (0.3.1 )
                 </div>
               
             
@@ -270,25 +270,25 @@
 <h2>Tokens<a class="headerlink" href="#tokens" title="Permalink to this headline">¶</a></h2>
 <dl class="attribute">
 <dt id="TexSoup.utils.CC">
-<code class="sig-prename descclassname">TexSoup.utils.</code><code class="sig-name descname">CC</code><a class="headerlink" href="#TexSoup.utils.CC" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">TexSoup.utils.CategoryCodes</span></code></p>
+<code class="descclassname">TexSoup.utils.</code><code class="descname">CC</code><a class="headerlink" href="#TexSoup.utils.CC" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">CategoryCodes</span></code></p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="TexSoup.utils.TC">
-<code class="sig-prename descclassname">TexSoup.utils.</code><code class="sig-name descname">TC</code><a class="headerlink" href="#TexSoup.utils.TC" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">TexSoup.utils.TokenCode</span></code></p>
+<code class="descclassname">TexSoup.utils.</code><code class="descname">TC</code><a class="headerlink" href="#TexSoup.utils.TC" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">TokenCode</span></code></p>
 </dd></dl>
 
 <dl class="class">
 <dt id="TexSoup.utils.Token">
-<em class="property">class </em><code class="sig-prename descclassname">TexSoup.utils.</code><code class="sig-name descname">Token</code><a class="reference internal" href="_modules/TexSoup/utils.html#Token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.utils.Token" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">TexSoup.utils.</code><code class="descname">Token</code><a class="reference internal" href="_modules/TexSoup/utils.html#Token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.utils.Token" title="Permalink to this definition">¶</a></dt>
 <dd><p>Enhanced string object with knowledge of global position.</p>
 <dl class="method">
 <dt id="TexSoup.utils.Token.lstrip">
-<code class="sig-name descname">lstrip</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/utils.html#Token.lstrip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.utils.Token.lstrip" title="Permalink to this definition">¶</a></dt>
+<code class="descname">lstrip</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/utils.html#Token.lstrip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.utils.Token.lstrip" title="Permalink to this definition">¶</a></dt>
 <dd><p>Strip leading whitespace for text.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">Token</span><span class="p">(</span><span class="s1">&#39;  asdf  &#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">Token</span><span class="p">(</span><span class="s1">&#39;  asdf  &#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span>
 <span class="go">&#39;asdf  &#39;</span>
 </pre></div>
@@ -297,9 +297,9 @@
 
 <dl class="method">
 <dt id="TexSoup.utils.Token.rstrip">
-<code class="sig-name descname">rstrip</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/utils.html#Token.rstrip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.utils.Token.rstrip" title="Permalink to this definition">¶</a></dt>
+<code class="descname">rstrip</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/utils.html#Token.rstrip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.utils.Token.rstrip" title="Permalink to this definition">¶</a></dt>
 <dd><p>Strip trailing whitespace for text.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">Token</span><span class="p">(</span><span class="s1">&#39;  asdf  &#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">Token</span><span class="p">(</span><span class="s1">&#39;  asdf  &#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
 <span class="go">&#39;  asdf&#39;</span>
 </pre></div>
@@ -310,11 +310,11 @@
 
 <dl class="class">
 <dt id="TexSoup.utils.CharToLineOffset">
-<em class="property">class </em><code class="sig-prename descclassname">TexSoup.utils.</code><code class="sig-name descname">CharToLineOffset</code><span class="sig-paren">(</span><em class="sig-param">src</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/utils.html#CharToLineOffset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.utils.CharToLineOffset" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">TexSoup.utils.</code><code class="descname">CharToLineOffset</code><span class="sig-paren">(</span><em>src</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/utils.html#CharToLineOffset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.utils.CharToLineOffset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Utility to convert absolute position in the source file to
 line_no:char_no_in_line. This can be very useful if we want to parse LaTeX
 and navigate to some elements in the generated DVI/PDF via SyncTeX.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">clo</span> <span class="o">=</span> <span class="n">CharToLineOffset</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;hello</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">clo</span> <span class="o">=</span> <span class="n">CharToLineOffset</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;hello</span>
 <span class="gp">... </span><span class="s1">world</span>
 <span class="gp">... </span><span class="s1">I scream for ice cream!&#39;&#39;&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">clo</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
@@ -332,9 +332,9 @@ and navigate to some elements in the generated DVI/PDF via SyncTeX.</p>
 <h2>Buffer<a class="headerlink" href="#buffer" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="TexSoup.utils.Buffer">
-<em class="property">class </em><code class="sig-prename descclassname">TexSoup.utils.</code><code class="sig-name descname">Buffer</code><span class="sig-paren">(</span><em class="sig-param">iterator</em>, <em class="sig-param">join=&lt;bound method Token.join of &lt;class 'TexSoup.utils.Token'&gt;&gt;</em>, <em class="sig-param">empty=&lt;function Buffer.&lt;lambda&gt;&gt;</em>, <em class="sig-param">init=&lt;function Buffer.&lt;lambda&gt;&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/utils.html#Buffer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.utils.Buffer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">TexSoup.utils.</code><code class="descname">Buffer</code><span class="sig-paren">(</span><em>iterator</em>, <em>join=&lt;bound method Token.join of &lt;class 'TexSoup.utils.Token'&gt;&gt;</em>, <em>empty=&lt;function Buffer.&lt;lambda&gt;&gt;</em>, <em>init=&lt;function Buffer.&lt;lambda&gt;&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/utils.html#Buffer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.utils.Buffer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts string or iterable into a navigable iterator of strings.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">b1</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="s2">&quot;012345&quot;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">b1</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="s2">&quot;012345&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">next</span><span class="p">(</span><span class="n">b1</span><span class="p">)</span>
 <span class="go">&#39;0&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">b1</span><span class="o">.</span><span class="n">forward</span><span class="p">()</span>
@@ -366,9 +366,9 @@ and navigate to some elements in the generated DVI/PDF via SyncTeX.</p>
 </div>
 <dl class="method">
 <dt id="TexSoup.utils.Buffer.backward">
-<code class="sig-name descname">backward</code><span class="sig-paren">(</span><em class="sig-param">j=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/utils.html#Buffer.backward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.utils.Buffer.backward" title="Permalink to this definition">¶</a></dt>
+<code class="descname">backward</code><span class="sig-paren">(</span><em>j=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/utils.html#Buffer.backward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.utils.Buffer.backward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Move backward by j steps.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="s1">&#39;abcdef&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="s1">&#39;abcdef&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span>
 <span class="go">&#39;abc&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
@@ -379,15 +379,15 @@ and navigate to some elements in the generated DVI/PDF via SyncTeX.</p>
 
 <dl class="method">
 <dt id="TexSoup.utils.Buffer.endswith">
-<code class="sig-name descname">endswith</code><span class="sig-paren">(</span><em class="sig-param">s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/utils.html#Buffer.endswith"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.utils.Buffer.endswith" title="Permalink to this definition">¶</a></dt>
+<code class="descname">endswith</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/utils.html#Buffer.endswith"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.utils.Buffer.endswith" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if iterator ends with s, ending at current position.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="TexSoup.utils.Buffer.forward">
-<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">j=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/utils.html#Buffer.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.utils.Buffer.forward" title="Permalink to this definition">¶</a></dt>
+<code class="descname">forward</code><span class="sig-paren">(</span><em>j=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/utils.html#Buffer.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.utils.Buffer.forward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Move forward by j steps.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="s1">&#39;abcdef&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="s1">&#39;abcdef&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 <span class="go">&#39;abc&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
@@ -398,17 +398,20 @@ and navigate to some elements in the generated DVI/PDF via SyncTeX.</p>
 
 <dl class="method">
 <dt id="TexSoup.utils.Buffer.forward_until">
-<code class="sig-name descname">forward_until</code><span class="sig-paren">(</span><em class="sig-param">condition</em>, <em class="sig-param">peek=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/utils.html#Buffer.forward_until"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.utils.Buffer.forward_until" title="Permalink to this definition">¶</a></dt>
+<code class="descname">forward_until</code><span class="sig-paren">(</span><em>condition</em>, <em>peek=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/utils.html#Buffer.forward_until"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.utils.Buffer.forward_until" title="Permalink to this definition">¶</a></dt>
 <dd><p>Forward until one of the provided matches is found.</p>
 <p>The returned string contains all characters found before the condition
 was met. In other words, the condition will be true for the remainder
 of the buffer.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>condition</strong> (<em>Callable</em>) – lambda condition for the token to stop at</p>
-</dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">buf</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">)))</span>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>condition</strong> (<em>Callable</em>) &#8211; lambda condition for the token to stop at</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">buf</span> <span class="o">=</span> <span class="n">Buffer</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">)))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">buf</span><span class="o">.</span><span class="n">forward_until</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">buf</span><span class="o">.</span><span class="n">forward_until</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">6</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">c</span>
@@ -421,31 +424,34 @@ of the buffer.</p>
 
 <dl class="method">
 <dt id="TexSoup.utils.Buffer.hasNext">
-<code class="sig-name descname">hasNext</code><span class="sig-paren">(</span><em class="sig-param">n=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/utils.html#Buffer.hasNext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.utils.Buffer.hasNext" title="Permalink to this definition">¶</a></dt>
+<code class="descname">hasNext</code><span class="sig-paren">(</span><em>n=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/utils.html#Buffer.hasNext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.utils.Buffer.hasNext" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns whether or not there is another element.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="TexSoup.utils.Buffer.num_forward_until">
-<code class="sig-name descname">num_forward_until</code><span class="sig-paren">(</span><em class="sig-param">condition</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/utils.html#Buffer.num_forward_until"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.utils.Buffer.num_forward_until" title="Permalink to this definition">¶</a></dt>
+<code class="descname">num_forward_until</code><span class="sig-paren">(</span><em>condition</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/utils.html#Buffer.num_forward_until"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.utils.Buffer.num_forward_until" title="Permalink to this definition">¶</a></dt>
 <dd><p>Forward until one of the provided matches is found.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>condition</strong> – set of valid strings</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>condition</strong> &#8211; set of valid strings</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="TexSoup.utils.Buffer.peek">
-<code class="sig-name descname">peek</code><span class="sig-paren">(</span><em class="sig-param">j=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/utils.html#Buffer.peek"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.utils.Buffer.peek" title="Permalink to this definition">¶</a></dt>
+<code class="descname">peek</code><span class="sig-paren">(</span><em>j=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/utils.html#Buffer.peek"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.utils.Buffer.peek" title="Permalink to this definition">¶</a></dt>
 <dd><p>Peek at the next value(s), without advancing the Buffer.</p>
 <p>Return None if index is out of range.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="TexSoup.utils.Buffer.startswith">
-<code class="sig-name descname">startswith</code><span class="sig-paren">(</span><em class="sig-param">s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/utils.html#Buffer.startswith"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.utils.Buffer.startswith" title="Permalink to this definition">¶</a></dt>
+<code class="descname">startswith</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/utils.html#Buffer.startswith"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.utils.Buffer.startswith" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if iterator starts with s, beginning from the current
 position.</p>
 </dd></dl>
@@ -454,18 +460,22 @@ position.</p>
 
 <dl class="function">
 <dt id="TexSoup.utils.to_buffer">
-<code class="sig-prename descclassname">TexSoup.utils.</code><code class="sig-name descname">to_buffer</code><span class="sig-paren">(</span><em class="sig-param">convert_in=True</em>, <em class="sig-param">convert_out=True</em>, <em class="sig-param">Buffer=&lt;class 'TexSoup.utils.Buffer'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/utils.html#to_buffer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.utils.to_buffer" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">TexSoup.utils.</code><code class="descname">to_buffer</code><span class="sig-paren">(</span><em>convert_in=True</em>, <em>convert_out=True</em>, <em>Buffer=&lt;class 'TexSoup.utils.Buffer'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TexSoup/utils.html#to_buffer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#TexSoup.utils.to_buffer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decorator converting all strings and iterators/iterables into
 Buffers.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>convert_in</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Convert inputs where applicable to Buffers</p></li>
-<li><p><strong>convert_out</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Convert output to a Buffer</p></li>
-<li><p><strong>Buffer</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.8)"><em>type</em></a>) – Type of Buffer to convert into</p></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>convert_in</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) &#8211; Convert inputs where applicable to Buffers</li>
+<li><strong>convert_out</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) &#8211; Convert output to a Buffer</li>
+<li><strong>Buffer</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.8)"><em>type</em></a>) &#8211; Type of Buffer to convert into</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -532,14 +542,23 @@ Buffers.</p>
   
 
      
-       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-         <script src="_static/jquery.js"></script>
-         <script src="_static/underscore.js"></script>
-         <script src="_static/doctools.js"></script>
-         <script src="_static/language_data.js"></script>
-         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script>
-         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js"></script>
-         <script src="_static/katex_autorenderer.js"></script>
+       <script type="text/javascript">
+           var DOCUMENTATION_OPTIONS = {
+               URL_ROOT:'./',
+               VERSION:'master',
+               LANGUAGE:'None',
+               COLLAPSE_INDEX:false,
+               FILE_SUFFIX:'.html',
+               HAS_SOURCE:  true,
+               SOURCELINK_SUFFIX: '.txt'
+           };
+       </script>
+         <script type="text/javascript" src="_static/jquery.js"></script>
+         <script type="text/javascript" src="_static/underscore.js"></script>
+         <script type="text/javascript" src="_static/doctools.js"></script>
+         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"></script>
+         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"></script>
+         <script type="text/javascript" src="_static/katex_autorenderer.js"></script>
      
 
   

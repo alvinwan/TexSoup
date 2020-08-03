@@ -36,7 +36,7 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
     <link rel="stylesheet" href="_static/css/theme-mod.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
@@ -99,7 +99,7 @@
               
               
                 <div class="version">
-                  master (0.3.0 )
+                  master (0.3.1 )
                 </div>
               
             
@@ -271,7 +271,7 @@
 <div class="section" id="how-to-use">
 <h2>How to Use<a class="headerlink" href="#how-to-use" title="Permalink to this headline">¶</a></h2>
 <p>Here is a <span class="math">\(\LaTeX\)</span> document:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tex_doc</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tex_doc</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="gp">... </span><span class="se">\b</span><span class="s2">egin</span><span class="si">{document}</span><span class="s2"></span>
 <span class="gp">... </span><span class="s2">\section{Hello </span><span class="se">\t</span><span class="s2">extit</span><span class="si">{world}</span><span class="s2">.}</span>
 <span class="gp">... </span><span class="s2">\subsection</span><span class="si">{Watermelon}</span><span class="s2"></span>
@@ -289,9 +289,9 @@
 <span class="gp">... </span><span class="s2">&quot;&quot;&quot;</span>
 </pre></div>
 </div>
-<p>Call <code class="code docutils literal notranslate"><span class="pre">TexSoup</span></code> on this string to re-represent this document as a
+<p>Call <code class="code docutils literal"><span class="pre">TexSoup</span></code> on this string to re-represent this document as a
 nested data structure:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="kn">import</span> <span class="n">TexSoup</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">TexSoup</span> <span class="k">import</span> <span class="n">TexSoup</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span> <span class="o">=</span> <span class="n">TexSoup</span><span class="p">(</span><span class="n">tex_doc</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span>
 <span class="go">\begin{document}</span>
@@ -311,7 +311,7 @@ nested data structure:</p>
 </pre></div>
 </div>
 <p>Here are a few ways to navigate the TexSoup data structure:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">section</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">section</span>
 <span class="go">\section{Hello \textit{world}.}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">section</span><span class="o">.</span><span class="n">name</span>
 <span class="go">&#39;section&#39;</span>
@@ -336,8 +336,8 @@ nested data structure:</p>
 </pre></div>
 </div>
 <p>One task may be to find all references. To do this, simply search for
-<code class="docutils literal notranslate"><span class="pre">\ref{&lt;label&gt;}</span></code>. You can even report each reference’s line number:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\ref{table:synonyms}&#39;</span><span class="p">)</span>
+<code class="docutils literal"><span class="pre">\ref{&lt;label&gt;}</span></code>. You can even report each reference&#8217;s line number:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">soup</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\ref{table:synonyms}&#39;</span><span class="p">)</span>
 <span class="go">1</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">cmd</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\ref{table:synonyms}&#39;</span><span class="p">):</span>
 <span class="gp">... </span>  <span class="n">soup</span><span class="o">.</span><span class="n">char_pos_to_line</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>
@@ -345,7 +345,7 @@ nested data structure:</p>
 </pre></div>
 </div>
 <p>Another task may be to extract all text from the page:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
 <span class="go">[&#39;Hello &#39;, &#39;world&#39;, &#39;.&#39;, &#39;Watermelon&#39;, &#39;\n\n(n.) A sacred fruit. Also known as:\n\n&#39;, &#39;red lemon\n&#39;, &#39;life\n&#39;, &#39;\n\nHere is the prevalence of each synonym.\n\n&#39;, &#39;\nred lemon &amp; uncommon \\\\ &#39;, &#39;\nlife &amp; common\n&#39;]</span>
 </pre></div>
 </div>
@@ -355,13 +355,13 @@ install.</p>
 </div>
 <div class="section" id="how-to-install">
 <h2>How to Install<a class="headerlink" href="#how-to-install" title="Permalink to this headline">¶</a></h2>
-<p>TexSoup is published via PyPi, so you can install it via <code class="docutils literal notranslate"><span class="pre">pip</span></code>. The package
-name is <code class="docutils literal notranslate"><span class="pre">TexSoup</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">TexSoup</span>
+<p>TexSoup is published via PyPi, so you can install it via <code class="docutils literal"><span class="pre">pip</span></code>. The package
+name is <code class="docutils literal"><span class="pre">TexSoup</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">TexSoup</span>
 </pre></div>
 </div>
 <p>Alternatively, you can install the package from source:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">alvinwan</span><span class="o">/</span><span class="n">TexSoup</span><span class="o">.</span><span class="n">git</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">alvinwan</span><span class="o">/</span><span class="n">TexSoup</span><span class="o">.</span><span class="n">git</span>
 <span class="n">cd</span> <span class="n">TexSoup</span>
 <span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span>
 </pre></div>
@@ -432,14 +432,23 @@ name is <code class="docutils literal notranslate"><span class="pre">TexSoup</sp
   
 
      
-       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-         <script src="_static/jquery.js"></script>
-         <script src="_static/underscore.js"></script>
-         <script src="_static/doctools.js"></script>
-         <script src="_static/language_data.js"></script>
-         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script>
-         <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js"></script>
-         <script src="_static/katex_autorenderer.js"></script>
+       <script type="text/javascript">
+           var DOCUMENTATION_OPTIONS = {
+               URL_ROOT:'./',
+               VERSION:'master',
+               LANGUAGE:'None',
+               COLLAPSE_INDEX:false,
+               FILE_SUFFIX:'.html',
+               HAS_SOURCE:  true,
+               SOURCELINK_SUFFIX: '.txt'
+           };
+       </script>
+         <script type="text/javascript" src="_static/jquery.js"></script>
+         <script type="text/javascript" src="_static/underscore.js"></script>
+         <script type="text/javascript" src="_static/doctools.js"></script>
+         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js"></script>
+         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js"></script>
+         <script type="text/javascript" src="_static/katex_autorenderer.js"></script>
      
 
   
