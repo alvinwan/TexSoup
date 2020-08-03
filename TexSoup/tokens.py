@@ -12,15 +12,17 @@ import itertools
 import string
 
 # Custom higher-level combinations of primitives
-SKIP_ENVS = ('verbatim', 'equation', 'lstlisting', 'align', 'alignat',
-             'equation*', 'align*', 'math', 'displaymath', 'split', 'array',
-             'eqnarray', 'eqnarray*', 'multline', 'multline*', 'gather',
-             'gather*', 'flalign', 'flalign*',
-             '$', '$$', r'\[', r'\]', r'\(', r'\)')
-BRACKETS_DELIMITERS = {'(', ')', '<', '>', '[', ']', '{', '}',
-                       r'\{', r'\}', '.' '|', r'\langle', r'\rangle',
-                       r'\lfloor', '\rfloor', r'\lceil', r'\rceil',
-                       r'\ulcorner', r'\urcorner', r'\lbrack', r'\rbrack'}
+SKIP_ENV_NAMES = ('lstlisting', 'verbatim')
+MATH_ENV_NAMES = (
+    'align', 'align*', 'alignat', 'array', 'displaymath', 'eqnarray',
+    'eqnarray*', 'equation', 'equation*', 'flalign', 'flalign*', 'gather',
+    'gather*', 'math', 'multline', 'multline*', 'split'
+)
+BRACKETS_DELIMITERS = {
+    '(', ')', '<', '>', '[', ']', '{', '}', r'\{', r'\}', '.' '|', r'\langle',
+    r'\rangle', r'\lfloor', '\rfloor', r'\lceil', r'\rceil', r'\ulcorner',
+    r'\urcorner', r'\lbrack', r'\rbrack'
+}
 # TODO: looks like left-right do have to match
 SIZE_PREFIX = ('left', 'right', 'big', 'Big', 'bigg', 'Bigg')
 PUNCTUATION_COMMANDS = {command + bracket
@@ -102,7 +104,7 @@ def token(name):
 
 @token('escaped_symbols')
 def tokenize_escaped_symbols(text, prev=None):
-    r"""Process an escaped symbol.
+    r"""Process an escaped symbol or a known punctuation command.
 
     :param Buffer text: iterator over line, with current position
 
@@ -120,7 +122,8 @@ def tokenize_escaped_symbols(text, prev=None):
             and text.peek(1) \
             and text.peek(1).category in (
                 CC.Escape, CC.GroupBegin, CC.GroupEnd, CC.MathSwitch,
-                CC.Comment):
+                CC.Alignment, CC.Macro, CC.Superscript, CC.Subscript,
+                CC.Active, CC.Comment, CC.Other):
         result = text.forward(2)
         result.category = TC.EscapedComment
         return result

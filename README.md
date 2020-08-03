@@ -2,6 +2,7 @@
 
 # [TexSoup](https://texsoup.alvinwan.com)
 
+[![PyPi Downloads per Day](https://img.shields.io/pypi/dm/texsoup.svg)](https://pypi.python.org/pypi/TexSoup/)
 [![Build Status](https://travis-ci.org/alvinwan/TexSoup.svg?branch=master)](https://travis-ci.org/alvinwan/TexSoup)
 [![Coverage Status](https://coveralls.io/repos/github/alvinwan/TexSoup/badge.svg?branch=master)](https://coveralls.io/github/alvinwan/TexSoup?branch=master)
 

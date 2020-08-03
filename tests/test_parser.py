@@ -361,6 +361,12 @@ def test_def_item():
     assert soup.item is not None
 
 
+def test_grouping_optional_argument():
+    """Tests that grouping occurs correctly"""
+    soup = TexSoup(r"\begin{Theorem}[The argopt contains {$]\int_\infty$} the square bracket]\end{Theorem}")
+    assert len(soup.Theorem.args) == 1
+
+
 ##############
 # FORMATTING #
 ##############
@@ -402,6 +408,21 @@ def test_math_environment_whitespace():
     assert str(soup.find('equation*')) == r'\begin{equation*}\beta = \gamma\end{equation*}'
     assert str(soup).startswith(r'\gamma = \beta')
     assert str(soup.notescaped) == r'\begin{notescaped}\gamma = \beta\end{notescaped}'
+
+
+def test_non_letter_commands():
+    """
+    Tests that non-letters are still captured as an escaped sequence
+    (whether valid or not).
+    """
+    for punctuation in '!@#$%^&*_+-=~`<>,./?;:|':
+        tex = r"""
+        \begin{{document}}
+        \lstinline{{\{} Word [a-z]+}}
+        \end{{document}}
+        """.format(punctuation)
+        soup = TexSoup(tex)
+        assert str(soup) == tex
 
 
 def test_math_environment_escape():
