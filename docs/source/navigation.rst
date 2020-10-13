@@ -67,8 +67,8 @@ Note that changing this list in-place will not affect the environment::
 There are several views into an environment's content:
 
 - :code:`.children`: Nested Tex expressions. Does not include floating text.
-- :code:`.content`: Nested Tex expressions and text. Does not contain whitespace-only text.
-- :code:`.all`: Nested Tex expressions and text, regardless of whitespace or not. All information needed to reconstruct the original source.
+- :code:`.contents`: Nested Tex expressions and text. Does not contain whitespace-only text.
+- :code:`.expr.all`: Nested Tex expressions and text, regardless of whitespace or not. All information needed to reconstruct the original source.
 - :code:`.descendants`: Tex expressions nested inside of Tex expressions.
 - :code:`.text`: Used to "detex" a source file. Returns text from all descendants, without Tex expressions.
 
