@@ -36,7 +36,6 @@ def test_navigation_children(chikin):
 
 def test_navigation_descendants(chikin):
     """Test identification of all descendants"""
-    print(list(chikin.descendants))
     assert len(list(chikin.descendants)) == 28
 
 
