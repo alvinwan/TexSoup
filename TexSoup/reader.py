@@ -29,7 +29,10 @@ ARG_BEGIN_TO_ENV = {arg.token_begin: arg for arg in arg_type}
 SIGNATURES = {
     'def': (2, 0),
     'textbf': (1, 0),
-    'section': (1, 1)
+    'section': (1, 1),
+    'label': (1, 0),
+    'cup': (0, 0),
+    'noindent': (0, 0),
 }
 
 
