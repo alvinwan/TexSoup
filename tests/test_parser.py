@@ -211,6 +211,29 @@ def test_math_environment_weirdness():
     assert '$' in str(soup.env), 'Math env not correctly parsed after \\\\'
 
 
+def test_tokenize_punctuation_command_names():
+    """Tests handling math expressions including bracket modifiers."""
+    # GH111 size variant
+    soup = TexSoup(r"""$\big(xy\big)$""")
+    assert str(list(soup.descendants)[1]) == r'\big(', 'wrong punctuation mark'
+    assert str(list(soup.descendants)[3]) == r'\big)', 'wrong punctuation mark'
+    # GH111 left-right variant
+    soup = TexSoup(r"""$\left[xy\right]$""")
+    assert str(list(soup.descendants)[1]) == r'\left[', 'wrong punctuation mark'
+    assert str(list(soup.descendants)[3]) == r'\right]', 'wrong punctuation mark'
+    # one sided
+    soup = TexSoup(r"""$\Big|$""")
+    assert str(list(soup.descendants)[1]) == r'\Big|', 'wrong punctuation'
+    # set builder
+    soup = TexSoup(r"""$\left\{x|y\right\}$""")
+    assert str(list(soup.descendants)[1]) == r'\left\{', 'wrong punctuation'
+    assert str(list(soup.descendants)[3]) == r'\right\}', 'wrong punctuation'
+    # long ones
+    soup = TexSoup(r"""$\big\lfloor x \big\rfloor$""")
+    assert str(list(soup.descendants)[1]) == r'\big\lfloor', 'wrong punctuation'
+    assert str(list(soup.descendants)[3]) == r'\big\rfloor', 'wrong punctuation'
+
+
 def test_item_parsing():
     """Tests that item parsing is valid."""
     soup = TexSoup(r"""\item aaa {\bbb} ccc""")
