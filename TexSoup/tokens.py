@@ -12,7 +12,7 @@ import itertools
 import string
 
 # Custom higher-level combinations of primitives
-SKIP_ENV_NAMES = ('lstlisting', 'verbatim')
+SKIP_ENV_NAMES = ('lstlisting', 'verbatim', 'verbatimtab', 'Verbatim', 'listing')
 MATH_ENV_NAMES = (
     'align', 'align*', 'alignat', 'array', 'displaymath', 'eqnarray',
     'eqnarray*', 'equation', 'equation*', 'flalign', 'flalign*', 'gather',
@@ -20,7 +20,7 @@ MATH_ENV_NAMES = (
 )
 BRACKETS_DELIMITERS = {
     '(', ')', '<', '>', '[', ']', '{', '}', r'\{', r'\}', '.' '|', r'\langle',
-    r'\rangle', r'\lfloor', '\rfloor', r'\lceil', r'\rceil', r'\ulcorner',
+    r'\rangle', r'\lfloor', r'\rfloor', r'\lceil', r'\rceil', r'\ulcorner',
     r'\urcorner', r'\lbrack', r'\rbrack'
 }
 # TODO: looks like left-right do have to match
@@ -303,7 +303,7 @@ def tokenize_punctuation_command_name(text, prev=None):
     if text.peek(-1) and text.peek(-1).category == CC.Escape:
         for point in PUNCTUATION_COMMANDS:
             if text.peek((0, len(point))) == point:
-                result = text.forward(len(point) + 1)
+                result = text.forward(len(point))
                 result.category = TC.PunctuationCommandName
                 return result
 
