@@ -109,7 +109,7 @@ def read_expr(src, skip_envs=(), tolerance=0, mode=MODE_NON_MATH):
             if expr.name in skip_envs:
                 read_skip_env(src, expr)
             else:
-                read_env(src, expr, tolerance=tolerance, mode=mode)
+                read_env(src, expr, skip_envs=skip_envs,tolerance=tolerance, mode=mode)
         else:
             expr = TexCmd(name, args=args, position=c.position)
         return expr
@@ -248,7 +248,7 @@ def read_skip_env(src, expr):
     return expr
 
 
-def read_env(src, expr, tolerance=0, mode=MODE_NON_MATH):
+def read_env(src, expr, skip_envs=(), tolerance=0, mode=MODE_NON_MATH):
     r"""Read the environment from buffer.
 
     Advances the buffer until right after the end of the environment. Adds
@@ -281,7 +281,7 @@ def read_env(src, expr, tolerance=0, mode=MODE_NON_MATH):
                 src, 1, skip=1, tolerance=tolerance, mode=mode)
             if name == 'end':
                 break
-        contents.append(read_expr(src, tolerance=tolerance, mode=mode))
+        contents.append(read_expr(src, skip_envs=skip_envs, tolerance=tolerance, mode=mode))
     error = not src.hasNext() or not args or args[0].string != expr.name
     if error and tolerance == 0:
         unclosed_env_handler(src, expr, src.peek((0, 6)))
