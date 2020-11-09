@@ -21,7 +21,7 @@ To parse a $LaTeX$ document, pass an open filehandle or a string into the
 
 ``` python
 from TexSoup import TexSoup
-soup = TexSoup("""
+soup = TexSoup(r"""
 \begin{document}
 
 \section{Hello \textit{world}.}
