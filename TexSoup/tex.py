@@ -6,7 +6,7 @@ from TexSoup.category import categorize
 import itertools
 
 
-def read(tex, skip_envs=(), tolerance=0):
+def read(tex, skip_envs=(), skip_math=False, tolerance=0):
     """Read and parse all LaTeX source.
 
     :param Union[str,iterable] tex: LaTeX source
@@ -18,5 +18,5 @@ def read(tex, skip_envs=(), tolerance=0):
         tex = ''.join(itertools.chain(*tex))
     buf = categorize(tex)
     buf = tokenize(buf)
-    buf = read_tex(buf, skip_envs=skip_envs, tolerance=tolerance)
+    buf = read_tex(buf, skip_envs=skip_envs, skip_math=skip_math, tolerance=tolerance)
     return TexEnv('[tex]', begin='', end='', contents=buf), tex

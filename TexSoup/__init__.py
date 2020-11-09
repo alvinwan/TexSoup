@@ -11,7 +11,7 @@ __version__ = '0.3.1'
 
 
 # noinspection PyPep8Naming
-def TexSoup(tex_code, skip_envs=(), tolerance=0):
+def TexSoup(tex_code, skip_envs=(), skip_math=False, tolerance=0):
     r"""
     At a high-level, parses provided Tex into a navigable, searchable
     structure. This is accomplished in two steps:
@@ -84,5 +84,5 @@ def TexSoup(tex_code, skip_envs=(), tolerance=0):
     >>> soup
     SOUP
     """
-    parsed, src = read(tex_code, skip_envs=skip_envs, tolerance=tolerance)
+    parsed, src = read(tex_code, skip_envs=skip_envs, skip_math=skip_math, tolerance=tolerance)
     return TexNode(parsed, src=src)
