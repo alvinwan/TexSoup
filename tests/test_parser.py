@@ -189,9 +189,9 @@ def test_escaped_characters():
     """
     soup = TexSoup(r"""
     \begin{itemize}
-    \item Ice cream costs \$4-\$5 around here. \}[\{]
+    \item Ice cream costs \$4-\$5 around here. \}\ [\{]
     \end{itemize}""")
-    assert str(soup.item).strip() == r'\item Ice cream costs \$4-\$5 around here. \}[\{]'
+    assert str(soup.item).strip() == r'\item Ice cream costs \$4-\$5 around here. \}\ [\{]'
     assert '\\$4-\\$5' in str(soup), 'Escaped characters not properly rendered.'
 
 

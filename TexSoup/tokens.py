@@ -116,14 +116,15 @@ def tokenize_escaped_symbols(text, prev=None):
     '\\}'
     >>> tokenize_escaped_symbols(categorize(r'\%'))
     '\\%'
-    >>> tokenize_escaped_symbols(categorize(r'\ %'))  # not even one spacer is allowed
+    >>> tokenize_escaped_symbols(categorize(r'\ '))
+    '\\ '
     """
     if text.peek().category == CC.Escape \
             and text.peek(1) \
             and text.peek(1).category in (
                 CC.Escape, CC.GroupBegin, CC.GroupEnd, CC.MathSwitch,
                 CC.Alignment, CC.Macro, CC.Superscript, CC.Subscript,
-                CC.Active, CC.Comment, CC.Other):
+                CC.Spacer, CC.Active, CC.Comment, CC.Other):
         result = text.forward(2)
         result.category = TC.EscapedComment
         return result
