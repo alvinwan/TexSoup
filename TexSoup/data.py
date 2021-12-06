@@ -1317,7 +1317,7 @@ class TexArgs(list):
         """
         arg = self.__coerce(arg)
 
-        if isinstance(arg, TexGroup):
+        if isinstance(arg, (TexGroup, TexCmd)):
             super().insert(i, arg)
 
         if len(self) <= 1:
