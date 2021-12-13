@@ -195,6 +195,11 @@ def test_escaped_characters():
     assert '\\$4-\\$5' in str(soup), 'Escaped characters not properly rendered.'
 
 
+def test_newline_after_backslash():
+    soup = TexSoup('a\\\nb')
+    assert str(soup) == 'a\\\nb'
+
+
 def test_math_environment_weirdness():
     """Tests that math environment interacts correctly with other envs."""
     soup = TexSoup(r"""\begin{a} \end{a}$ b$""")
