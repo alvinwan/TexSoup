@@ -1082,7 +1082,7 @@ class TexCmd(TexExpr):
     def _assert_supports_contents(self):
         if not self._supports_contents():
             raise TypeError(
-                'Command "{}" has no children. `add_contents` is only valid'
+                'Command "{}" has no children. `add_contents` is only valid '
                 'for: 1. environments like `itemize` and 2. `\\item`. '
                 'Alternatively, you can add, edit, or delete arguments by '
                 'modifying `.args`, which behaves like a list.'
