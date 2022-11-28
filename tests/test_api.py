@@ -129,6 +129,15 @@ def test_replace_multiple(chikin):
     assert len(list(chikin.find_all('subsection'))) == 5
 
 
+# https://github.com/masonproffitt/TexSoup/issues/9
+def test_replace_in_args():
+    """Replace an element in an argument"""
+    soup = TexSoup(r'\Fig{\ref{fig:alfa_scheme}}')
+    soup.ref.replace_with('2')
+    assert 'alfa_scheme' not in str(soup)
+    assert len(list(soup.find_all('ref'))) == 0
+
+
 def test_append(chikin):
     """Add a child to the parse tree"""
     chikin.itemize.append('asdfghjkl')
