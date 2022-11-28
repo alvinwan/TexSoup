@@ -593,9 +593,14 @@ class TexNode(object):
         \item Bye
         \end{itemize}
         """
+        for arg in self.expr.args:
+            if child.expr in arg._contents:
+                arg.insert(arg.remove(child.expr), *nodes)
+                return
         self.expr.insert(
             self.expr.remove(child.expr),
             *nodes)
+
 
     def search_regex(self, pattern):
         for node in self.text:
