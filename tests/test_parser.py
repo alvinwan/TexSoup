@@ -384,6 +384,14 @@ def test_def_item():
     assert soup.item is not None
 
 
+def test_def_without_braces():
+    """Tests that def without braces around the new command parses correctly"""
+    soup = TexSoup(r"\def\acommandname{replacement text}")
+    assert len(soup.find("def").args) == 2
+    assert str(soup.find("def").args[0]) == r"\acommandname"
+    assert str(soup.find("def").args[1]) == "{replacement text}"
+
+
 def test_grouping_optional_argument():
     """Tests that grouping occurs correctly"""
     soup = TexSoup(r"\begin{Theorem}[The argopt contains {$]\int_\infty$} the square bracket]\end{Theorem}")

@@ -391,7 +391,7 @@ def read_arg_required(
        b. A curly-brace delimiter. If the required argument is brace-delimited,
           the contents of the brace group are used as the argument.
        c. Spacer or not, if a brace group is not found, simply use the next
-          character.
+          character, unless it is a backslash, in which case use the full command name
 
     :param Buffer src: a buffer of tokens
     :param TexArgs args: existing arguments to extend
@@ -422,7 +422,12 @@ def read_arg_required(
             n_required -= 1
             continue
         elif src.hasNext() and n_required > 0:
-            args.append('{%s}' % next(src))
+            next_token = next(src)
+            if next_token.category == TC.Escape:
+                name, _ = read_command(src, 0, 0, tolerance=tolerance, mode=mode)
+                args.append(TexCmd(name, position=next_token.position))
+            else:
+                args.append('{%s}' % next_token)
             n_required -= 1
             continue
 
