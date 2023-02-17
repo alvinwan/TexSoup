@@ -398,6 +398,16 @@ def test_grouping_optional_argument():
     assert len(soup.Theorem.args) == 1
 
 
+def test_zero_argument_signatures():
+    """Tests that specific commands that do not take arguments are parsed correctly."""
+    soup = TexSoup(r"$\cap[\cup[\in[\notin[\infty[$")
+    assert len(soup.find("cap").args) == 0
+    assert len(soup.find("cup").args) == 0
+    assert len(soup.find("in").args) == 0
+    assert len(soup.find("notin").args) == 0
+    assert len(soup.find("infty").args) == 0
+
+
 ##############
 # FORMATTING #
 ##############

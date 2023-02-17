@@ -31,7 +31,11 @@ SIGNATURES = {
     'textbf': (1, 0),
     'section': (1, 1),
     'label': (1, 0),
+    'cap': (0, 0),
     'cup': (0, 0),
+    'in': (0, 0),
+    'notin': (0, 0),
+    'infty': (0, 0),
     'noindent': (0, 0),
 }
 
