@@ -407,6 +407,9 @@ def test_zero_argument_signatures():
     assert len(soup.find("notin").args) == 0
     assert len(soup.find("infty").args) == 0
 
+    soup = TexSoup(r"\begin{equation} \cup [0, \infty) \end{equation}")
+    assert len(soup.find("cup").args) == 0
+
 
 ##############
 # FORMATTING #

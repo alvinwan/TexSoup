@@ -282,7 +282,7 @@ def read_env(src, expr, skip_envs=(), tolerance=0, mode=MODE_NON_MATH):
     while src.hasNext():
         if src.peek().category == TC.Escape:
             name, args = make_read_peek(read_command)(
-                src, 1, skip=1, tolerance=tolerance, mode=mode)
+                src, skip=1, tolerance=tolerance, mode=mode)
             if name == 'end':
                 break
         contents.append(read_expr(src, skip_envs=skip_envs, tolerance=tolerance, mode=mode))
