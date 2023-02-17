@@ -385,7 +385,7 @@ def test_def_item():
 
 
 def test_def_without_braces():
-    """Tests that def without braces around the new command parses correctly"""
+    """Tests that def without braces around the new command parses correctly."""
     soup = TexSoup(r"\def\acommandname{replacement text}")
     assert len(soup.find("def").args) == 2
     assert str(soup.find("def").args[0]) == r"\acommandname"
