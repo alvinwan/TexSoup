@@ -129,7 +129,6 @@ def test_replace_multiple(chikin):
     assert len(list(chikin.find_all('subsection'))) == 5
 
 
-# https://github.com/masonproffitt/TexSoup/issues/9
 def test_replace_in_args():
     """Replace an element in an argument"""
     soup = TexSoup(r'\Fig{\ref{fig:alfa_scheme}}')
