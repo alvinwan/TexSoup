@@ -196,8 +196,10 @@ def test_escaped_characters():
 
 
 def test_newline_after_backslash():
-    soup = TexSoup('a\\\nb')
-    assert str(soup) == 'a\\\nb'
+    """Tests that newlines after backslashes are preserved."""
+    text = 'a\\\nb'
+    soup = TexSoup(text)
+    assert str(soup) == text
 
 
 def test_math_environment_weirdness():
