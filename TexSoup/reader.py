@@ -97,7 +97,7 @@ def read_expr(src, skip_envs=(), tolerance=0, mode=MODE_NON_MATH):
     elif c.category == TC.Escape:
         name, args = read_command(src, tolerance=tolerance, mode=mode)
         if name == 'item':
-            assert mode != MODE_MATH, 'Command \item invalid in math mode.'
+            assert mode != MODE_MATH, r'Command \item invalid in math mode.'
             contents = read_item(src)
             expr = TexCmd(name, contents, args, position=c.position)
         elif name == 'begin':
