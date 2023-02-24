@@ -131,10 +131,9 @@ def test_replace_multiple(chikin):
 
 def test_replace_in_args():
     """Replace an element in an argument"""
-    soup = TexSoup(r'\Fig{\ref{fig:alfa_scheme}}')
+    soup = TexSoup(r'\Fig{\ref{a_label}}')
     soup.ref.replace_with('2')
-    assert 'alfa_scheme' not in str(soup)
-    assert len(list(soup.find_all('ref'))) == 0
+    assert str(soup) == r'\Fig{2}'
 
 
 def test_append(chikin):
