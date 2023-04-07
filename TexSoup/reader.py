@@ -106,7 +106,7 @@ def read_expr(src, skip_envs=(), tolerance=0, mode=MODE_NON_MATH, is_arg=False):
                 args[0].string, args=args[1:], position=c.position)
             if expr.name in MATH_ENV_NAMES:
                 mode = MODE_MATH
-            if expr.name in skip_envs:
+            if is_arg or (expr.name in skip_envs):
                 read_skip_env(src, expr)
             else:
                 read_env(src, expr, skip_envs=skip_envs,tolerance=tolerance, mode=mode)
