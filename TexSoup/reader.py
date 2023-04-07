@@ -80,7 +80,7 @@ def make_read_peek(f):
     return wrapper
 
 
-def read_expr(src, skip_envs=(), tolerance=0, mode=MODE_NON_MATH):
+def read_expr(src, skip_envs=(), tolerance=0, mode=MODE_NON_MATH, is_arg=False):
     r"""Read next expression from buffer
 
     :param Buffer src: a buffer of tokens
@@ -91,7 +91,7 @@ def read_expr(src, skip_envs=(), tolerance=0, mode=MODE_NON_MATH):
     :rtype: [TexExpr, Token]
     """
     c = next(src)
-    if c.category in MATH_TOKEN_TO_ENV.keys():
+    if (not is_arg) and c.category in MATH_TOKEN_TO_ENV.keys():
         expr = MATH_TOKEN_TO_ENV[c.category]([], position=c.position)
         return read_math_env(src, expr, tolerance=tolerance)
     elif c.category == TC.Escape:
@@ -466,7 +466,7 @@ def read_arg(src, c, tolerance=0, mode=MODE_NON_MATH):
             src.forward()
             return arg(*content[1:], position=c.position)
         else:
-            content.append(read_expr(src, tolerance=tolerance, mode=mode))
+            content.append(read_expr(src, tolerance=tolerance, mode=mode, is_arg=True))
 
     if tolerance == 0:
         clo = CharToLineOffset(str(src))
