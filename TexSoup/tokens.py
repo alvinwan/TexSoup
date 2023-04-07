@@ -25,8 +25,9 @@ BRACKETS_DELIMITERS = {
 }
 # TODO: looks like left-right do have to match
 SIZE_PREFIX = ('left', 'right', 'big', 'Big', 'bigg', 'Bigg')
-PUNCTUATION_COMMANDS = {command + bracket
+PUNCTUATION_COMMANDS = {command + opt_space + bracket
                         for command in SIZE_PREFIX
+                        for opt_space in {'', ' '}
                         for bracket in BRACKETS_DELIMITERS.union({'|', '.'})}
 
 __all__ = ['tokenize']
