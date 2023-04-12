@@ -26,6 +26,20 @@ MATH_SIMPLE_ENVS = (
 MATH_TOKEN_TO_ENV = {env.token_begin: env for env in MATH_SIMPLE_ENVS}
 ARG_BEGIN_TO_ENV = {arg.token_begin: arg for arg in arg_type}
 
+NO_ARG_MATH_CMD = """
+alpha approx beta blacksquare Box boxtimes cap cdot cdots chi 
+complement cong cup Delta delta div downarrow emptyset epsilon 
+equiv eta exists forall Gamma gamma geq Im in infty iota kappa 
+Lambda lambda Leftarrow leftarrow leftharpoondown leftharpoonup 
+leftrightarrow leq longmapsto mapsto mu nabla nearrow neg neq 
+nexists notin nu nwarrow Omega omega oplus otimes partial perp 
+Phi phi Pi pi Psi psi Re rho Rightarrow rightarrow rightharpoondown 
+rightharpoonup rightleftharpoons searrow Sigma sigma simeq square 
+subset surd swarrow tau Theta theta times triangle uparrow Updownarrow 
+Upsilon upsilon varepsilon varnothing varphi varrho vartheta vee 
+wedge wp Xi xi zeta
+""".strip().split()
+
 SIGNATURES = {
     'def': (2, 0),
     'textbf': (1, 0),
@@ -34,6 +48,8 @@ SIGNATURES = {
     'cup': (0, 0),
     'noindent': (0, 0),
 }
+
+SIGNATURES.update({cmd:(0,0) for cmd in NO_ARG_MATH_CMD})
 
 
 __all__ = ['read_expr', 'read_tex']
