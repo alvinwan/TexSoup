@@ -47,6 +47,7 @@ SIGNATURES = {
     'label': (1, 0),
     'cup': (0, 0),
     'noindent': (0, 0),
+    'newcommand': (2, 1),
 }
 
 SIGNATURES.update({cmd:(0,0) for cmd in NO_ARG_MATH_CMD})
@@ -54,6 +55,36 @@ SIGNATURES.update({cmd:(0,0) for cmd in NO_ARG_MATH_CMD})
 
 __all__ = ['read_expr', 'read_tex']
 
+
+def update_signatures(expr):
+    """Update the function signatures as new functions are defined
+
+    :param expr TexExpr
+    """
+    if not hasattr(expr, "name"):
+        return
+    if not (expr.name == "newcommand" and expr.args):
+        return
+    
+    cmd_name = None
+    req_args = 0
+    opt_args = 0
+    
+    if isinstance(expr.args[0], BraceGroup):
+        cmd_name = expr.args[0]._contents[0].name
+    if isinstance(expr.args[0], TexCmd):
+        cmd_name = expr.args[0].name
+    if not cmd_name:
+       return
+
+    if len(expr.args) > 2:
+        if isinstance(expr.args[1], BracketGroup):
+            req_args = int(expr.args[1]._contents[0])
+    if len(expr.args) > 3:
+        if isinstance(expr.args[2], BracketGroup):
+            opt_args = 1
+    req_args = req_args - opt_args
+    SIGNATURES[cmd_name] = (req_args, opt_args)
 
 def read_tex(buf, skip_envs=(), tolerance=0):
     r"""Parse all expressions in buffer
@@ -69,19 +100,7 @@ def read_tex(buf, skip_envs=(), tolerance=0):
                         skip_envs=SKIP_ENV_NAMES + skip_envs,
                         tolerance=tolerance)
         # update signatures for newly discovered commands
-        if hasattr(expr, "name") and expr.name == "newcommand":
-            cmd_name = expr.args[0]._contents[0].name
-            req_args = 0
-            opt_args = 0
-            if len(expr.args) > 2:
-                if isinstance(expr.args[1], BracketGroup):
-                    req_args = int(expr.args[1]._contents[0])
-            if len(expr.args) > 3:
-                if isinstance(expr.args[2], BracketGroup):
-                    opt_args = 1
-            req_args = req_args - opt_args
-            SIGNATURES[cmd_name] = (req_args, opt_args)
-            
+        update_signatures(expr)
         yield expr
 
 
