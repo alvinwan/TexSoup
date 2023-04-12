@@ -65,9 +65,24 @@ def read_tex(buf, skip_envs=(), tolerance=0):
     :rtype: Iterable[TexExpr]
     """
     while buf.hasNext():
-        yield read_expr(buf,
+        expr = read_expr(buf,
                         skip_envs=SKIP_ENV_NAMES + skip_envs,
                         tolerance=tolerance)
+        # update signatures for newly discovered commands
+        if hasattr(expr, "name") and expr.name == "newcommand":
+            cmd_name = expr.args[0]._contents[0].name
+            req_args = 0
+            opt_args = 0
+            if len(expr.args) > 2:
+                if isinstance(expr.args[1], BracketGroup):
+                    req_args = int(expr.args[1]._contents[0])
+            if len(expr.args) > 3:
+                if isinstance(expr.args[2], BracketGroup):
+                    opt_args = 1
+            req_args = req_args - opt_args
+            SIGNATURES[cmd_name] = (req_args, opt_args)
+            
+        yield expr
 
 
 def make_read_peek(f):
