@@ -24,7 +24,14 @@ BRACKETS_DELIMITERS = {
     r'\urcorner', r'\lbrack', r'\rbrack'
 }
 # TODO: looks like left-right do have to match
-SIZE_PREFIX = ('left', 'right', 'big', 'Big', 'bigg', 'Bigg')
+SIZE_PREFIX = (
+    'left', 'right', 
+    'big', 'Big', 
+    'bigg', 'Bigg', 
+    'bigl', 'bigr',
+    'biggl', 'biggr',
+    'Bigl', 'Bigr'
+    )
 PUNCTUATION_COMMANDS = {command + opt_space + bracket
                         for command in SIZE_PREFIX
                         for opt_space in {'', ' '}
