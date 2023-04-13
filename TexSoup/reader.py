@@ -27,7 +27,7 @@ MATH_TOKEN_TO_ENV = {env.token_begin: env for env in MATH_SIMPLE_ENVS}
 ARG_BEGIN_TO_ENV = {arg.token_begin: arg for arg in arg_type}
 
 NO_ARG_MATH_CMD = """
-alpha approx ast beta blacksquare Box boxtimes cap cdot cdots chi 
+alpha approx ast beta bigcup blacksquare Box boxtimes cap cdot cdots chi 
 colon complement cong cup Delta delta div downarrow emptyset epsilon 
 equiv eta exists forall Gamma gamma geq Im in infty iota kappa 
 Lambda lambda Leftarrow leftarrow leftharpoondown leftharpoonup 
