@@ -71,10 +71,15 @@ def update_signatures(expr):
     opt_args = 0
     
     if isinstance(expr.args[0], BraceGroup):
-        cmd_name = expr.args[0]._contents[0].name
+        cmd_elem = expr.args[0]._contents[0]
+        if isinstance(cmd_elem, str): 
+            cmd_elem.strip('\\')
+        if hasattr(cmd_elem, 'name'):
+            cmd_name = cmd_elem.name
     if isinstance(expr.args[0], TexCmd):
         cmd_name = expr.args[0].name
     if not cmd_name:
+       sys.stderr.write(f"Cmd name not recognized in {expr}.\n")
        return
 
     if len(expr.args) > 2:
