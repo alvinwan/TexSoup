@@ -28,7 +28,7 @@ ARG_BEGIN_TO_ENV = {arg.token_begin: arg for arg in arg_type}
 
 NO_ARG_MATH_CMD = """
 alpha approx ast beta blacksquare Box boxtimes cap cdot cdots chi 
-complement cong cup Delta delta div downarrow emptyset epsilon 
+colon complement cong cup Delta delta div downarrow emptyset epsilon 
 equiv eta exists forall Gamma gamma geq Im in infty iota kappa 
 Lambda lambda Leftarrow leftarrow leftharpoondown leftharpoonup 
 leftrightarrow leq longmapsto mapsto mu nabla nearrow neg neq 
