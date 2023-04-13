@@ -35,7 +35,7 @@ leftrightarrow leq longmapsto mapsto mu nabla nearrow neg neq
 nexists notin nu nwarrow Omega omega oplus otimes partial perp 
 Phi phi Pi pi Psi psi Re rho Rightarrow rightarrow rightharpoondown 
 rightharpoonup rightleftharpoons searrow Sigma sigma simeq square star
-subset surd swarrow tau Theta theta times to triangle uparrow Updownarrow 
+subset subseteq surd swarrow tau Theta theta times to triangle uparrow Updownarrow 
 Upsilon upsilon varepsilon varnothing varphi varrho vartheta vee 
 wedge wp Xi xi zeta
 """.strip().split()
