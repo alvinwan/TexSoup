@@ -48,6 +48,7 @@ SIGNATURES = {
     'cup': (0, 0),
     'noindent': (0, 0),
     'newcommand': (2, 1),
+    'frac': (2, 0),
 }
 
 SIGNATURES.update({cmd:(0,0) for cmd in NO_ARG_MATH_CMD})
