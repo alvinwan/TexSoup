@@ -162,7 +162,7 @@ def read_expr(src, skip_envs=(), tolerance=0, mode=MODE_NON_MATH, is_arg=False):
             if expr.name in MATH_ENV_NAMES:
                 mode = MODE_MATH
             if is_arg or (expr.name in skip_envs):
-                read_skip_env(src, expr)
+                read_skip_env(src, expr, is_arg)
             else:
                 read_env(src, expr, skip_envs=skip_envs,tolerance=tolerance, mode=mode)
         else:
@@ -273,7 +273,7 @@ def read_math_env(src, expr, tolerance=0):
     return expr
 
 
-def read_skip_env(src, expr):
+def read_skip_env(src, expr, is_arg=False):
     r"""Read the environment from buffer, WITHOUT parsing contents
 
     Advances the buffer until right after the end of the environment. Adds
@@ -296,7 +296,7 @@ def read_skip_env(src, expr):
     """
     def condition(s): return s.startswith('\\end{%s}' % expr.name)
     contents = [src.forward_until(condition, peek=False)]
-    if not src.startswith('\\end{%s}' % expr.name):
+    if (not is_arg) and (not src.startswith('\\end{%s}' % expr.name)):
         unclosed_env_handler(src, expr, src.peek((0, 6)))
     src.forward(5)
     expr.append(*contents)
