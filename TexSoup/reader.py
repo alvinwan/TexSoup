@@ -73,8 +73,8 @@ def update_signatures(expr):
     if isinstance(expr.args[0], BraceGroup):
         cmd_elem = expr.args[0]._contents[0]
         if isinstance(cmd_elem, str): 
-            cmd_elem.strip('\\')
-        if hasattr(cmd_elem, 'name'):
+            cmd_name = cmd_elem.strip("\\")
+        elif hasattr(cmd_elem, 'name'):
             cmd_name = cmd_elem.name
     if isinstance(expr.args[0], TexCmd):
         cmd_name = expr.args[0].name
