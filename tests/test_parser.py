@@ -385,7 +385,7 @@ def test_def_item():
 
 
 def test_def_without_braces():
-    """Tests that def without braces around the new command parses correctly"""
+    """Tests that def without braces around the new command parses correctly."""
     soup = TexSoup(r"\def\acommandname{replacement text}")
     assert len(soup.find("def").args) == 2
     assert str(soup.find("def").args[0]) == r"\acommandname"
@@ -396,6 +396,19 @@ def test_grouping_optional_argument():
     """Tests that grouping occurs correctly"""
     soup = TexSoup(r"\begin{Theorem}[The argopt contains {$]\int_\infty$} the square bracket]\end{Theorem}")
     assert len(soup.Theorem.args) == 1
+
+
+def test_zero_argument_signatures():
+    """Tests that specific commands that do not take arguments are parsed correctly."""
+    soup = TexSoup(r"$\cap[\cup[\in[\notin[\infty[$")
+    assert len(soup.find("cap").args) == 0
+    assert len(soup.find("cup").args) == 0
+    assert len(soup.find("in").args) == 0
+    assert len(soup.find("notin").args) == 0
+    assert len(soup.find("infty").args) == 0
+
+    soup = TexSoup(r"\begin{equation} \cup [0, \infty) \end{equation}")
+    assert len(soup.find("cup").args) == 0
 
 
 ##############
