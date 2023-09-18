@@ -45,7 +45,11 @@ SIGNATURES = {
     'textbf': (1, 0),
     'section': (1, 1),
     'label': (1, 0),
+    'cap': (0, 0),
     'cup': (0, 0),
+    'in': (0, 0),
+    'notin': (0, 0),
+    'infty': (0, 0),
     'noindent': (0, 0),
     'newcommand': (2, 1),
     'frac': (2, 0),
@@ -153,7 +157,7 @@ def read_expr(src, skip_envs=(), tolerance=0, mode=MODE_NON_MATH, is_arg=False):
     elif c.category == TC.Escape:
         name, args = read_command(src, tolerance=tolerance, mode=mode)
         if name == 'item':
-            assert mode != MODE_MATH, 'Command \item invalid in math mode.'
+            assert mode != MODE_MATH, r'Command \item invalid in math mode.'
             contents = read_item(src)
             expr = TexCmd(name, contents, args, position=c.position)
         elif name == 'begin':
@@ -334,7 +338,7 @@ def read_env(src, expr, skip_envs=(), tolerance=0, mode=MODE_NON_MATH):
     while src.hasNext():
         if src.peek().category == TC.Escape:
             name, args = make_read_peek(read_command)(
-                src, 1, skip=1, tolerance=tolerance, mode=mode)
+                src, skip=1, tolerance=tolerance, mode=mode)
             if name == 'end':
                 break
         contents.append(read_expr(src, skip_envs=skip_envs, tolerance=tolerance, mode=mode))

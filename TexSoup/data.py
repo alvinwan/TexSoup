@@ -593,9 +593,14 @@ class TexNode(object):
         \item Bye
         \end{itemize}
         """
+        for arg in self.expr.args:
+            if child.expr in arg._contents:
+                arg.insert(arg.remove(child.expr), *nodes)
+                return
         self.expr.insert(
             self.expr.remove(child.expr),
             *nodes)
+
 
     def search_regex(self, pattern):
         for node in self.text:
@@ -1082,7 +1087,7 @@ class TexCmd(TexExpr):
     def _assert_supports_contents(self):
         if not self._supports_contents():
             raise TypeError(
-                'Command "{}" has no children. `add_contents` is only valid'
+                'Command "{}" has no children. `add_contents` is only valid '
                 'for: 1. environments like `itemize` and 2. `\\item`. '
                 'Alternatively, you can add, edit, or delete arguments by '
                 'modifying `.args`, which behaves like a list.'
