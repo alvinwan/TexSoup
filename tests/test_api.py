@@ -100,6 +100,12 @@ def test_delete_arg():
     soup.bar.delete()
 
 
+def test_delete_env_arg():
+    """Delete an element from an environment arg in the parse tree"""
+    soup = TexSoup(r'\begin{foo}{\bar{\baz}}\end{foo}')
+    soup.bar.delete()
+
+
 def test_delete_token():
     """Delete Token"""
     soup = TexSoup(r"""
