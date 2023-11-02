@@ -10,6 +10,7 @@ from TexSoup.category import categorize  # used for tests
 from TexSoup.utils import IntEnum, TC
 import itertools
 import string
+from TexSoup.math_config import MathModeTracker
 
 # Custom higher-level combinations of primitives
 SKIP_ENV_NAMES = ('lstlisting', 'verbatim', 'verbatimtab', 'Verbatim', 'listing')
@@ -180,14 +181,19 @@ def tokenize_math_sym_switch(text, prev=None):
     >>> tokenize_math_sym_switch(categorize(r'$$\min_x$$ \command'))
     '$$'
     """
-    if text.peek().category == CC.MathSwitch:
-        if text.peek(1) and text.peek(1).category == CC.MathSwitch:
-            result = Token(text.forward(2), text.position)
-            result.category = TC.DisplayMathSwitch
-        else:
-            result = Token(text.forward(1), text.position)
-            result.category = TC.MathSwitch
-        return result
+    if not MathModeTracker.in_math_mode:
+        if text.peek().category == CC.MathSwitch:
+            if text.peek(1) and text.peek(1).category == CC.MathSwitch:
+                result = Token(text.forward(2), text.position)
+                result.category = TC.DisplayMathSwitch
+                MathModeTracker.math_mode_type = "Display"
+            else:
+                result = Token(text.forward(1), text.position)
+                result.category = TC.MathSwitch
+                MathModeTracker.math_mode_type = "Inline"
+            MathModeTracker.in_math_mode = True
+            return result
+        
 
 
 @token('math_asym_switch')
