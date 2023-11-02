@@ -86,6 +86,9 @@ def tokenize(text):
     """
     current_token = next_token(text)
     while current_token is not None:
+        if current_token.category not in TC:
+            print(current_token)
+            print("current_token")
         assert current_token.category in TC
         yield current_token
         current_token = next_token(text, prev=current_token)
