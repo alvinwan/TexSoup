@@ -197,14 +197,16 @@ def tokenize_math_sym_switch(text, prev=None):
                 MathModeTracker.math_mode_type = "Inline"
             MathModeTracker.in_math_mode = True
             return result
-        elif MathModeTracker.in_math_mode:
-            MathModeTracker.in_math_mode = False
-            MathModeTracker.math_mode_type = None
+        else:
             if MathModeTracker.math_mode_type == "Inline": # if in math inline mode
                 # Close math inline mode
+                MathModeTracker.in_math_mode = False
+                MathModeTracker.math_mode_type = None
                 return Token(text.forward(1), text.position)
             if MathModeTracker.math_mode_type == "Display": # if in math display mode
-                # Close math inline mode
+                # Close math display mode
+                MathModeTracker.in_math_mode = False
+                MathModeTracker.math_mode_type = None
                 return Token(text.forward(2), text.position)
 
 @token('math_asym_switch')
