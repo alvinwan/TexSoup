@@ -181,6 +181,10 @@ def tokenize_math_sym_switch(text, prev=None):
     >>> tokenize_math_sym_switch(categorize(r'$$\min_x$$ \command'))
     '$$'
     """
+    print(text)
+    print(MathModeTracker.in_math_mode)
+    print(MathModeTracker.math_mode_type)
+    print("---------------------")
     if not MathModeTracker.in_math_mode:
         if text.peek().category == CC.MathSwitch:
             if text.peek(1) and text.peek(1).category == CC.MathSwitch:
