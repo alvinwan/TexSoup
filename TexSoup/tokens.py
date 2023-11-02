@@ -193,6 +193,13 @@ def tokenize_math_sym_switch(text, prev=None):
                 MathModeTracker.math_mode_type = "Inline"
             MathModeTracker.in_math_mode = True
             return result
+    elif MathModeTracker.in_math_mode and MathModeTracker.math_mode_type == "Inline":
+        if text.peek().category == CC.MathSwitch:
+            MathModeTracker.in_math_mode = False
+            MathModeTracker.math_mode_type = None
+            # Close math mode
+            return Token(text.forward(1), text.position)
+
         
 
 
