@@ -185,8 +185,8 @@ def tokenize_math_sym_switch(text, prev=None):
     print(MathModeTracker.in_math_mode)
     print(MathModeTracker.math_mode_type)
     print("---------------------")
-    if not MathModeTracker.in_math_mode:
-        if text.peek().category == CC.MathSwitch:
+    if text.peek().category == CC.MathSwitch:
+        if not MathModeTracker.in_math_mode: # if not in math mode
             if text.peek(1) and text.peek(1).category == CC.MathSwitch:
                 result = Token(text.forward(2), text.position)
                 result.category = TC.DisplayMathSwitch
@@ -197,15 +197,15 @@ def tokenize_math_sym_switch(text, prev=None):
                 MathModeTracker.math_mode_type = "Inline"
             MathModeTracker.in_math_mode = True
             return result
-    elif MathModeTracker.in_math_mode and MathModeTracker.math_mode_type == "Inline":
-        if text.peek().category == CC.MathSwitch:
+        elif MathModeTracker.in_math_mode:
             MathModeTracker.in_math_mode = False
             MathModeTracker.math_mode_type = None
-            # Close math mode
-            return Token(text.forward(1), text.position)
-
-        
-
+            if MathModeTracker.math_mode_type == "Inline": # if in math inline mode
+                # Close math inline mode
+                return Token(text.forward(1), text.position)
+            if MathModeTracker.math_mode_type == "Display": # if in math display mode
+                # Close math inline mode
+                return Token(text.forward(2), text.position)
 
 @token('math_asym_switch')
 def tokenize_math_asym_switch(text, prev=None):
