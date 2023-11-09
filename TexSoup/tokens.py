@@ -86,8 +86,9 @@ def tokenize(text):
     """
     current_token = next_token(text)
     while current_token is not None:
-        if current_token.category not in TC:
-            print(current_token, current_token.category)
+        if True:
+            print(current_token)
+            print(current_token.category)
             print("current_token")
         assert current_token.category in TC
         yield current_token
@@ -203,14 +204,21 @@ def tokenize_math_sym_switch(text, prev=None):
         else:
             if MathModeTracker.math_mode_type == "Inline": # if in math inline mode
                 # Close math inline mode
+                print("closing inline mode")
+                # print(result.category)
                 MathModeTracker.in_math_mode = False
                 MathModeTracker.math_mode_type = None
-                return Token(text.forward(1), text.position)
+                result = Token(text.forward(1), text.position)
+                result.category = TC.MathSwitch
+                print(result.category)
+                return result
             if MathModeTracker.math_mode_type == "Display": # if in math display mode
                 # Close math display mode
                 MathModeTracker.in_math_mode = False
                 MathModeTracker.math_mode_type = None
-                return Token(text.forward(2), text.position)
+                result = Token(text.forward(1), text.position)
+                result.category = TC.DisplayMathSwitch
+                return result
 
 @token('math_asym_switch')
 def tokenize_math_asym_switch(text, prev=None):
