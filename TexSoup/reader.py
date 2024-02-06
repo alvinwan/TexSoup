@@ -387,7 +387,6 @@ def read_math_env(src, expr, tolerance=0):
     EOFError: [Line: 0, Offset: 7] "$" env expecting $. Reached end of file.
     """
     contents = []
-    # print(expr.token_end)
     while src.hasNext() and src.peek().category != expr.token_end:
         contents.append(read_expr(src, tolerance=tolerance, mode=MODE_MATH))
     if not src.hasNext() or src.peek().category != expr.token_end:
