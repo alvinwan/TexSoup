@@ -387,6 +387,7 @@ def read_math_env(src, expr, tolerance=0):
     EOFError: [Line: 0, Offset: 7] "$" env expecting $. Reached end of file.
     """
     contents = []
+    # print(expr.token_end)
     while src.hasNext() and src.peek().category != expr.token_end:
         contents.append(read_expr(src, tolerance=tolerance, mode=MODE_MATH))
     if not src.hasNext() or src.peek().category != expr.token_end:
@@ -518,7 +519,6 @@ def read_args(src, n_required=-1, n_optional=-1, args=None, tolerance=0,
     args = args or TexArgs()
     if n_required == 0 and n_optional == 0:
         return args
-
     n_optional = read_arg_optional(src, args, n_optional, tolerance, mode)
     n_required = read_arg_required(src, args, n_required, tolerance, mode)
 
@@ -604,9 +604,17 @@ def read_arg_required(
             if next_token.category == TC.Escape:
                 name, _ = read_command(src, 0, 0, tolerance=tolerance, mode=mode)
                 args.append(TexCmd(name, position=next_token.position))
+                n_required -= 1
             else:
-                args.append('{%s}' % next_token)
-            n_required -= 1
+                # deals with the special case where the users do not write {}
+                if not args and mode == MODE_MATH:
+                    for t in list(next_token):
+                        if t != " " and n_required > 0:
+                            args.append('{%s}' % t)
+                            n_required -= 1
+                else:
+                    args.append('{%s}' % next_token)
+                    n_required -= 1
             continue
 
         if spacer:
