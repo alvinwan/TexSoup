@@ -86,10 +86,6 @@ def tokenize(text):
     """
     current_token = next_token(text)
     while current_token is not None:
-        if True:
-            print(current_token)
-            print(current_token.category)
-            print("current_token")
         assert current_token.category in TC
         yield current_token
         current_token = next_token(text, prev=current_token)
@@ -185,10 +181,6 @@ def tokenize_math_sym_switch(text, prev=None):
     >>> tokenize_math_sym_switch(categorize(r'$$\min_x$$ \command'))
     '$$'
     """
-    print(text)
-    print(MathModeTracker.in_math_mode)
-    print(MathModeTracker.math_mode_type)
-    print("---------------------")
     if text.peek().category == CC.MathSwitch:
         if not MathModeTracker.in_math_mode: # if not in math mode
             if text.peek(1) and text.peek(1).category == CC.MathSwitch:
@@ -204,13 +196,10 @@ def tokenize_math_sym_switch(text, prev=None):
         else:
             if MathModeTracker.math_mode_type == "Inline": # if in math inline mode
                 # Close math inline mode
-                print("closing inline mode")
-                # print(result.category)
                 MathModeTracker.in_math_mode = False
                 MathModeTracker.math_mode_type = None
                 result = Token(text.forward(1), text.position)
                 result.category = TC.MathSwitch
-                print(result.category)
                 return result
             if MathModeTracker.math_mode_type == "Display": # if in math display mode
                 # Close math display mode
