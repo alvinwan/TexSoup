@@ -26,6 +26,20 @@ MATH_SIMPLE_ENVS = (
 MATH_TOKEN_TO_ENV = {env.token_begin: env for env in MATH_SIMPLE_ENVS}
 ARG_BEGIN_TO_ENV = {arg.token_begin: arg for arg in arg_type}
 
+NO_ARG_MATH_CMD = """
+alpha approx ast beta bigcup blacksquare Box boxtimes cap cdot cdots chi 
+colon complement cong cup Delta delta div downarrow emptyset epsilon 
+equiv eta exists forall Gamma gamma geq Im in infty iota kappa 
+Lambda lambda Leftarrow leftarrow leftharpoondown leftharpoonup 
+leftrightarrow leq longmapsto mapsto mu nabla nearrow neg neq 
+nexists notin nu nwarrow Omega omega oplus otimes partial perp 
+Phi phi Pi pi Psi psi Re rho Rightarrow rightarrow rightharpoondown 
+rightharpoonup rightleftharpoons searrow Sigma sigma simeq square star
+subset subseteq surd swarrow tau Theta theta times to triangle uparrow Updownarrow 
+Upsilon upsilon varepsilon varnothing varphi varrho vartheta vee 
+wedge wp Xi xi zeta
+""".strip().split()
+
 SIGNATURES = {
     'def': (2, 0),
     'textbf': (1, 0),
@@ -37,11 +51,168 @@ SIGNATURES = {
     'notin': (0, 0),
     'infty': (0, 0),
     'noindent': (0, 0),
+    'newcommand': (2, 1),
+    'addcontentsline': (3, 0),
+    'address': (1, 0),
+    'addtocontents': (2, 0),
+    'addtocounter': (2, 0),
+    'addtolength': (2, 0),
+    'alph': (1, 0),
+    'author': (1, 0),
+    'bibitem': (1, 0),
+    'bibliography': (1, 0),
+    'bibliographystyle': (1, 0),
+    'binom': (2, 0),
+    'caption': (1, 1),
+    'cc': (1, 0),
+    'chapter': (1, 1),
+    'chapter*': (1, 0),
+    'circle': (1, 0),
+    'circle*': (1, 0),
+    'cite': (1, 1),
+    'cline': (1, 0),
+    'closing': (1, 0),
+    'date': (1, 0),
+    'dashbox': (2, 2),
+    'documentstyle': (1, 1),
+    'encl': (1, 0),
+    'end': (1, 0),
+    'fbox': (1, 0),
+    'fnsymbol': (1, 0),
+    'footnote': (1, 0),
+    'footnotetext': (1, 0),
+    'frac': (2, 0),
+    'frame': (1, 0),
+    'framebox': (1, 2),
+    'glossary': (1, 0),
+    'glossaryentry': (2, 0),
+    'hspace': (1, 0),
+    'hspace*': (1, 0),
+    'hypenation': (1, 0),
+    'include': (1, 0),
+    'includeonly': (1, 0),
+    'index': (1, 0),
+    'indexentry': (2, 0),
+    'input': (1, 0),
+    'item': (0, 1),
+    'label': (1, 0),
+    'lefteqn': (1, 0),
+    'line': (1, 1),
+    'linebreack': (0, 1),
+    'linethickness': (1, 0),
+    'makebox': (1, 2),
+    'marginpar': (1, 0),
+    'markboth': (2, 0),
+    'markright': (1, 0),
+    'mbox': (1, 0),
+    'multicolumn': (3, 0),
+    'multiput': (2, 2),
+    'newcommand': (2, 1),
+    'newcounter': (1, 1),
+    'newenvironment': (3, 1),
+    'newfont': (2, 0),
+    'newlength': (1, 0),
+    'newsavebox': (1, 0),
+    'newtheorem': (2, 2),
+    'nolinebreak': (0, 1),
+    'nopagebreak': (0, 1),
+    'opening': (1, 0),
+    'oval': (0, 1),
+    'overbrace': (1, 0),
+    'overline': (1, 0),
+    'pagebreak': (0, 1),
+    'pagenumbering': (1, 0),
+    'pageref': (1, 0),
+    'pagestyle': (1, 0),
+    'paragraph': (1, 1),
+    'paragraph*': (1, 1),
+    'parbox': (2, 1),
+    'part': (1, 1),
+    'part*': (1, 0),
+    'pmod': (1, 0),
+    'put': (1, 1),
+    'raisebox': (2, 2),
+    'ref': (1, 0),
+    'renewcommand': (2, 1),
+    'renewenvironment': (3, 1),
+    'roman': (1, 0),
+    'rule': (2, 1),
+    'savebox': (2, 2),
+    'sbox': (2, 0),
+    'section': (1, 1),
+    'section*': (1, 0),
+    'setcounter': (2, 0),
+    'setlength': (2, 0),
+    'settowidth': (2, 0),
+    'shortstack': (1, 1),
+    'signature': (1, 0),
+    'sqrt': (1, 1),
+    'stackrel': (2, 0),
+    'subparagraph': (1, 1),
+    'subparagraph*': (1, 0),
+    'subsection': (1, 1),
+    'subsubsection': (1, 1),
+    'subsection*': (1, 0),
+    'subsubsection*': (1, 0),
+    'symbol': (1, 0),
+    'thanks': (1, 0),
+    'thispagestyle': (1, 0),
+    'title': (1, 0),
+    'twocolumn': (0, 1),
+    'typein': (1, 1),
+    'typeout': (1, 0),
+    'underbrace': (1, 0),
+    'underline': (1, 0),
+    'usebox': (1, 0),
+    'usecounter': (1, 0),
+    'value': (1, 0),
+    'vector': (1, 1),
+    'vspace': (1, 0),
+    'vspace*': (1, 0),
+    'widehat': (1, 0),
+    'widetilde': (1, 0),
 }
+
+SIGNATURES.update({cmd:(0,0) for cmd in NO_ARG_MATH_CMD})
 
 
 __all__ = ['read_expr', 'read_tex']
 
+
+def update_signatures(expr):
+    """Update the function signatures as new functions are defined
+
+    :param expr TexExpr
+    """
+    if not hasattr(expr, "name"):
+        return
+    if not (expr.name == "newcommand" and expr.args):
+        return
+    
+    cmd_name = None
+    req_args = 0
+    opt_args = 0
+    
+    if isinstance(expr.args[0], BraceGroup):
+        cmd_elem = expr.args[0]._contents[0]
+        if isinstance(cmd_elem, str): 
+            cmd_name = cmd_elem.strip("\\")
+        elif hasattr(cmd_elem, 'name'):
+            cmd_name = cmd_elem.name
+    if isinstance(expr.args[0], TexCmd):
+        cmd_name = expr.args[0].name
+    if not cmd_name:
+       sys.stderr.write(f"Cmd name not recognized in {expr}.\n")
+       return
+
+    if len(expr.args) > 2:
+        if isinstance(expr.args[1], BracketGroup):
+            req_args = int(expr.args[1]._contents[0])
+    if len(expr.args) > 3:
+        if isinstance(expr.args[2], BracketGroup):
+            opt_args = 1
+    req_args = req_args - opt_args
+    SIGNATURES[cmd_name] = (req_args, opt_args)
 
 def read_tex(buf, skip_envs=(), tolerance=0):
     r"""Parse all expressions in buffer
@@ -53,9 +224,12 @@ def read_tex(buf, skip_envs=(), tolerance=0):
     :rtype: Iterable[TexExpr]
     """
     while buf.hasNext():
-        yield read_expr(buf,
+        expr = read_expr(buf,
                         skip_envs=SKIP_ENV_NAMES + skip_envs,
                         tolerance=tolerance)
+        # update signatures for newly discovered commands
+        update_signatures(expr)
+        yield expr
 
 
 def make_read_peek(f):
@@ -84,7 +258,7 @@ def make_read_peek(f):
     return wrapper
 
 
-def read_expr(src, skip_envs=(), tolerance=0, mode=MODE_NON_MATH):
+def read_expr(src, skip_envs=(), tolerance=0, mode=MODE_NON_MATH, is_arg=False):
     r"""Read next expression from buffer
 
     :param Buffer src: a buffer of tokens
@@ -95,7 +269,7 @@ def read_expr(src, skip_envs=(), tolerance=0, mode=MODE_NON_MATH):
     :rtype: [TexExpr, Token]
     """
     c = next(src)
-    if c.category in MATH_TOKEN_TO_ENV.keys():
+    if (not is_arg) and c.category in MATH_TOKEN_TO_ENV.keys():
         expr = MATH_TOKEN_TO_ENV[c.category]([], position=c.position)
         return read_math_env(src, expr, tolerance=tolerance)
     elif c.category == TC.Escape:
@@ -110,8 +284,8 @@ def read_expr(src, skip_envs=(), tolerance=0, mode=MODE_NON_MATH):
                 args[0].string, args=args[1:], position=c.position)
             if expr.name in MATH_ENV_NAMES:
                 mode = MODE_MATH
-            if expr.name in skip_envs:
-                read_skip_env(src, expr)
+            if is_arg or (expr.name in skip_envs):
+                read_skip_env(src, expr, is_arg)
             else:
                 read_env(src, expr, skip_envs=skip_envs,tolerance=tolerance, mode=mode)
         else:
@@ -222,7 +396,7 @@ def read_math_env(src, expr, tolerance=0):
     return expr
 
 
-def read_skip_env(src, expr):
+def read_skip_env(src, expr, is_arg=False):
     r"""Read the environment from buffer, WITHOUT parsing contents
 
     Advances the buffer until right after the end of the environment. Adds
@@ -245,7 +419,7 @@ def read_skip_env(src, expr):
     """
     def condition(s): return s.startswith('\\end{%s}' % expr.name)
     contents = [src.forward_until(condition, peek=False)]
-    if not src.startswith('\\end{%s}' % expr.name):
+    if (not is_arg) and (not src.startswith('\\end{%s}' % expr.name)):
         unclosed_env_handler(src, expr, src.peek((0, 6)))
     src.forward(5)
     expr.append(*contents)
@@ -344,7 +518,6 @@ def read_args(src, n_required=-1, n_optional=-1, args=None, tolerance=0,
     args = args or TexArgs()
     if n_required == 0 and n_optional == 0:
         return args
-
     n_optional = read_arg_optional(src, args, n_optional, tolerance, mode)
     n_required = read_arg_required(src, args, n_required, tolerance, mode)
 
@@ -430,9 +603,17 @@ def read_arg_required(
             if next_token.category == TC.Escape:
                 name, _ = read_command(src, 0, 0, tolerance=tolerance, mode=mode)
                 args.append(TexCmd(name, position=next_token.position))
+                n_required -= 1
             else:
-                args.append('{%s}' % next_token)
-            n_required -= 1
+                # deals with the special case where the users do not write {}
+                if not args and mode == MODE_MATH:
+                    for t in list(next_token):
+                        if t != " " and n_required > 0:
+                            args.append('{%s}' % t)
+                            n_required -= 1
+                else:
+                    args.append('{%s}' % next_token)
+                    n_required -= 1
             continue
 
         if spacer:
@@ -470,7 +651,7 @@ def read_arg(src, c, tolerance=0, mode=MODE_NON_MATH):
             src.forward()
             return arg(*content[1:], position=c.position)
         else:
-            content.append(read_expr(src, tolerance=tolerance, mode=mode))
+            content.append(read_expr(src, tolerance=tolerance, mode=mode, is_arg=True))
 
     if tolerance == 0:
         clo = CharToLineOffset(str(src))

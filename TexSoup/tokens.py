@@ -10,6 +10,7 @@ from TexSoup.category import categorize  # used for tests
 from TexSoup.utils import IntEnum, TC
 import itertools
 import string
+from TexSoup.math_config import MathModeTracker
 
 # Custom higher-level combinations of primitives
 SKIP_ENV_NAMES = ('lstlisting', 'verbatim', 'verbatimtab', 'Verbatim', 'listing')
@@ -24,9 +25,17 @@ BRACKETS_DELIMITERS = {
     r'\urcorner', r'\lbrack', r'\rbrack'
 }
 # TODO: looks like left-right do have to match
-SIZE_PREFIX = ('left', 'right', 'big', 'Big', 'bigg', 'Bigg')
-PUNCTUATION_COMMANDS = {command + bracket
+SIZE_PREFIX = (
+    'left', 'right', 
+    'big', 'Big', 
+    'bigg', 'Bigg', 
+    'bigl', 'bigr',
+    'biggl', 'biggr',
+    'Bigl', 'Bigr'
+    )
+PUNCTUATION_COMMANDS = {command + opt_space + bracket
                         for command in SIZE_PREFIX
+                        for opt_space in {'', ' '}
                         for bracket in BRACKETS_DELIMITERS.union({'|', '.'})}
 
 __all__ = ['tokenize']
@@ -173,14 +182,32 @@ def tokenize_math_sym_switch(text, prev=None):
     '$$'
     """
     if text.peek().category == CC.MathSwitch:
-        if text.peek(1) and text.peek(1).category == CC.MathSwitch:
-            result = Token(text.forward(2), text.position)
-            result.category = TC.DisplayMathSwitch
+        if not MathModeTracker.in_math_mode: # if not in math mode
+            if text.peek(1) and text.peek(1).category == CC.MathSwitch:
+                result = Token(text.forward(2), text.position)
+                result.category = TC.DisplayMathSwitch
+                MathModeTracker.math_mode_type = "Display"
+            else:
+                result = Token(text.forward(1), text.position)
+                result.category = TC.MathSwitch
+                MathModeTracker.math_mode_type = "Inline"
+            MathModeTracker.in_math_mode = True
+            return result
         else:
-            result = Token(text.forward(1), text.position)
-            result.category = TC.MathSwitch
-        return result
-
+            if MathModeTracker.math_mode_type == "Inline": # if in math inline mode
+                # Close math inline mode
+                MathModeTracker.in_math_mode = False
+                MathModeTracker.math_mode_type = None
+                result = Token(text.forward(1), text.position)
+                result.category = TC.MathSwitch
+                return result
+            if MathModeTracker.math_mode_type == "Display": # if in math display mode
+                # Close math display mode
+                MathModeTracker.in_math_mode = False
+                MathModeTracker.math_mode_type = None
+                result = Token(text.forward(1), text.position)
+                result.category = TC.DisplayMathSwitch
+                return result
 
 @token('math_asym_switch')
 def tokenize_math_asym_switch(text, prev=None):
