@@ -6,7 +6,7 @@
 [![Build Status](https://travis-ci.org/alvinwan/TexSoup.svg?branch=master)](https://travis-ci.org/alvinwan/TexSoup)
 [![Coverage Status](https://coveralls.io/repos/github/alvinwan/TexSoup/badge.svg?branch=master)](https://coveralls.io/github/alvinwan/TexSoup?branch=master)
 
-TexSoup is a fault-tolerant, Python3 package for searching, navigating, and modifying LaTeX documents.
+TexSoup is a fault-tolerant, Python3 package for searching, navigating, and modifying LaTeX documents. You can skip installation and try TexSoup directly, using the [pytwiddle demo &rarr;](https://pytwiddle.com/?id=example:latex.py)
 
 - [Getting Started](https://github.com/alvinwan/TexSoup#Getting-Started)
 - [Installation](https://github.com/alvinwan/TexSoup#Installation)
@@ -71,7 +71,7 @@ life & common
 [\item red lemon, \item life]
 ```
 
-For more use cases, see [the Quickstart Guide](https://texsoup.alvinwan.com/docs/quickstart.html). Or, try TexSoup [online, via repl.it &rarr;](https://repl.it/@ALVINWAN1/texsoup)
+For more use cases, see [the Quickstart Guide](https://texsoup.alvinwan.com/docs/quickstart.html). Or, try TexSoup [online, via pytwiddle &rarr;](https://pytwiddle.com/?id=example:latex.py)
 
 Links:
 
