@@ -7,3 +7,8 @@ class MathModeTracker:
     def __init__(self):
         pass
 
+    @classmethod
+    def reset(cls):
+        cls.in_math_mode = False
+        cls.math_mode_type = None
+        

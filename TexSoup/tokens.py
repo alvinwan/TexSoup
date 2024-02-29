@@ -205,7 +205,7 @@ def tokenize_math_sym_switch(text, prev=None):
                 # Close math display mode
                 MathModeTracker.in_math_mode = False
                 MathModeTracker.math_mode_type = None
-                result = Token(text.forward(1), text.position)
+                result = Token(text.forward(2), text.position)
                 result.category = TC.DisplayMathSwitch
                 return result
 

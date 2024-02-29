@@ -6,6 +6,7 @@ tree with navigation, search, and modification utilities.
 
 from TexSoup.tex import read
 from TexSoup.data import TexNode
+from TexSoup.math_config import MathModeTracker
 
 __version__ = '0.3.1'
 
@@ -84,5 +85,6 @@ def TexSoup(tex_code, skip_envs=(), tolerance=0):
     >>> soup
     SOUP
     """
+    MathModeTracker.reset()
     parsed, src = read(tex_code, skip_envs=skip_envs, tolerance=tolerance)
     return TexNode(parsed, src=src)
