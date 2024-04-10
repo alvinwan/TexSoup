@@ -389,6 +389,7 @@ def read_math_env(src, expr, tolerance=0):
     contents = []
     while src.hasNext() and src.peek().category != expr.token_end:
         contents.append(read_expr(src, tolerance=tolerance, mode=MODE_MATH))
+        
     if not src.hasNext() or src.peek().category != expr.token_end:
         unclosed_env_handler(src, expr, src.peek())
     next(src)
@@ -606,14 +607,20 @@ def read_arg_required(
                 n_required -= 1
             else:
                 # deals with the special case where the users do not write {}
-                if not args and mode == MODE_MATH:
-                    for t in list(next_token):
-                        if t != " " and n_required > 0:
-                            args.append('{%s}' % t)
-                            n_required -= 1
-                else:
-                    args.append('{%s}' % next_token)
-                    n_required -= 1
+                # if not args and mode == MODE_MATH:
+                #     for t in list(next_token):
+                #         if t != " " and n_required > 0:
+                #             args.append('{%s}' % t)
+                #             n_required -= 1
+                # else:
+                #     args.append('{%s}' % next_token)
+                #     n_required -= 1
+                
+                for t in list(next_token):
+                    if t != " " and n_required > 0:
+                        args.append('{%s}' % t)
+                        n_required -= 1
+                
             continue
 
         if spacer:
