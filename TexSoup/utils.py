@@ -95,7 +95,7 @@ class Token(str):
         return self
 
     def __repr__(self):
-        return repr(self.text)
+        return "Token({!r})".format(self.text)
 
     def __str__(self):
         return str(self.text)

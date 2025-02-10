@@ -87,7 +87,7 @@ class TexNode(object):
 
     def __repr__(self):
         """Interpreter representation."""
-        return str(self)
+        return "TexNode(expr={})".format(str(self.expr))
 
     def __str__(self):
         """Stringified command."""
@@ -931,10 +931,11 @@ class TexEnv(TexExpr):
 
     def __repr__(self):
         if self.name == '[tex]':
-            return str(self._contents)
+            assert not self.args
+            return "<TexEnv: contents=%s>" % str(self)
         if not self.args and not self._contents:
             return "%s('%s')" % (self.__class__.__name__, self.name)
-        return "%s('%s', %s, %s)" % (
+        return "%s('%s', contents=%s, args=%s)" % (
             self.__class__.__name__, self.name, repr(self._contents),
             repr(self.args))
 
@@ -1079,7 +1080,7 @@ class TexCmd(TexExpr):
     def __repr__(self):
         if not self.args:
             return "TexCmd('%s')" % self.name
-        return "TexCmd('%s', %s)" % (self.name, repr(self.args))
+        return "TexCmd('%s', args=%s)" % (self.name, repr(self.args))
 
     def _supports_contents(self):
         return self.name == 'item'
@@ -1155,9 +1156,9 @@ class TexText(TexExpr, str):
     def __repr__(self):
         """
         >>> TexText('asdf')
-        'asdf'
+        TexText('asdf')
         """
-        return repr(self._text)
+        return "TexText({!r})".format(str(self))
 
 
 #############
@@ -1182,8 +1183,8 @@ class TexGroup(TexUnNamedEnv):
                          position=position)
 
     def __repr__(self):
-        return '%s(%s)' % (self.__class__.__name__,
-                           ', '.join(map(repr, self._contents)))
+        return '<%s contents=%s>' % (self.__class__.__name__,
+                           ', '.join(map(repr, map(str, self._contents))))
 
     @classmethod
     def parse(cls, s):
