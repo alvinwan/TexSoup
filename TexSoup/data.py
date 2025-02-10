@@ -596,10 +596,15 @@ class TexNode(object):
             self.expr.remove(child.expr),
             *nodes)
 
+    def search_regex(self, pattern, **kwargs):
+        r"""Find objects which match a regular expression.
 
-    def search_regex(self, pattern):
+        :param str pattern: The regular expression to search for
+        :param kwargs: any keyword arguments passed to ``re.finiter``
+        """
+
         for node in self.text:
-            for match in re.finditer(pattern, node):
+            for match in re.finditer(pattern, node, **kwargs):
                 body = match.group()  # group() returns the full match
                 start = match.start()
                 yield Token(body, node.position + start)
