@@ -467,16 +467,11 @@ class TexNode(object):
         \textit{keep me!}
         """
 
-        # TODO: needs better abstraction for supports contents
-        parent = self.parent
-        if parent.expr._supports_contents():
-            parent.remove(self)
-            return
-
-        # TODO: needs abstraction for removing from arg
-        for arg in parent.args:
-            if self.expr in arg.contents:
-                arg._contents.remove(self.expr)
+        for arg in self.parent.args:
+            if self in arg.contents:
+                arg.remove(self)
+                return
+        self.parent.remove(self)
 
     def find(self, name=None, **attrs):
         r"""First descendant node matching criteria.
