@@ -9,6 +9,7 @@ from TexSoup.tokens import (
     tokenize,
     SKIP_ENV_NAMES,
     MATH_ENV_NAMES,
+    SPECIAL_COMMANDS,
 )
 import functools
 import string
@@ -17,6 +18,7 @@ import sys
 
 MODE_MATH = 'mode:math'
 MODE_NON_MATH = 'mode:non-math'
+MODE_SPECIAL = 'mode:special'
 MATH_SIMPLE_ENVS = (
     TexDisplayMathModeEnv,
     TexMathModeEnv,
@@ -104,7 +106,9 @@ def read_expr(src, skip_envs=(), tolerance=0, mode=MODE_NON_MATH):
             assert mode != MODE_MATH, r'Command \item invalid in math mode.'
             contents = read_item(src)
             expr = TexCmd(name, contents, args, position=c.position)
-        elif name == 'begin':
+        # if we are in "special" mode, we do not attempt to match the `\begin`
+        # and `\end`
+        elif name == 'begin' and mode != MODE_SPECIAL:
             assert args, 'Begin command must be followed by an env name.'
             expr = TexNamedEnv(
                 args[0].string, args=args[1:], position=c.position)
@@ -546,9 +550,16 @@ def read_command(buf, n_required_args=-1, n_optional_args=-1, skip=0,
         next(buf)
 
     name = next(buf)
+    # if the command is a special one (like `newcommand`), enter "special"
+    # mode, in which a single `\begin` or `\end` are allowed
+    if name.text in SPECIAL_COMMANDS:
+        mode = MODE_SPECIAL
     token = Token('', buf.position)
     if n_required_args < 0 and n_optional_args < 0:
         n_required_args, n_optional_args = SIGNATURES.get(name, (-1, -1))
     args = read_args(buf, n_required_args, n_optional_args,
                      tolerance=tolerance, mode=mode)
+    # after parsing the command, go back to normal mode
+    if name.text in SPECIAL_COMMANDS:
+        mode = MODE_NON_MATH
     return name, args

@@ -629,3 +629,22 @@ def test_tolerance_env_unclosed():
     \end{envb}""", tolerance=1)
     assert len(list(soup.enva.contents)) == 1
     assert soup.end
+
+def test_special_command():
+    """Test that we tolerate unclosed environments when in special mode."""
+    # source:
+    # https://github.com/alvinwan/TexSoup/issues/135#issuecomment-1705749106
+    texsrc = r"""
+    \documentclass[useAMS,usenatbib]{mnras}
+    \newcommand{\beq}{\begin{equation}}
+    \newcommand{\eeq}{\end{equation}}
+
+    \begin{document}
+    \begin{itemize}
+    \item something
+    \end{itemize}
+
+    \end{document}
+    """
+    soup = TexSoup(texsrc)
+    assert soup
