@@ -33,6 +33,12 @@ PUNCTUATION_COMMANDS = {command + bracket
 __all__ = ['tokenize']
 
 
+def at_letter_token(token, text):
+    """Whether token should count as a command-name character."""
+    return token.category == CC.Letter or (
+        getattr(text, 'at_letter', False) and token == '@')
+
+
 def next_token(text, prev=None):
     r"""Returns the next possible token, advancing the iterator to the next
     position to start processing from.
@@ -76,10 +82,16 @@ def tokenize(text):
     >>> print(*tokenize(categorize(r'\begin{tabular} 0 & 1 \\ 2 & 0 \end{tabular}')))
     \ begin { tabular }  0 & 1  \\  2 & 0  \ end { tabular }
     """
+    text.at_letter = False
     current_token = next_token(text)
     while current_token is not None:
         assert current_token.category in TC
         yield current_token
+        if current_token.category == TC.CommandName:
+            if current_token.text == 'makeatletter':
+                text.at_letter = True
+            elif current_token.text == 'makeatother':
+                text.at_letter = False
         current_token = next_token(text, prev=current_token)
 
 
@@ -122,6 +134,8 @@ def tokenize_escaped_symbols(text, prev=None):
     """
     if text.peek().category == CC.Escape \
             and text.peek(1) \
+            and not (
+                getattr(text, 'at_letter', False) and text.peek(1) == '@') \
             and text.peek(1).category in (
                 CC.Escape, CC.GroupBegin, CC.GroupEnd, CC.MathSwitch,
                 CC.Alignment, CC.EndOfLine, CC.Macro, CC.Superscript,
@@ -331,10 +345,10 @@ def tokenize_command_name(text, prev=None):
     'bf*'
     """
     if text.peek(-1) and text.peek(-1).category == CC.Escape \
-            and text.peek().category == CC.Letter:
+            and at_letter_token(text.peek(), text):
         c = text.forward(1)
-        while text.hasNext() and text.peek().category == CC.Letter \
-                or text.peek() == '*':  # TODO: what do about asterisk?
+        while text.hasNext() and (
+                at_letter_token(text.peek(), text) or text.peek() == '*'):
             # TODO: excluded other, macro, super, sub, acttive, alignment
             # although macros can make these a part of the command name
             c += text.forward(1)

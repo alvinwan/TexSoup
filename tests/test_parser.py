@@ -711,6 +711,22 @@ def test_special_command_signatures():
         r'\a', '[2]', '[default]', '{Hello #1 #2}']
 
 
+def test_makeatletter_command_names():
+    """``\\makeatletter`` should allow ``@`` inside command names."""
+    soup = TexSoup(r"\makeatletter\def\@internal{Hello}\makeatother")
+    assert list(map(str, soup.contents)) == [
+        r'\makeatletter',
+        r'\def\@internal{Hello}',
+        r'\makeatother',
+    ]
+
+    soup = TexSoup(r"\def\@internal{Hello}")
+    assert list(map(str, soup.contents)) == [
+        r'\def{\@}{internal}',
+        r'{Hello}',
+    ]
+
+
 def test_brackets_issue():
     """Test that mismatched square brackets in math mode are not a problem."""
     soup = TexSoup(r"$\cmd [0,1)$")
