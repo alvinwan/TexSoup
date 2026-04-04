@@ -648,3 +648,8 @@ def test_special_command():
     """
     soup = TexSoup(texsrc)
     assert soup
+
+def test_brackets_issue():
+    """Test that mismatched square brackets in math mode are not a problem."""
+    soup = TexSoup(r"$\cmd [0,1)$")
+    assert soup
