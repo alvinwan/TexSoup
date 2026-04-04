@@ -28,7 +28,7 @@ Going Down
 Some expressions contain content. For example, environments may contain items.
 TexSoup provides attributes for navigating an environment's children.
 
-Naviate by naming the expression you want. For example, to access italicized
+Navigate by naming the expression you want. For example, to access italicized
 text, use :code:`soup.textit`::
 
     >>> soup.textit
