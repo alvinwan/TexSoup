@@ -13,6 +13,27 @@ __all__ = ['TexNode', 'TexCmd', 'TexEnv', 'TexGroup', 'BracketGroup',
            'TexDisplayMathEnv', 'TexNamedEnv', 'TexMathModeEnv',
            'TexDisplayMathModeEnv']
 
+SECTIONING_COMMANDS = (
+    'part',
+    'chapter',
+    'section',
+    'subsection',
+    'subsubsection',
+    'paragraph',
+    'subparagraph',
+)
+TEXT_BLOCK_COMMANDS = frozenset(SECTIONING_COMMANDS + ('item',))
+
+
+def _starts_text_block(node):
+    """Whether node should start a new grouped text block."""
+    expr = getattr(node, 'expr', node)
+    if isinstance(expr, TexEnv):
+        return True
+    if isinstance(expr, TexCmd):
+        return expr.name.rstrip('*') in TEXT_BLOCK_COMMANDS
+    return False
+
 
 #############
 # Interface #
@@ -324,6 +345,60 @@ class TexNode(object):
                 yield descendant
             elif hasattr(descendant, 'text'):
                 yield from descendant.text
+
+    @property
+    @to_list
+    def text_blocks(self):
+        r"""Grouped text blocks, preserving inline formatting boundaries.
+
+        Unlike ``.text``, this groups adjacent text that belongs together even
+        when inline commands split it across multiple descendant nodes.
+        Structural nodes such as sectioning commands, environments, and
+        ``\item`` start new blocks.
+
+        >>> from TexSoup import TexSoup
+        >>> soup = TexSoup(r'''
+        ... \section{Hello \textit{world}.}
+        ...
+        ... \subsection{Watermelon}
+        ...
+        ... \begin{itemize}
+        ... \item red lemon
+        ... \item life
+        ... \end{itemize}
+        ... ''')
+        >>> soup.text_blocks
+        ['Hello world.', 'Watermelon', ' red lemon\n', ' life\n']
+        """
+        block = []
+
+        def flush():
+            if block:
+                yield ''.join(block)
+                del block[:]
+
+        for content in self.contents:
+            if isinstance(content, (TexText, Token, str)):
+                block.append(str(content))
+                continue
+
+            if not hasattr(content, 'text_blocks'):
+                continue
+
+            nested_blocks = content.text_blocks
+            if not nested_blocks:
+                continue
+
+            if _starts_text_block(content):
+                yield from flush()
+                for nested in nested_blocks:
+                    if nested:
+                        yield nested
+                continue
+
+            block.append(''.join(map(str, nested_blocks)))
+
+        yield from flush()
 
     ##################
     # PUBLIC METHODS #
