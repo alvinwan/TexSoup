@@ -195,6 +195,27 @@ def test_change_name():
     assert str(soup) == r"\textit{Theo} haha"
 
 
+def test_change_contents():
+    """Changing command contents should preserve argument structure."""
+    soup = TexSoup(r"\a{b}{c}{d}")
+    soup.a.contents = ['x', 'y', 'z']
+    assert soup.a.contents == ['x', 'y', 'z']
+    assert str(soup.a) == r"\a{x}{y}{z}"
+
+    soup = TexSoup(r"\textbf{hello}")
+    soup.textbf.contents = ['xy']
+    assert soup.textbf.contents == ['xy']
+    assert str(soup.textbf) == r"\textbf{xy}"
+
+    soup = TexSoup(r"\a{b}{c}")
+    with pytest.raises(TypeError):
+        soup.a.contents = ['x']
+
+    soup = TexSoup(r"\textbf{hello}")
+    with pytest.raises(TypeError):
+        soup.textbf.contents = ['x', 'y']
+
+
 def test_access_position(chikin):
     """Tests that commands, arguments, environments, and strings store pos"""
     clo = chikin.char_pos_to_line
