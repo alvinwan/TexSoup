@@ -29,29 +29,34 @@ MATH_TOKEN_TO_ENV = {env.token_begin: env for env in MATH_SIMPLE_ENVS}
 ARG_BEGIN_TO_ENV = {arg.token_begin: arg for arg in arg_type}
 ARG_REQUIRED = 'required'
 ARG_OPTIONAL = 'optional'
-DEFAULT_ARG_SPEC = (
-    (ARG_OPTIONAL, None),
-    (ARG_REQUIRED, None),
-    (ARG_OPTIONAL, None),
-    (ARG_REQUIRED, None),
-)
 SPECIAL_COMMAND_SIGNATURE = (
     (ARG_REQUIRED, 1),
     (ARG_OPTIONAL, 2),
     (ARG_REQUIRED, 1),
 )
 
+
+def make_arg_spec(n_required=-1, n_optional=-1):
+    """Build the default ordered argument phases for a command."""
+    return (
+        (ARG_OPTIONAL, n_optional),
+        (ARG_REQUIRED, n_required),
+        (ARG_OPTIONAL, None),
+        (ARG_REQUIRED, None),
+    )
+
+
 SIGNATURES = {
-    'def': (2, 0),
-    'textbf': (1, 0),
-    'section': (1, 1),
-    'label': (1, 0),
-    'cap': (0, 0),
-    'cup': (0, 0),
-    'in': (0, 0),
-    'notin': (0, 0),
-    'infty': (0, 0),
-    'noindent': (0, 0),
+    'def': make_arg_spec(2, 0),
+    'textbf': make_arg_spec(1, 0),
+    'section': make_arg_spec(1, 1),
+    'label': make_arg_spec(1, 0),
+    'cap': make_arg_spec(0, 0),
+    'cup': make_arg_spec(0, 0),
+    'in': make_arg_spec(0, 0),
+    'notin': make_arg_spec(0, 0),
+    'infty': make_arg_spec(0, 0),
+    'noindent': make_arg_spec(0, 0),
     'newcommand': SPECIAL_COMMAND_SIGNATURE,
     'renewcommand': SPECIAL_COMMAND_SIGNATURE,
     'providecommand': SPECIAL_COMMAND_SIGNATURE,
@@ -188,7 +193,7 @@ def read_item(src, tolerance=0):
     while src.hasNext():
         if src.peek().category == TC.Escape:
             cmd_name, _ = make_read_peek(read_command)(
-                src, 1, skip=1, tolerance=tolerance)
+                src, arg_spec=make_arg_spec(1), skip=1, tolerance=tolerance)
             if cmd_name in ('end', 'item'):
                 return extras
         elif src.peek().category == TC.GroupEnd:
@@ -369,8 +374,7 @@ def read_args_spec(src, arg_spec, args=None, counts=None, tolerance=0,
         n_args = counts.get(arg_kind, -1) if count is None else count
         remaining = readers[arg_kind](
             src, args, n_args, tolerance=tolerance, mode=mode)
-        if count is None:
-            counts[arg_kind] = remaining
+        counts[arg_kind] = remaining
     return args
 
 
@@ -418,12 +422,8 @@ def read_args(src, n_required=-1, n_optional=-1, args=None, tolerance=0,
 
     return read_args_spec(
         src,
-        DEFAULT_ARG_SPEC,
+        make_arg_spec(n_required, n_optional),
         args=args,
-        counts={
-            ARG_REQUIRED: n_required,
-            ARG_OPTIONAL: n_optional,
-        },
         tolerance=tolerance,
         mode=mode)
 
@@ -501,7 +501,8 @@ def read_arg_required(
         elif src.hasNext() and n_required > 0:
             next_token = next(src)
             if next_token.category == TC.Escape:
-                name, _ = read_command(src, 0, 0, tolerance=tolerance, mode=mode)
+                name, _ = read_command(
+                    src, arg_spec=(), tolerance=tolerance, mode=mode)
                 args.append(TexCmd(name, position=next_token.position))
             else:
                 args.append('{%s}' % next_token)
@@ -581,7 +582,7 @@ def read_spacer(buf):
     return ''
 
 
-def read_command(buf, n_required_args=-1, n_optional_args=-1, skip=0,
+def read_command(buf, arg_spec=None, skip=0,
                  tolerance=0, mode=MODE_NON_MATH):
     r"""Parses command and all arguments. Assumes escape has just been parsed.
 
@@ -619,16 +620,13 @@ def read_command(buf, n_required_args=-1, n_optional_args=-1, skip=0,
         next(buf)
 
     name = next(buf)
-    if n_required_args < 0 and n_optional_args < 0:
+    if arg_spec is None:
         # Default to ignoring optional arguments in math mode
-        default_signature = (-1, 0) if mode==MODE_MATH else (-1, -1)
+        default_signature = make_arg_spec(-1, 0 if mode == MODE_MATH else -1)
         signature = SIGNATURES.get(name, default_signature)
     else:
-        signature = (n_required_args, n_optional_args)
+        signature = arg_spec
 
     arg_mode = SIGNATURE_MODES.get(name.text, mode)
-    if signature and isinstance(signature[0], tuple):
-        args = read_args_spec(buf, signature, tolerance=tolerance, mode=arg_mode)
-    else:
-        args = read_args(buf, *signature, tolerance=tolerance, mode=arg_mode)
+    args = read_args_spec(buf, signature, tolerance=tolerance, mode=arg_mode)
     return name, args
