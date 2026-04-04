@@ -27,6 +27,19 @@ MATH_SIMPLE_ENVS = (
 )
 MATH_TOKEN_TO_ENV = {env.token_begin: env for env in MATH_SIMPLE_ENVS}
 ARG_BEGIN_TO_ENV = {arg.token_begin: arg for arg in arg_type}
+ARG_REQUIRED = 'required'
+ARG_OPTIONAL = 'optional'
+DEFAULT_ARG_SPEC = (
+    (ARG_OPTIONAL, None),
+    (ARG_REQUIRED, None),
+    (ARG_OPTIONAL, None),
+    (ARG_REQUIRED, None),
+)
+SPECIAL_COMMAND_SIGNATURE = (
+    (ARG_REQUIRED, 1),
+    (ARG_OPTIONAL, 2),
+    (ARG_REQUIRED, 1),
+)
 
 SIGNATURES = {
     'def': (2, 0),
@@ -39,7 +52,11 @@ SIGNATURES = {
     'notin': (0, 0),
     'infty': (0, 0),
     'noindent': (0, 0),
+    'newcommand': SPECIAL_COMMAND_SIGNATURE,
+    'renewcommand': SPECIAL_COMMAND_SIGNATURE,
+    'providecommand': SPECIAL_COMMAND_SIGNATURE,
 }
+SIGNATURE_MODES = {name: MODE_SPECIAL for name in SPECIAL_COMMANDS}
 
 
 __all__ = ['read_expr', 'read_tex']
@@ -328,7 +345,35 @@ def read_env(src, expr, skip_envs=(), tolerance=0, mode=MODE_NON_MATH):
 
 
 # TODO: handle macro-weirdness e.g., \def\blah[#1][[[[[[[[#2{"#1 . #2"}
-# TODO: add newcommand macro
+def read_args_spec(src, arg_spec, args=None, counts=None, tolerance=0,
+        mode=MODE_NON_MATH):
+    r"""Read arguments using an ordered specification.
+
+    :param Buffer src: a buffer of tokens
+    :param Iterable[Tuple[str, Optional[int]]] arg_spec: ordered arg phases
+    :param TexArgs args: existing arguments to extend
+    :param Dict[str, int] counts: reusable remaining counts for arg kinds
+    :param int tolerance: error tolerance level (only supports 0 or 1)
+    :param str mode: math or not math mode
+    :return: parsed arguments
+    :rtype: TexArgs
+    """
+    args = args or TexArgs()
+    counts = dict(counts or {})
+    readers = {
+        ARG_OPTIONAL: read_arg_optional,
+        ARG_REQUIRED: read_arg_required,
+    }
+
+    for arg_kind, count in arg_spec:
+        n_args = counts.get(arg_kind, -1) if count is None else count
+        remaining = readers[arg_kind](
+            src, args, n_args, tolerance=tolerance, mode=mode)
+        if count is None:
+            counts[arg_kind] = remaining
+    return args
+
+
 def read_args(src, n_required=-1, n_optional=-1, args=None, tolerance=0,
         mode=MODE_NON_MATH):
     r"""Read all arguments from buffer.
@@ -368,16 +413,19 @@ def read_args(src, n_required=-1, n_optional=-1, args=None, tolerance=0,
     >>> test('[tempt]{ing}[WITCH]{doctorrrr}', 0, 0)
     []
     """
-    args = args or TexArgs()
     if n_required == 0 and n_optional == 0:
-        return args
+        return args or TexArgs()
 
-    n_optional = read_arg_optional(src, args, n_optional, tolerance, mode)
-    n_required = read_arg_required(src, args, n_required, tolerance, mode)
-
-    n_optional = read_arg_optional(src, args, n_optional, tolerance, mode)
-    n_required = read_arg_required(src, args, n_required, tolerance, mode)
-    return args
+    return read_args_spec(
+        src,
+        DEFAULT_ARG_SPEC,
+        args=args,
+        counts={
+            ARG_REQUIRED: n_required,
+            ARG_OPTIONAL: n_optional,
+        },
+        tolerance=tolerance,
+        mode=mode)
 
 
 def read_arg_optional(
@@ -571,18 +619,16 @@ def read_command(buf, n_required_args=-1, n_optional_args=-1, skip=0,
         next(buf)
 
     name = next(buf)
-    if name.text in SPECIAL_COMMANDS:
-        args = TexArgs()
-        # Macro-definition commands accept arguments in the order
-        # required, optional, required.
-        read_arg_required(buf, args, 1, tolerance=tolerance, mode=MODE_SPECIAL)
-        read_arg_optional(buf, args, 1, tolerance=tolerance, mode=MODE_SPECIAL)
-        read_arg_required(buf, args, 1, tolerance=tolerance, mode=MODE_SPECIAL)
-        return name, args
     if n_required_args < 0 and n_optional_args < 0:
         # Default to ignoring optional arguments in math mode
         default_signature = (-1, 0) if mode==MODE_MATH else (-1, -1)
-        n_required_args, n_optional_args = SIGNATURES.get(name, default_signature)
-    args = read_args(buf, n_required_args, n_optional_args,
-                     tolerance=tolerance, mode=mode)
+        signature = SIGNATURES.get(name, default_signature)
+    else:
+        signature = (n_required_args, n_optional_args)
+
+    arg_mode = SIGNATURE_MODES.get(name.text, mode)
+    if signature and isinstance(signature[0], tuple):
+        args = read_args_spec(buf, signature, tolerance=tolerance, mode=arg_mode)
+    else:
+        args = read_args(buf, *signature, tolerance=tolerance, mode=arg_mode)
     return name, args

@@ -686,6 +686,13 @@ def test_special_command_signatures():
         assert str(children[0].args[1]) == '[1]'
         assert str(children[0].args[2]) == '{Hello #1}'
 
+    soup = TexSoup(r"\newcommand\a[2][default]{Hello #1 #2}")
+    children = list(soup.children)
+    assert len(children) == 1
+    assert children[0].name == 'newcommand'
+    assert [str(arg) for arg in children[0].args] == [
+        r'\a', '[2]', '[default]', '{Hello #1 #2}']
+
 
 def test_brackets_issue():
     """Test that mismatched square brackets in math mode are not a problem."""
