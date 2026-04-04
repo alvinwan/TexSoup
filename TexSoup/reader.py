@@ -30,6 +30,7 @@ ARG_BEGIN_TO_ENV = {arg.token_begin: arg for arg in arg_type}
 ARG_REQUIRED = 'required'
 ARG_OPTIONAL = 'optional'
 RAW_ARG_COMMANDS = {'url'}
+RAW_ARG_ENVS = {'array', 'tabular', 'tabular*'}
 VERBATIM_COMMANDS = {'verb', 'verb*'}
 SPECIAL_COMMAND_SIGNATURE = (
     (ARG_REQUIRED, 1),
@@ -687,6 +688,40 @@ def read_spacer(buf):
     return ''
 
 
+def read_begin_env_args(buf, tolerance=0, mode=MODE_NON_MATH):
+    r"""Read ``\begin`` arguments, with raw parsing for column specs.
+
+    The first required argument is always the environment name. Certain
+    environments, such as ``tabular`` and ``array``, expect their following
+    column-spec argument to be treated as raw text because syntax like
+    ``>{$}`` is metadata rather than nested math to parse.
+
+    :param Buffer buf: a buffer of tokens
+    :param int tolerance: error tolerance level (only supports 0 or 1)
+    :param str mode: math or not math mode
+    :rtype: TexArgs
+    """
+    args = TexArgs()
+    read_arg_required(buf, args, 1, tolerance=tolerance, mode=mode)
+    if not args:
+        return args
+
+    if str(args[0].string) in RAW_ARG_ENVS:
+        read_arg_optional(buf, args, 1, tolerance=tolerance, mode=mode)
+        spacer = read_spacer(buf)
+        raw_arg = read_raw_brace_arg(buf, tolerance=tolerance)
+        if raw_arg is None and spacer:
+            buf.backward(1)
+        else:
+            if spacer:
+                args.append(spacer)
+            if raw_arg is not None:
+                args.append(raw_arg)
+        return args
+
+    return read_args(buf, args=args, tolerance=tolerance, mode=mode)
+
+
 def read_command(buf, arg_spec=None, skip=0,
                  tolerance=0, mode=MODE_NON_MATH):
     r"""Parses command and all arguments. Assumes escape has just been parsed.
@@ -737,6 +772,9 @@ def read_command(buf, arg_spec=None, skip=0,
             if raw_arg is not None:
                 args.append(raw_arg)
         return name, args
+    if name.text == 'begin' and arg_spec is None:
+        return name, read_begin_env_args(
+            buf, tolerance=tolerance, mode=mode)
 
     if arg_spec is None:
         signature = SIGNATURES.get(name)
