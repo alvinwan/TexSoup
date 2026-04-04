@@ -1,4 +1,5 @@
 from TexSoup import TexSoup
+from TexSoup.data import TexText
 from TexSoup.utils import Token, TokenWithPosition
 from tests.config import chikin
 import copy
@@ -45,7 +46,7 @@ def test_navigation_positions(chikin):
     assert chikin.char_pos_to_line(1) == (0, 1), 'documentclass'
     assert chikin.char_pos_to_line(172) == (11, 6), 'waddle'
 
-    assert isinstance(chikin.itemize.children[0].contents[0], Token)
+    assert isinstance(chikin.itemize.children[0].contents[0], TexText)
 
     # get position of first token
     waddle_pos = chikin.itemize.children[0].contents[0].position
