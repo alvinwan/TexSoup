@@ -29,6 +29,8 @@ MATH_TOKEN_TO_ENV = {env.token_begin: env for env in MATH_SIMPLE_ENVS}
 ARG_BEGIN_TO_ENV = {arg.token_begin: arg for arg in arg_type}
 ARG_REQUIRED = 'required'
 ARG_OPTIONAL = 'optional'
+RAW_ARG_COMMANDS = {'url'}
+VERBATIM_COMMANDS = {'verb', 'verb*'}
 SPECIAL_COMMAND_SIGNATURE = (
     (ARG_REQUIRED, 1),
     (ARG_OPTIONAL, 2),
@@ -112,7 +114,11 @@ def read_expr(src, skip_envs=(), tolerance=0, mode=MODE_NON_MATH):
         return read_math_env(src, expr, tolerance=tolerance)
     elif c.category == TC.Escape:
         name, args = read_command(src, tolerance=tolerance, mode=mode)
-        if name == 'item':
+        if name in VERBATIM_COMMANDS:
+            expr = TexCmd(
+                name, read_verbatim_contents(src, tolerance=tolerance),
+                args=args, position=c.position)
+        elif name == 'item':
             assert mode != MODE_MATH, r'Command \item invalid in math mode.'
             contents = read_item(src)
             expr = TexCmd(name, contents, args, position=c.position)
@@ -223,7 +229,131 @@ def split_display_math_switch(src):
     second = Token('$', token.position + 1)
     second.category = TC.MathSwitch
 
-    src._Buffer__queue[src._Buffer__i:src._Buffer__i + 1] = [first, second]
+    src.replace(1, first, second)
+
+
+def read_raw(src, token, stop, tolerance=0, on_unclosed=None):
+    """Read raw token text until ``stop`` reports completion.
+
+    This helper is used by verbatim-like parsers that need to consume raw text
+    without recursively parsing expressions. ``stop`` is responsible for
+    deciding whether the current token finishes the raw segment and may return
+    a suffix to be pushed back into the buffer for later parsing.
+
+    :param Buffer src: a buffer of tokens
+    :param Token token: first token segment to consume
+    :param Callable stop: returns ``(text, remainder, done)`` for each token
+    :param int tolerance: error tolerance level (only supports 0 or 1)
+    :param Callable on_unclosed: error callback invoked when EOF is reached
+        before ``stop`` reports completion
+    :rtype: Tuple[str, List[Token]]
+    """
+    contents = []
+    consumed = []
+
+    while token is not None:
+        consumed.append(token)
+        text, remainder, done = stop(token)
+        contents.append(text)
+        if done:
+            if remainder:
+                src.push(Token(
+                    remainder,
+                    token.position + len(token) - len(remainder),
+                    token.category))
+            return ''.join(contents), consumed
+        if not src.hasNext():
+            break
+        token = next(src)
+
+    if tolerance == 0 and on_unclosed is not None:
+        on_unclosed(consumed)
+    return ''.join(contents), consumed
+
+
+def read_raw_brace_arg(src, tolerance=0):
+    """Read a brace-delimited argument without parsing its contents.
+
+    Advances the buffer until the matching closing brace while preserving all
+    interior text literally. Nested braces are tracked so the returned group
+    still respects balanced brace structure.
+
+    :param Buffer src: a buffer of tokens
+    :param int tolerance: error tolerance level (only supports 0 or 1)
+    :rtype: BraceGroup
+    """
+    if not (src.hasNext() and src.peek().category == TC.GroupBegin):
+        return None
+
+    begin = next(src)
+    depth = 1
+
+    def stop(token):
+        nonlocal depth
+        if token.category == TC.GroupBegin:
+            depth += 1
+        elif token.category == TC.GroupEnd:
+            depth -= 1
+            if depth == 0:
+                return '', None, True
+        return str(token), None, False
+
+    def on_unclosed(consumed):
+        clo = CharToLineOffset(str(src))
+        line, offset = clo(begin.position)
+        raise TypeError(
+            '[Line: %d, Offset %d] Malformed argument. First and last elements '
+            'must match a valid argument format. In this case, TexSoup'
+            ' could not find matching punctuation for: %s.\n'
+            'Just finished parsing: %s' %
+            (line, offset, begin, [begin] + consumed))
+
+    token = next(src) if src.hasNext() else None
+    contents, _ = read_raw(
+        src, token, stop, tolerance=tolerance, on_unclosed=on_unclosed)
+    return BraceGroup(contents, position=begin.position)
+
+
+def read_verbatim_contents(src, tolerance=0):
+    """Read raw delimited contents for ``\\verb``-style commands.
+
+    ``\\verb`` chooses its delimiter from the next character after the command
+    name and then consumes raw text until that same delimiter appears again.
+    Any text after the closing delimiter is pushed back into the buffer so it
+    can be parsed normally.
+
+    :param Buffer src: a buffer of tokens
+    :param int tolerance: error tolerance level (only supports 0 or 1)
+    :rtype: List[TexText]
+    """
+    if not src.hasNext():
+        return []
+
+    token = next(src)
+    token_text = str(token)
+    delimiter = token_text[:1]
+    if not delimiter:
+        return []
+
+    position = token.position
+    contents = [delimiter]
+
+    def stop(token):
+        token_text = str(token)
+        if delimiter in token_text:
+            index = token_text.index(delimiter)
+            remainder = token_text[index + 1:]
+            return token_text[:index + 1], remainder, True
+        return token_text, None, False
+
+    def on_unclosed(_):
+        raise EOFError(r'Unclosed \verb command.')
+
+    token = Token(token_text[1:], token.position + 1, token.category)
+    raw_text, _ = read_raw(
+        src, token, stop, tolerance=tolerance, on_unclosed=on_unclosed)
+    contents.append(raw_text)
+    return [TexText(''.join(contents), position=position)]
 
 
 def read_math_env(src, expr, tolerance=0):
@@ -586,6 +716,19 @@ def read_command(buf, arg_spec=None, skip=0,
         next(buf)
 
     name = next(buf)
+    if name.text in RAW_ARG_COMMANDS:
+        args = TexArgs()
+        spacer = read_spacer(buf)
+        raw_arg = read_raw_brace_arg(buf, tolerance=tolerance)
+        if raw_arg is None and spacer:
+            buf.backward(1)
+        else:
+            if spacer:
+                args.append(spacer)
+            if raw_arg is not None:
+                args.append(raw_arg)
+        return name, args
+
     if arg_spec is None:
         signature = SIGNATURES.get(name)
     else:

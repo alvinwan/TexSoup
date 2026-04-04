@@ -566,7 +566,7 @@ def test_allow_unclosed_non_curly_braces():
 
 
 def test_buffer():
-    from TexSoup.utils import Buffer
+    from TexSoup.utils import Buffer, Token
     b = Buffer('abcdef')
     assert b.forward_until(lambda s: s in 'def') == 'abc'
     assert b.forward_until(lambda s: s in 'f') == 'de'
@@ -581,6 +581,17 @@ def test_buffer():
     assert b.num_forward_until(lambda s: s in 'z') == 0
     assert b.backward(6) == 'abcdef'
     assert b.num_forward_until(lambda s: s not in 'abc') == 3
+
+    b = Buffer('cd')
+    b.push(Token('ab', 0))
+    assert next(b) == 'ab'
+    assert next(b) == 'c'
+
+    b = Buffer('cd')
+    _ = b.peek()
+    b.replace(1, Token('ab', 0))
+    assert next(b) == 'ab'
+    assert next(b) == 'd'
 
 
 def test_to_buffer():
@@ -704,3 +715,24 @@ def test_brackets_issue():
     """Test that mismatched square brackets in math mode are not a problem."""
     soup = TexSoup(r"$\cmd [0,1)$")
     assert soup
+
+
+def test_verbatim_like_commands():
+    """Verbatim-like commands should keep raw contents unparsed."""
+    soup = TexSoup(r"A \verb|df$col| column")
+    parts = list(soup.all)
+    assert str(parts[1]) == r'\verb|df$col|'
+    assert parts[1].name == 'verb'
+    assert len(parts[1].args) == 0
+    assert parts[1].contents[0] == '|df$col|'
+    assert str(parts[2]) == ' column'
+
+    soup = TexSoup(r"A \verb+code+ example")
+    parts = list(soup.all)
+    assert str(parts[1]) == r'\verb+code+'
+    assert parts[1].contents[0] == '+code+'
+    assert str(parts[2]) == ' example'
+
+    soup = TexSoup(r"\url{https://test.lab/test?var=test$}")
+    assert str(soup.url) == r"\url{https://test.lab/test?var=test$}"
+    assert str(soup.url.args[0]) == r"{https://test.lab/test?var=test$}"
