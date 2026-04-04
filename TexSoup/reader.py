@@ -573,15 +573,13 @@ def read_command(buf, n_required_args=-1, n_optional_args=-1, skip=0,
         next(buf)
 
     name = next(buf)
-    # if the command is a special one (like `newcommand`), enter "special"
-    # mode, in which a single `\begin` or `\end` are allowed
-    if name.text in SPECIAL_COMMANDS:
-        mode = MODE_SPECIAL
     if name.text in SPECIAL_COMMANDS:
         args = TexArgs()
-        read_arg_required(buf, args, 1, tolerance=tolerance, mode=mode)
-        read_arg_optional(buf, args, 1, tolerance=tolerance, mode=mode)
-        read_arg_required(buf, args, 1, tolerance=tolerance, mode=mode)
+        # Macro-definition commands accept arguments in the order
+        # required, optional, required.
+        read_arg_required(buf, args, 1, tolerance=tolerance, mode=MODE_SPECIAL)
+        read_arg_optional(buf, args, 1, tolerance=tolerance, mode=MODE_SPECIAL)
+        read_arg_required(buf, args, 1, tolerance=tolerance, mode=MODE_SPECIAL)
         return name, args
     if n_required_args < 0 and n_optional_args < 0:
         # Default to ignoring optional arguments in math mode
