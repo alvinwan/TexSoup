@@ -766,9 +766,6 @@ class TexExpr(object):
         # Commands expose argument contents through `.contents`, so update the
         # existing argument structure instead of appending hidden `_contents`.
         if self.args and not self._contents:
-            if len(self.args) == 1:
-                self.args[0].contents = _contents
-                return
             if len(_contents) == len(self.args):
                 for arg, content in zip(self.args, _contents):
                     arg.contents = [content]

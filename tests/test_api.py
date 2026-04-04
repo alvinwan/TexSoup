@@ -203,13 +203,17 @@ def test_change_contents():
     assert str(soup.a) == r"\a{x}{y}{z}"
 
     soup = TexSoup(r"\textbf{hello}")
-    soup.textbf.contents = ['x', 'y']
-    assert soup.textbf.contents == ['x', 'y']
+    soup.textbf.contents = ['xy']
+    assert soup.textbf.contents == ['xy']
     assert str(soup.textbf) == r"\textbf{xy}"
 
     soup = TexSoup(r"\a{b}{c}")
     with pytest.raises(TypeError):
         soup.a.contents = ['x']
+
+    soup = TexSoup(r"\textbf{hello}")
+    with pytest.raises(TypeError):
+        soup.textbf.contents = ['x', 'y']
 
 
 def test_access_position(chikin):
