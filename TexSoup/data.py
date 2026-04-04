@@ -13,6 +13,38 @@ __all__ = ['TexNode', 'TexCmd', 'TexEnv', 'TexGroup', 'BracketGroup',
            'TexDisplayMathEnv', 'TexNamedEnv', 'TexMathModeEnv',
            'TexDisplayMathModeEnv']
 
+SECTIONING_COMMANDS = (
+    'part',
+    'chapter',
+    'section',
+    'subsection',
+    'subsubsection',
+    'paragraph',
+    'subparagraph',
+)
+SECTION_LEVELS = {
+    command: level for level, command in enumerate(SECTIONING_COMMANDS)
+}
+
+
+def _sectioning_name(node):
+    """Normalized sectioning command name, if any."""
+    expr = getattr(node, 'expr', node)
+    if not isinstance(expr, TexCmd):
+        return None
+    name = expr.name.rstrip('*')
+    if name not in SECTION_LEVELS:
+        return None
+    return name
+
+
+def _sectioning_level(node):
+    """Section hierarchy level for a sectioning command."""
+    name = _sectioning_name(node)
+    if name is None:
+        return None
+    return SECTION_LEVELS[name]
+
 
 #############
 # Interface #
@@ -221,6 +253,53 @@ class TexNode(object):
         <BLANKLINE>
         """
         return self.__descendants()
+
+    @property
+    @to_list
+    def section_children(self):
+        r"""Logical sectioning children under this sectioning command.
+
+        TexSoup's parse tree is shallow for commands like ``\section`` and
+        ``\subsection``. This helper infers document hierarchy from sibling
+        sectioning commands without changing ``parent`` or ``children``.
+
+        >>> from TexSoup import TexSoup
+        >>> soup = TexSoup(r'''
+        ... \section{One}
+        ... \subsection{A}
+        ... \subsection{B}
+        ... \section{Two}
+        ... \subsection{C}
+        ... ''')
+        >>> [str(node) for node in soup.section.section_children]
+        ['\\subsection{A}', '\\subsection{B}']
+        """
+        level = _sectioning_level(self)
+        if level is None or self.parent is None:
+            return
+
+        found_self = False
+        for sibling in self.parent.children:
+            if not found_self:
+                if sibling.expr is self.expr:
+                    found_self = True
+                continue
+
+            sibling_level = _sectioning_level(sibling)
+            if sibling_level is None:
+                continue
+            if sibling_level <= level:
+                break
+            if sibling_level == level + 1:
+                yield sibling
+
+    @property
+    @to_list
+    def subsections(self):
+        r"""Convenience alias for direct subsection children of a section."""
+        for child in self.section_children:
+            if _sectioning_name(child) == 'subsection':
+                yield child
 
     @property
     def name(self):

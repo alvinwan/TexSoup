@@ -28,6 +28,27 @@ def test_navigation_parent(chikin):
     assert chikin.subsection.parent.name == 'document'
 
 
+def test_section_children():
+    """Logical section hierarchy should be available separately."""
+    soup = TexSoup(r"""
+\section{One}
+\subsection{A}
+\subsection{B}
+\section{Two}
+\subsection{C}
+\subsubsection{Nested}
+""")
+
+    sections = list(soup.find_all('section'))
+    assert [node.string for node in sections[0].section_children] == ['A', 'B']
+    assert [node.string for node in sections[0].subsections] == ['A', 'B']
+    assert [node.string for node in sections[1].section_children] == ['C']
+    assert [node.string for node in sections[1].subsections] == ['C']
+    assert [node.string for node in sections[1].subsections[0].section_children] == [
+        'Nested'
+    ]
+
+
 def test_navigation_children(chikin):
     """Test identification of all children"""
     assert len(list(chikin.children)) == 2
