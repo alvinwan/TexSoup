@@ -232,6 +232,38 @@ def split_display_math_switch(src):
     src._Buffer__queue[src._Buffer__i:src._Buffer__i + 1] = [first, second]
 
 
+def unread_token(src, token):
+    """Reinsert a token at the current buffer position."""
+    src._Buffer__queue[src._Buffer__i:src._Buffer__i] = [token]
+
+
+def read_raw(src, token, stop, tolerance=0, on_unclosed=None):
+    """Read raw token text until ``stop`` reports completion."""
+    contents = []
+    consumed = []
+
+    while token is not None:
+        consumed.append(token)
+        text, remainder, done = stop(token)
+        contents.append(text)
+        if done:
+            if remainder:
+                unread_token(
+                    src,
+                    Token(
+                        remainder,
+                        token.position + len(token) - len(remainder),
+                        token.category))
+            return ''.join(contents), consumed
+        if not src.hasNext():
+            break
+        token = next(src)
+
+    if tolerance == 0 and on_unclosed is not None:
+        on_unclosed(consumed)
+    return ''.join(contents), consumed
+
+
 def read_raw_brace_arg(src, tolerance=0):
     """Read a brace-delimited argument without parsing its contents."""
     if not (src.hasNext() and src.peek().category == TC.GroupBegin):
@@ -239,18 +271,18 @@ def read_raw_brace_arg(src, tolerance=0):
 
     begin = next(src)
     depth = 1
-    contents = []
-    while src.hasNext():
-        token = next(src)
+
+    def stop(token):
+        nonlocal depth
         if token.category == TC.GroupBegin:
             depth += 1
         elif token.category == TC.GroupEnd:
             depth -= 1
             if depth == 0:
-                return BraceGroup(''.join(map(str, contents)), position=begin.position)
-        contents.append(token)
+                return '', None, True
+        return str(token), None, False
 
-    if tolerance == 0:
+    def on_unclosed(consumed):
         clo = CharToLineOffset(str(src))
         line, offset = clo(begin.position)
         raise TypeError(
@@ -258,8 +290,12 @@ def read_raw_brace_arg(src, tolerance=0):
             'must match a valid argument format. In this case, TexSoup'
             ' could not find matching punctuation for: %s.\n'
             'Just finished parsing: %s' %
-            (line, offset, begin, [begin] + contents))
-    return BraceGroup(''.join(map(str, contents)), position=begin.position)
+            (line, offset, begin, [begin] + consumed))
+
+    token = next(src) if src.hasNext() else None
+    contents, _ = read_raw(
+        src, token, stop, tolerance=tolerance, on_unclosed=on_unclosed)
+    return BraceGroup(contents, position=begin.position)
 
 
 def read_verbatim_contents(src, tolerance=0):
@@ -275,23 +311,22 @@ def read_verbatim_contents(src, tolerance=0):
 
     position = token.position
     contents = [delimiter]
-    token_text = token_text[1:]
-    while True:
+
+    def stop(token):
+        token_text = str(token)
         if delimiter in token_text:
             index = token_text.index(delimiter)
-            contents.append(token_text[:index + 1])
             remainder = token_text[index + 1:]
-            if remainder:
-                replacement = Token(remainder, token.position + index + 1, token.category)
-                src._Buffer__queue[src._Buffer__i:src._Buffer__i] = [replacement]
-            return [TexText(''.join(contents), position=position)]
-        contents.append(token_text)
-        if not src.hasNext():
-            break
-        token = next(src)
-        token_text = str(token)
-    if tolerance == 0:
+            return token_text[:index + 1], remainder, True
+        return token_text, None, False
+
+    def on_unclosed(_):
         raise EOFError(r'Unclosed \verb command.')
+
+    token = Token(token_text[1:], token.position + 1, token.category)
+    raw_text, _ = read_raw(
+        src, token, stop, tolerance=tolerance, on_unclosed=on_unclosed)
+    contents.append(raw_text)
     return [TexText(''.join(contents), position=position)]
 
 
