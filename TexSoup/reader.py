@@ -27,19 +27,29 @@ MATH_SIMPLE_ENVS = (
 )
 MATH_TOKEN_TO_ENV = {env.token_begin: env for env in MATH_SIMPLE_ENVS}
 ARG_BEGIN_TO_ENV = {arg.token_begin: arg for arg in arg_type}
-
+ARG_REQUIRED = 'required'
+ARG_OPTIONAL = 'optional'
+SPECIAL_COMMAND_SIGNATURE = (
+    (ARG_REQUIRED, 1),
+    (ARG_OPTIONAL, 2),
+    (ARG_REQUIRED, 1),
+)
 SIGNATURES = {
-    'def': (2, 0),
-    'textbf': (1, 0),
-    'section': (1, 1),
-    'label': (1, 0),
-    'cap': (0, 0),
-    'cup': (0, 0),
-    'in': (0, 0),
-    'notin': (0, 0),
-    'infty': (0, 0),
-    'noindent': (0, 0),
+    'def': ((ARG_REQUIRED, 2),),
+    'textbf': ((ARG_REQUIRED, 1),),
+    'section': ((ARG_OPTIONAL, 1), (ARG_REQUIRED, 1)),
+    'label': ((ARG_REQUIRED, 1),),
+    'cap': (),
+    'cup': (),
+    'in': (),
+    'notin': (),
+    'infty': (),
+    'noindent': (),
+    'newcommand': SPECIAL_COMMAND_SIGNATURE,
+    'renewcommand': SPECIAL_COMMAND_SIGNATURE,
+    'providecommand': SPECIAL_COMMAND_SIGNATURE,
 }
+SIGNATURE_MODES = {name: MODE_SPECIAL for name in SPECIAL_COMMANDS}
 
 
 __all__ = ['read_expr', 'read_tex']
@@ -171,7 +181,7 @@ def read_item(src, tolerance=0):
     while src.hasNext():
         if src.peek().category == TC.Escape:
             cmd_name, _ = make_read_peek(read_command)(
-                src, 1, skip=1, tolerance=tolerance)
+                src, skip=1, tolerance=tolerance)
             if cmd_name in ('end', 'item'):
                 return extras
         elif src.peek().category == TC.GroupEnd:
@@ -328,23 +338,19 @@ def read_env(src, expr, skip_envs=(), tolerance=0, mode=MODE_NON_MATH):
 
 
 # TODO: handle macro-weirdness e.g., \def\blah[#1][[[[[[[[#2{"#1 . #2"}
-# TODO: add newcommand macro
-def read_args(src, n_required=-1, n_optional=-1, args=None, tolerance=0,
+def read_args(src, arg_spec=None, args=None, tolerance=0,
         mode=MODE_NON_MATH):
     r"""Read all arguments from buffer.
 
-    This function assumes that the command name has already been parsed. By
-    default, LaTeX allows only up to 9 arguments of both types, optional
-    and required. If `n_optional` is not set, all valid bracket groups are
-    captured. If `n_required` is not set, all valid brace groups are
-    captured.
+    This function assumes that the command name has already been parsed.
+    When an explicit argument specification is provided, arguments are read
+    according to an ordered sequence of ``(kind, count)`` pairs, where
+    ``kind`` is either ``required`` or ``optional``. If no specification is
+    provided, TexSoup falls back to its generic command-argument heuristic.
 
     :param Buffer src: a buffer of tokens
+    :param Iterable[Tuple[str, Optional[int]]] arg_spec: ordered arg phases
     :param TexArgs args: existing arguments to extend
-    :param int n_required: Number of required arguments. If < 0, all valid
-                           brace groups will be captured.
-    :param int n_optional: Number of optional arguments. If < 0, all valid
-                           bracket groups will be captured.
     :param int tolerance: error tolerance level (only supports 0 or 1)
     :param str mode: math or not math mode
     :return: parsed arguments
@@ -357,28 +363,34 @@ def read_args(src, n_required=-1, n_optional=-1, args=None, tolerance=0,
     [BracketGroup('walla'), BraceGroup('walla'), BraceGroup('ba', ']', 'ng')]
     >>> test('\t[wa]\n{lla}\n\n{b[ing}')  # interspersed spacers + 2 newlines
     [BracketGroup('wa'), BraceGroup('lla')]
-    >>> test('\t[\t{a]}bs', 2, 0)  # use char as arg, since no opt args
+    >>> test('\t[\t{a]}bs', ((ARG_REQUIRED, 2),))  # use char as arg
     [BraceGroup('['), BraceGroup('a', ']')]
-    >>> test('\n[hue]\t[\t{a]}', 2, 1)  # check stop opt arg capture
+    >>> test('\n[hue]\t[\t{a]}', ((ARG_OPTIONAL, 1), (ARG_REQUIRED, 2)))
     [BracketGroup('hue'), BraceGroup('['), BraceGroup('a', ']')]
     >>> test('\t\\item')
     []
     >>> test('   \t    \n\t \n{bingbang}')
     []
-    >>> test('[tempt]{ing}[WITCH]{doctorrrr}', 0, 0)
+    >>> test('[tempt]{ing}[WITCH]{doctorrrr}', ())
     []
     """
     args = args or TexArgs()
-    if n_required == 0 and n_optional == 0:
-        return args
+    readers = {
+        ARG_OPTIONAL: read_arg_optional,
+        ARG_REQUIRED: read_arg_required,
+    }
 
-    n_optional = read_arg_optional(src, args, n_optional, tolerance, mode)
-    n_required = read_arg_required(src, args, n_required, tolerance, mode)
+    if arg_spec is None:
+        n_optional = 0 if mode == MODE_MATH else -1
+        arg_spec = (
+            (ARG_OPTIONAL, n_optional),
+            (ARG_REQUIRED, -1),
+            (ARG_OPTIONAL, n_optional),
+            (ARG_REQUIRED, -1),
+        )
 
-    if src.hasNext() and src.peek().category == TC.BracketBegin:
-        n_optional = read_arg_optional(src, args, n_optional, tolerance, mode)
-    if src.hasNext() and src.peek().category == TC.GroupBegin:
-        n_required = read_arg_required(src, args, n_required, tolerance, mode)
+    for arg_kind, count in arg_spec:
+        readers[arg_kind](src, args, count, tolerance=tolerance, mode=mode)
     return args
 
 
@@ -455,7 +467,8 @@ def read_arg_required(
         elif src.hasNext() and n_required > 0:
             next_token = next(src)
             if next_token.category == TC.Escape:
-                name, _ = read_command(src, 0, 0, tolerance=tolerance, mode=mode)
+                name, _ = read_command(
+                    src, arg_spec=(), tolerance=tolerance, mode=mode)
                 args.append(TexCmd(name, position=next_token.position))
             else:
                 args.append('{%s}' % next_token)
@@ -535,7 +548,7 @@ def read_spacer(buf):
     return ''
 
 
-def read_command(buf, n_required_args=-1, n_optional_args=-1, skip=0,
+def read_command(buf, arg_spec=None, skip=0,
                  tolerance=0, mode=MODE_NON_MATH):
     r"""Parses command and all arguments. Assumes escape has just been parsed.
 
@@ -573,18 +586,11 @@ def read_command(buf, n_required_args=-1, n_optional_args=-1, skip=0,
         next(buf)
 
     name = next(buf)
-    # if the command is a special one (like `newcommand`), enter "special"
-    # mode, in which a single `\begin` or `\end` are allowed
-    if name.text in SPECIAL_COMMANDS:
-        mode = MODE_SPECIAL
-    token = Token('', buf.position)
-    if n_required_args < 0 and n_optional_args < 0:
-        # Default to ignoring optional arguments in math mode
-        default_signature = (-1, 0) if mode==MODE_MATH else (-1, -1)
-        n_required_args, n_optional_args = SIGNATURES.get(name, default_signature)
-    args = read_args(buf, n_required_args, n_optional_args,
-                     tolerance=tolerance, mode=mode)
-    # after parsing the command, go back to normal mode
-    if name.text in SPECIAL_COMMANDS:
-        mode = MODE_NON_MATH
+    if arg_spec is None:
+        signature = SIGNATURES.get(name)
+    else:
+        signature = arg_spec
+
+    arg_mode = SIGNATURE_MODES.get(name.text, mode)
+    args = read_args(buf, arg_spec=signature, tolerance=tolerance, mode=arg_mode)
     return name, args
