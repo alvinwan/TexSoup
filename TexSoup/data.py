@@ -766,13 +766,13 @@ class TexExpr(object):
         # Commands expose argument contents through `.contents`, so update the
         # existing argument structure instead of appending hidden `_contents`.
         if self.args and not self._contents:
-            if len(_contents) == len(self.args):
-                for arg, content in zip(self.args, _contents):
-                    arg.contents = [content]
-                return
-            raise TypeError(
-                '.contents value "%s" is ambiguous for a command with %d '
-                'arguments' % (contents, len(self.args)))
+            if len(_contents) != len(self.args):
+                raise TypeError(
+                    '.contents value "%s" is ambiguous for a command with %d '
+                    'arguments' % (contents, len(self.args)))
+            for arg, content in zip(self.args, _contents):
+                arg.contents = [content]
+            return
 
         self._contents = _contents
 
