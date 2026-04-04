@@ -401,7 +401,12 @@ class Buffer:
         return self[self.__i:self.__i + j]
 
     def push(self, *items):
-        """Push items back onto the front of the buffer.
+        """Push items onto the front of the unread buffer.
+
+        The provided items become the next values returned by ``peek()`` or
+        ``next()`` without rewinding already-consumed buffer entries.
+
+        :param items: items to make unread at the current buffer position
 
         >>> b = Buffer('cd')
         >>> b.push(Token('ab', 0))
@@ -413,7 +418,13 @@ class Buffer:
         self.__queue[self.__i:self.__i] = list(items)
 
     def replace(self, count, *items):
-        """Replace the next ``count`` buffered items.
+        """Replace the next ``count`` unread buffered items.
+
+        This is useful when a parser needs to reinterpret upcoming buffered
+        values without mutating already-consumed entries.
+
+        :param int count: number of unread buffered items to replace
+        :param items: replacement items to insert at the current buffer position
 
         >>> b = Buffer('cd')
         >>> _ = b.peek()

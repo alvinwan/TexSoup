@@ -233,7 +233,21 @@ def split_display_math_switch(src):
 
 
 def read_raw(src, token, stop, tolerance=0, on_unclosed=None):
-    """Read raw token text until ``stop`` reports completion."""
+    """Read raw token text until ``stop`` reports completion.
+
+    This helper is used by verbatim-like parsers that need to consume raw text
+    without recursively parsing expressions. ``stop`` is responsible for
+    deciding whether the current token finishes the raw segment and may return
+    a suffix to be pushed back into the buffer for later parsing.
+
+    :param Buffer src: a buffer of tokens
+    :param Token token: first token segment to consume
+    :param Callable stop: returns ``(text, remainder, done)`` for each token
+    :param int tolerance: error tolerance level (only supports 0 or 1)
+    :param Callable on_unclosed: error callback invoked when EOF is reached
+        before ``stop`` reports completion
+    :rtype: Tuple[str, List[Token]]
+    """
     contents = []
     consumed = []
 
@@ -258,7 +272,16 @@ def read_raw(src, token, stop, tolerance=0, on_unclosed=None):
 
 
 def read_raw_brace_arg(src, tolerance=0):
-    """Read a brace-delimited argument without parsing its contents."""
+    """Read a brace-delimited argument without parsing its contents.
+
+    Advances the buffer until the matching closing brace while preserving all
+    interior text literally. Nested braces are tracked so the returned group
+    still respects balanced brace structure.
+
+    :param Buffer src: a buffer of tokens
+    :param int tolerance: error tolerance level (only supports 0 or 1)
+    :rtype: BraceGroup
+    """
     if not (src.hasNext() and src.peek().category == TC.GroupBegin):
         return None
 
@@ -292,7 +315,17 @@ def read_raw_brace_arg(src, tolerance=0):
 
 
 def read_verbatim_contents(src, tolerance=0):
-    """Read raw delimited contents for ``\\verb``-style commands."""
+    """Read raw delimited contents for ``\\verb``-style commands.
+
+    ``\\verb`` chooses its delimiter from the next character after the command
+    name and then consumes raw text until that same delimiter appears again.
+    Any text after the closing delimiter is pushed back into the buffer so it
+    can be parsed normally.
+
+    :param Buffer src: a buffer of tokens
+    :param int tolerance: error tolerance level (only supports 0 or 1)
+    :rtype: List[TexText]
+    """
     if not src.hasNext():
         return []
 
