@@ -29,7 +29,6 @@ MATH_TOKEN_TO_ENV = {env.token_begin: env for env in MATH_SIMPLE_ENVS}
 ARG_BEGIN_TO_ENV = {arg.token_begin: arg for arg in arg_type}
 ARG_REQUIRED = 'required'
 ARG_OPTIONAL = 'optional'
-RAW_ARG_COMMANDS = {'url'}
 RAW_ARG_ENVS = {'array', 'tabular', 'tabular*'}
 VERBATIM_COMMANDS = {'verb', 'verb*'}
 SPECIAL_COMMAND_SIGNATURE = (
@@ -722,6 +721,37 @@ def read_begin_env_args(buf, tolerance=0, mode=MODE_NON_MATH):
     return read_args(buf, args=args, tolerance=tolerance, mode=mode)
 
 
+def read_raw_command_args(buf, tolerance=0, mode=MODE_NON_MATH):
+    r"""Read a command's next brace argument as raw text.
+
+    This is used for commands like ``\url`` whose argument contents should not
+    be recursively parsed.
+
+    :param Buffer buf: a buffer of tokens
+    :param int tolerance: error tolerance level (only supports 0 or 1)
+    :param str mode: math or not math mode
+    :rtype: TexArgs
+    """
+    del mode
+    args = TexArgs()
+    spacer = read_spacer(buf)
+    raw_arg = read_raw_brace_arg(buf, tolerance=tolerance)
+    if raw_arg is None and spacer:
+        buf.backward(1)
+    else:
+        if spacer:
+            args.append(spacer)
+        if raw_arg is not None:
+            args.append(raw_arg)
+    return args
+
+
+SPECIAL_ARG_READERS = {
+    'begin': read_begin_env_args,
+    'url': read_raw_command_args,
+}
+
+
 def read_command(buf, arg_spec=None, skip=0,
                  tolerance=0, mode=MODE_NON_MATH):
     r"""Parses command and all arguments. Assumes escape has just been parsed.
@@ -760,20 +790,8 @@ def read_command(buf, arg_spec=None, skip=0,
         next(buf)
 
     name = next(buf)
-    if name.text in RAW_ARG_COMMANDS:
-        args = TexArgs()
-        spacer = read_spacer(buf)
-        raw_arg = read_raw_brace_arg(buf, tolerance=tolerance)
-        if raw_arg is None and spacer:
-            buf.backward(1)
-        else:
-            if spacer:
-                args.append(spacer)
-            if raw_arg is not None:
-                args.append(raw_arg)
-        return name, args
-    if name.text == 'begin' and arg_spec is None:
-        return name, read_begin_env_args(
+    if arg_spec is None and name.text in SPECIAL_ARG_READERS:
+        return name, SPECIAL_ARG_READERS[name.text](
             buf, tolerance=tolerance, mode=mode)
 
     if arg_spec is None:
