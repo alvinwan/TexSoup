@@ -34,29 +34,17 @@ SPECIAL_COMMAND_SIGNATURE = (
     (ARG_OPTIONAL, 2),
     (ARG_REQUIRED, 1),
 )
-
-
-def make_arg_spec(n_required=-1, n_optional=-1):
-    """Build the default ordered argument phases for a command."""
-    return (
-        (ARG_OPTIONAL, n_optional),
-        (ARG_REQUIRED, n_required),
-        (ARG_OPTIONAL, None),
-        (ARG_REQUIRED, None),
-    )
-
-
 SIGNATURES = {
-    'def': make_arg_spec(2, 0),
-    'textbf': make_arg_spec(1, 0),
-    'section': make_arg_spec(1, 1),
-    'label': make_arg_spec(1, 0),
-    'cap': make_arg_spec(0, 0),
-    'cup': make_arg_spec(0, 0),
-    'in': make_arg_spec(0, 0),
-    'notin': make_arg_spec(0, 0),
-    'infty': make_arg_spec(0, 0),
-    'noindent': make_arg_spec(0, 0),
+    'def': ((ARG_REQUIRED, 2),),
+    'textbf': ((ARG_REQUIRED, 1),),
+    'section': ((ARG_OPTIONAL, 1), (ARG_REQUIRED, 1)),
+    'label': ((ARG_REQUIRED, 1),),
+    'cap': (),
+    'cup': (),
+    'in': (),
+    'notin': (),
+    'infty': (),
+    'noindent': (),
     'newcommand': SPECIAL_COMMAND_SIGNATURE,
     'renewcommand': SPECIAL_COMMAND_SIGNATURE,
     'providecommand': SPECIAL_COMMAND_SIGNATURE,
@@ -193,7 +181,7 @@ def read_item(src, tolerance=0):
     while src.hasNext():
         if src.peek().category == TC.Escape:
             cmd_name, _ = make_read_peek(read_command)(
-                src, arg_spec=make_arg_spec(1), skip=1, tolerance=tolerance)
+                src, skip=1, tolerance=tolerance)
             if cmd_name in ('end', 'item'):
                 return extras
         elif src.peek().category == TC.GroupEnd:
@@ -355,11 +343,10 @@ def read_args(src, arg_spec=None, args=None, tolerance=0,
     r"""Read all arguments from buffer.
 
     This function assumes that the command name has already been parsed.
-    Arguments are read according to an ordered specification of
-    ``(kind, count)`` pairs, where ``kind`` is either ``required`` or
-    ``optional``. A ``count`` of ``None`` reuses the remaining count from the
-    previous phase of the same kind. If no specification is provided, the
-    default generic TexSoup parsing order is used.
+    When an explicit argument specification is provided, arguments are read
+    according to an ordered sequence of ``(kind, count)`` pairs, where
+    ``kind`` is either ``required`` or ``optional``. If no specification is
+    provided, TexSoup falls back to its generic command-argument heuristic.
 
     :param Buffer src: a buffer of tokens
     :param Iterable[Tuple[str, Optional[int]]] arg_spec: ordered arg phases
@@ -376,9 +363,9 @@ def read_args(src, arg_spec=None, args=None, tolerance=0,
     [BracketGroup('walla'), BraceGroup('walla'), BraceGroup('ba', ']', 'ng')]
     >>> test('\t[wa]\n{lla}\n\n{b[ing}')  # interspersed spacers + 2 newlines
     [BracketGroup('wa'), BraceGroup('lla')]
-    >>> test('\t[\t{a]}bs', make_arg_spec(2, 0))  # use char as arg
+    >>> test('\t[\t{a]}bs', ((ARG_REQUIRED, 2),))  # use char as arg
     [BraceGroup('['), BraceGroup('a', ']')]
-    >>> test('\n[hue]\t[\t{a]}', make_arg_spec(2, 1))
+    >>> test('\n[hue]\t[\t{a]}', ((ARG_OPTIONAL, 1), (ARG_REQUIRED, 2)))
     [BracketGroup('hue'), BraceGroup('['), BraceGroup('a', ']')]
     >>> test('\t\\item')
     []
@@ -388,17 +375,26 @@ def read_args(src, arg_spec=None, args=None, tolerance=0,
     []
     """
     args = args or TexArgs()
-    arg_spec = arg_spec if arg_spec is not None else make_arg_spec()
-    counts = {}
     readers = {
         ARG_OPTIONAL: read_arg_optional,
         ARG_REQUIRED: read_arg_required,
     }
 
+    if arg_spec is None:
+        n_optional = 0 if mode == MODE_MATH else -1
+        n_required = -1
+        n_optional = read_arg_optional(
+            src, args, n_optional, tolerance=tolerance, mode=mode)
+        n_required = read_arg_required(
+            src, args, n_required, tolerance=tolerance, mode=mode)
+        n_optional = read_arg_optional(
+            src, args, n_optional, tolerance=tolerance, mode=mode)
+        read_arg_required(
+            src, args, n_required, tolerance=tolerance, mode=mode)
+        return args
+
     for arg_kind, count in arg_spec:
-        n_args = counts.get(arg_kind, -1) if count is None else count
-        counts[arg_kind] = readers[arg_kind](
-            src, args, n_args, tolerance=tolerance, mode=mode)
+        readers[arg_kind](src, args, count, tolerance=tolerance, mode=mode)
     return args
 
 
@@ -595,9 +591,7 @@ def read_command(buf, arg_spec=None, skip=0,
 
     name = next(buf)
     if arg_spec is None:
-        # Default to ignoring optional arguments in math mode
-        default_signature = make_arg_spec(-1, 0 if mode == MODE_MATH else -1)
-        signature = SIGNATURES.get(name, default_signature)
+        signature = SIGNATURES.get(name)
     else:
         signature = arg_spec
 
