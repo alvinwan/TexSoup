@@ -9,9 +9,84 @@ import re
 from TexSoup.utils import CharToLineOffset, Token, TC, to_list
 
 __all__ = ['TexNode', 'TexCmd', 'TexEnv', 'TexGroup', 'BracketGroup',
-           'BraceGroup', 'TexArgs', 'TexText', 'TexMathEnv',
+           'BraceGroup', 'TexArgs', 'TexKeyVal', 'TexText', 'TexMathEnv',
            'TexDisplayMathEnv', 'TexNamedEnv', 'TexMathModeEnv',
            'TexDisplayMathModeEnv']
+
+KEYVAL_KEY_RE = re.compile(r'^([\s\S]*?)([A-Za-z][\w-]*)\s*$')
+
+
+def _append_text(target, text):
+    """Append text to a mixed list, merging adjacent strings."""
+    if not text:
+        return
+    if target and isinstance(target[-1], str):
+        target[-1] += text
+    else:
+        target.append(text)
+
+
+def _parse_keyvals(parts):
+    """Parse top-level key=value pairs from a group's contents."""
+    parsed = []
+    pending_text = ''
+    key = None
+    value = []
+
+    def finish_value():
+        nonlocal key, value
+        parsed.append(TexKeyVal(key, value))
+        key = None
+        value = []
+
+    for part in parts:
+        if isinstance(part, TexText):
+            part = str(part)
+
+        if not isinstance(part, str):
+            if key is None:
+                _append_text(parsed, pending_text)
+                pending_text = ''
+                parsed.append(part)
+            else:
+                value.append(part)
+            continue
+
+        chunk = part
+        while chunk:
+            if key is None:
+                if '=' not in chunk:
+                    pending_text += chunk
+                    break
+                before, after = chunk.split('=', 1)
+                candidate = pending_text + before
+                match = KEYVAL_KEY_RE.match(candidate)
+                if match is None:
+                    pending_text = candidate + '='
+                    chunk = after
+                    continue
+                prefix, key = match.groups()
+                _append_text(parsed, prefix)
+                pending_text = ''
+                chunk = after
+            else:
+                if ',' not in chunk:
+                    _append_text(value, chunk)
+                    break
+                before, after = chunk.split(',', 1)
+                _append_text(value, before)
+                finish_value()
+                chunk = after
+
+    if key is None:
+        _append_text(parsed, pending_text)
+    else:
+        suffix = ''
+        if value and isinstance(value[-1], str) and value[-1].isspace():
+            suffix = value.pop()
+        finish_value()
+        _append_text(parsed, suffix + pending_text)
+    return parsed
 
 
 #############
@@ -1193,6 +1268,22 @@ class TexText(TexExpr, str):
 #############
 
 
+class TexKeyVal(object):
+    """Structured key=value entry parsed from a :class:`TexGroup`."""
+
+    def __init__(self, key, value):
+        self.key = key
+        self.value = list(value)
+
+    def __eq__(self, other):
+        if isinstance(other, TexKeyVal):
+            return self.key == other.key and self.value == other.value
+        return False
+
+    def __repr__(self):
+        return "TexKeyVal(%r, %r)" % (self.key, self.value)
+
+
 class TexGroup(TexUnNamedEnv):
     """Abstraction for a LaTeX environment with single-character delimiters.
 
@@ -1212,6 +1303,36 @@ class TexGroup(TexUnNamedEnv):
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__,
                            ', '.join(map(repr, self._contents)))
+
+    @property
+    @to_list
+    def keyvals(self):
+        r"""Structured top-level key=value pairs inside this group.
+
+        This is an opt-in view over the existing parsed contents. Plain-text
+        separators are preserved as strings, while detected key=value entries
+        are returned as :class:`TexKeyVal` objects.
+
+        >>> from TexSoup import TexSoup
+        >>> soup = TexSoup(r'''
+        ... \newglossaryentry{naiive}
+        ... {
+        ...   name=na\"{\i}ve,
+        ...   description={is a French loanword}
+        ... }
+        ... ''')
+        >>> parts = soup.newglossaryentry.args[1].keyvals
+        >>> parts[0]
+        '\n  '
+        >>> parts[1]
+        TexKeyVal('name', ['na\\"', BraceGroup(TexCmd('i')), 've'])
+        >>> parts[2]
+        '\n  '
+        >>> parts[3]
+        TexKeyVal('description', [BraceGroup('is a French loanword')])
+        """
+        for part in _parse_keyvals(self.all):
+            yield part
 
     @classmethod
     def parse(cls, s):
