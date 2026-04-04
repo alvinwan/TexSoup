@@ -39,7 +39,7 @@ The simplest way to search is using a string filter::
 If you pass in a list, TexSoup will return results that match *any* item in
 that list.
 
-    >>> soup.find_all('item', 'textit')
+    >>> soup.find_all(['item', 'textit'])
     [\textit{world}, \item red lemon
       , \item life
     ]
