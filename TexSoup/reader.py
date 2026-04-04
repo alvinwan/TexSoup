@@ -198,6 +198,24 @@ def unclosed_env_handler(src, expr, end):
         line, offset, expr.name, expr.end, explanation))
 
 
+def split_display_math_switch(src):
+    """Split a queued ``$$`` token into two ``$`` tokens in place.
+
+    This is needed for inputs like ``$1$$2$`` where the middle ``$$`` should
+    be interpreted as closing one inline math environment and opening the next.
+    """
+    token = src.peek()
+    if token.category != TC.DisplayMathSwitch:
+        return
+
+    first = Token('$', token.position)
+    first.category = TC.MathSwitch
+    second = Token('$', token.position + 1)
+    second.category = TC.MathSwitch
+
+    src._Buffer__queue[src._Buffer__i:src._Buffer__i + 1] = [first, second]
+
+
 def read_math_env(src, expr, tolerance=0):
     r"""Read the environment from buffer.
 
@@ -217,7 +235,12 @@ def read_math_env(src, expr, tolerance=0):
     EOFError: [Line: 0, Offset: 7] "$" env expecting $. Reached end of file.
     """
     contents = []
-    while src.hasNext() and src.peek().category != expr.token_end:
+    while src.hasNext():
+        if expr.token_end == TC.MathSwitch \
+                and src.peek().category == TC.DisplayMathSwitch:
+            split_display_math_switch(src)
+        if src.peek().category == expr.token_end:
+            break
         contents.append(read_expr(src, tolerance=tolerance, mode=MODE_MATH))
     if not src.hasNext() or src.peek().category != expr.token_end:
         unclosed_env_handler(src, expr, src.peek())

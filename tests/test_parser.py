@@ -194,6 +194,16 @@ def test_inline_math():
     assert r'\(e^{i\pi} + 1 = 0\)' in str(list(soup.itemize.children)[1]), 'Environment incorrectly associated.'
 
 
+def test_back_to_back_inline_math():
+    """Tests that adjacent inline math environments do not nest incorrectly."""
+    soup = TexSoup(r"""$1$$2$""")
+    children = list(soup.children)
+    assert len(children) == 2
+    assert str(children[0]) == r'$1$'
+    assert str(children[1]) == r'$2$'
+    assert str(soup) == r'$1$$2$'
+
+
 def test_escaped_characters():
     """Tests that special characters are escaped properly.
     Formerly, escaped characters would be rendered as latex commands.
