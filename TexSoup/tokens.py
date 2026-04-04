@@ -34,18 +34,61 @@ __all__ = ['tokenize']
 
 
 def in_at_letter_mode(text):
-    """Whether command names should currently treat ``@`` as a letter."""
+    r"""Whether command names should currently treat ``@`` as a letter.
+
+    :param Buffer text: categorized character buffer
+    :return bool: whether ``@`` should be treated as a letter
+
+    >>> text = categorize(r'\makeatletter')
+    >>> in_at_letter_mode(text)
+    False
+    >>> text.at_letter = True
+    >>> in_at_letter_mode(text)
+    True
+    """
     return getattr(text, 'at_letter', False)
 
 
 def is_command_name_token(token, text):
-    """Whether token should count as a command-name character."""
+    r"""Whether token should count as a command-name character.
+
+    :param Token token: token to test
+    :param Buffer text: categorized character buffer
+    :return bool: whether token can extend a command name
+
+    >>> text = categorize('@')
+    >>> token = next(text)
+    >>> is_command_name_token(token, text)
+    False
+    >>> update_at_letter_state(text, Token('makeatletter', category=TC.CommandName))
+    >>> is_command_name_token(token, text)
+    True
+    >>> is_command_name_token(Token('a', category=CC.Letter), text)
+    True
+    """
     return token.category == CC.Letter or (
         in_at_letter_mode(text) and token == '@')
 
 
 def update_at_letter_state(text, token):
-    """Apply ``\\makeatletter`` / ``\\makeatother`` tokenizer state changes."""
+    r"""Apply ``\\makeatletter`` / ``\\makeatother`` tokenizer state changes.
+
+    :param Buffer text: categorized character buffer
+    :param Token token: command-name token that may change tokenizer state
+
+    >>> text = categorize(r'\makeatletter\makeatother')
+    >>> in_at_letter_mode(text)
+    False
+    >>> update_at_letter_state(text, Token('makeatletter', category=TC.CommandName))
+    >>> in_at_letter_mode(text)
+    True
+    >>> update_at_letter_state(text, Token('textbf', category=TC.CommandName))
+    >>> in_at_letter_mode(text)
+    True
+    >>> update_at_letter_state(text, Token('makeatother', category=TC.CommandName))
+    >>> in_at_letter_mode(text)
+    False
+    """
     if token.category != TC.CommandName:
         return
     if token.text == 'makeatletter':
