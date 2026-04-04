@@ -382,16 +382,12 @@ def read_args(src, arg_spec=None, args=None, tolerance=0,
 
     if arg_spec is None:
         n_optional = 0 if mode == MODE_MATH else -1
-        n_required = -1
-        n_optional = read_arg_optional(
-            src, args, n_optional, tolerance=tolerance, mode=mode)
-        n_required = read_arg_required(
-            src, args, n_required, tolerance=tolerance, mode=mode)
-        n_optional = read_arg_optional(
-            src, args, n_optional, tolerance=tolerance, mode=mode)
-        read_arg_required(
-            src, args, n_required, tolerance=tolerance, mode=mode)
-        return args
+        arg_spec = (
+            (ARG_OPTIONAL, n_optional),
+            (ARG_REQUIRED, -1),
+            (ARG_OPTIONAL, n_optional),
+            (ARG_REQUIRED, -1),
+        )
 
     for arg_kind, count in arg_spec:
         readers[arg_kind](src, args, count, tolerance=tolerance, mode=mode)
