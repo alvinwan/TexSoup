@@ -29,6 +29,8 @@ MATH_TOKEN_TO_ENV = {env.token_begin: env for env in MATH_SIMPLE_ENVS}
 ARG_BEGIN_TO_ENV = {arg.token_begin: arg for arg in arg_type}
 ARG_REQUIRED = 'required'
 ARG_OPTIONAL = 'optional'
+RAW_ARG_COMMANDS = {'url'}
+VERBATIM_COMMANDS = {'verb', 'verb*'}
 SPECIAL_COMMAND_SIGNATURE = (
     (ARG_REQUIRED, 1),
     (ARG_OPTIONAL, 2),
@@ -112,7 +114,11 @@ def read_expr(src, skip_envs=(), tolerance=0, mode=MODE_NON_MATH):
         return read_math_env(src, expr, tolerance=tolerance)
     elif c.category == TC.Escape:
         name, args = read_command(src, tolerance=tolerance, mode=mode)
-        if name == 'item':
+        if name in VERBATIM_COMMANDS:
+            expr = TexCmd(
+                name, read_verbatim_contents(src, tolerance=tolerance),
+                args=args, position=c.position)
+        elif name == 'item':
             assert mode != MODE_MATH, r'Command \item invalid in math mode.'
             contents = read_item(src)
             expr = TexCmd(name, contents, args, position=c.position)
@@ -224,6 +230,69 @@ def split_display_math_switch(src):
     second.category = TC.MathSwitch
 
     src._Buffer__queue[src._Buffer__i:src._Buffer__i + 1] = [first, second]
+
+
+def read_raw_brace_arg(src, tolerance=0):
+    """Read a brace-delimited argument without parsing its contents."""
+    if not (src.hasNext() and src.peek().category == TC.GroupBegin):
+        return None
+
+    begin = next(src)
+    depth = 1
+    contents = []
+    while src.hasNext():
+        token = next(src)
+        if token.category == TC.GroupBegin:
+            depth += 1
+        elif token.category == TC.GroupEnd:
+            depth -= 1
+            if depth == 0:
+                return BraceGroup(''.join(map(str, contents)), position=begin.position)
+        contents.append(token)
+
+    if tolerance == 0:
+        clo = CharToLineOffset(str(src))
+        line, offset = clo(begin.position)
+        raise TypeError(
+            '[Line: %d, Offset %d] Malformed argument. First and last elements '
+            'must match a valid argument format. In this case, TexSoup'
+            ' could not find matching punctuation for: %s.\n'
+            'Just finished parsing: %s' %
+            (line, offset, begin, [begin] + contents))
+    return BraceGroup(''.join(map(str, contents)), position=begin.position)
+
+
+def read_verbatim_contents(src, tolerance=0):
+    """Read raw delimited contents for ``\\verb``-style commands."""
+    if not src.hasNext():
+        return []
+
+    token = next(src)
+    token_text = str(token)
+    delimiter = token_text[:1]
+    if not delimiter:
+        return []
+
+    position = token.position
+    contents = [delimiter]
+    token_text = token_text[1:]
+    while True:
+        if delimiter in token_text:
+            index = token_text.index(delimiter)
+            contents.append(token_text[:index + 1])
+            remainder = token_text[index + 1:]
+            if remainder:
+                replacement = Token(remainder, token.position + index + 1, token.category)
+                src._Buffer__queue[src._Buffer__i:src._Buffer__i] = [replacement]
+            return [TexText(''.join(contents), position=position)]
+        contents.append(token_text)
+        if not src.hasNext():
+            break
+        token = next(src)
+        token_text = str(token)
+    if tolerance == 0:
+        raise EOFError(r'Unclosed \verb command.')
+    return [TexText(''.join(contents), position=position)]
 
 
 def read_math_env(src, expr, tolerance=0):
@@ -586,6 +655,19 @@ def read_command(buf, arg_spec=None, skip=0,
         next(buf)
 
     name = next(buf)
+    if name.text in RAW_ARG_COMMANDS:
+        args = TexArgs()
+        spacer = read_spacer(buf)
+        raw_arg = read_raw_brace_arg(buf, tolerance=tolerance)
+        if raw_arg is None and spacer:
+            buf.backward(1)
+        else:
+            if spacer:
+                args.append(spacer)
+            if raw_arg is not None:
+                args.append(raw_arg)
+        return name, args
+
     if arg_spec is None:
         signature = SIGNATURES.get(name)
     else:
