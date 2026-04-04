@@ -62,6 +62,8 @@ class TexNode(object):
 
     def __getattr__(self, attr, default=None):
         """Convert all invalid attributes into basic find operation."""
+        if attr.startswith('__') and attr.endswith('__'):
+            raise AttributeError(attr)
         return self.find(attr) or default
 
     def __getitem__(self, item):

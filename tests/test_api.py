@@ -1,6 +1,7 @@
 from TexSoup import TexSoup
 from TexSoup.utils import Token
 from tests.config import chikin
+import copy
 import pytest
 import re
 
@@ -211,6 +212,28 @@ def test_math_env_change():
     for infer in soup.find_all('infer'):
         infer.args = infer.args[::-1]
     assert str(soup) == r'$$\infer{B}{A}\infer{D}{C}$$'
+
+
+def test_copy_and_deepcopy():
+    """Copy helpers should work with standard library copy semantics."""
+    soup = TexSoup(r"\section{Theo} body")
+
+    shallow = copy.copy(soup)
+    deep = copy.deepcopy(soup)
+
+    assert shallow is not soup
+    assert str(shallow) == str(soup)
+    assert str(deep) == str(soup)
+    assert shallow.section.string == 'Theo'
+    assert deep.section.string == 'Theo'
+
+    shallow.section.string = 'Shallow'
+    assert soup.section.string == 'Shallow'
+
+    deep.section.string = 'Deep'
+
+    assert soup.section.string == 'Shallow'
+    assert deep.section.string == 'Deep'
 
 
 #########
