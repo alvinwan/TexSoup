@@ -229,12 +229,7 @@ def split_display_math_switch(src):
     second = Token('$', token.position + 1)
     second.category = TC.MathSwitch
 
-    src._Buffer__queue[src._Buffer__i:src._Buffer__i + 1] = [first, second]
-
-
-def unread_token(src, token):
-    """Reinsert a token at the current buffer position."""
-    src._Buffer__queue[src._Buffer__i:src._Buffer__i] = [token]
+    src.replace(1, first, second)
 
 
 def read_raw(src, token, stop, tolerance=0, on_unclosed=None):
@@ -248,12 +243,10 @@ def read_raw(src, token, stop, tolerance=0, on_unclosed=None):
         contents.append(text)
         if done:
             if remainder:
-                unread_token(
-                    src,
-                    Token(
-                        remainder,
-                        token.position + len(token) - len(remainder),
-                        token.category))
+                src.push(Token(
+                    remainder,
+                    token.position + len(token) - len(remainder),
+                    token.category))
             return ''.join(contents), consumed
         if not src.hasNext():
             break

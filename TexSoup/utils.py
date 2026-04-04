@@ -400,6 +400,31 @@ class Buffer:
         self.__i -= j
         return self[self.__i:self.__i + j]
 
+    def push(self, *items):
+        """Push items back onto the front of the buffer.
+
+        >>> b = Buffer('cd')
+        >>> b.push(Token('ab', 0))
+        >>> next(b)
+        'ab'
+        >>> next(b)
+        'c'
+        """
+        self.__queue[self.__i:self.__i] = list(items)
+
+    def replace(self, count, *items):
+        """Replace the next ``count`` buffered items.
+
+        >>> b = Buffer('cd')
+        >>> _ = b.peek()
+        >>> b.replace(1, Token('ab', 0))
+        >>> next(b)
+        'ab'
+        >>> next(b)
+        'd'
+        """
+        self.__queue[self.__i:self.__i + count] = list(items)
+
     def peek(self, j=0):
         """Peek at the next value(s), without advancing the Buffer.
 

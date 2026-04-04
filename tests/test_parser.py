@@ -566,7 +566,7 @@ def test_allow_unclosed_non_curly_braces():
 
 
 def test_buffer():
-    from TexSoup.utils import Buffer
+    from TexSoup.utils import Buffer, Token
     b = Buffer('abcdef')
     assert b.forward_until(lambda s: s in 'def') == 'abc'
     assert b.forward_until(lambda s: s in 'f') == 'de'
@@ -581,6 +581,17 @@ def test_buffer():
     assert b.num_forward_until(lambda s: s in 'z') == 0
     assert b.backward(6) == 'abcdef'
     assert b.num_forward_until(lambda s: s not in 'abc') == 3
+
+    b = Buffer('cd')
+    b.push(Token('ab', 0))
+    assert next(b) == 'ab'
+    assert next(b) == 'c'
+
+    b = Buffer('cd')
+    _ = b.peek()
+    b.replace(1, Token('ab', 0))
+    assert next(b) == 'ab'
+    assert next(b) == 'd'
 
 
 def test_to_buffer():
