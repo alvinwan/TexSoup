@@ -33,6 +33,70 @@ PUNCTUATION_COMMANDS = {command + bracket
 __all__ = ['tokenize']
 
 
+def in_at_letter_mode(text):
+    r"""Whether command names should currently treat ``@`` as a letter.
+
+    :param Buffer text: categorized character buffer
+    :return bool: whether ``@`` should be treated as a letter
+
+    >>> text = categorize(r'\makeatletter')
+    >>> in_at_letter_mode(text)
+    False
+    >>> text.at_letter = True
+    >>> in_at_letter_mode(text)
+    True
+    """
+    return getattr(text, 'at_letter', False)
+
+
+def is_command_name_token(token, text):
+    r"""Whether token should count as a command-name character.
+
+    :param Token token: token to test
+    :param Buffer text: categorized character buffer
+    :return bool: whether token can extend a command name
+
+    >>> text = categorize('@')
+    >>> token = next(text)
+    >>> is_command_name_token(token, text)
+    False
+    >>> update_at_letter_state(text, Token('makeatletter', category=TC.CommandName))
+    >>> is_command_name_token(token, text)
+    True
+    >>> is_command_name_token(Token('a', category=CC.Letter), text)
+    True
+    """
+    return token.category == CC.Letter or (
+        in_at_letter_mode(text) and token == '@')
+
+
+def update_at_letter_state(text, token):
+    r"""Apply ``\\makeatletter`` / ``\\makeatother`` tokenizer state changes.
+
+    :param Buffer text: categorized character buffer
+    :param Token token: command-name token that may change tokenizer state
+
+    >>> text = categorize(r'\makeatletter\makeatother')
+    >>> in_at_letter_mode(text)
+    False
+    >>> update_at_letter_state(text, Token('makeatletter', category=TC.CommandName))
+    >>> in_at_letter_mode(text)
+    True
+    >>> update_at_letter_state(text, Token('textbf', category=TC.CommandName))
+    >>> in_at_letter_mode(text)
+    True
+    >>> update_at_letter_state(text, Token('makeatother', category=TC.CommandName))
+    >>> in_at_letter_mode(text)
+    False
+    """
+    if token.category != TC.CommandName:
+        return
+    if token.text == 'makeatletter':
+        text.at_letter = True
+    elif token.text == 'makeatother':
+        text.at_letter = False
+
+
 def next_token(text, prev=None):
     r"""Returns the next possible token, advancing the iterator to the next
     position to start processing from.
@@ -76,10 +140,12 @@ def tokenize(text):
     >>> print(*tokenize(categorize(r'\begin{tabular} 0 & 1 \\ 2 & 0 \end{tabular}')))
     \ begin { tabular }  0 & 1  \\  2 & 0  \ end { tabular }
     """
+    text.at_letter = False
     current_token = next_token(text)
     while current_token is not None:
         assert current_token.category in TC
         yield current_token
+        update_at_letter_state(text, current_token)
         current_token = next_token(text, prev=current_token)
 
 
@@ -122,6 +188,8 @@ def tokenize_escaped_symbols(text, prev=None):
     """
     if text.peek().category == CC.Escape \
             and text.peek(1) \
+            and not (
+                in_at_letter_mode(text) and text.peek(1) == '@') \
             and text.peek(1).category in (
                 CC.Escape, CC.GroupBegin, CC.GroupEnd, CC.MathSwitch,
                 CC.Alignment, CC.EndOfLine, CC.Macro, CC.Superscript,
@@ -331,12 +399,15 @@ def tokenize_command_name(text, prev=None):
     'bf*'
     """
     if text.peek(-1) and text.peek(-1).category == CC.Escape \
-            and text.peek().category == CC.Letter:
+            and is_command_name_token(text.peek(), text):
         c = text.forward(1)
-        while text.hasNext() and text.peek().category == CC.Letter \
-                or text.peek() == '*':  # TODO: what do about asterisk?
+        while text.hasNext() and (
+                is_command_name_token(text.peek(), text) or text.peek() == '*'):
             # TODO: excluded other, macro, super, sub, acttive, alignment
-            # although macros can make these a part of the command name
+            # although macros can make these a part of the command name.
+            # We also allow '*' here for starred forms like \section*, but it
+            # should really be treated as a trailing suffix, not a character
+            # that can appear in the middle of a command name.
             c += text.forward(1)
         c.category = TC.CommandName
         return c
