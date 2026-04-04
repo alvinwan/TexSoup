@@ -752,10 +752,26 @@ def test_verbatim_like_commands():
     soup = TexSoup(r"\url{https://test.lab/test?var=test$}")
     assert str(soup.url) == r"\url{https://test.lab/test?var=test$}"
     assert str(soup.url.args[0]) == r"{https://test.lab/test?var=test$}"
-
     soup = TexSoup(
         r"\url{en.wikipedia.org/wiki/Zermelo%E2%80%93Fraenkel_set_theory}")
     assert str(soup.url) == (
         r"\url{en.wikipedia.org/wiki/Zermelo%E2%80%93Fraenkel_set_theory}")
     assert str(soup.url.args[0]) == (
         r"{en.wikipedia.org/wiki/Zermelo%E2%80%93Fraenkel_set_theory}")
+
+
+def test_tabular_column_spec_raw():
+    """Tabular-style column specs should not parse `$` as nested math."""
+    soup = TexSoup(r"""
+    \begin{table}
+      \begin{tabular}{l >{$}r<{$}}
+        i & 7078.2747\\
+      \end{tabular}
+    \end{table}
+    """)
+    assert soup.tabular
+    assert str(soup.tabular.args[0]) == r"{l >{$}r<{$}}"
+
+    soup = TexSoup(r"$\begin{array}{l >{$}r<{$}} x & 1 \end{array}$")
+    assert soup.array
+    assert str(soup.array.args[0]) == r"{l >{$}r<{$}}"
