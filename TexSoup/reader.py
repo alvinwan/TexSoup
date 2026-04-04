@@ -125,7 +125,7 @@ def read_expr(src, skip_envs=(), tolerance=0, mode=MODE_NON_MATH):
         return read_arg(src, c, tolerance=tolerance)
 
     assert isinstance(c, Token)
-    return TexText(c)
+    return TexText(c, position=c.position)
 
 
 ################

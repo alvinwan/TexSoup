@@ -73,6 +73,17 @@ def test_commands_envs_text():
     assert len(everything) == 12
 
 
+def test_position():
+    '''Tests that positions are correctly set.'''
+    s = '''0123   \n\\section{Test}\ns p a c e s \n\\cmd{Bye}{Bye}\n'''
+    soup = TexSoup(s)
+    positions = [n.position for n in soup.all]
+    print(positions)
+    print([s[i] for i in positions])
+    assert positions == [0, 8, 22, 36, 50]
+    assert [s[i] for i in positions] == ['0', '\\', '\n', '\\', '\n']
+
+
 #########
 # CASES #
 #########
