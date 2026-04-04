@@ -375,10 +375,8 @@ def read_args(src, n_required=-1, n_optional=-1, args=None, tolerance=0,
     n_optional = read_arg_optional(src, args, n_optional, tolerance, mode)
     n_required = read_arg_required(src, args, n_required, tolerance, mode)
 
-    if src.hasNext() and src.peek().category == TC.BracketBegin:
-        n_optional = read_arg_optional(src, args, n_optional, tolerance, mode)
-    if src.hasNext() and src.peek().category == TC.GroupBegin:
-        n_required = read_arg_required(src, args, n_required, tolerance, mode)
+    n_optional = read_arg_optional(src, args, n_optional, tolerance, mode)
+    n_required = read_arg_required(src, args, n_required, tolerance, mode)
     return args
 
 
