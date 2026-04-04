@@ -670,6 +670,23 @@ def test_special_command():
     soup = TexSoup(texsrc)
     assert soup
 
+
+def test_special_command_signatures():
+    """Macro-definition commands should consume their control sequence names."""
+    for source, name in (
+            (r"\newcommand\a[1]{Hello #1}", 'newcommand'),
+            (r"\renewcommand\a[1]{Hello #1}", 'renewcommand'),
+            (r"\providecommand\a[1]{Hello #1}", 'providecommand')):
+        soup = TexSoup(source)
+        children = list(soup.children)
+        assert len(children) == 1
+        assert children[0].name == name
+        assert len(children[0].args) == 3
+        assert str(children[0].args[0]) == r'\a'
+        assert str(children[0].args[1]) == '[1]'
+        assert str(children[0].args[2]) == '{Hello #1}'
+
+
 def test_brackets_issue():
     """Test that mismatched square brackets in math mode are not a problem."""
     soup = TexSoup(r"$\cmd [0,1)$")

@@ -577,14 +577,16 @@ def read_command(buf, n_required_args=-1, n_optional_args=-1, skip=0,
     # mode, in which a single `\begin` or `\end` are allowed
     if name.text in SPECIAL_COMMANDS:
         mode = MODE_SPECIAL
-    token = Token('', buf.position)
+    if name.text in SPECIAL_COMMANDS:
+        args = TexArgs()
+        read_arg_required(buf, args, 1, tolerance=tolerance, mode=mode)
+        read_arg_optional(buf, args, 1, tolerance=tolerance, mode=mode)
+        read_arg_required(buf, args, 1, tolerance=tolerance, mode=mode)
+        return name, args
     if n_required_args < 0 and n_optional_args < 0:
         # Default to ignoring optional arguments in math mode
         default_signature = (-1, 0) if mode==MODE_MATH else (-1, -1)
         n_required_args, n_optional_args = SIGNATURES.get(name, default_signature)
     args = read_args(buf, n_required_args, n_optional_args,
                      tolerance=tolerance, mode=mode)
-    # after parsing the command, go back to normal mode
-    if name.text in SPECIAL_COMMANDS:
-        mode = MODE_NON_MATH
     return name, args
