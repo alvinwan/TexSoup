@@ -361,7 +361,10 @@ def tokenize_command_name(text, prev=None):
         while text.hasNext() and (
                 is_command_name_token(text.peek(), text) or text.peek() == '*'):
             # TODO: excluded other, macro, super, sub, acttive, alignment
-            # although macros can make these a part of the command name
+            # although macros can make these a part of the command name.
+            # We also allow '*' here for starred forms like \section*, but it
+            # should really be treated as a trailing suffix, not a character
+            # that can appear in the middle of a command name.
             c += text.forward(1)
         c.category = TC.CommandName
         return c
