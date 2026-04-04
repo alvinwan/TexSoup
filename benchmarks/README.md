@@ -65,8 +65,3 @@ runtimes from the same local benchmark pass, so compare them cautiously.
 - `plasTeX` failed on `2004.05565` with `TypeError: sequence item 12: expected str instance, @enumctr found`.
 - `plasTeX` failed on `1706.03762` with `ValueError: I/O operation on closed file`.
 - `latex2html` failed immediately on all three papers in this local setup with `Error: No such image type ''`.
-
-## Compatibility
-
-The old `examples/benchmark_arxiv.py` and `examples/benchmark_parsers.py` entry
-points now delegate to `benchmarks/arxiv.py` so existing commands still work.
