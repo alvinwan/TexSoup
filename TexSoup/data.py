@@ -191,7 +191,9 @@ class TexNode(object):
         <BLANKLINE>
         """
         for child in self.expr.contents:
-            if isinstance(child, TexExpr):
+            if isinstance(child, TexText):
+                yield child
+            elif isinstance(child, TexExpr):
                 node = TexNode(child)
                 node.parent = self
                 yield node
@@ -744,7 +746,10 @@ class TexExpr(object):
         """
         for content in self.all:
             if isinstance(content, TexText):
-                content = content._text
+                is_whitespace = str(content).isspace()
+                if not is_whitespace or self.preserve_whitespace:
+                    yield content
+                continue
             is_whitespace = isinstance(content, str) and content.isspace()
             if not is_whitespace or self.preserve_whitespace:
                 yield content
@@ -1121,6 +1126,9 @@ class TexText(TexExpr, str):
         :param str text: Text content
         :param int position: position of first character in original source
         """
+        if position < 0 and hasattr(text, 'position'):
+            position = text.position
+        text = str(text)
         super().__init__('text', [text], position=position)
         self._text = text
 

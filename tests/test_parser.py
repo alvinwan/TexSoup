@@ -1,4 +1,5 @@
 from TexSoup import TexSoup
+from TexSoup.data import TexText
 import pytest
 
 
@@ -304,6 +305,11 @@ def test_item_parsing():
     \item plop
     \end{itemize}""")
     assert str(soup.item.label) == r'\label{some-label}'
+    soup = TexSoup(r"""\begin{itemize}\item test\item $\alpha$\end{itemize}""")
+    items = list(soup.itemize.contents)
+    assert isinstance(items[0].contents[0], TexText)
+    assert items[0].contents[0] == ' test'
+    assert type(items[1].contents[0]).__name__ == 'TexNode'
 
 
 def test_item_argument_parsing():
