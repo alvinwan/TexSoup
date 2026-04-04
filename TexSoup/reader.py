@@ -296,6 +296,15 @@ def read_raw_brace_arg(src, tolerance=0):
             depth -= 1
             if depth == 0:
                 return '', None, True
+        elif token.category == TC.Comment:
+            token_text = str(token)
+            for index, char in enumerate(token_text):
+                if char == '{':
+                    depth += 1
+                elif char == '}':
+                    depth -= 1
+                    if depth == 0:
+                        return token_text[:index], token_text[index + 1:], True
         return str(token), None, False
 
     def on_unclosed(consumed):

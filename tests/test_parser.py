@@ -736,3 +736,10 @@ def test_verbatim_like_commands():
     soup = TexSoup(r"\url{https://test.lab/test?var=test$}")
     assert str(soup.url) == r"\url{https://test.lab/test?var=test$}"
     assert str(soup.url.args[0]) == r"{https://test.lab/test?var=test$}"
+
+    soup = TexSoup(
+        r"\url{en.wikipedia.org/wiki/Zermelo%E2%80%93Fraenkel_set_theory}")
+    assert str(soup.url) == (
+        r"\url{en.wikipedia.org/wiki/Zermelo%E2%80%93Fraenkel_set_theory}")
+    assert str(soup.url.args[0]) == (
+        r"{en.wikipedia.org/wiki/Zermelo%E2%80%93Fraenkel_set_theory}")
