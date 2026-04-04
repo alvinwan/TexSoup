@@ -265,6 +265,11 @@ class Token(str):
         return Token(stripped, self.position + offset, self.category)
 
 
+# Backward-compatible alias kept for older callers that imported the former
+# class name directly from TexSoup.utils.
+TokenWithPosition = Token
+
+
 Token.Empty = Token('', position=0)
 
 

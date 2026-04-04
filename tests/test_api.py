@@ -1,5 +1,5 @@
 from TexSoup import TexSoup
-from TexSoup.utils import Token
+from TexSoup.utils import Token, TokenWithPosition
 from tests.config import chikin
 import copy
 import pytest
@@ -58,6 +58,14 @@ def test_navigation_positions(chikin):
     # get position of section
     section_pos = list(chikin.find_all('section'))[1].name.position
     assert chikin.char_pos_to_line(section_pos) == (15, 1)
+
+
+def test_token_with_position_backward_compatibility():
+    """Older imports of TokenWithPosition should still behave like Token."""
+    token = TokenWithPosition('asdf', 7)
+    assert TokenWithPosition is Token
+    assert str(token) == 'asdf'
+    assert token.position == 7
 
 
 ##########
