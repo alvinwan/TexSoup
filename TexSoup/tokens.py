@@ -38,7 +38,7 @@ def in_at_letter_mode(text):
     return getattr(text, 'at_letter', False)
 
 
-def at_letter_token(token, text):
+def is_command_name_token(token, text):
     """Whether token should count as a command-name character."""
     return token.category == CC.Letter or (
         in_at_letter_mode(text) and token == '@')
@@ -356,10 +356,10 @@ def tokenize_command_name(text, prev=None):
     'bf*'
     """
     if text.peek(-1) and text.peek(-1).category == CC.Escape \
-            and at_letter_token(text.peek(), text):
+            and is_command_name_token(text.peek(), text):
         c = text.forward(1)
         while text.hasNext() and (
-                at_letter_token(text.peek(), text) or text.peek() == '*'):
+                is_command_name_token(text.peek(), text) or text.peek() == '*'):
             # TODO: excluded other, macro, super, sub, acttive, alignment
             # although macros can make these a part of the command name
             c += text.forward(1)
