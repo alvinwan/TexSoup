@@ -762,6 +762,21 @@ class TexExpr(object):
                 '.contents value "%s" must be a list or tuple of strings or '
                 'TexExprs' % contents)
         _contents = [TexText(c) if isinstance(c, str) else c for c in contents]
+
+        # Commands expose argument contents through `.contents`, so update the
+        # existing argument structure instead of appending hidden `_contents`.
+        if self.args and not self._contents:
+            if len(self.args) == 1:
+                self.args[0].contents = _contents
+                return
+            if len(_contents) == len(self.args):
+                for arg, content in zip(self.args, _contents):
+                    arg.contents = [content]
+                return
+            raise TypeError(
+                '.contents value "%s" is ambiguous for a command with %d '
+                'arguments' % (contents, len(self.args)))
+
         self._contents = _contents
 
     @property
