@@ -350,50 +350,20 @@ def read_env(src, expr, skip_envs=(), tolerance=0, mode=MODE_NON_MATH):
 
 
 # TODO: handle macro-weirdness e.g., \def\blah[#1][[[[[[[[#2{"#1 . #2"}
-def read_args_spec(src, arg_spec, args=None, counts=None, tolerance=0,
+def read_args(src, arg_spec=None, args=None, tolerance=0,
         mode=MODE_NON_MATH):
-    r"""Read arguments using an ordered specification.
+    r"""Read all arguments from buffer.
+
+    This function assumes that the command name has already been parsed.
+    Arguments are read according to an ordered specification of
+    ``(kind, count)`` pairs, where ``kind`` is either ``required`` or
+    ``optional``. A ``count`` of ``None`` reuses the remaining count from the
+    previous phase of the same kind. If no specification is provided, the
+    default generic TexSoup parsing order is used.
 
     :param Buffer src: a buffer of tokens
     :param Iterable[Tuple[str, Optional[int]]] arg_spec: ordered arg phases
     :param TexArgs args: existing arguments to extend
-    :param Dict[str, int] counts: reusable remaining counts for arg kinds
-    :param int tolerance: error tolerance level (only supports 0 or 1)
-    :param str mode: math or not math mode
-    :return: parsed arguments
-    :rtype: TexArgs
-    """
-    args = args or TexArgs()
-    counts = dict(counts or {})
-    readers = {
-        ARG_OPTIONAL: read_arg_optional,
-        ARG_REQUIRED: read_arg_required,
-    }
-
-    for arg_kind, count in arg_spec:
-        n_args = counts.get(arg_kind, -1) if count is None else count
-        remaining = readers[arg_kind](
-            src, args, n_args, tolerance=tolerance, mode=mode)
-        counts[arg_kind] = remaining
-    return args
-
-
-def read_args(src, n_required=-1, n_optional=-1, args=None, tolerance=0,
-        mode=MODE_NON_MATH):
-    r"""Read all arguments from buffer.
-
-    This function assumes that the command name has already been parsed. By
-    default, LaTeX allows only up to 9 arguments of both types, optional
-    and required. If `n_optional` is not set, all valid bracket groups are
-    captured. If `n_required` is not set, all valid brace groups are
-    captured.
-
-    :param Buffer src: a buffer of tokens
-    :param TexArgs args: existing arguments to extend
-    :param int n_required: Number of required arguments. If < 0, all valid
-                           brace groups will be captured.
-    :param int n_optional: Number of optional arguments. If < 0, all valid
-                           bracket groups will be captured.
     :param int tolerance: error tolerance level (only supports 0 or 1)
     :param str mode: math or not math mode
     :return: parsed arguments
@@ -406,26 +376,30 @@ def read_args(src, n_required=-1, n_optional=-1, args=None, tolerance=0,
     [BracketGroup('walla'), BraceGroup('walla'), BraceGroup('ba', ']', 'ng')]
     >>> test('\t[wa]\n{lla}\n\n{b[ing}')  # interspersed spacers + 2 newlines
     [BracketGroup('wa'), BraceGroup('lla')]
-    >>> test('\t[\t{a]}bs', 2, 0)  # use char as arg, since no opt args
+    >>> test('\t[\t{a]}bs', make_arg_spec(2, 0))  # use char as arg
     [BraceGroup('['), BraceGroup('a', ']')]
-    >>> test('\n[hue]\t[\t{a]}', 2, 1)  # check stop opt arg capture
+    >>> test('\n[hue]\t[\t{a]}', make_arg_spec(2, 1))
     [BracketGroup('hue'), BraceGroup('['), BraceGroup('a', ']')]
     >>> test('\t\\item')
     []
     >>> test('   \t    \n\t \n{bingbang}')
     []
-    >>> test('[tempt]{ing}[WITCH]{doctorrrr}', 0, 0)
+    >>> test('[tempt]{ing}[WITCH]{doctorrrr}', ())
     []
     """
-    if n_required == 0 and n_optional == 0:
-        return args or TexArgs()
+    args = args or TexArgs()
+    arg_spec = arg_spec if arg_spec is not None else make_arg_spec()
+    counts = {}
+    readers = {
+        ARG_OPTIONAL: read_arg_optional,
+        ARG_REQUIRED: read_arg_required,
+    }
 
-    return read_args_spec(
-        src,
-        make_arg_spec(n_required, n_optional),
-        args=args,
-        tolerance=tolerance,
-        mode=mode)
+    for arg_kind, count in arg_spec:
+        n_args = counts.get(arg_kind, -1) if count is None else count
+        counts[arg_kind] = readers[arg_kind](
+            src, args, n_args, tolerance=tolerance, mode=mode)
+    return args
 
 
 def read_arg_optional(
@@ -628,5 +602,5 @@ def read_command(buf, arg_spec=None, skip=0,
         signature = arg_spec
 
     arg_mode = SIGNATURE_MODES.get(name.text, mode)
-    args = read_args_spec(buf, signature, tolerance=tolerance, mode=arg_mode)
+    args = read_args(buf, arg_spec=signature, tolerance=tolerance, mode=arg_mode)
     return name, args
