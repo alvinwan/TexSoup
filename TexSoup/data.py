@@ -1234,9 +1234,8 @@ class TexGroup(TexUnNamedEnv):
         >>> settings['description']
         [BraceGroup('is a French loanword')]
         """
-        # TODO: This is hacky convenience utility that extracts keys and values
-        # BUT it just naively splits on commas and equals signs, so it will fail
-        # if there are nested braces or other complex structures.
+        # TODO: This is hacky implementation that naively splits on commas.
+        # It will fail if there are nested braces or complex structures.
         
         from TexSoup.tex import read
         keyvals = {}
