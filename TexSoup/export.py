@@ -378,6 +378,14 @@ def _to_html_string(expr, asset_root=None):
       color: var(--accent);
       font-weight: 600;
     }}
+    .tex-citation-backlinks {{
+      margin: 0.45rem 0 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }}
+    .tex-citation-backlink {{
+      margin-left: 0.35rem;
+    }}
     .tex-anchor {{
       display: block;
       position: relative;
@@ -649,26 +657,52 @@ def _render_frontmatter(metadata, context):
 def _collect_render_context(nodes):
     """Collect anchors and bibliography metadata for rendered links."""
     context = {
+        'autoref_text': {},
         'labels': {},
         'bibitems': {},
+        'citation_anchors': {},
+        'citation_targets': {},
         'equation_labels': {},
         'equation_numbers': {},
+        'figure_numbers': {},
+        'reference_text': {},
+        'table_numbers': {},
     }
     bibliography_index = 1
     equation_index = 1
+    figure_index = 1
+    table_index = 1
 
     def visit(current_nodes):
-        nonlocal bibliography_index, equation_index
+        nonlocal bibliography_index, equation_index, figure_index, table_index
         for node in current_nodes:
             if isinstance(node, TexCmd) and node.name == 'label' and node.args:
                 label = str(node.args[0].string)
                 context['labels'][label] = _anchor_id('label', label)
+            if isinstance(node, TexNamedEnv) and node.name in ('figure', 'figure*'):
+                number = str(figure_index)
+                context['figure_numbers'][node.position] = number
+                label = _first_label(node)
+                if label:
+                    context['reference_text'][label] = number
+                    context['autoref_text'][label] = 'Figure %s' % number
+                figure_index += 1
+            if isinstance(node, TexNamedEnv) and node.name in ('table', 'table*'):
+                number = str(table_index)
+                context['table_numbers'][node.position] = number
+                label = _first_label(node)
+                if label:
+                    context['reference_text'][label] = number
+                    context['autoref_text'][label] = 'Table %s' % number
+                table_index += 1
             if isinstance(node, TexNamedEnv) and node.name in NUMBERED_MATH_ENVS:
                 number = str(equation_index)
                 context['equation_numbers'][node.position] = number
                 label = _first_label(node)
                 if label:
                     context['equation_labels'][label] = number
+                    context['reference_text'][label] = number
+                    context['autoref_text'][label] = 'Equation %s' % number
                 equation_index += 1
             if isinstance(node, TexNamedEnv) and node.name == 'thebibliography':
                 for child in _body_contents(node):
@@ -680,6 +714,15 @@ def _collect_render_context(nodes):
                                 'display': str(bibliography_index),
                             }
                             bibliography_index += 1
+            if isinstance(node, TexCmd) and node.name.startswith('cite') and node.args:
+                anchors = []
+                for key in _citation_keys(node):
+                    count = len(context['citation_targets'].setdefault(key, [])) + 1
+                    anchor = _anchor_id('cite', '%s-%d' % (key, count))
+                    context['citation_targets'][key].append(anchor)
+                    anchors.append((key, anchor))
+                if anchors:
+                    context['citation_anchors'][node.position] = anchors
             if isinstance(node, TexNamedEnv):
                 visit(_body_contents(node))
             elif isinstance(node, TexGroup):
@@ -722,8 +765,13 @@ def _resolve_href(target, context):
 
 def _reference_text(command_name, target, context):
     """Return fallback display text for a reference command."""
-    if target in context['equation_labels']:
-        target = context['equation_labels'][target]
+    if command_name == 'autoref' and target in context['autoref_text']:
+        return context['autoref_text'][target]
+
+    target = context['reference_text'].get(
+        target,
+        context['equation_labels'].get(target, target),
+    )
     if command_name == 'eqref':
         return '(%s)' % target
     return target
@@ -792,18 +840,31 @@ def _render_color_command(node, context):
 
 def _render_citation(node, context):
     """Render a citation command as linked bibliography references."""
-    keys = []
-    for arg in node.args:
-        keys.extend(key.strip() for key in arg.string.split(',') if key.strip())
+    keys = _citation_keys(node)
+    anchors = context['citation_anchors'].get(node.position, ())
 
     rendered = []
-    for key in keys:
+    for index, key in enumerate(keys):
         entry = context['bibitems'].get(key)
         label = entry['display'] if entry else key
         href = '#%s' % entry['id'] if entry else _link_target(key, context)
-        rendered.append('<a class="tex-reference" href="{href}">{label}</a>'.format(
-            href=escape(href), label=escape(label)))
+        anchor_id = anchors[index][1] if index < len(anchors) else None
+        rendered.append(
+            '<a{anchor} class="tex-reference tex-citation" href="{href}">{label}</a>'.format(
+                anchor=' id="%s"' % escape(anchor_id) if anchor_id else '',
+                href=escape(href),
+                label=escape(label),
+            )
+        )
     return '[{}]'.format(', '.join(rendered))
+
+
+def _citation_keys(node):
+    """Return normalized bibliography keys referenced by a citation command."""
+    keys = []
+    for arg in node.args:
+        keys.extend(key.strip() for key in arg.string.split(',') if key.strip())
+    return keys
 
 
 def _bibitem_key(node):
@@ -1057,6 +1118,21 @@ def _render_figure(env, class_name, context):
             parts.append(rendered)
 
     body = ''.join(parts) or _render_raw_block(env, class_name='tex-raw-block')
+    number = None
+    label = None
+    if env.name in ('figure', 'figure*'):
+        number = context['figure_numbers'].get(env.position)
+        label = 'Figure'
+    elif env.name in ('table', 'table*'):
+        number = context['table_numbers'].get(env.position)
+        label = 'Table'
+
+    if caption and number and label:
+        caption = '<strong>{label} {number}.</strong> {caption}'.format(
+            label=label,
+            number=escape(number),
+            caption=caption,
+        )
     return (
         '<figure class="{class_name}">{body}{caption}</figure>'
     ).format(
@@ -1088,10 +1164,23 @@ def _render_bibliography(env, context):
             'id': _anchor_id('bib', entry['key']),
             'display': entry['key'],
         })
+        backlinks = context['citation_targets'].get(entry['key'], ())
+        backlink_html = ''
+        if backlinks:
+            backlink_html = '<p class="tex-citation-backlinks">Cited at {links}</p>'.format(
+                links=''.join(
+                    '<a class="tex-citation-backlink" href="#{anchor}">[{index}]</a>'.format(
+                        anchor=escape(anchor),
+                        index=index,
+                    )
+                    for index, anchor in enumerate(backlinks, start=1)
+                ),
+            )
         items.append(
-            '<li id="{anchor}">{body}</li>'.format(
+            '<li id="{anchor}">{body}{backlinks}</li>'.format(
                 anchor=escape(meta['id']),
                 body=_render_blocks(entry['nodes'], context),
+                backlinks=backlink_html,
             )
         )
     return '<section class="tex-bibliography"><h2>References</h2><ol>{}</ol></section>'.format(
@@ -1103,10 +1192,12 @@ def _render_tabular(env, context):
     body_contents = list(_body_contents(env))
     if body_contents and str(body_contents[0]).strip().startswith('{'):
         body_contents = body_contents[1:]
-    text = ''.join(map(str, body_contents))
+    text = _strip_comment_lines(''.join(map(str, body_contents)))
     rows = []
     for raw_row in re.split(r'\\\\|\\tabularnewline', text):
         row = raw_row.strip()
+        if row.lstrip().startswith('%'):
+            continue
         if not row:
             continue
         row = re.sub(r'\\(toprule|midrule|bottomrule|hline)\b', '', row)

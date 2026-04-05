@@ -145,7 +145,10 @@ def test_dumps_html_renders_tables_and_bibliography_links():
     soup = TexSoup(
         r'\begin{table}\footnotesize\caption{Cap}'
         r'\begin{tabular*}{\linewidth}{l @{\extracolsep{\fill}} ll}'
-        r'\toprule A & B & C \\ \cmidrule{2-3} 1 & 2 & 3\end{tabular*}\end{table}'
+        r'\toprule A & B & C \\ \cmidrule{2-3} 1 & 2 & 3 \\'
+        '\n%Old & Hidden & Row\n'
+        r'\end{tabular*}\end{table}'
+        r'\begin{figure}\caption{Fig cap}\end{figure}'
         r'{\small\bibliographystyle{plain}\begin{thebibliography}{9}'
         r'\bibitem{foo} First.\newblock {\em Journal}.'
         r'\bibitem{bar} Second.\end{thebibliography}}'
@@ -155,13 +158,20 @@ def test_dumps_html_renders_tables_and_bibliography_links():
     assert '<table class="tex-table">' in exported
     assert '<th>A</th>' in exported
     assert '<td>1</td>' in exported
+    assert 'Hidden' not in exported
     assert 'extracolsep' not in exported
     assert 'footnotesize' not in exported
     assert 'bibliographystyle' not in exported
+    assert '<strong>Table 1.</strong> Cap' in exported
+    assert '<strong>Figure 1.</strong> Fig cap' in exported
     assert 'id="bib-foo"' in exported
     assert 'href="#bib-foo">1</a>' in exported
     assert 'href="#bib-bar">2</a>' in exported
     assert 'First.' in exported and '<em>Journal</em>' in exported
+    assert 'id="cite-foo-1"' in exported
+    assert 'id="cite-bar-1"' in exported
+    assert 'href="#cite-foo-1">[1]</a>' in exported
+    assert 'href="#cite-bar-1">[1]</a>' in exported
 
 
 def test_dumps_html_resolves_figure_assets(tmp_path):
