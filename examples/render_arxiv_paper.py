@@ -18,6 +18,8 @@ after installing TexSoup.
 
 import argparse
 from pathlib import Path
+import shutil
+import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -25,6 +27,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from TexSoup import TexSoup, dumps
+from TexSoup.export import PDF_PREVIEW_SUFFIX
 from benchmarks.arxiv import load_paper_text, normalize_paper_id
 
 
@@ -61,10 +64,41 @@ def default_output_path(paper):
     return Path(paper['root']) / Path(paper['main_tex']).with_suffix('.html')
 
 
+def preview_path(pdf_path):
+    """Return the generated PNG preview path for a PDF figure."""
+    return pdf_path.with_name(pdf_path.stem + PDF_PREVIEW_SUFFIX)
+
+
+def ensure_pdf_preview(pdf_path):
+    """Generate a PNG preview for a PDF figure when possible."""
+    preview = preview_path(pdf_path)
+    if preview.exists() and preview.stat().st_mtime >= pdf_path.stat().st_mtime:
+        return preview
+
+    sips = shutil.which('sips')
+    if not sips:
+        return None
+
+    subprocess.run(
+        [sips, '-s', 'format', 'png', str(pdf_path), '--out', str(preview)],
+        check=True,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    return preview
+
+
+def ensure_pdf_previews(root):
+    """Generate PDF previews under the extracted paper source tree."""
+    for pdf_path in root.rglob('*.pdf'):
+        ensure_pdf_preview(pdf_path)
+
+
 def main():
     """Render an arXiv paper to HTML."""
     args = build_parser().parse_args()
     paper = load_paper_text(normalize_paper_id(args.paper_id), args)
+    ensure_pdf_previews(paper['root'])
     output_path = args.output or default_output_path(paper)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(

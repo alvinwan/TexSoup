@@ -168,8 +168,10 @@ def test_dumps_html_resolves_figure_assets(tmp_path):
     asset_dir.mkdir()
     png_path = asset_dir / 'plot.png'
     pdf_path = asset_dir / 'paper.pdf'
+    preview_path = asset_dir / 'paper.texsoup-preview.png'
     png_path.write_bytes(b'not-a-real-png')
     pdf_path.write_bytes(b'%PDF-1.4\n%fake\n')
+    preview_path.write_bytes(b'fake-png-preview')
 
     soup = TexSoup(
         r'\includegraphics{figures/plot.png}'
@@ -178,9 +180,11 @@ def test_dumps_html_resolves_figure_assets(tmp_path):
     exported = dumps(soup, format='html', asset_root=tmp_path)
 
     assert png_path.resolve().as_uri() in exported
-    assert pdf_path.resolve().as_uri() in exported
+    assert preview_path.resolve().as_uri() in exported
+    assert pdf_path.resolve().as_uri() not in exported
     assert '<img class="tex-graphic"' in exported
-    assert 'class="tex-pdf-figure"' in exported
+    assert 'class="tex-pdf-figure"' not in exported
+    assert 'Open figure asset' not in exported
 
 
 def test_dump_writes_to_file_like_object():

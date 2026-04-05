@@ -96,6 +96,7 @@ TABULAR_ENVS = {'tabular', 'tabular*'}
 PARAGRAPH_BREAK = object()
 INLINE_ASSET_EXTENSIONS = ('.gif', '.jpeg', '.jpg', '.png', '.svg', '.webp')
 DISPLAYABLE_ASSET_EXTENSIONS = INLINE_ASSET_EXTENSIONS + ('.pdf',)
+PDF_PREVIEW_SUFFIX = '.texsoup-preview.png'
 
 
 def dumps(tex, format='json', asset_root=None):
@@ -1142,17 +1143,28 @@ def _resolve_asset_path(target, context):
     candidate = Path(target).expanduser()
     if not candidate.is_absolute():
         candidate = asset_root / candidate
-    if candidate.exists():
-        return candidate.resolve()
-
-    if candidate.suffix:
-        return None
-
-    for suffix in DISPLAYABLE_ASSET_EXTENSIONS:
-        option = candidate.with_suffix(suffix)
+    for option in _asset_candidates(candidate):
         if option.exists():
             return option.resolve()
     return None
+
+
+def _pdf_preview_candidates(path):
+    """Return preview image candidates for a PDF asset."""
+    return [
+        path.with_name(path.stem + PDF_PREVIEW_SUFFIX),
+        *(path.with_suffix(suffix) for suffix in INLINE_ASSET_EXTENSIONS),
+    ]
+
+
+def _asset_candidates(path):
+    """Yield possible local asset paths in preferred render order."""
+    suffix = path.suffix.lower()
+    if suffix == '.pdf':
+        return _pdf_preview_candidates(path) + [path]
+    if suffix:
+        return [path]
+    return [path.with_suffix(suffix) for suffix in DISPLAYABLE_ASSET_EXTENSIONS]
 
 
 def _render_includegraphics(cmd, context):
@@ -1162,26 +1174,20 @@ def _render_includegraphics(cmd, context):
     asset_url = asset_path.as_uri() if asset_path else target
     lower_target = asset_url.lower()
     if lower_target.endswith(INLINE_ASSET_EXTENSIONS):
-        return (
-            '<figure class="tex-figure">'
-            '<img class="tex-graphic" src="{target}" alt="{alt}" />'
-            '<figcaption><a class="tex-link" href="{target}">Open figure asset</a></figcaption>'
-            '</figure>'
-        ).format(target=escape(asset_url), alt=escape(target))
+        return '<figure class="tex-figure"><img class="tex-graphic" src="{target}" alt="{alt}" /></figure>'.format(
+            target=escape(asset_url), alt=escape(target))
     if lower_target.endswith('.pdf'):
         return (
             '<figure class="tex-figure">'
             '<object class="tex-pdf-figure" data="{target}" type="application/pdf">'
-            '<a class="tex-link" href="{target}">Open figure asset</a>'
+            '<code class="tex-source">{label}</code>'
             '</object>'
-            '<figcaption><a class="tex-link" href="{target}">Open figure asset</a></figcaption>'
             '</figure>'
-        ).format(target=escape(asset_url))
+        ).format(target=escape(asset_url), label=escape(target))
     return (
         '<figure class="tex-figure">'
         '<div class="tex-graphic-placeholder">'
         '<strong>Figure asset</strong>'
-        '<a class="tex-link" href="{target}">Open figure asset</a>'
         '<code class="tex-source">{target}</code>'
         '</div>'
         '</figure>'
