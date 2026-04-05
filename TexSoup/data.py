@@ -1188,6 +1188,11 @@ class TexText(TexExpr, str):
         return repr(self._text)
 
 
+#############
+# Arguments #
+#############
+
+
 class TexGroup(TexUnNamedEnv):
     """Abstraction for a LaTeX environment with single-character delimiters.
 
@@ -1212,8 +1217,12 @@ class TexGroup(TexUnNamedEnv):
     def keyvals(self):
         r"""Parse top-level key=value pairs inside this group.
 
-        This is an opt-in view over the existing parsed contents. Separator
-        whitespace and nested TexSoup objects are both discarded.
+        This is an opt-in convenience view over the existing parsed contents.
+        Separator whitespace and nested TexSoup objects are both discarded. For
+        a fuller example that preserves both, see ``examples/parse_keyvals.py``.
+        This implementation is intentionally brittle: it naively splits on
+        top-level commas and equals signs in the stringified group, so it does
+        not correctly handle braces or other nested structures.
 
         :rtype: dict[str, str]
 
