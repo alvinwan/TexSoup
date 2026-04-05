@@ -30,6 +30,8 @@ from TexSoup import TexSoup, dumps
 from TexSoup.export import PDF_PREVIEW_SUFFIX
 from benchmarks.arxiv import load_paper_text, normalize_paper_id
 
+PREVIEW_WIDTH = 2400
+
 
 def build_parser():
     """Create the CLI parser."""
@@ -69,10 +71,30 @@ def preview_path(pdf_path):
     return pdf_path.with_name(pdf_path.stem + PDF_PREVIEW_SUFFIX)
 
 
+def preview_width(preview):
+    """Return the pixel width of a generated preview image."""
+    sips = shutil.which('sips')
+    if not sips or not preview.exists():
+        return 0
+
+    result = subprocess.run(
+        [sips, '-g', 'pixelWidth', str(preview)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    for line in result.stdout.splitlines():
+        if 'pixelWidth:' in line:
+            return int(line.split(':', 1)[1].strip())
+    return 0
+
+
 def ensure_pdf_preview(pdf_path):
     """Generate a PNG preview for a PDF figure when possible."""
     preview = preview_path(pdf_path)
-    if preview.exists() and preview.stat().st_mtime >= pdf_path.stat().st_mtime:
+    if (preview.exists()
+            and preview.stat().st_mtime >= pdf_path.stat().st_mtime
+            and preview_width(preview) >= PREVIEW_WIDTH):
         return preview
 
     sips = shutil.which('sips')
@@ -80,7 +102,8 @@ def ensure_pdf_preview(pdf_path):
         return None
 
     subprocess.run(
-        [sips, '-s', 'format', 'png', str(pdf_path), '--out', str(preview)],
+        [sips, '-s', 'format', 'png', '--resampleWidth', str(PREVIEW_WIDTH),
+         str(pdf_path), '--out', str(preview)],
         check=True,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
