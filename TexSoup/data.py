@@ -1240,6 +1240,61 @@ class TexGroup(TexUnNamedEnv):
 
         return parts
 
+    @classmethod
+    def _split_keyval_entries(cls, parts):
+        """Split top-level group contents into comma-delimited entries."""
+        entries = [[]]
+
+        for part in parts:
+            if isinstance(part, TexText):
+                part = str(part)
+
+            if not isinstance(part, str):
+                entries[-1].append(part)
+                continue
+
+            chunks = part.split(',')
+            cls._append_part(entries[-1], chunks[0])
+            for chunk in chunks[1:]:
+                entries.append([])
+                cls._append_part(entries[-1], chunk)
+
+        parsed = []
+        for entry in entries:
+            entry = cls._trim_parts(entry)
+            if entry:
+                parsed.append(entry)
+        return parsed
+
+    @classmethod
+    def _parse_keyval_entry(cls, entry):
+        """Parse a single top-level key=value entry."""
+        key = None
+        key_text = ''
+        value = []
+
+        for part in entry:
+            if key is not None:
+                cls._append_part(value, part)
+                continue
+
+            if not isinstance(part, str):
+                raise ValueError('Unexpected LaTeX content before a key name.')
+
+            before, sep, after = part.partition('=')
+            key_text += before
+            if not sep:
+                continue
+
+            key = key_text.strip()
+            if not key:
+                raise ValueError('Expected a key before "=".')
+            cls._append_part(value, after)
+
+        if key is None:
+            raise ValueError('Expected key=value entry.')
+        return key, cls._trim_parts(value)
+
     @property
     def keyvals(self):
         r"""Parse top-level key=value pairs inside this group.
@@ -1266,64 +1321,12 @@ class TexGroup(TexUnNamedEnv):
         >>> settings['description']
         [BraceGroup('is a French loanword')]
         """
-        entries = []
-        current = []
-
-        for part in self.all:
-            if isinstance(part, TexText):
-                part = str(part)
-
-            if not isinstance(part, str):
-                current.append(part)
-                continue
-
-            chunk = part
-            while True:
-                before, sep, chunk = chunk.partition(',')
-                self._append_part(current, before)
-                if not sep:
-                    break
-                current = self._trim_parts(current)
-                if current:
-                    entries.append(current)
-                current = []
-
-        current = self._trim_parts(current)
-        if current:
-            entries.append(current)
-
         keyvals = {}
-        for entry in entries:
-            key = None
-            key_text = ''
-            value = []
-
-            for part in entry:
-                if key is None:
-                    if not isinstance(part, str):
-                        raise ValueError(
-                            'Unexpected LaTeX content before a key name.')
-
-                    before, sep, after = part.partition('=')
-                    key_text += before
-                    if not sep:
-                        continue
-
-                    key = key_text.strip()
-                    if not key:
-                        raise ValueError('Expected a key before "=".')
-                    if key in keyvals:
-                        raise ValueError('Duplicate key %r.' % key)
-
-                    self._append_part(value, after)
-                    continue
-
-                self._append_part(value, part)
-
-            if key is None:
-                raise ValueError('Expected key=value entry.')
-
-            keyvals[key] = self._trim_parts(value)
+        for entry in self._split_keyval_entries(self.all):
+            key, value = self._parse_keyval_entry(entry)
+            if key in keyvals:
+                raise ValueError('Duplicate key %r.' % key)
+            keyvals[key] = value
 
         return keyvals
 
