@@ -1,5 +1,5 @@
 """
-Parse Key-Value Arguments
+Parse Key-Value Groups Efficiently
 ---
 
 This script parses a TexSoup group containing top-level ``key=value`` entries
