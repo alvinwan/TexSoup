@@ -13,81 +13,6 @@ __all__ = ['TexNode', 'TexCmd', 'TexEnv', 'TexGroup', 'BracketGroup',
            'TexDisplayMathEnv', 'TexNamedEnv', 'TexMathModeEnv',
            'TexDisplayMathModeEnv']
 
-KEYVAL_KEY_RE = re.compile(r'^([\s\S]*?)([A-Za-z][\w-]*)\s*$')
-
-
-def _append_text(target, text):
-    """Append text to a mixed list, merging adjacent strings."""
-    if not text:
-        return
-    if target and isinstance(target[-1], str):
-        target[-1] += text
-    else:
-        target.append(text)
-
-
-def _parse_keyvals(parts):
-    """Parse top-level key=value pairs from a group's contents."""
-    parsed = []
-    pending_text = ''
-    key = None
-    value = []
-
-    def finish_value():
-        nonlocal key, value
-        parsed.append(TexKeyVal(key, value))
-        key = None
-        value = []
-
-    for part in parts:
-        if isinstance(part, TexText):
-            part = str(part)
-
-        if not isinstance(part, str):
-            if key is None:
-                _append_text(parsed, pending_text)
-                pending_text = ''
-                parsed.append(part)
-            else:
-                value.append(part)
-            continue
-
-        chunk = part
-        while chunk:
-            if key is None:
-                if '=' not in chunk:
-                    pending_text += chunk
-                    break
-                before, after = chunk.split('=', 1)
-                candidate = pending_text + before
-                match = KEYVAL_KEY_RE.match(candidate)
-                if match is None:
-                    pending_text = candidate + '='
-                    chunk = after
-                    continue
-                prefix, key = match.groups()
-                _append_text(parsed, prefix)
-                pending_text = ''
-                chunk = after
-            else:
-                if ',' not in chunk:
-                    _append_text(value, chunk)
-                    break
-                before, after = chunk.split(',', 1)
-                _append_text(value, before)
-                finish_value()
-                chunk = after
-
-    if key is None:
-        _append_text(parsed, pending_text)
-    else:
-        suffix = ''
-        if value and isinstance(value[-1], str) and value[-1].isspace():
-            suffix = value.pop()
-        finish_value()
-        _append_text(parsed, suffix + pending_text)
-    return parsed
-
 
 #############
 # Interface #
@@ -1271,6 +1196,8 @@ class TexText(TexExpr, str):
 class TexKeyVal(object):
     """Structured key=value entry parsed from a :class:`TexGroup`."""
 
+    KEY_RE = re.compile(r'^([\s\S]*?)([A-Za-z][\w-]*)\s*$')
+
     def __init__(self, key, value):
         self.key = key
         self.value = list(value)
@@ -1282,6 +1209,81 @@ class TexKeyVal(object):
 
     def __repr__(self):
         return "TexKeyVal(%r, %r)" % (self.key, self.value)
+
+    @staticmethod
+    def _append_text(target, text):
+        """Append text to a mixed list, merging adjacent strings."""
+        if not text:
+            return
+        if target and isinstance(target[-1], str):
+            target[-1] += text
+        else:
+            target.append(text)
+
+    @staticmethod
+    def _pop_trailing_whitespace(value):
+        """Remove trailing whitespace from a value list and return it."""
+        if value and isinstance(value[-1], str) and value[-1].isspace():
+            return value.pop()
+        return ''
+
+    @classmethod
+    def parse_parts(cls, parts):
+        """Parse top-level key=value entries from group contents."""
+        parsed = []
+        pending_text = ''
+        key = None
+        value = []
+
+        def finish_value():
+            nonlocal key, value
+            parsed.append(cls(key, value))
+            key = None
+            value = []
+
+        for part in parts:
+            if isinstance(part, TexText):
+                part = str(part)
+
+            if not isinstance(part, str):
+                if key is None:
+                    cls._append_text(parsed, pending_text)
+                    pending_text = ''
+                    parsed.append(part)
+                else:
+                    value.append(part)
+                continue
+
+            chunk = part
+            while chunk:
+                if key is None:
+                    if '=' not in chunk:
+                        pending_text += chunk
+                        break
+                    before, chunk = chunk.split('=', 1)
+                    match = cls.KEY_RE.match(pending_text + before)
+                    if match is None:
+                        pending_text += before + '='
+                        continue
+                    prefix, key = match.groups()
+                    cls._append_text(parsed, prefix)
+                    pending_text = ''
+                    continue
+
+                if ',' not in chunk:
+                    cls._append_text(value, chunk)
+                    break
+                before, chunk = chunk.split(',', 1)
+                cls._append_text(value, before)
+                finish_value()
+
+        if key is None:
+            cls._append_text(parsed, pending_text)
+        else:
+            suffix = cls._pop_trailing_whitespace(value)
+            finish_value()
+            cls._append_text(parsed, suffix + pending_text)
+        return parsed
 
 
 class TexGroup(TexUnNamedEnv):
@@ -1331,7 +1333,7 @@ class TexGroup(TexUnNamedEnv):
         >>> parts[3]
         TexKeyVal('description', [BraceGroup('is a French loanword')])
         """
-        for part in _parse_keyvals(self.all):
+        for part in TexKeyVal.parse_parts(self.all):
             yield part
 
     @classmethod
