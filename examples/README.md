@@ -11,6 +11,7 @@ See the `examples/` folder for example scripts and usages for TexSoup.
 
 - [Count References](https://github.com/alvinwan/TexSoup/blob/master/examples/count_references.py)
 - [Parse Key-Value Groups Efficiently](https://github.com/alvinwan/TexSoup/blob/master/examples/parse_keyvals.py)
+- [Group Text Blocks](https://github.com/alvinwan/TexSoup/blob/master/examples/text_blocks.py)
 - [Solution Length](https://github.com/alvinwan/TexSoup/blob/master/examples/solution_length.py)
 - [Resolve Imports](https://github.com/alvinwan/TexSoup/blob/master/examples/resolve_imports.py)
 

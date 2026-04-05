@@ -41,46 +41,6 @@ def test_navigation_descendants(chikin):
     assert len(list(chikin.descendants)) == 28
 
 
-def test_text_blocks():
-    """Grouped text blocks should preserve inline formatting context."""
-    soup = TexSoup(r"""
-\begin{document}
-
-\section{Hello \textit{world}.}
-
-\subsection{Watermelon}
-
-(n.) A sacred fruit. Also known as:
-
-\begin{itemize}
-\item red lemon
-\item life
-\end{itemize}
-
-Here is the prevalence of each synonym.
-
-\begin{tabular}{c c}
-red lemon & uncommon \\
-life & common
-\end{tabular}
-
-\end{document}
-    """)
-
-    assert soup.document.text_blocks[:6] == [
-        'Hello world.',
-        'Watermelon',
-        '(n.) A sacred fruit. Also known as:\n\n',
-        ' red lemon\n',
-        ' life\n',
-        '\nHere is the prevalence of each synonym.\n\n',
-    ]
-    assert soup.document.text_blocks[6] == (
-        'c c\nred lemon & uncommon \\\\\nlife & common\n')
-    assert soup.section.text_blocks == ['Hello world.']
-    assert soup.itemize.text_blocks == [' red lemon\n', ' life\n']
-
-
 def test_navigation_positions(chikin):
     assert chikin.char_pos_to_line(0) == (0, 0), '\\'
     assert chikin.char_pos_to_line(1) == (0, 1), 'documentclass'
