@@ -110,105 +110,15 @@ def test_dumps_xml():
     assert '<cmd name="section"' in exported
 
 
-def test_dumps_html():
-    soup = TexSoup(r'\section{Hello}')
-    exported = dumps(soup, format='html')
-    assert exported.startswith('<!DOCTYPE html>')
-    assert 'class="tex-paper"' in exported
-    assert '<h2>Hello</h2>' in exported
-
-
-def test_dumps_html_renders_links_and_hidden_labels():
-    soup = TexSoup(
-        r'\section{Intro}\label{sec:intro}See \hyperref[sec:intro]{Introduction} '
-        r'and \hyperlink{https://example.com}{\color{blue}{Example}}. '
-        r'Hello\footnotesize\vspace{1em}World'
-        r'\begin{equation}\label{eq:test}a=b\end{equation}'
-        r'{\em Note}. {\textsc Small Caps}.'
-        r'See Eq.~\eqref{eq:test}.'
-    )
-    exported = dumps(soup, format='html')
-    assert 'id="label-sec-intro"' in exported
-    assert 'href="#label-sec-intro">Introduction</a>' in exported
-    assert 'href="https://example.com"><span style="color: blue">Example</span></a>' in exported
-    assert 'id="label-eq-test"' in exported
-    assert 'href="#label-eq-test">(1)</a>' in exported
-    assert '<span class="tex-equation-number">(1)</span>' in exported
-    assert '<em>Note</em>' in exported
-    assert '<span class="tex-smallcaps">Small Caps</span>' in exported
-    assert r'\label{sec:intro}' not in exported
-    assert r'\vspace{1em}' not in exported
-    assert r'\footnotesize' not in exported
-
-
-def test_dumps_html_renders_tables_and_bibliography_links():
-    soup = TexSoup(
-        r'\begin{table}\footnotesize\caption{Cap}'
-        r'\begin{tabular*}{\linewidth}{l @{\extracolsep{\fill}} ll}'
-        r'\toprule A & B & C \\ \cmidrule{2-3} 1 & 2 & 3 \\'
-        '\n%Old & Hidden & Row\n'
-        r'\end{tabular*}\end{table}'
-        r'\begin{figure}\caption{Fig cap}\end{figure}'
-        r'{\small\bibliographystyle{plain}\begin{thebibliography}{9}'
-        r'\bibitem{foo} First.\newblock {\em Journal}.'
-        r'\bibitem{bar} Second.\end{thebibliography}}'
-        r'See \cite{foo,bar}.'
-    )
-    exported = dumps(soup, format='html')
-    assert '<table class="tex-table">' in exported
-    assert '<th>A</th>' in exported
-    assert '<td>1</td>' in exported
-    assert 'Hidden' not in exported
-    assert 'extracolsep' not in exported
-    assert 'footnotesize' not in exported
-    assert 'bibliographystyle' not in exported
-    assert '<strong>Table 1.</strong> Cap' in exported
-    assert '<strong>Figure 1.</strong> Fig cap' in exported
-    assert 'id="bib-foo"' in exported
-    assert 'href="#bib-foo">1</a>' in exported
-    assert 'href="#bib-bar">2</a>' in exported
-    assert 'First.' in exported and '<em>Journal</em>' in exported
-    assert 'id="cite-foo-1"' in exported
-    assert 'id="cite-bar-1"' in exported
-    assert 'href="#cite-foo-1">[1]</a>' in exported
-    assert 'href="#cite-bar-1">[1]</a>' in exported
-
-
-def test_dumps_html_resolves_figure_assets(tmp_path):
-    asset_dir = tmp_path / 'figures'
-    asset_dir.mkdir()
-    png_path = asset_dir / 'plot.png'
-    pdf_path = asset_dir / 'paper.pdf'
-    preview_path = asset_dir / 'paper.texsoup-preview.png'
-    png_path.write_bytes(b'not-a-real-png')
-    pdf_path.write_bytes(b'%PDF-1.4\n%fake\n')
-    preview_path.write_bytes(b'fake-png-preview')
-
-    soup = TexSoup(
-        r'\includegraphics{figures/plot.png}'
-        r'\includegraphics{figures/paper.pdf}'
-    )
-    exported = dumps(soup, format='html', asset_root=tmp_path)
-
-    assert png_path.resolve().as_uri() in exported
-    assert preview_path.resolve().as_uri() in exported
-    assert pdf_path.resolve().as_uri() not in exported
-    assert '<img class="tex-graphic"' in exported
-    assert 'class="tex-pdf-figure"' not in exported
-    assert 'Open figure asset' not in exported
-
-
-def test_dumps_html_includes_mathjax_fallback_macros():
-    soup = TexSoup(r'$\mathbbm{1}$ and $\textsc{Pad}(x)$')
-    exported = dumps(soup, format='html')
-    assert r'"mathbbm": ["\\mathbb{#1}", 1]' in exported
-    assert r'"textsc": ["\\text{#1}", 1]' in exported
-
-
 def test_dump_writes_to_file_like_object():
     buffer = StringIO()
     dump(TexSoup(r'\section{Hello}'), buffer, format='xml')
     assert buffer.getvalue().startswith('<?xml version="1.0" encoding="utf-8"?>')
+
+
+def test_dumps_html_is_not_supported():
+    with pytest.raises(ValueError):
+        dumps(TexSoup(r'\section{Hello}'), format='html')
 
 
 def test_dumps_invalid_format():

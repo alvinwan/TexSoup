@@ -26,8 +26,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from TexSoup import TexSoup, dumps
-from TexSoup.export import PDF_PREVIEW_SUFFIX
+from TexSoup import TexSoup
+from _paper_html import PDF_PREVIEW_SUFFIX, render_paper_html
 from benchmarks.arxiv import load_paper_text, normalize_paper_id
 
 PREVIEW_WIDTH = 2400
@@ -125,7 +125,7 @@ def main():
     output_path = args.output or default_output_path(paper)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(
-        dumps(TexSoup(paper['text']), format='html', asset_root=paper['root']))
+        render_paper_html(TexSoup(paper['text']), asset_root=paper['root']))
     print(output_path)
 
 
