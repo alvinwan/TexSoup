@@ -81,14 +81,18 @@ def test_group_keyvals():
 
     settings = soup.newglossaryentry.args[1].keyvals
     assert list(settings) == ['name', 'description']
-    assert [str(value) for value in settings['name']] == [r'na\"', r'{\i}', 've']
-    assert str(settings['description'][0]) == '{is a French loanword}'
+    assert repr(settings['name']) == r"""['na', '\\"', BraceGroup(TexCmd('i')), 've']"""
+    assert str(settings['name']) == r'na\"{\i}ve'
+    assert repr(settings['description']) == "[BraceGroup('is a French loanword')]"
+    assert str(settings['description']) == '{is a French loanword}'
 
     soup = TexSoup(r'\includegraphics[width=0.8\textwidth, height=5cm]{image}')
     settings = soup.includegraphics.args[0].keyvals
     assert list(settings) == ['width', 'height']
-    assert [str(value) for value in settings['width']] == ['0.8', r'\textwidth']
-    assert settings['height'] == ['5cm']
+    assert repr(settings['width']) == "['0.8', TexCmd('textwidth')]"
+    assert str(settings['width']) == r'0.8\textwidth'
+    assert repr(settings['height']) == "['5cm']"
+    assert str(settings['height']) == '5cm'
 
     with pytest.raises(ValueError):
         TexSoup(r'\textit{not a key-value block}').textit.args[0].keyvals

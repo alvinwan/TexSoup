@@ -1208,85 +1208,6 @@ class TexGroup(TexUnNamedEnv):
         return '%s(%s)' % (self.__class__.__name__,
                            ', '.join(map(repr, self._contents)))
 
-    @staticmethod
-    def _append_part(target, part):
-        """Append a value part, merging adjacent strings."""
-        if not isinstance(part, str):
-            target.append(part)
-            return
-        if not part:
-            return
-        if target and isinstance(target[-1], str):
-            target[-1] += part
-            return
-        target.append(part)
-
-    @staticmethod
-    def _trim_parts(parts):
-        """Strip surrounding whitespace-only string fragments in-place."""
-        while parts and isinstance(parts[0], str):
-            parts[0] = parts[0].lstrip()
-            if parts[0]:
-                break
-            parts.pop(0)
-
-        while parts and isinstance(parts[-1], str):
-            parts[-1] = parts[-1].rstrip()
-            if parts[-1]:
-                break
-            parts.pop()
-
-        return parts
-
-    @classmethod
-    def _split_keyval_entries(cls, parts):
-        """Split top-level group contents into comma-delimited entries."""
-        entries = [[]]
-
-        for part in parts:
-            if isinstance(part, TexText):
-                part = str(part)
-
-            if not isinstance(part, str):
-                entries[-1].append(part)
-                continue
-
-            for index, chunk in enumerate(part.split(',')):
-                if index:
-                    entries.append([])
-                cls._append_part(entries[-1], chunk)
-
-        return [entry for entry in map(cls._trim_parts, entries) if entry]
-
-    @classmethod
-    def _parse_keyval_entry(cls, entry):
-        """Parse a single top-level key=value entry."""
-        key = None
-        key_text = ''
-        value = []
-
-        for part in entry:
-            if key is not None:
-                cls._append_part(value, part)
-                continue
-
-            if not isinstance(part, str):
-                raise ValueError('Unexpected LaTeX content before a key name.')
-
-            before, sep, after = part.partition('=')
-            key_text += before
-            if not sep:
-                continue
-
-            key = key_text.strip()
-            if not key:
-                raise ValueError('Expected a key before "=".')
-            cls._append_part(value, after)
-
-        if key is None:
-            raise ValueError('Expected key=value entry.')
-        return key, cls._trim_parts(value)
-
     @property
     def keyvals(self):
         r"""Parse top-level key=value pairs inside this group.
@@ -1309,17 +1230,19 @@ class TexGroup(TexUnNamedEnv):
         >>> list(settings)
         ['name', 'description']
         >>> settings['name']
-        ['na\\"', BraceGroup(TexCmd('i')), 've']
+        ['na', '\\"', BraceGroup(TexCmd('i')), 've']
         >>> settings['description']
         [BraceGroup('is a French loanword')]
         """
+        # TODO: This is hacky convenience utility that extracts keys and values
+        # BUT it just naively splits on commas and equals signs, so it will fail
+        # if there are nested braces or other complex structures.
+        
+        from TexSoup.tex import read
         keyvals = {}
-        for entry in self._split_keyval_entries(self.all):
-            key, value = self._parse_keyval_entry(entry)
-            if key in keyvals:
-                raise ValueError('Duplicate key %r.' % key)
-            keyvals[key] = value
-
+        for entry in str(self)[1:-1].split(','):
+            key, value = entry.strip().split('=')
+            keyvals[key] = read(value)[0]
         return keyvals
 
     @classmethod
