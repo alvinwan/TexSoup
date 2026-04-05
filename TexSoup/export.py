@@ -423,6 +423,10 @@ def _to_html_string(expr, asset_root=None):
       border-radius: 18px;
       background: linear-gradient(180deg, rgba(250, 245, 238, 0.96), rgba(255, 252, 246, 0.96));
     }}
+    .tex-figure {{
+      background: #fff;
+      box-shadow: inset 0 0 0 1px rgba(218, 200, 175, 0.55);
+    }}
     .tex-math-block {{
       overflow-x: auto;
       position: relative;
@@ -458,12 +462,6 @@ def _to_html_string(expr, asset_root=None):
       background: rgba(255, 255, 255, 0.55);
       color: var(--muted);
       text-align: center;
-    }}
-    .tex-figure-media {{
-      padding: 0.85rem;
-      border-radius: 14px;
-      background: #fff;
-      box-shadow: inset 0 0 0 1px rgba(218, 200, 175, 0.55);
     }}
     .tex-graphic {{
       display: block;
@@ -1282,30 +1280,21 @@ def _render_includegraphics(cmd, context):
     asset_url = asset_path.as_uri() if asset_path else target
     lower_target = asset_url.lower()
     if lower_target.endswith(INLINE_ASSET_EXTENSIONS):
-        return (
-            '<figure class="tex-figure">'
-            '<div class="tex-figure-media">'
-            '<img class="tex-graphic" src="{target}" alt="{alt}" />'
-            '</div>'
-            '</figure>'
-        ).format(target=escape(asset_url), alt=escape(target))
+        return '<figure class="tex-figure"><img class="tex-graphic" src="{target}" alt="{alt}" /></figure>'.format(
+            target=escape(asset_url), alt=escape(target))
     if lower_target.endswith('.pdf'):
         return (
             '<figure class="tex-figure">'
-            '<div class="tex-figure-media">'
             '<object class="tex-pdf-figure" data="{target}" type="application/pdf">'
             '<code class="tex-source">{label}</code>'
             '</object>'
-            '</div>'
             '</figure>'
         ).format(target=escape(asset_url), label=escape(target))
     return (
         '<figure class="tex-figure">'
-        '<div class="tex-figure-media">'
         '<div class="tex-graphic-placeholder">'
         '<strong>Figure asset</strong>'
         '<code class="tex-source">{target}</code>'
-        '</div>'
         '</div>'
         '</figure>'
     ).format(target=escape(asset_url))

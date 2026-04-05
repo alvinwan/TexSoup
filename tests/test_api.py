@@ -193,7 +193,6 @@ def test_dumps_html_resolves_figure_assets(tmp_path):
     assert png_path.resolve().as_uri() in exported
     assert preview_path.resolve().as_uri() in exported
     assert pdf_path.resolve().as_uri() not in exported
-    assert 'class="tex-figure-media"' in exported
     assert '<img class="tex-graphic"' in exported
     assert 'class="tex-pdf-figure"' not in exported
     assert 'Open figure asset' not in exported
