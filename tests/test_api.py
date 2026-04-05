@@ -114,7 +114,8 @@ def test_dumps_html():
     soup = TexSoup(r'\section{Hello}')
     exported = dumps(soup, format='html')
     assert exported.startswith('<!DOCTYPE html>')
-    assert 'class="tex-cmd"' in exported
+    assert 'class="tex-paper"' in exported
+    assert '<h2>Hello</h2>' in exported
 
 
 def test_dump_writes_to_file_like_object():
