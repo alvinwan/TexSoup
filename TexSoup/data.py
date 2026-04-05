@@ -1211,13 +1211,13 @@ class TexGroup(TexUnNamedEnv):
     @staticmethod
     def _append_part(target, part):
         """Append a value part, merging adjacent strings."""
-        if isinstance(part, str):
-            if not part:
-                return
-            if target and isinstance(target[-1], str):
-                target[-1] += part
-            else:
-                target.append(part)
+        if not isinstance(part, str):
+            target.append(part)
+            return
+        if not part:
+            return
+        if target and isinstance(target[-1], str):
+            target[-1] += part
             return
         target.append(part)
 
@@ -1225,16 +1225,14 @@ class TexGroup(TexUnNamedEnv):
     def _trim_parts(parts):
         """Strip surrounding whitespace-only string fragments in-place."""
         while parts and isinstance(parts[0], str):
-            stripped = parts[0].lstrip()
-            if stripped:
-                parts[0] = stripped
+            parts[0] = parts[0].lstrip()
+            if parts[0]:
                 break
             parts.pop(0)
 
         while parts and isinstance(parts[-1], str):
-            stripped = parts[-1].rstrip()
-            if stripped:
-                parts[-1] = stripped
+            parts[-1] = parts[-1].rstrip()
+            if parts[-1]:
                 break
             parts.pop()
 
@@ -1253,18 +1251,12 @@ class TexGroup(TexUnNamedEnv):
                 entries[-1].append(part)
                 continue
 
-            chunks = part.split(',')
-            cls._append_part(entries[-1], chunks[0])
-            for chunk in chunks[1:]:
-                entries.append([])
+            for index, chunk in enumerate(part.split(',')):
+                if index:
+                    entries.append([])
                 cls._append_part(entries[-1], chunk)
 
-        parsed = []
-        for entry in entries:
-            entry = cls._trim_parts(entry)
-            if entry:
-                parsed.append(entry)
-        return parsed
+        return [entry for entry in map(cls._trim_parts, entries) if entry]
 
     @classmethod
     def _parse_keyval_entry(cls, entry):
