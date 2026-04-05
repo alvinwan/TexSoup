@@ -1213,10 +1213,9 @@ class TexGroup(TexUnNamedEnv):
         r"""Parse top-level key=value pairs inside this group.
 
         This is an opt-in view over the existing parsed contents. Separator
-        whitespace is discarded, and each value preserves TexSoup's existing
-        structure as a list of strings and nested TexSoup objects.
+        whitespace and nested TexSoup objects are both discarded.
 
-        :rtype: dict
+        :rtype: dict[str, str]
 
         >>> from TexSoup import TexSoup
         >>> soup = TexSoup(r'''
@@ -1230,18 +1229,14 @@ class TexGroup(TexUnNamedEnv):
         >>> list(settings)
         ['name', 'description']
         >>> settings['name']
-        ['na', '\\"', BraceGroup(TexCmd('i')), 've']
+        'na\\"{\\i}ve'
         >>> settings['description']
-        [BraceGroup('is a French loanword')]
+        '{is a French loanword}'
         """
-        # TODO: This is hacky implementation that naively splits on commas.
-        # It will fail if there are nested braces or complex structures.
-        
-        from TexSoup.tex import read
         keyvals = {}
         for entry in str(self)[1:-1].split(','):
             key, value = entry.strip().split('=', 1)
-            keyvals[key] = read(value)[0]
+            keyvals[key] = value
         return keyvals
 
     @classmethod
