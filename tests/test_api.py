@@ -121,26 +121,38 @@ def test_dumps_html():
 def test_dumps_html_renders_links_and_hidden_labels():
     soup = TexSoup(
         r'\section{Intro}\label{sec:intro}See \hyperref[sec:intro]{Introduction} '
-        r'and \href{https://example.com}{Example}. Hello\vspace{1em}World'
+        r'and \hyperlink{https://example.com}{\color{blue}{Example}}. '
+        r'Hello\footnotesize\vspace{1em}World'
+        r'\begin{equation}\label{eq:test}a=b\end{equation}'
+        r'See Eq.~\eqref{eq:test}.'
     )
     exported = dumps(soup, format='html')
     assert 'id="label-sec-intro"' in exported
     assert 'href="#label-sec-intro">Introduction</a>' in exported
-    assert 'href="https://example.com">Example</a>' in exported
+    assert 'href="https://example.com"><span style="color: blue">Example</span></a>' in exported
+    assert 'id="label-eq-test"' in exported
+    assert 'href="#label-eq-test">(eq:test)</a>' in exported
     assert r'\label{sec:intro}' not in exported
     assert r'\vspace{1em}' not in exported
+    assert r'\footnotesize' not in exported
 
 
 def test_dumps_html_renders_tables_and_bibliography_links():
     soup = TexSoup(
-        r'\begin{table}\caption{Cap}\begin{tabular}{c c}A & B \\ 1 & 2\end{tabular}\end{table}'
-        r'\begin{thebibliography}{9}\bibitem{foo} First.\bibitem{bar} Second.\end{thebibliography}'
+        r'\begin{table}\footnotesize\caption{Cap}'
+        r'\begin{tabular*}{\linewidth}{l @{\extracolsep{\fill}} ll}'
+        r'\toprule A & B & C \\ \cmidrule{2-3} 1 & 2 & 3\end{tabular*}\end{table}'
+        r'{\small\bibliographystyle{plain}\begin{thebibliography}{9}'
+        r'\bibitem{foo} First.\bibitem{bar} Second.\end{thebibliography}}'
         r'See \cite{foo,bar}.'
     )
     exported = dumps(soup, format='html')
     assert '<table class="tex-table">' in exported
     assert '<th>A</th>' in exported
     assert '<td>1</td>' in exported
+    assert 'extracolsep' not in exported
+    assert 'footnotesize' not in exported
+    assert 'bibliographystyle' not in exported
     assert 'id="bib-foo"' in exported
     assert 'href="#bib-foo">1</a>' in exported
     assert 'href="#bib-bar">2</a>' in exported

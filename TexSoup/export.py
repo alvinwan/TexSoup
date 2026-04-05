@@ -19,6 +19,7 @@ SECTION_LEVELS = {
     'subparagraph': 6,
 }
 INLINE_COMMANDS = {
+    'em': 'em',
     'emph': 'em',
     'textbf': 'strong',
     'textit': 'em',
@@ -35,7 +36,12 @@ TRANSPARENT_COMMANDS = {
     'textnormal',
     'textrm',
 }
-TRANSPARENT_ZERO_ARG_COMMANDS = {'centering', 'small', 'tt'}
+TRANSPARENT_ZERO_ARG_COMMANDS = {
+    'centering',
+    'footnotesize',
+    'small',
+    'tt',
+}
 REFERENCE_COMMANDS = {
     'autoref',
     'cite',
@@ -69,9 +75,11 @@ RAW_BLOCK_ENVS = {
 SKIPPED_BODY_COMMANDS = {'author', 'date', 'maketitle', 'title'}
 INVISIBLE_COMMANDS = {
     'bigskip',
+    'bibliographystyle',
     'label',
     'medskip',
     'newpage',
+    'newblock',
     'noindent',
     'pagebreak',
     'smallskip',
@@ -618,6 +626,8 @@ def _collect_render_context(nodes):
                             bibliography_index += 1
             if isinstance(node, TexNamedEnv):
                 visit(_body_contents(node))
+            elif isinstance(node, TexGroup):
+                visit(list(node.contents))
             elif isinstance(node, TexCmd) and getattr(node, '_contents', None):
                 visit(node._contents)
 
@@ -645,11 +655,81 @@ def _link_target(label, context):
     return '#%s' % _anchor_id('label', label)
 
 
+def _resolve_href(target, context):
+    """Resolve an internal label or preserve an external URL target."""
+    if re.match(r'^(?:https?|mailto):', target):
+        return target
+    if target.startswith('#'):
+        return target
+    return _link_target(target, context)
+
+
 def _reference_text(command_name, target):
     """Return fallback display text for a reference command."""
     if command_name == 'eqref':
         return '(%s)' % target
     return target
+
+
+def _first_label(node):
+    """Return the first top-level label attached to a parsed node."""
+    for child in _body_contents(node):
+        if isinstance(child, TexCmd) and child.name == 'label' and child.args:
+            return str(child.args[0].string)
+    return None
+
+
+def _strip_math_labels(source):
+    """Remove label commands from rendered display math source."""
+    return re.sub(r'\\label\{[^{}]+\}', '', source)
+
+
+def _color_to_css(model, value):
+    """Convert a LaTeX color declaration to a CSS color string."""
+    value = value.strip()
+    if not model:
+        return value
+
+    model = model.strip().lower()
+    if model == 'html':
+        return '#%s' % value.lstrip('#')
+
+    components = [part.strip() for part in value.split(',') if part.strip()]
+    if model in ('rgb', 'rgb*') and len(components) == 3:
+        floats = [float(component) for component in components]
+        if all(component <= 1 for component in floats):
+            floats = [round(component * 255) for component in floats]
+        return 'rgb({})'.format(', '.join(str(int(component)) for component in floats))
+    if model == 'gray' and len(components) == 1:
+        component = float(components[0])
+        if component <= 1:
+            component *= 255
+        component = int(round(component))
+        return 'rgb({0}, {0}, {0})'.format(component)
+    return value
+
+
+def _render_color_command(node, context):
+    """Render \\color or \\textcolor as a styled inline span."""
+    if not node.args:
+        return ''
+
+    model = None
+    value_index = 0
+    body_index = 1
+    if str(node.args[0]).startswith('['):
+        model = node.args[0].string
+        value_index = 1
+        body_index = 2
+    if len(node.args) <= body_index:
+        return ''
+
+    css = _color_to_css(model, node.args[value_index].string)
+    body = _render_inline_nodes(list(node.args[body_index].contents), context)
+    if not body:
+        body = escape(str(node.args[body_index].string))
+    return '<span style="color: {color}">{body}</span>'.format(
+        color=escape(css), body=body)
 
 
 def _render_citation(node, context):
@@ -758,6 +838,8 @@ def _render_inline_node(node, context):
         return _render_inline_nodes(list(node.args[0].contents), context)
     if node.name in TRANSPARENT_ZERO_ARG_COMMANDS:
         return ''
+    if node.name in ('color', 'textcolor'):
+        return _render_color_command(node, context)
     if node.name == 'url' and node.args:
         href = escape(str(node.args[-1].string))
         return '<a class="tex-link" href="{href}">{href}</a>'.format(href=href)
@@ -766,11 +848,11 @@ def _render_inline_node(node, context):
         label = _render_inline_nodes(list(node.args[1].contents), context)
         return '<a class="tex-link" href="{href}">{label}</a>'.format(href=href, label=label)
     if node.name == 'hyperref' and len(node.args) >= 2:
-        href = escape(_link_target(str(node.args[0].string), context))
+        href = escape(_resolve_href(str(node.args[0].string), context))
         label = _render_inline_nodes(list(node.args[1].contents), context)
         return '<a class="tex-link" href="{href}">{label}</a>'.format(href=href, label=label)
     if node.name == 'hyperlink' and len(node.args) >= 2:
-        href = escape(_link_target(str(node.args[0].string), context))
+        href = escape(_resolve_href(str(node.args[0].string), context))
         label = _render_inline_nodes(list(node.args[1].contents), context)
         return '<a class="tex-link" href="{href}">{label}</a>'.format(href=href, label=label)
     if node.name == 'hypertarget' and len(node.args) >= 2:
@@ -791,6 +873,10 @@ def _render_inline_node(node, context):
     if node.name == 'footnote' and node.args:
         return '<span class="tex-footnote">({})</span>'.format(
             _render_inline_nodes(list(node.args[0].contents), context))
+    if node.name == 'checkmark':
+        return '&#10003;'
+    if node.name == 'multicolumn' and node.args:
+        return _render_inline_nodes(list(node.args[-1].contents), context)
     if node.name in ('\\', 'newline'):
         return '<br />'
     return '<span class="tex-inline-raw">{}</span>'.format(escape(str(node)))
@@ -798,6 +884,8 @@ def _render_inline_node(node, context):
 
 def _render_block_node(node, context):
     """Render a single node as block HTML."""
+    if isinstance(node, TexGroup):
+        return _render_blocks(list(node.contents), context)
     if isinstance(node, (TexDisplayMathEnv, TexDisplayMathModeEnv)):
         return _render_math_block(str(node))
     if isinstance(node, TexNamedEnv):
@@ -814,7 +902,9 @@ def _render_block_node(node, context):
         if node.name in ('table', 'table*'):
             return _render_figure(node, class_name='tex-table-block', context=context)
         if node.name in DISPLAY_MATH_ENVS:
-            return _render_math_block(str(node))
+            label = _first_label(node)
+            anchor_id = context['labels'].get(label) if label else None
+            return _render_math_block(_strip_math_labels(str(node)), anchor_id=anchor_id)
         if node.name in TABULAR_ENVS:
             return _render_tabular(node, context)
         if node.name in RAW_BLOCK_ENVS:
@@ -933,13 +1023,18 @@ def _render_bibliography(env, context):
 
 def _render_tabular(env, context):
     """Render a basic tabular environment as an HTML table."""
-    text = ''.join(map(str, _body_contents(env)))
+    body_contents = list(_body_contents(env))
+    if body_contents and str(body_contents[0]).strip().startswith('{'):
+        body_contents = body_contents[1:]
+    text = ''.join(map(str, body_contents))
     rows = []
     for raw_row in re.split(r'\\\\|\\tabularnewline', text):
         row = raw_row.strip()
-        if not row or row in (r'\hline', r'\toprule', r'\midrule', r'\bottomrule', r'\cmidrule'):
+        if not row:
             continue
-        row = re.sub(r'\\(toprule|midrule|bottomrule|hline)\b', '', row).strip()
+        row = re.sub(r'\\(toprule|midrule|bottomrule|hline)\b', '', row)
+        row = re.sub(r'\\(c|x)?midrule(?:\[[^\]]*\])?\{[^{}]*\}', '', row)
+        row = re.sub(r'\\cline\{[^{}]*\}', '', row).strip()
         if not row:
             continue
         cells = [cell.strip() for cell in row.split('&')]
@@ -986,9 +1081,15 @@ def _render_includegraphics(cmd):
     ).format(target=escape(target))
 
 
-def _render_math_block(source):
+def _render_math_block(source, anchor_id=None):
     """Render display math using MathJax delimiters."""
-    return '<div class="tex-math-block">{}</div>'.format(escape(source))
+    attrs = ' class="tex-math-block"'
+    if anchor_id:
+        attrs += ' id="%s"' % escape(anchor_id)
+    return '<div{attrs}>{source}</div>'.format(
+        attrs=attrs,
+        source=escape(source),
+    )
 
 
 def _render_raw_block(node, class_name):
@@ -1013,7 +1114,7 @@ def _is_block_node(node):
     if isinstance(node, TexText):
         return False
     if isinstance(node, TexGroup):
-        return False
+        return any(_is_block_node(child) for child in node.contents)
     if isinstance(node, (TexMathEnv, TexMathModeEnv)):
         return False
     if isinstance(node, (TexDisplayMathEnv, TexDisplayMathModeEnv, TexNamedEnv)):
