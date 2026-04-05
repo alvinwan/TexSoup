@@ -1241,7 +1241,7 @@ class TexGroup(TexUnNamedEnv):
         from TexSoup.tex import read
         keyvals = {}
         for entry in str(self)[1:-1].split(','):
-            key, value = entry.strip().split('=')
+            key, value = entry.strip().split('=', 1)
             keyvals[key] = read(value)[0]
         return keyvals
 
