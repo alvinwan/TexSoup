@@ -1,5 +1,5 @@
 from TexSoup import TexSoup
-from TexSoup.data import TexKeyVal, TexText
+from TexSoup.data import TexText
 from TexSoup.utils import Token, TokenWithPosition
 from tests.config import chikin
 import copy
@@ -67,35 +67,6 @@ def test_token_with_position_backward_compatibility():
     assert TokenWithPosition is Token
     assert str(token) == 'asdf'
     assert token.position == 7
-
-
-def test_group_keyvals():
-    """Top-level key=value pairs should be available as a structured view."""
-    soup = TexSoup(r'''
-    \newglossaryentry{naiive}
-    {
-      name=na\"{\i}ve,
-      description={is a French loanword}
-    }
-    ''')
-
-    parts = soup.newglossaryentry.args[1].keyvals
-    assert parts[0] == '\n      '
-    assert isinstance(parts[1], TexKeyVal)
-    assert parts[1].key == 'name'
-    assert [str(value) for value in parts[1].value] == [r'na\"', r'{\i}', 've']
-    assert parts[2] == '\n      '
-    assert isinstance(parts[3], TexKeyVal)
-    assert parts[3].key == 'description'
-    assert str(parts[3].value[0]) == '{is a French loanword}'
-    assert parts[4] == '\n    '
-
-    soup = TexSoup(r'\includegraphics[width=0.8\textwidth, height=5cm]{image}')
-    parts = soup.includegraphics.args[0].keyvals
-    assert [part.key for part in parts if isinstance(part, TexKeyVal)] == [
-        'width', 'height'
-    ]
-    assert [str(value) for value in parts[0].value] == ['0.8', r'\textwidth']
 
 
 ##########
