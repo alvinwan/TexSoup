@@ -10,6 +10,8 @@ computer algebra systems (coming soon).
 See the `examples/` folder for example scripts and usages for TexSoup.
 
 - [Count References](https://github.com/alvinwan/TexSoup/blob/master/examples/count_references.py)
+- [Export to JSON and XML](https://github.com/alvinwan/TexSoup/blob/master/examples/simple_conversion.py)
+- [Render an arXiv Paper as Rich HTML](https://github.com/alvinwan/TexSoup/blob/master/examples/render_arxiv_paper.py)
 - [Parse Key-Value Groups Efficiently](https://github.com/alvinwan/TexSoup/blob/master/examples/parse_keyvals.py)
 - [Group Text Blocks](https://github.com/alvinwan/TexSoup/blob/master/examples/text_blocks.py)
 - [Solution Length](https://github.com/alvinwan/TexSoup/blob/master/examples/solution_length.py)

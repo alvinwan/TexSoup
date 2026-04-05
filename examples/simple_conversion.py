@@ -1,72 +1,28 @@
 """
-Simple Conversion
+Export to JSON and XML
 ---
-This script converts a given LaTeX document to a json file and checks the conversion.
+
+This script uses TexSoup's built-in export helpers to serialize a LaTeX
+document as JSON or XML.
+
+For the richer paper-style HTML renderer, see `examples/render_arxiv_paper.py`.
+
 To use it, run
 
     python simple_conversion.py
 
 after installing TexSoup.
-
-@author: Simon Maenaut
-@e-mail: simon@ulyssis.org
 """
-import TexSoup
-import json
+
+from pathlib import Path
+
+from TexSoup import TexSoup, dumps
 
 
-def to_dictionary(tex_tree):
-    str_tree = []
-    for i in tex_tree:
-        if isinstance(i, list):
-            str_tree.append(i)
-        elif isinstance(i, TexSoup.TexEnv):
-            str_tree.append(
-                {
-                    i.name: [
-                        {"begin": i.begin + str(i.args)},
-                        to_dictionary(i.all),
-                        {"end": i.end},
-                    ]
-                }
-            )
-        elif isinstance(i, TexSoup.TexCmd):
-            str_tree.append({i.name: "\\" + i.name + str(i.args)})
-        elif isinstance(i, TexSoup.TexText):
-            str_tree.append(str(i.text))
-        elif isinstance(i, TexSoup.TexGroup):
-            str_tree.append(["{", to_dictionary(TexSoup.TexSoup(i.value).expr.all), "}"])
-        else:
-            str_tree.append(str(i))
-
-    return str_tree
-
-
-def to_latex(tex_json):
-    if isinstance(tex_json, dict):
-        tex_code = "".join([to_latex(val) for val in tex_json.values()])
-    elif isinstance(tex_json, list):
-        tex_code = "".join([to_latex(val) for val in tex_json])
-    else:
-        tex_code = tex_json
-
-    return tex_code
-
-
-# Run programme as main file.
-# This should always print True as output.
 if __name__ == '__main__':
+    tex_path = Path(input('LaTeX file:').strip())
+    export_format = input('Export format (json/xml): ').strip().lower()
 
-    import os
-
-    tex_path = input('LaTex file:').strip()
-    tex_text = open(tex_path).read()
-    tex_dict = {"latex": {"contents": to_dictionary(TexSoup.TexSoup(tex_text).expr.all)}}
-
-    new_path = ".".join(tex_path.split(".")[:-1]) + "__tmp.json"
-    json.dump(tex_dict, open(new_path, "x"), indent="  ")
-    new_json = json.load(open(new_path))
-    os.remove(new_path)
-    new_text = to_latex(new_json)
-
-    print(tex_text == new_text, "\n\n\n", json.dumps(new_json, indent="  "))
+    output_path = tex_path.with_name(tex_path.stem + '__tmp.' + export_format)
+    output_path.write_text(dumps(TexSoup(tex_path.read_text()), format=export_format))
+    print(output_path.read_text())

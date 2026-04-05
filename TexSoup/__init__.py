@@ -6,6 +6,7 @@ tree with navigation, search, and modification utilities.
 
 from TexSoup.tex import read
 from TexSoup.data import TexNode
+from TexSoup.export import dump, dumps
 
 __version__ = '0.3.2'
 
