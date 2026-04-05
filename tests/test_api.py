@@ -69,6 +69,31 @@ def test_token_with_position_backward_compatibility():
     assert token.position == 7
 
 
+def test_group_keyvals():
+    """Top-level key=value pairs should be available as a dictionary view."""
+    soup = TexSoup(r'''
+    \newglossaryentry{naiive}
+    {
+      name=na\"{\i}ve,
+      description={is a French loanword}
+    }
+    ''')
+
+    settings = soup.newglossaryentry.args[1].keyvals
+    assert list(settings) == ['name', 'description']
+    assert settings['name'] == r'na\"{\i}ve'
+    assert settings['description'] == '{is a French loanword}'
+
+    soup = TexSoup(r'\includegraphics[width=0.8\textwidth, height=5cm]{image}')
+    settings = soup.includegraphics.args[0].keyvals
+    assert list(settings) == ['width', 'height']
+    assert settings['width'] == r'0.8\textwidth'
+    assert settings['height'] == '5cm'
+
+    with pytest.raises(ValueError):
+        TexSoup(r'\textit{not a key-value block}').textit.args[0].keyvals
+
+
 ##########
 # SEARCH #
 ##########

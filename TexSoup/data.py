@@ -1213,6 +1213,41 @@ class TexGroup(TexUnNamedEnv):
         return '%s(%s)' % (self.__class__.__name__,
                            ', '.join(map(repr, self._contents)))
 
+    @property
+    def keyvals(self):
+        r"""Parse top-level key=value pairs inside this group.
+
+        This is an opt-in convenience view over the existing parsed contents.
+        Separator whitespace and nested TexSoup objects are both discarded. For
+        a fuller example that preserves both, see ``examples/parse_keyvals.py``.
+        This implementation is intentionally brittle: it naively splits on
+        top-level commas and equals signs in the stringified group, so it does
+        not correctly handle braces or other nested structures.
+
+        :rtype: dict[str, str]
+
+        >>> from TexSoup import TexSoup
+        >>> soup = TexSoup(r'''
+        ... \newglossaryentry{naiive}
+        ... {
+        ...   name=na\"{\i}ve,
+        ...   description={is a French loanword}
+        ... }
+        ... ''')
+        >>> settings = soup.newglossaryentry.args[1].keyvals
+        >>> list(settings)
+        ['name', 'description']
+        >>> settings['name']
+        'na\\"{\\i}ve'
+        >>> settings['description']
+        '{is a French loanword}'
+        """
+        keyvals = {}
+        for entry in str(self)[1:-1].split(','):
+            key, value = entry.strip().split('=', 1)
+            keyvals[key] = value
+        return keyvals
+
     @classmethod
     def parse(cls, s):
         """Parse a string or list and return an Argument object.
