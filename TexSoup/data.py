@@ -1228,47 +1228,13 @@ class TexKeyVal(object):
         return ''
 
     @classmethod
-    def _normalize_parts(cls, parts):
-        """Convert TexText to strings and merge adjacent string chunks."""
-        normalized = []
-        for part in parts:
-            if isinstance(part, TexText):
-                part = str(part)
-            if isinstance(part, str):
-                cls._append_text(normalized, part)
-            else:
-                normalized.append(part)
-        return normalized
-
-    @classmethod
-    def _start_entry(cls, prefix_text, text):
-        """Parse the next key=value start from plain text."""
-        if '=' not in text:
-            return None, None, prefix_text + text, ''
-        before, after = text.split('=', 1)
-        match = cls.KEY_RE.match(prefix_text + before)
-        if match is None:
-            return None, None, prefix_text + before + '=', after
-        prefix, key = match.groups()
-        return prefix, key, '', after
-
-    @classmethod
-    def _consume_value_text(cls, value, text):
-        """Consume value text up to the next top-level comma."""
-        if ',' not in text:
-            cls._append_text(value, text)
-            return False, ''
-        before, after = text.split(',', 1)
-        cls._append_text(value, before)
-        return True, after
-
-    @classmethod
     def parse_parts(cls, parts):
         """Parse top-level key=value entries from group contents."""
         parsed = []
         prefix_text = ''
         key = None
         value = []
+        normalized = []
 
         def finish_value():
             nonlocal key, value
@@ -1276,7 +1242,15 @@ class TexKeyVal(object):
             key = None
             value = []
 
-        for part in cls._normalize_parts(parts):
+        for part in parts:
+            if isinstance(part, TexText):
+                part = str(part)
+            if isinstance(part, str):
+                cls._append_text(normalized, part)
+            else:
+                normalized.append(part)
+
+        for part in normalized:
             if not isinstance(part, str):
                 if key is None:
                     cls._append_text(parsed, prefix_text)
@@ -1289,16 +1263,24 @@ class TexKeyVal(object):
             chunk = part
             while chunk:
                 if key is None:
-                    prefix, key, prefix_text, chunk = cls._start_entry(
-                        prefix_text, chunk)
-                    if key is None:
+                    if '=' not in chunk:
+                        prefix_text += chunk
                         break
+                    before, chunk = chunk.split('=', 1)
+                    match = cls.KEY_RE.match(prefix_text + before)
+                    if match is None:
+                        prefix_text += before + '='
+                        continue
+                    prefix, key = match.groups()
                     cls._append_text(parsed, prefix)
+                    prefix_text = ''
                     continue
 
-                finished, chunk = cls._consume_value_text(value, chunk)
-                if not finished:
+                if ',' not in chunk:
+                    cls._append_text(value, chunk)
                     break
+                before, chunk = chunk.split(',', 1)
+                cls._append_text(value, before)
                 finish_value()
 
         if key is None:
