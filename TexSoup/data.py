@@ -1208,6 +1208,125 @@ class TexGroup(TexUnNamedEnv):
         return '%s(%s)' % (self.__class__.__name__,
                            ', '.join(map(repr, self._contents)))
 
+    @staticmethod
+    def _append_part(target, part):
+        """Append a value part, merging adjacent strings."""
+        if isinstance(part, str):
+            if not part:
+                return
+            if target and isinstance(target[-1], str):
+                target[-1] += part
+            else:
+                target.append(part)
+            return
+        target.append(part)
+
+    @staticmethod
+    def _trim_parts(parts):
+        """Strip surrounding whitespace-only string fragments in-place."""
+        while parts and isinstance(parts[0], str):
+            stripped = parts[0].lstrip()
+            if stripped:
+                parts[0] = stripped
+                break
+            parts.pop(0)
+
+        while parts and isinstance(parts[-1], str):
+            stripped = parts[-1].rstrip()
+            if stripped:
+                parts[-1] = stripped
+                break
+            parts.pop()
+
+        return parts
+
+    @property
+    def keyvals(self):
+        r"""Parse top-level key=value pairs inside this group.
+
+        This is an opt-in view over the existing parsed contents. Separator
+        whitespace is discarded, and each value preserves TexSoup's existing
+        structure as a list of strings and nested TexSoup objects.
+
+        :rtype: dict
+
+        >>> from TexSoup import TexSoup
+        >>> soup = TexSoup(r'''
+        ... \newglossaryentry{naiive}
+        ... {
+        ...   name=na\"{\i}ve,
+        ...   description={is a French loanword}
+        ... }
+        ... ''')
+        >>> settings = soup.newglossaryentry.args[1].keyvals
+        >>> list(settings)
+        ['name', 'description']
+        >>> [str(value) for value in settings['name']]
+        ['na\\"', '{\\i}', 've']
+        >>> str(settings['description'][0])
+        '{is a French loanword}'
+        """
+        entries = []
+        current = []
+
+        for part in self.all:
+            if isinstance(part, TexText):
+                part = str(part)
+
+            if not isinstance(part, str):
+                current.append(part)
+                continue
+
+            chunk = part
+            while True:
+                before, sep, chunk = chunk.partition(',')
+                self._append_part(current, before)
+                if not sep:
+                    break
+                current = self._trim_parts(current)
+                if current:
+                    entries.append(current)
+                current = []
+
+        current = self._trim_parts(current)
+        if current:
+            entries.append(current)
+
+        keyvals = {}
+        for entry in entries:
+            key = None
+            key_text = ''
+            value = []
+
+            for part in entry:
+                if key is None:
+                    if not isinstance(part, str):
+                        raise ValueError(
+                            'Unexpected LaTeX content before a key name.')
+
+                    before, sep, after = part.partition('=')
+                    key_text += before
+                    if not sep:
+                        continue
+
+                    key = key_text.strip()
+                    if not key:
+                        raise ValueError('Expected a key before "=".')
+                    if key in keyvals:
+                        raise ValueError('Duplicate key %r.' % key)
+
+                    self._append_part(value, after)
+                    continue
+
+                self._append_part(value, part)
+
+            if key is None:
+                raise ValueError('Expected key=value entry.')
+
+            keyvals[key] = self._trim_parts(value)
+
+        return keyvals
+
     @classmethod
     def parse(cls, s):
         """Parse a string or list and return an Argument object.
