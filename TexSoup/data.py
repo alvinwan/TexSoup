@@ -1228,10 +1228,45 @@ class TexKeyVal(object):
         return ''
 
     @classmethod
+    def _normalize_parts(cls, parts):
+        """Convert TexText to strings and merge adjacent string chunks."""
+        normalized = []
+        for part in parts:
+            if isinstance(part, TexText):
+                part = str(part)
+            if isinstance(part, str):
+                cls._append_text(normalized, part)
+            else:
+                normalized.append(part)
+        return normalized
+
+    @classmethod
+    def _start_entry(cls, prefix_text, text):
+        """Parse the next key=value start from plain text."""
+        if '=' not in text:
+            return None, None, prefix_text + text, ''
+        before, after = text.split('=', 1)
+        match = cls.KEY_RE.match(prefix_text + before)
+        if match is None:
+            return None, None, prefix_text + before + '=', after
+        prefix, key = match.groups()
+        return prefix, key, '', after
+
+    @classmethod
+    def _consume_value_text(cls, value, text):
+        """Consume value text up to the next top-level comma."""
+        if ',' not in text:
+            cls._append_text(value, text)
+            return False, ''
+        before, after = text.split(',', 1)
+        cls._append_text(value, before)
+        return True, after
+
+    @classmethod
     def parse_parts(cls, parts):
         """Parse top-level key=value entries from group contents."""
         parsed = []
-        pending_text = ''
+        prefix_text = ''
         key = None
         value = []
 
@@ -1241,14 +1276,11 @@ class TexKeyVal(object):
             key = None
             value = []
 
-        for part in parts:
-            if isinstance(part, TexText):
-                part = str(part)
-
+        for part in cls._normalize_parts(parts):
             if not isinstance(part, str):
                 if key is None:
-                    cls._append_text(parsed, pending_text)
-                    pending_text = ''
+                    cls._append_text(parsed, prefix_text)
+                    prefix_text = ''
                     parsed.append(part)
                 else:
                     value.append(part)
@@ -1257,32 +1289,24 @@ class TexKeyVal(object):
             chunk = part
             while chunk:
                 if key is None:
-                    if '=' not in chunk:
-                        pending_text += chunk
+                    prefix, key, prefix_text, chunk = cls._start_entry(
+                        prefix_text, chunk)
+                    if key is None:
                         break
-                    before, chunk = chunk.split('=', 1)
-                    match = cls.KEY_RE.match(pending_text + before)
-                    if match is None:
-                        pending_text += before + '='
-                        continue
-                    prefix, key = match.groups()
                     cls._append_text(parsed, prefix)
-                    pending_text = ''
                     continue
 
-                if ',' not in chunk:
-                    cls._append_text(value, chunk)
+                finished, chunk = cls._consume_value_text(value, chunk)
+                if not finished:
                     break
-                before, chunk = chunk.split(',', 1)
-                cls._append_text(value, before)
                 finish_value()
 
         if key is None:
-            cls._append_text(parsed, pending_text)
+            cls._append_text(parsed, prefix_text)
         else:
             suffix = cls._pop_trailing_whitespace(value)
             finish_value()
-            cls._append_text(parsed, suffix + pending_text)
+            cls._append_text(parsed, suffix + prefix_text)
         return parsed
 
 
