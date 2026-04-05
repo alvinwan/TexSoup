@@ -423,10 +423,6 @@ def _to_html_string(expr, asset_root=None):
       border-radius: 18px;
       background: linear-gradient(180deg, rgba(250, 245, 238, 0.96), rgba(255, 252, 246, 0.96));
     }}
-    .tex-figure {{
-      background: #fff;
-      box-shadow: inset 0 0 0 1px rgba(218, 200, 175, 0.55);
-    }}
     .tex-math-block {{
       overflow-x: auto;
       position: relative;
