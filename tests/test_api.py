@@ -1,4 +1,6 @@
-from TexSoup import TexSoup
+from io import StringIO
+
+from TexSoup import TexSoup, dump, dumps
 from TexSoup.data import TexText
 from TexSoup.utils import Token, TokenWithPosition
 from tests.config import chikin
@@ -92,6 +94,38 @@ def test_group_keyvals():
 
     with pytest.raises(ValueError):
         TexSoup(r'\textit{not a key-value block}').textit.args[0].keyvals
+
+
+def test_dumps_json():
+    soup = TexSoup(r'\section{Hello}')
+    exported = dumps(soup)
+    assert '"type": "latex"' in exported
+    assert '"name": "section"' in exported
+
+
+def test_dumps_xml():
+    soup = TexSoup(r'\section{Hello}')
+    exported = dumps(soup, format='xml')
+    assert exported.startswith('<?xml version="1.0" encoding="utf-8"?>')
+    assert '<cmd name="section"' in exported
+
+
+def test_dumps_html():
+    soup = TexSoup(r'\section{Hello}')
+    exported = dumps(soup, format='html')
+    assert exported.startswith('<!DOCTYPE html>')
+    assert 'class="tex-cmd"' in exported
+
+
+def test_dump_writes_to_file_like_object():
+    buffer = StringIO()
+    dump(TexSoup(r'\section{Hello}'), buffer, format='xml')
+    assert buffer.getvalue().startswith('<?xml version="1.0" encoding="utf-8"?>')
+
+
+def test_dumps_invalid_format():
+    with pytest.raises(ValueError):
+        dumps(TexSoup(r'\section{Hello}'), format='yaml')
 
 
 ##########
