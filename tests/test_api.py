@@ -1,5 +1,5 @@
 from TexSoup import TexSoup
-from TexSoup.data import BraceGroup, TexCmd, TexText
+from TexSoup.data import TexText
 from TexSoup.utils import Token, TokenWithPosition
 from tests.config import chikin
 import copy
@@ -81,22 +81,13 @@ def test_group_keyvals():
 
     settings = soup.newglossaryentry.args[1].keyvals
     assert list(settings) == ['name', 'description']
-    assert settings['name'][0] == r'na\"'
-    assert isinstance(settings['name'][1], BraceGroup)
-    assert len(settings['name'][1].contents) == 1
-    assert isinstance(settings['name'][1].contents[0], TexCmd)
-    assert settings['name'][1].contents[0].name == 'i'
-    assert settings['name'][2] == 've'
-    assert len(settings['description']) == 1
-    assert isinstance(settings['description'][0], BraceGroup)
-    assert settings['description'][0].contents == [TexText('is a French loanword')]
+    assert [str(value) for value in settings['name']] == [r'na\"', r'{\i}', 've']
+    assert str(settings['description'][0]) == '{is a French loanword}'
 
     soup = TexSoup(r'\includegraphics[width=0.8\textwidth, height=5cm]{image}')
     settings = soup.includegraphics.args[0].keyvals
     assert list(settings) == ['width', 'height']
-    assert settings['width'][0] == '0.8'
-    assert isinstance(settings['width'][1], TexCmd)
-    assert settings['width'][1].name == 'textwidth'
+    assert [str(value) for value in settings['width']] == ['0.8', r'\textwidth']
     assert settings['height'] == ['5cm']
 
     with pytest.raises(ValueError):
