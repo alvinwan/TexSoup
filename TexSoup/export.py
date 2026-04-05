@@ -3,6 +3,7 @@
 import json
 import re
 from html import escape
+from pathlib import Path
 from xml.etree.ElementTree import Element, tostring
 
 from TexSoup.data import (TexCmd, TexDisplayMathEnv, TexDisplayMathModeEnv,
@@ -93,13 +94,17 @@ INVISIBLE_COMMANDS = {
 }
 TABULAR_ENVS = {'tabular', 'tabular*'}
 PARAGRAPH_BREAK = object()
+INLINE_ASSET_EXTENSIONS = ('.gif', '.jpeg', '.jpg', '.png', '.svg', '.webp')
+DISPLAYABLE_ASSET_EXTENSIONS = INLINE_ASSET_EXTENSIONS + ('.pdf',)
 
 
-def dumps(tex, format='json'):
+def dumps(tex, format='json', asset_root=None):
     r"""Serialize a TexSoup node to the requested format.
 
     :param TexNode tex: TexSoup node to serialize
     :param str format: one of ``json``, ``xml``, or ``html``
+    :param Union[str,Path,None] asset_root:
+        root directory used to resolve local HTML figure assets
     :return: serialized output
     :rtype: str
 
@@ -119,19 +124,21 @@ def dumps(tex, format='json'):
         tree = _to_export_tree(tex)
         return _to_xml_string(tree)
     if format == 'html':
-        return _to_html_string(_get_expr(tex))
+        return _to_html_string(_get_expr(tex), asset_root=asset_root)
     if format == 'html_tree':
         tree = _to_export_tree(tex)
         return _to_html_tree_string(tree)
     raise ValueError('Unsupported export format: %s' % format)
 
 
-def dump(tex, fp, format='json'):
+def dump(tex, fp, format='json', asset_root=None):
     r"""Serialize a TexSoup node into a writable file object.
 
     :param TexNode tex: TexSoup node to serialize
     :param file fp: writable file-like object
     :param str format: one of ``json``, ``xml``, or ``html``
+    :param Union[str,Path,None] asset_root:
+        root directory used to resolve local HTML figure assets
 
     >>> from io import StringIO
     >>> from TexSoup import TexSoup
@@ -140,7 +147,7 @@ def dump(tex, fp, format='json'):
     >>> buffer.getvalue().startswith('<?xml version="1.0" encoding="utf-8"?>')
     True
     """
-    fp.write(dumps(tex, format=format))
+    fp.write(dumps(tex, format=format, asset_root=asset_root))
 
 
 def _to_export_tree(tex):
@@ -228,10 +235,11 @@ def _to_xml_node(node):
     return element
 
 
-def _to_html_string(expr):
+def _to_html_string(expr, asset_root=None):
     """Render a TexSoup tree as a paper-like HTML document."""
     metadata, body_nodes = _extract_document(expr)
     context = _collect_render_context(body_nodes)
+    context['asset_root'] = Path(asset_root).expanduser().resolve() if asset_root else None
     return """<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -444,6 +452,14 @@ def _to_html_string(expr):
       height: auto;
       margin: 0 auto;
       border-radius: 12px;
+    }}
+    .tex-pdf-figure {{
+      display: block;
+      width: 100%;
+      min-height: 34rem;
+      border: 0;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.55);
     }}
     .tex-figure figcaption,
     .tex-table-block figcaption,
@@ -974,7 +990,7 @@ def _render_block_node(node, context):
         if node.name in SECTION_LEVELS:
             return _render_heading(node, context)
         if node.name == 'includegraphics':
-            return _render_includegraphics(node)
+            return _render_includegraphics(node, context)
         if node.name == 'caption' and node.args:
             return '<div class="tex-caption">{}</div>'.format(
                 _render_inline_nodes(list(node.args[0].contents), context))
@@ -1117,17 +1133,50 @@ def _render_inline_tex(source, context):
         _normalize_inline_text(source))
 
 
-def _render_includegraphics(cmd):
-    """Render an image inclusion as a placeholder figure."""
+def _resolve_asset_path(target, context):
+    """Resolve a local figure asset against the configured asset root."""
+    asset_root = context.get('asset_root')
+    if not asset_root:
+        return None
+
+    candidate = Path(target).expanduser()
+    if not candidate.is_absolute():
+        candidate = asset_root / candidate
+    if candidate.exists():
+        return candidate.resolve()
+
+    if candidate.suffix:
+        return None
+
+    for suffix in DISPLAYABLE_ASSET_EXTENSIONS:
+        option = candidate.with_suffix(suffix)
+        if option.exists():
+            return option.resolve()
+    return None
+
+
+def _render_includegraphics(cmd, context):
+    """Render an image inclusion as a figure, if the asset can be resolved."""
     target = cmd.args[-1].string if cmd.args else str(cmd)
-    lower_target = target.lower()
-    if lower_target.endswith(('.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp')):
+    asset_path = _resolve_asset_path(target, context)
+    asset_url = asset_path.as_uri() if asset_path else target
+    lower_target = asset_url.lower()
+    if lower_target.endswith(INLINE_ASSET_EXTENSIONS):
         return (
             '<figure class="tex-figure">'
             '<img class="tex-graphic" src="{target}" alt="{alt}" />'
             '<figcaption><a class="tex-link" href="{target}">Open figure asset</a></figcaption>'
             '</figure>'
-        ).format(target=escape(target), alt=escape(target))
+        ).format(target=escape(asset_url), alt=escape(target))
+    if lower_target.endswith('.pdf'):
+        return (
+            '<figure class="tex-figure">'
+            '<object class="tex-pdf-figure" data="{target}" type="application/pdf">'
+            '<a class="tex-link" href="{target}">Open figure asset</a>'
+            '</object>'
+            '<figcaption><a class="tex-link" href="{target}">Open figure asset</a></figcaption>'
+            '</figure>'
+        ).format(target=escape(asset_url))
     return (
         '<figure class="tex-figure">'
         '<div class="tex-graphic-placeholder">'
@@ -1136,7 +1185,7 @@ def _render_includegraphics(cmd):
         '<code class="tex-source">{target}</code>'
         '</div>'
         '</figure>'
-    ).format(target=escape(target))
+    ).format(target=escape(asset_url))
 
 
 def _render_math_block(source, anchor_id=None, number=None):

@@ -163,6 +163,26 @@ def test_dumps_html_renders_tables_and_bibliography_links():
     assert 'First.' in exported and '<em>Journal</em>' in exported
 
 
+def test_dumps_html_resolves_figure_assets(tmp_path):
+    asset_dir = tmp_path / 'figures'
+    asset_dir.mkdir()
+    png_path = asset_dir / 'plot.png'
+    pdf_path = asset_dir / 'paper.pdf'
+    png_path.write_bytes(b'not-a-real-png')
+    pdf_path.write_bytes(b'%PDF-1.4\n%fake\n')
+
+    soup = TexSoup(
+        r'\includegraphics{figures/plot.png}'
+        r'\includegraphics{figures/paper.pdf}'
+    )
+    exported = dumps(soup, format='html', asset_root=tmp_path)
+
+    assert png_path.resolve().as_uri() in exported
+    assert pdf_path.resolve().as_uri() in exported
+    assert '<img class="tex-graphic"' in exported
+    assert 'class="tex-pdf-figure"' in exported
+
+
 def test_dump_writes_to_file_like_object():
     buffer = StringIO()
     dump(TexSoup(r'\section{Hello}'), buffer, format='xml')

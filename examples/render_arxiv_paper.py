@@ -3,8 +3,8 @@ Render an arXiv Paper with Linked Assets
 ---
 
 This script downloads an arXiv source package, extracts it, and writes the
-rendered HTML next to the paper's main `.tex` file so relative figure asset
-links continue to work.
+rendered HTML using the extracted source tree as the asset root so figure links
+and browser-displayable figure assets continue to work.
 
 Figure assets that browsers can display directly (`.png`, `.jpg`, `.svg`,
 etc.) render inline. Other assets such as `.pdf` remain clickable links.
@@ -67,7 +67,8 @@ def main():
     paper = load_paper_text(normalize_paper_id(args.paper_id), args)
     output_path = args.output or default_output_path(paper)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(dumps(TexSoup(paper['text']), format='html'))
+    output_path.write_text(
+        dumps(TexSoup(paper['text']), format='html', asset_root=paper['root']))
     print(output_path)
 
 
