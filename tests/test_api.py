@@ -124,6 +124,7 @@ def test_dumps_html_renders_links_and_hidden_labels():
         r'and \hyperlink{https://example.com}{\color{blue}{Example}}. '
         r'Hello\footnotesize\vspace{1em}World'
         r'\begin{equation}\label{eq:test}a=b\end{equation}'
+        r'{\em Note}.'
         r'See Eq.~\eqref{eq:test}.'
     )
     exported = dumps(soup, format='html')
@@ -131,7 +132,9 @@ def test_dumps_html_renders_links_and_hidden_labels():
     assert 'href="#label-sec-intro">Introduction</a>' in exported
     assert 'href="https://example.com"><span style="color: blue">Example</span></a>' in exported
     assert 'id="label-eq-test"' in exported
-    assert 'href="#label-eq-test">(eq:test)</a>' in exported
+    assert 'href="#label-eq-test">(1)</a>' in exported
+    assert '<span class="tex-equation-number">(1)</span>' in exported
+    assert '<em>Note</em>' in exported
     assert r'\label{sec:intro}' not in exported
     assert r'\vspace{1em}' not in exported
     assert r'\footnotesize' not in exported
@@ -143,7 +146,8 @@ def test_dumps_html_renders_tables_and_bibliography_links():
         r'\begin{tabular*}{\linewidth}{l @{\extracolsep{\fill}} ll}'
         r'\toprule A & B & C \\ \cmidrule{2-3} 1 & 2 & 3\end{tabular*}\end{table}'
         r'{\small\bibliographystyle{plain}\begin{thebibliography}{9}'
-        r'\bibitem{foo} First.\bibitem{bar} Second.\end{thebibliography}}'
+        r'\bibitem{foo} First.\newblock {\em Journal}.'
+        r'\bibitem{bar} Second.\end{thebibliography}}'
         r'See \cite{foo,bar}.'
     )
     exported = dumps(soup, format='html')
@@ -156,6 +160,7 @@ def test_dumps_html_renders_tables_and_bibliography_links():
     assert 'id="bib-foo"' in exported
     assert 'href="#bib-foo">1</a>' in exported
     assert 'href="#bib-bar">2</a>' in exported
+    assert 'First.' in exported and '<em>Journal</em>' in exported
 
 
 def test_dump_writes_to_file_like_object():

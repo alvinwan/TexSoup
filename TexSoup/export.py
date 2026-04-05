@@ -62,6 +62,12 @@ DISPLAY_MATH_ENVS = {
     'multline',
     'multline*',
 }
+NUMBERED_MATH_ENVS = {
+    'align',
+    'equation',
+    'gather',
+    'multline',
+}
 LIST_ENVS = {
     'description': 'ul',
     'enumerate': 'ol',
@@ -79,7 +85,6 @@ INVISIBLE_COMMANDS = {
     'label',
     'medskip',
     'newpage',
-    'newblock',
     'noindent',
     'pagebreak',
     'smallskip',
@@ -399,7 +404,20 @@ def _to_html_string(expr):
     }}
     .tex-math-block {{
       overflow-x: auto;
+      position: relative;
       text-align: center;
+    }}
+    .tex-math-display {{
+      display: inline-block;
+      min-width: 0;
+    }}
+    .tex-equation-number {{
+      position: absolute;
+      top: 50%;
+      right: 1rem;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font: 500 0.95rem/1 ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
     }}
     .tex-source {{
       margin: 0;
@@ -419,6 +437,13 @@ def _to_html_string(expr):
       background: rgba(255, 255, 255, 0.55);
       color: var(--muted);
       text-align: center;
+    }}
+    .tex-graphic {{
+      display: block;
+      max-width: 100%;
+      height: auto;
+      margin: 0 auto;
+      border-radius: 12px;
     }}
     .tex-figure figcaption,
     .tex-table-block figcaption,
@@ -605,15 +630,25 @@ def _collect_render_context(nodes):
     context = {
         'labels': {},
         'bibitems': {},
+        'equation_labels': {},
+        'equation_numbers': {},
     }
     bibliography_index = 1
+    equation_index = 1
 
     def visit(current_nodes):
-        nonlocal bibliography_index
+        nonlocal bibliography_index, equation_index
         for node in current_nodes:
             if isinstance(node, TexCmd) and node.name == 'label' and node.args:
                 label = str(node.args[0].string)
                 context['labels'][label] = _anchor_id('label', label)
+            if isinstance(node, TexNamedEnv) and node.name in NUMBERED_MATH_ENVS:
+                number = str(equation_index)
+                context['equation_numbers'][node.position] = number
+                label = _first_label(node)
+                if label:
+                    context['equation_labels'][label] = number
+                equation_index += 1
             if isinstance(node, TexNamedEnv) and node.name == 'thebibliography':
                 for child in _body_contents(node):
                     if isinstance(child, TexCmd) and child.name == 'bibitem':
@@ -664,8 +699,10 @@ def _resolve_href(target, context):
     return _link_target(target, context)
 
 
-def _reference_text(command_name, target):
+def _reference_text(command_name, target, context):
     """Return fallback display text for a reference command."""
+    if target in context['equation_labels']:
+        target = context['equation_labels'][target]
     if command_name == 'eqref':
         return '(%s)' % target
     return target
@@ -819,7 +856,10 @@ def _render_inline_segments(node, context):
 def _render_inline_node(node, context):
     """Render a single node as inline HTML."""
     if isinstance(node, TexGroup):
-        return _render_inline_nodes(list(node.contents), context)
+        contents = list(node.contents)
+        if contents and isinstance(contents[0], TexCmd) and contents[0].name == 'em':
+            return _wrap_inline('em', _render_inline_nodes(contents[1:], context))
+        return _render_inline_nodes(contents, context)
     if isinstance(node, (TexMathEnv, TexMathModeEnv)):
         return '<span class="tex-math">{}</span>'.format(escape(str(node)))
     if not isinstance(node, TexCmd):
@@ -838,6 +878,10 @@ def _render_inline_node(node, context):
         return _render_inline_nodes(list(node.args[0].contents), context)
     if node.name in TRANSPARENT_ZERO_ARG_COMMANDS:
         return ''
+    if node.name == 'newblock':
+        if node.args:
+            return ' ' + _render_inline_node(node.args[0], context)
+        return ' '
     if node.name in ('color', 'textcolor'):
         return _render_color_command(node, context)
     if node.name == 'url' and node.args:
@@ -866,7 +910,7 @@ def _render_inline_node(node, context):
         target = str(node.args[0].string)
         return '<a class="tex-reference" href="{href}">{label}</a>'.format(
             href=escape(_link_target(target, context)),
-            label=escape(_reference_text(node.name, target)))
+            label=escape(_reference_text(node.name, target, context)))
     if node.name == 'thanks' and node.args:
         return '<span class="tex-footnote">({})</span>'.format(
             _render_inline_nodes(list(node.args[0].contents), context))
@@ -904,7 +948,12 @@ def _render_block_node(node, context):
         if node.name in DISPLAY_MATH_ENVS:
             label = _first_label(node)
             anchor_id = context['labels'].get(label) if label else None
-            return _render_math_block(_strip_math_labels(str(node)), anchor_id=anchor_id)
+            number = context['equation_numbers'].get(node.position)
+            return _render_math_block(
+                _strip_math_labels(str(node)),
+                anchor_id=anchor_id,
+                number=number,
+            )
         if node.name in TABULAR_ENVS:
             return _render_tabular(node, context)
         if node.name in RAW_BLOCK_ENVS:
@@ -1071,24 +1120,37 @@ def _render_inline_tex(source, context):
 def _render_includegraphics(cmd):
     """Render an image inclusion as a placeholder figure."""
     target = cmd.args[-1].string if cmd.args else str(cmd)
+    lower_target = target.lower()
+    if lower_target.endswith(('.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp')):
+        return (
+            '<figure class="tex-figure">'
+            '<img class="tex-graphic" src="{target}" alt="{alt}" />'
+            '<figcaption><a class="tex-link" href="{target}">Open figure asset</a></figcaption>'
+            '</figure>'
+        ).format(target=escape(target), alt=escape(target))
     return (
         '<figure class="tex-figure">'
         '<div class="tex-graphic-placeholder">'
         '<strong>Figure asset</strong>'
+        '<a class="tex-link" href="{target}">Open figure asset</a>'
         '<code class="tex-source">{target}</code>'
         '</div>'
         '</figure>'
     ).format(target=escape(target))
 
 
-def _render_math_block(source, anchor_id=None):
+def _render_math_block(source, anchor_id=None, number=None):
     """Render display math using MathJax delimiters."""
     attrs = ' class="tex-math-block"'
     if anchor_id:
         attrs += ' id="%s"' % escape(anchor_id)
-    return '<div{attrs}>{source}</div>'.format(
+    return '<div{attrs}><div class="tex-math-display">{source}</div>{number}</div>'.format(
         attrs=attrs,
         source=escape(source),
+        number=(
+            '<span class="tex-equation-number">({})</span>'.format(escape(number))
+            if number else ''
+        ),
     )
 
 
