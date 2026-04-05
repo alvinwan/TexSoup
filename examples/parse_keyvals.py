@@ -7,6 +7,11 @@ while preserving surrounding whitespace and separator text. Detected entries
 are wrapped in a ``TexKeyVal`` object, while untouched formatting remains as
 plain strings in the returned list.
 
+If you only need a quick dictionary of raw string values, you could also use
+TexSoup's built-in ``group.keyvals`` helper and then run TexSoup parsing again
+on each value. That approach is simpler, but it reparses each value string and
+is therefore less efficient than the preserved-object approach in this example.
+
 To use it, run
 
     python parse_keyvals.py
@@ -144,7 +149,13 @@ class TexKeyVal(object):
 
 
 def parse_keyvals(group):
-    """Parse a TexSoup group into preserved text plus ``TexKeyVal`` entries."""
+    """Parse a TexSoup group into preserved text plus ``TexKeyVal`` entries.
+
+    This example keeps the original top-level formatting and reuses the parsed
+    TexSoup objects already present in ``group.all``. Compared with calling the
+    built-in ``group.keyvals`` helper and reparsing each raw value string, this
+    avoids extra parsing work and preserves nested objects more faithfully.
+    """
     return TexKeyVal.parse_parts(group.all)
 
 
