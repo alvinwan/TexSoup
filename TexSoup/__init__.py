@@ -8,7 +8,7 @@ from TexSoup.tex import read
 from TexSoup.data import TexNode
 from TexSoup.export import dump, dumps
 
-__version__ = '0.3.2'
+__version__ = '0.3.3'
 
 
 # noinspection PyPep8Naming
