@@ -1261,10 +1261,10 @@ class TexGroup(TexUnNamedEnv):
         >>> settings = soup.newglossaryentry.args[1].keyvals
         >>> list(settings)
         ['name', 'description']
-        >>> [str(value) for value in settings['name']]
-        ['na\\"', '{\\i}', 've']
-        >>> str(settings['description'][0])
-        '{is a French loanword}'
+        >>> settings['name']
+        ['na\\"', BraceGroup(TexCmd('i')), 've']
+        >>> settings['description']
+        [BraceGroup('is a French loanword')]
         """
         entries = []
         current = []
