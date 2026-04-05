@@ -124,7 +124,7 @@ def test_dumps_html_renders_links_and_hidden_labels():
         r'and \hyperlink{https://example.com}{\color{blue}{Example}}. '
         r'Hello\footnotesize\vspace{1em}World'
         r'\begin{equation}\label{eq:test}a=b\end{equation}'
-        r'{\em Note}.'
+        r'{\em Note}. {\textsc Small Caps}.'
         r'See Eq.~\eqref{eq:test}.'
     )
     exported = dumps(soup, format='html')
@@ -135,6 +135,7 @@ def test_dumps_html_renders_links_and_hidden_labels():
     assert 'href="#label-eq-test">(1)</a>' in exported
     assert '<span class="tex-equation-number">(1)</span>' in exported
     assert '<em>Note</em>' in exported
+    assert '<span class="tex-smallcaps">Small Caps</span>' in exported
     assert r'\label{sec:intro}' not in exported
     assert r'\vspace{1em}' not in exported
     assert r'\footnotesize' not in exported
@@ -185,6 +186,13 @@ def test_dumps_html_resolves_figure_assets(tmp_path):
     assert '<img class="tex-graphic"' in exported
     assert 'class="tex-pdf-figure"' not in exported
     assert 'Open figure asset' not in exported
+
+
+def test_dumps_html_includes_mathjax_fallback_macros():
+    soup = TexSoup(r'$\mathbbm{1}$ and $\textsc{Pad}(x)$')
+    exported = dumps(soup, format='html')
+    assert r'"mathbbm": ["\\mathbb{#1}", 1]' in exported
+    assert r'"textsc": ["\\text{#1}", 1]' in exported
 
 
 def test_dump_writes_to_file_like_object():

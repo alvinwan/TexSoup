@@ -97,6 +97,10 @@ PARAGRAPH_BREAK = object()
 INLINE_ASSET_EXTENSIONS = ('.gif', '.jpeg', '.jpg', '.png', '.svg', '.webp')
 DISPLAYABLE_ASSET_EXTENSIONS = INLINE_ASSET_EXTENSIONS + ('.pdf',)
 PDF_PREVIEW_SUFFIX = '.texsoup-preview.png'
+DEFAULT_MATHJAX_MACROS = {
+    'mathbbm': [r'\mathbb{#1}', 1],
+    'textsc': [r'\text{#1}', 1],
+}
 
 
 def dumps(tex, format='json', asset_root=None):
@@ -589,7 +593,7 @@ def _extract_document(expr):
 
 def _collect_mathjax_macros(nodes):
     """Collect simple macro definitions for MathJax."""
-    macros = {}
+    macros = dict(DEFAULT_MATHJAX_MACROS)
     for node in nodes:
         if not isinstance(node, TexCmd):
             continue
@@ -874,8 +878,15 @@ def _render_inline_node(node, context):
     """Render a single node as inline HTML."""
     if isinstance(node, TexGroup):
         contents = list(node.contents)
-        if contents and isinstance(contents[0], TexCmd) and contents[0].name == 'em':
-            return _wrap_inline('em', _render_inline_nodes(contents[1:], context))
+        if contents and isinstance(contents[0], TexCmd):
+            command = contents[0]
+            if command.name == 'em':
+                return _wrap_inline('em', _render_inline_nodes(contents[1:], context))
+            if command.name in INLINE_COMMANDS and not command.args:
+                return _wrap_inline(
+                    INLINE_COMMANDS[command.name],
+                    _render_inline_nodes(contents[1:], context),
+                )
         return _render_inline_nodes(contents, context)
     if isinstance(node, (TexMathEnv, TexMathModeEnv)):
         return '<span class="tex-math">{}</span>'.format(escape(str(node)))
