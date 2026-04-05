@@ -118,6 +118,34 @@ def test_dumps_html():
     assert '<h2>Hello</h2>' in exported
 
 
+def test_dumps_html_renders_links_and_hidden_labels():
+    soup = TexSoup(
+        r'\section{Intro}\label{sec:intro}See \hyperref[sec:intro]{Introduction} '
+        r'and \href{https://example.com}{Example}. Hello\vspace{1em}World'
+    )
+    exported = dumps(soup, format='html')
+    assert 'id="label-sec-intro"' in exported
+    assert 'href="#label-sec-intro">Introduction</a>' in exported
+    assert 'href="https://example.com">Example</a>' in exported
+    assert r'\label{sec:intro}' not in exported
+    assert r'\vspace{1em}' not in exported
+
+
+def test_dumps_html_renders_tables_and_bibliography_links():
+    soup = TexSoup(
+        r'\begin{table}\caption{Cap}\begin{tabular}{c c}A & B \\ 1 & 2\end{tabular}\end{table}'
+        r'\begin{thebibliography}{9}\bibitem{foo} First.\bibitem{bar} Second.\end{thebibliography}'
+        r'See \cite{foo,bar}.'
+    )
+    exported = dumps(soup, format='html')
+    assert '<table class="tex-table">' in exported
+    assert '<th>A</th>' in exported
+    assert '<td>1</td>' in exported
+    assert 'id="bib-foo"' in exported
+    assert 'href="#bib-foo">1</a>' in exported
+    assert 'href="#bib-bar">2</a>' in exported
+
+
 def test_dump_writes_to_file_like_object():
     buffer = StringIO()
     dump(TexSoup(r'\section{Hello}'), buffer, format='xml')

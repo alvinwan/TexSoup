@@ -64,11 +64,21 @@ LIST_ENVS = {
 RAW_BLOCK_ENVS = {
     'array',
     'lstlisting',
-    'tabular',
-    'tabular*',
     'verbatim',
 }
 SKIPPED_BODY_COMMANDS = {'author', 'date', 'maketitle', 'title'}
+INVISIBLE_COMMANDS = {
+    'bigskip',
+    'label',
+    'medskip',
+    'newpage',
+    'noindent',
+    'pagebreak',
+    'smallskip',
+    'vspace',
+    'vspace*',
+}
+TABULAR_ENVS = {'tabular', 'tabular*'}
 PARAGRAPH_BREAK = object()
 
 
@@ -208,6 +218,7 @@ def _to_xml_node(node):
 def _to_html_string(expr):
     """Render a TexSoup tree as a paper-like HTML document."""
     metadata, body_nodes = _extract_document(expr)
+    context = _collect_render_context(body_nodes)
     return """<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -341,6 +352,12 @@ def _to_html_string(expr):
       color: var(--accent);
       font-weight: 600;
     }}
+    .tex-anchor {{
+      display: block;
+      position: relative;
+      top: -1rem;
+      visibility: hidden;
+    }}
     .tex-smallcaps {{
       font-variant: small-caps;
       letter-spacing: 0.04em;
@@ -403,6 +420,35 @@ def _to_html_string(expr):
       font-size: 0.95rem;
       text-align: center;
     }}
+    .tex-bibliography ol {{
+      margin: 0;
+      padding-left: 1.4rem;
+    }}
+    .tex-bibliography li {{
+      margin: 0 0 0.95rem;
+    }}
+    .tex-bibliography li p:last-child {{
+      margin-bottom: 0;
+    }}
+    .tex-table-wrap {{
+      overflow-x: auto;
+    }}
+    .tex-table {{
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+      background: rgba(255, 255, 255, 0.72);
+    }}
+    .tex-table th,
+    .tex-table td {{
+      padding: 0.55rem 0.7rem;
+      border: 1px solid rgba(218, 200, 175, 0.9);
+      vertical-align: top;
+    }}
+    .tex-table th {{
+      background: rgba(138, 75, 23, 0.08);
+      text-align: left;
+    }}
     .tex-env-label {{
       color: var(--muted);
       font: 600 0.76rem/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
@@ -450,8 +496,8 @@ def _to_html_string(expr):
 </body>
 </html>""".format(
         title=escape(metadata['title_text'] or 'TexSoup HTML Export'),
-        frontmatter=_render_frontmatter(metadata),
-        body=_render_blocks(body_nodes),
+        frontmatter=_render_frontmatter(metadata, context),
+        body=_render_blocks(body_nodes, context),
         macros=json.dumps(metadata['mathjax_macros'], sort_keys=True),
     )
 
@@ -472,22 +518,21 @@ def _extract_document(expr):
         body_nodes = [expr]
 
     metadata = {
-        'title_html': '',
+        'title_nodes': (),
         'title_text': '',
-        'author_html': '',
-        'date_html': '',
-        'abstract_html': '',
+        'author_nodes': (),
+        'date_nodes': (),
+        'abstract_nodes': (),
         'mathjax_macros': _collect_mathjax_macros(preamble_nodes),
     }
 
     for node in preamble_nodes + body_nodes:
         if isinstance(node, TexCmd) and node.name in ('title', 'author', 'date') and node.args:
-            rendered = _render_inline_nodes(list(node.args[0].contents))
             text = str(node.args[0].string).strip()
-            metadata['%s_html' % node.name] = rendered
+            metadata['%s_nodes' % node.name] = list(node.args[0].contents)
             metadata['%s_text' % node.name] = text
-        if isinstance(node, TexNamedEnv) and node.name == 'abstract' and not metadata['abstract_html']:
-            metadata['abstract_html'] = _render_blocks(list(node.contents))
+        if isinstance(node, TexNamedEnv) and node.name == 'abstract' and not metadata['abstract_nodes']:
+            metadata['abstract_nodes'] = list(_body_contents(node))
 
     return metadata, body_nodes
 
@@ -523,27 +568,114 @@ def _collect_mathjax_macros(nodes):
     return macros
 
 
-def _render_frontmatter(metadata):
+def _render_frontmatter(metadata, context):
     """Render document frontmatter."""
     parts = []
-    if metadata['title_html'] or metadata['author_html'] or metadata['date_html']:
+    title_html = _render_inline_nodes(metadata['title_nodes'], context)
+    author_html = _render_inline_nodes(metadata['author_nodes'], context)
+    date_html = _render_inline_nodes(metadata['date_nodes'], context)
+    abstract_html = _render_blocks(metadata['abstract_nodes'], context) if metadata['abstract_nodes'] else ''
+    if title_html or author_html or date_html:
         parts.append('<header class="tex-frontmatter">')
-        if metadata['title_html']:
-            parts.append('<h1 class="tex-paper-title">{}</h1>'.format(metadata['title_html']))
-        if metadata['author_html']:
-            parts.append('<p class="tex-paper-authors">{}</p>'.format(metadata['author_html']))
-        if metadata['date_html']:
-            parts.append('<p class="tex-paper-date">{}</p>'.format(metadata['date_html']))
+        if title_html:
+            parts.append('<h1 class="tex-paper-title">{}</h1>'.format(title_html))
+        if author_html:
+            parts.append('<p class="tex-paper-authors">{}</p>'.format(author_html))
+        if date_html:
+            parts.append('<p class="tex-paper-date">{}</p>'.format(date_html))
         parts.append('</header>')
-    if metadata['abstract_html']:
+    if abstract_html:
         parts.append(
             '<section class="tex-abstract"><h2>Abstract</h2>{}</section>'.format(
-                metadata['abstract_html'])
+                abstract_html)
         )
     return ''.join(parts)
 
 
-def _render_blocks(nodes):
+def _collect_render_context(nodes):
+    """Collect anchors and bibliography metadata for rendered links."""
+    context = {
+        'labels': {},
+        'bibitems': {},
+    }
+    bibliography_index = 1
+
+    def visit(current_nodes):
+        nonlocal bibliography_index
+        for node in current_nodes:
+            if isinstance(node, TexCmd) and node.name == 'label' and node.args:
+                label = str(node.args[0].string)
+                context['labels'][label] = _anchor_id('label', label)
+            if isinstance(node, TexNamedEnv) and node.name == 'thebibliography':
+                for child in _body_contents(node):
+                    if isinstance(child, TexCmd) and child.name == 'bibitem':
+                        key = _bibitem_key(child)
+                        if key not in context['bibitems']:
+                            context['bibitems'][key] = {
+                                'id': _anchor_id('bib', key),
+                                'display': str(bibliography_index),
+                            }
+                            bibliography_index += 1
+            if isinstance(node, TexNamedEnv):
+                visit(_body_contents(node))
+            elif isinstance(node, TexCmd) and getattr(node, '_contents', None):
+                visit(node._contents)
+
+    visit(nodes)
+    return context
+
+
+def _body_contents(node):
+    """Return rendered body contents, excluding environment args."""
+    return list(getattr(node, '_contents', ()))
+
+
+def _anchor_id(prefix, value):
+    """Create a stable anchor id for a LaTeX label."""
+    slug = re.sub(r'[^A-Za-z0-9._-]+', '-', value).strip('-').lower()
+    return '%s-%s' % (prefix, slug or 'item')
+
+
+def _link_target(label, context):
+    """Resolve a label or bibliography key to an anchor link."""
+    if label in context['labels']:
+        return '#%s' % context['labels'][label]
+    if label in context['bibitems']:
+        return '#%s' % context['bibitems'][label]['id']
+    return '#%s' % _anchor_id('label', label)
+
+
+def _reference_text(command_name, target):
+    """Return fallback display text for a reference command."""
+    if command_name == 'eqref':
+        return '(%s)' % target
+    return target
+
+
+def _render_citation(node, context):
+    """Render a citation command as linked bibliography references."""
+    keys = []
+    for arg in node.args:
+        keys.extend(key.strip() for key in arg.string.split(',') if key.strip())
+
+    rendered = []
+    for key in keys:
+        entry = context['bibitems'].get(key)
+        label = entry['display'] if entry else key
+        href = '#%s' % entry['id'] if entry else _link_target(key, context)
+        rendered.append('<a class="tex-reference" href="{href}">{label}</a>'.format(
+            href=escape(href), label=escape(label)))
+    return '[{}]'.format(', '.join(rendered))
+
+
+def _bibitem_key(node):
+    """Return the bibliography key for a \\bibitem command."""
+    if not node.args:
+        return str(node)
+    return str(node.args[-1].string)
+
+
+def _render_blocks(nodes, context):
     """Render a sequence of parsed nodes as block HTML."""
     blocks = []
     inline = []
@@ -552,12 +684,12 @@ def _render_blocks(nodes):
             continue
         if _is_block_node(node):
             _flush_paragraph(blocks, inline)
-            rendered = _render_block_node(node)
+            rendered = _render_block_node(node, context)
             if rendered:
                 blocks.append(rendered)
             continue
 
-        for fragment in _render_inline_segments(node):
+        for fragment in _render_inline_segments(node, context):
             if fragment is PARAGRAPH_BREAK:
                 _flush_paragraph(blocks, inline)
             elif fragment:
@@ -566,24 +698,24 @@ def _render_blocks(nodes):
     return ''.join(blocks)
 
 
-def _render_inline_nodes(nodes):
+def _render_inline_nodes(nodes, context):
     """Render parsed nodes as inline HTML."""
     fragments = []
     for node in nodes:
         if _skip_body_node(node):
             continue
         if _is_block_node(node):
-            rendered = _render_block_node(node)
+            rendered = _render_block_node(node, context)
             if rendered:
                 fragments.append(rendered)
             continue
-        for fragment in _render_inline_segments(node):
+        for fragment in _render_inline_segments(node, context):
             if fragment is not PARAGRAPH_BREAK and fragment:
                 fragments.append(fragment)
     return ''.join(fragments).strip()
 
 
-def _render_inline_segments(node):
+def _render_inline_segments(node, context):
     """Render a node to inline fragments, preserving paragraph breaks."""
     if isinstance(node, TexText):
         stripped = _strip_comment_lines(str(node))
@@ -600,105 +732,132 @@ def _render_inline_segments(node):
             if index < len(parts) - 1:
                 fragments.append(PARAGRAPH_BREAK)
         return fragments
-    rendered = _render_inline_node(node)
+    rendered = _render_inline_node(node, context)
     return [rendered] if rendered else []
 
 
-def _render_inline_node(node):
+def _render_inline_node(node, context):
     """Render a single node as inline HTML."""
     if isinstance(node, TexGroup):
-        return _render_inline_nodes(list(node.contents))
+        return _render_inline_nodes(list(node.contents), context)
     if isinstance(node, (TexMathEnv, TexMathModeEnv)):
         return '<span class="tex-math">{}</span>'.format(escape(str(node)))
     if not isinstance(node, TexCmd):
         return '<span class="tex-inline-raw">{}</span>'.format(escape(str(node)))
     if node.name in SKIPPED_BODY_COMMANDS or node.name in ('caption', 'maketitle'):
         return ''
+    if node.name in INVISIBLE_COMMANDS:
+        if node.name == 'label' and node.args:
+            label = str(node.args[0].string)
+            anchor_id = context['labels'].get(label, _anchor_id('label', label))
+            return '<a class="tex-anchor" id="{anchor}"></a>'.format(anchor=escape(anchor_id))
+        return ''
     if node.name in INLINE_COMMANDS and node.args:
-        return _wrap_inline(INLINE_COMMANDS[node.name], _render_inline_nodes(list(node.args[0].contents)))
+        return _wrap_inline(INLINE_COMMANDS[node.name], _render_inline_nodes(list(node.args[0].contents), context))
     if node.name in TRANSPARENT_COMMANDS and node.args:
-        return _render_inline_nodes(list(node.args[0].contents))
+        return _render_inline_nodes(list(node.args[0].contents), context)
     if node.name in TRANSPARENT_ZERO_ARG_COMMANDS:
         return ''
     if node.name == 'url' and node.args:
-        href = escape(node.args[-1].string)
+        href = escape(str(node.args[-1].string))
         return '<a class="tex-link" href="{href}">{href}</a>'.format(href=href)
     if node.name == 'href' and len(node.args) >= 2:
-        href = escape(node.args[0].string)
-        label = _render_inline_nodes(list(node.args[1].contents))
+        href = escape(str(node.args[0].string))
+        label = _render_inline_nodes(list(node.args[1].contents), context)
         return '<a class="tex-link" href="{href}">{label}</a>'.format(href=href, label=label)
+    if node.name == 'hyperref' and len(node.args) >= 2:
+        href = escape(_link_target(str(node.args[0].string), context))
+        label = _render_inline_nodes(list(node.args[1].contents), context)
+        return '<a class="tex-link" href="{href}">{label}</a>'.format(href=href, label=label)
+    if node.name == 'hyperlink' and len(node.args) >= 2:
+        href = escape(_link_target(str(node.args[0].string), context))
+        label = _render_inline_nodes(list(node.args[1].contents), context)
+        return '<a class="tex-link" href="{href}">{label}</a>'.format(href=href, label=label)
+    if node.name == 'hypertarget' and len(node.args) >= 2:
+        anchor = _anchor_id('label', str(node.args[0].string))
+        label = _render_inline_nodes(list(node.args[1].contents), context)
+        return '<a class="tex-anchor" id="{anchor}"></a>{label}'.format(
+            anchor=escape(anchor), label=label)
     if node.name in REFERENCE_COMMANDS and node.args:
-        label = ', '.join(arg.string for arg in node.args if getattr(arg, 'string', ''))
-        return '<span class="tex-reference">{}</span>'.format(escape(label or str(node)))
+        if node.name.startswith('cite'):
+            return _render_citation(node, context)
+        target = str(node.args[0].string)
+        return '<a class="tex-reference" href="{href}">{label}</a>'.format(
+            href=escape(_link_target(target, context)),
+            label=escape(_reference_text(node.name, target)))
     if node.name == 'thanks' and node.args:
         return '<span class="tex-footnote">({})</span>'.format(
-            _render_inline_nodes(list(node.args[0].contents)))
+            _render_inline_nodes(list(node.args[0].contents), context))
     if node.name == 'footnote' and node.args:
         return '<span class="tex-footnote">({})</span>'.format(
-            _render_inline_nodes(list(node.args[0].contents)))
+            _render_inline_nodes(list(node.args[0].contents), context))
     if node.name in ('\\', 'newline'):
         return '<br />'
     return '<span class="tex-inline-raw">{}</span>'.format(escape(str(node)))
 
 
-def _render_block_node(node):
+def _render_block_node(node, context):
     """Render a single node as block HTML."""
     if isinstance(node, (TexDisplayMathEnv, TexDisplayMathModeEnv)):
         return _render_math_block(str(node))
     if isinstance(node, TexNamedEnv):
         if node.name == 'document':
-            return _render_blocks(list(node.contents))
+            return _render_blocks(_body_contents(node), context)
         if node.name == 'abstract':
             return ''
+        if node.name == 'thebibliography':
+            return _render_bibliography(node, context)
         if node.name in LIST_ENVS:
-            return _render_list(node)
+            return _render_list(node, context)
         if node.name in ('figure', 'figure*'):
-            return _render_figure(node, class_name='tex-figure')
+            return _render_figure(node, class_name='tex-figure', context=context)
         if node.name in ('table', 'table*'):
-            return _render_figure(node, class_name='tex-table-block')
+            return _render_figure(node, class_name='tex-table-block', context=context)
         if node.name in DISPLAY_MATH_ENVS:
             return _render_math_block(str(node))
+        if node.name in TABULAR_ENVS:
+            return _render_tabular(node, context)
         if node.name in RAW_BLOCK_ENVS:
             return _render_raw_block(node, class_name='tex-raw-block')
         if node.name in ('quote', 'quotation'):
-            return '<blockquote>{}</blockquote>'.format(_render_blocks(list(node.contents)))
+            return '<blockquote>{}</blockquote>'.format(_render_blocks(_body_contents(node), context))
         if node.name == 'center':
             return '<div class="tex-generic-block" style="text-align:center">{}</div>'.format(
-                _render_blocks(list(node.contents)))
+                _render_blocks(_body_contents(node), context))
         return (
             '<section class="tex-generic-block">'
             '<div class="tex-env-label">\\begin{{{name}}}</div>'
             '{contents}'
             '<div class="tex-env-label">\\end{{{name}}}</div>'
             '</section>'
-        ).format(name=escape(node.name), contents=_render_blocks(list(node.contents)))
+        ).format(name=escape(node.name), contents=_render_blocks(_body_contents(node), context))
     if isinstance(node, TexCmd):
         if node.name in SECTION_LEVELS:
-            return _render_heading(node)
+            return _render_heading(node, context)
         if node.name == 'includegraphics':
             return _render_includegraphics(node)
         if node.name == 'caption' and node.args:
             return '<div class="tex-caption">{}</div>'.format(
-                _render_inline_nodes(list(node.args[0].contents)))
+                _render_inline_nodes(list(node.args[0].contents), context))
         if node.name == 'item':
-            return _render_list_item(node)
+            return _render_list_item(node, context)
         return ''
     return '<div class="tex-raw-block"><pre class="tex-source">{}</pre></div>'.format(
         escape(str(node)))
 
 
-def _render_heading(node):
+def _render_heading(node, context):
     """Render a sectioning command as a heading."""
     level = SECTION_LEVELS[node.name]
-    title = _render_inline_nodes(list(node.args[0].contents)) if node.args else escape(node.name)
+    title = _render_inline_nodes(list(node.args[0].contents), context) if node.args else escape(node.name)
     return '<h{level}>{title}</h{level}>'.format(level=level, title=title)
 
 
-def _render_list(env):
+def _render_list(env, context):
     """Render itemize/enumerate/description environments."""
     items = [
-        _render_list_item(child)
-        for child in env.children
+        _render_list_item(child, context)
+        for child in _body_contents(env)
         if isinstance(child, TexCmd) and child.name == 'item'
     ]
     if not items:
@@ -707,26 +866,26 @@ def _render_list(env):
     return '<{tag}>{items}</{tag}>'.format(tag=tag, items=''.join(items))
 
 
-def _render_list_item(item):
+def _render_list_item(item, context):
     """Render a list item."""
-    body = _render_blocks(list(item.contents)).strip()
+    body = _render_blocks(list(item.contents), context).strip()
     if not body:
-        body = _render_inline_nodes(list(item.contents))
+        body = _render_inline_nodes(list(item.contents), context)
     return '<li>{}</li>'.format(body)
 
 
-def _render_figure(env, class_name):
+def _render_figure(env, class_name, context):
     """Render figure-like environments."""
     caption = ''
     parts = []
-    for child in env.contents:
+    for child in _body_contents(env):
         if isinstance(child, TexCmd) and child.name == 'caption' and child.args:
-            caption = _render_inline_nodes(list(child.args[0].contents))
+            caption = _render_inline_nodes(list(child.args[0].contents), context)
             continue
         if _is_block_node(child):
-            rendered = _render_block_node(child)
+            rendered = _render_block_node(child, context)
         else:
-            rendered = _render_inline_nodes([child])
+            rendered = _render_inline_nodes([child], context)
         if rendered:
             parts.append(rendered)
 
@@ -738,6 +897,80 @@ def _render_figure(env, class_name):
         body=body,
         caption='<figcaption>{}</figcaption>'.format(caption) if caption else '',
     )
+
+
+def _render_bibliography(env, context):
+    """Render thebibliography as a linked references section."""
+    entries = []
+    current = None
+    for child in _body_contents(env):
+        if isinstance(child, TexCmd) and child.name == 'bibitem':
+            if current is not None:
+                entries.append(current)
+            key = _bibitem_key(child)
+            current = {'key': key, 'nodes': []}
+            continue
+        if current is not None:
+            current['nodes'].append(child)
+    if current is not None:
+        entries.append(current)
+
+    items = []
+    for entry in entries:
+        meta = context['bibitems'].get(entry['key'], {
+            'id': _anchor_id('bib', entry['key']),
+            'display': entry['key'],
+        })
+        items.append(
+            '<li id="{anchor}">{body}</li>'.format(
+                anchor=escape(meta['id']),
+                body=_render_blocks(entry['nodes'], context),
+            )
+        )
+    return '<section class="tex-bibliography"><h2>References</h2><ol>{}</ol></section>'.format(
+        ''.join(items))
+
+
+def _render_tabular(env, context):
+    """Render a basic tabular environment as an HTML table."""
+    text = ''.join(map(str, _body_contents(env)))
+    rows = []
+    for raw_row in re.split(r'\\\\|\\tabularnewline', text):
+        row = raw_row.strip()
+        if not row or row in (r'\hline', r'\toprule', r'\midrule', r'\bottomrule', r'\cmidrule'):
+            continue
+        row = re.sub(r'\\(toprule|midrule|bottomrule|hline)\b', '', row).strip()
+        if not row:
+            continue
+        cells = [cell.strip() for cell in row.split('&')]
+        rows.append(cells)
+    if not rows:
+        return _render_raw_block(env, class_name='tex-raw-block')
+
+    rendered_rows = []
+    for index, row in enumerate(rows):
+        tag = 'th' if index == 0 else 'td'
+        rendered_cells = ''.join(
+            '<{tag}>{cell}</{tag}>'.format(
+                tag=tag,
+                cell=_render_inline_tex(cell, context),
+            )
+            for cell in row
+        )
+        rendered_rows.append('<tr>{}</tr>'.format(rendered_cells))
+    return '<div class="tex-table-wrap"><table class="tex-table">{}</table></div>'.format(
+        ''.join(rendered_rows))
+
+
+def _render_inline_tex(source, context):
+    """Render a small LaTeX fragment inline."""
+    try:
+        from TexSoup import TexSoup
+        parsed = TexSoup(source, tolerance=1)
+    except Exception:
+        return escape(_normalize_inline_text(source))
+    return _render_inline_nodes(list(parsed.expr.contents), context) or escape(
+        _normalize_inline_text(source))
 
 
 def _render_includegraphics(cmd):
