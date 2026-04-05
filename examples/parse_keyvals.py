@@ -155,6 +155,16 @@ def parse_keyvals(group):
     TexSoup objects already present in ``group.all``. Compared with calling the
     built-in ``group.keyvals`` helper and reparsing each raw value string, this
     avoids extra parsing work and preserves nested objects more faithfully.
+
+    >>> soup = TexSoup(r'''
+    ... \\newglossaryentry{naiive}
+    ... {
+    ...   name=na\\"{\\i}ve,
+    ...   description={is a French loanword}
+    ... }
+    ... ''')
+    >>> parse_keyvals(soup.newglossaryentry.args[1])
+    ['\\n  ', TexKeyVal('name', ['na\\\\"', BraceGroup(TexCmd('i')), 've']), '\\n  ', TexKeyVal('description', [BraceGroup('is a French loanword')]), '\\n']
     """
     return TexKeyVal.parse_parts(group.all)
 
