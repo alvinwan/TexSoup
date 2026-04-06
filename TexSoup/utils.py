@@ -323,10 +323,25 @@ class Buffer:
         self.__init = init
         self.__empty = empty
 
+    def __fill_to(self, index):
+        """Populate the unread queue through ``index`` when possible."""
+        while len(self.__queue) <= index:
+            try:
+                self.__queue.append(self.__init(
+                    next(self.__iterator), len(self.__queue)))
+            except StopIteration:
+                return False
+        return True
+
     # noinspection PyPep8Naming
     def hasNext(self, n=1):
         """Returns whether or not there is another element."""
-        return bool(self.peek(n - 1))
+        if n < 1:
+            return bool(self.peek(n - 1))
+        index = self.__i + n - 1
+        if not self.__fill_to(index):
+            return False
+        return bool(self.__queue[index])
 
     def startswith(self, s):
         """Check if iterator starts with s, beginning from the current
@@ -443,7 +458,16 @@ class Buffer:
         """
         try:
             if isinstance(j, int):
+                if j >= 0:
+                    index = self.__i + j
+                    if not self.__fill_to(index):
+                        return None
+                    return self.__queue[index]
                 return self[self.__i + j]
+            if j[0] >= 0 and j[1] is not None and j[1] >= 0:
+                if j[1] > 0:
+                    self.__fill_to(self.__i + j[1] - 1)
+                return self.__join(self.__queue[self.__i + j[0]:self.__i + j[1]])
             return self[self.__i + j[0]:self.__i + j[1]]
         except IndexError:
             return None
