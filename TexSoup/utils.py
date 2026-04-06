@@ -337,10 +337,20 @@ class Buffer:
                 return False
         return True
 
+    def __lookahead(self, j):
+        """Return the j-th unread value without advancing the buffer."""
+        index = self.__i + j
+        if j >= 0 and not self.__fill_to(index):
+            raise IndexError('list index out of range')
+        return self.__queue[index]
+
     # noinspection PyPep8Naming
     def hasNext(self, n=1):
         """Returns whether or not there is another element."""
-        return bool(self.peek(n - 1))
+        try:
+            return bool(self.__lookahead(n - 1))
+        except IndexError:
+            return False
 
     def startswith(self, s):
         """Check if iterator starts with s, beginning from the current
@@ -457,7 +467,7 @@ class Buffer:
         """
         try:
             if isinstance(j, int):
-                return self[self.__i + j]
+                return self.__lookahead(j)
             stop = None if j[1] is None else self.__i + j[1]
             return self[self.__i + j[0]:stop]
         except IndexError:

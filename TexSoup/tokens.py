@@ -29,6 +29,14 @@ SIZE_PREFIX = ('left', 'right', 'big', 'Big', 'bigg', 'Bigg')
 PUNCTUATION_COMMANDS = {command + bracket
                         for command in SIZE_PREFIX
                         for bracket in BRACKETS_DELIMITERS.union({'|', '.'})}
+PUNCTUATION_COMMANDS_BY_LEADER = {
+    leader: tuple(sorted(
+        (command for command in PUNCTUATION_COMMANDS if command[0] == leader),
+        key=len,
+        reverse=True,
+    ))
+    for leader in {command[0] for command in PUNCTUATION_COMMANDS}
+}
 
 __all__ = ['tokenize']
 
@@ -370,8 +378,9 @@ def tokenize_punctuation_command_name(text, prev=None):
 
     :param Buffer text: iterator over text, with current position
     """
-    if text.peek(-1) and text.peek(-1).category == CC.Escape:
-        for point in PUNCTUATION_COMMANDS:
+    current = text.peek()
+    if text.peek(-1) and text.peek(-1).category == CC.Escape and current:
+        for point in PUNCTUATION_COMMANDS_BY_LEADER.get(str(current), ()):
             if text.peek((0, len(point))) == point:
                 result = text.forward(len(point))
                 result.category = TC.PunctuationCommandName
@@ -398,19 +407,22 @@ def tokenize_command_name(text, prev=None):
     >>> tokenize_command_name(b)
     'bf*'
     """
+    token = text.peek()
     if text.peek(-1) and text.peek(-1).category == CC.Escape \
-            and is_command_name_token(text.peek(), text):
-        c = text.forward(1)
-        while text.hasNext() and (
-                is_command_name_token(text.peek(), text) or text.peek() == '*'):
+            and is_command_name_token(token, text):
+        parts = [next(text)]
+        token = text.peek()
+        while token and (is_command_name_token(token, text) or token == '*'):
             # TODO: excluded other, macro, super, sub, acttive, alignment
             # although macros can make these a part of the command name.
             # We also allow '*' here for starred forms like \section*, but it
             # should really be treated as a trailing suffix, not a character
             # that can appear in the middle of a command name.
-            c += text.forward(1)
-        c.category = TC.CommandName
-        return c
+            parts.append(next(text))
+            token = text.peek()
+        result = Token.join(parts)
+        result.category = TC.CommandName
+        return result
 
 
 @token('string')
@@ -430,8 +442,10 @@ def tokenize_string(text, prev=None):
     >>> print(tokenize_string(categorize(r'0 & 1\\\command')))
     0 & 1
     """
-    result = Token('', text.position, category=TC.Text)
-    while text.hasNext() and text.peek().category not in (
+    parts = []
+    position = text.position
+    token = text.peek()
+    while token and token.category not in (
             CC.Escape,
             CC.GroupBegin,
             CC.GroupEnd,
@@ -439,5 +453,6 @@ def tokenize_string(text, prev=None):
             CC.BracketBegin,
             CC.BracketEnd,
             CC.Comment):
-        result += next(text)
-    return result
+        parts.append(next(text).text)
+        token = text.peek()
+    return Token(''.join(parts), position, category=TC.Text)
