@@ -92,9 +92,6 @@ it reflects full conversion cost rather than pure parse cost.
 
 - `latexwalker` remains much faster than TexSoup, but it is a lighter syntax
   walker rather than a fault-tolerant tree/editing parser.
-- The current TexSoup branch includes a small `Buffer.peek()` / `hasNext()`
-  optimization; on this same 10-paper set, the mean runtime dropped from about
-  `2,965 ms` to `1,376 ms`.
 - LaTeXML completed `9/10` papers with no timeout, but the unrestricted run can
   take a very long time. The GPT-4 technical report alone took about
   `914,143 ms` (`15.2 min`).
