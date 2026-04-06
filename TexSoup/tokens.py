@@ -25,17 +25,24 @@ BRACKETS_DELIMITERS = {
     r'\urcorner', r'\lbrack', r'\rbrack'
 }
 # TODO: looks like left-right do have to match
-SIZE_PREFIX = ('left', 'right', 'big', 'Big', 'bigg', 'Bigg')
-PUNCTUATION_COMMANDS = {command + bracket
-                        for command in SIZE_PREFIX
-                        for bracket in BRACKETS_DELIMITERS.union({'|', '.'})}
-PUNCTUATION_COMMANDS_BY_LEADER = {
-    leader: tuple(sorted(
-        (command for command in PUNCTUATION_COMMANDS if command[0] == leader),
-        key=len,
-        reverse=True,
-    ))
-    for leader in {command[0] for command in PUNCTUATION_COMMANDS}
+_PUNCTUATION_PREFIXES_BY_FIRST_LETTER = {
+    'l': ('left',),
+    'r': ('right',),
+    'b': ('bigg', 'big'),
+    'B': ('Bigg', 'Big'),
+}
+_PUNCTUATION_DELIMITERS = tuple(sorted(
+    BRACKETS_DELIMITERS.union({'|', '.'}),
+    key=len,
+    reverse=True,
+))
+PUNCTUATION_COMMANDS_BY_FIRST_LETTER = {
+    first_letter: tuple(
+        prefix + delimiter
+        for prefix in prefixes
+        for delimiter in _PUNCTUATION_DELIMITERS
+    )
+    for first_letter, prefixes in _PUNCTUATION_PREFIXES_BY_FIRST_LETTER.items()
 }
 
 __all__ = ['tokenize']
@@ -380,7 +387,7 @@ def tokenize_punctuation_command_name(text, prev=None):
     """
     current = text.peek()
     if text.peek(-1) and text.peek(-1).category == CC.Escape and current:
-        for point in PUNCTUATION_COMMANDS_BY_LEADER.get(str(current), ()):
+        for point in PUNCTUATION_COMMANDS_BY_FIRST_LETTER.get(str(current), ()):
             if text.peek((0, len(point))) == point:
                 result = text.forward(len(point))
                 result.category = TC.PunctuationCommandName
