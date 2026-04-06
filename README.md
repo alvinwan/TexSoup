@@ -77,6 +77,7 @@ Links:
 
 - [Quickstart Guide: how and when to use TexSoup](http://texsoup.alvinwan.com/docs/quickstart.html)
 - [Example Use Cases: counting references, resolving imports, and more](https://github.com/alvinwan/TexSoup/tree/master/examples)
+- [arXiv Benchmarks: reproducible parser and converter comparisons](https://github.com/alvinwan/TexSoup/tree/master/benchmarks)
 
 # Installation
 

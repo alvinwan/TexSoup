@@ -323,6 +323,20 @@ class Buffer:
         self.__init = init
         self.__empty = empty
 
+    def __append_next(self):
+        """Append the next iterator value to the queue."""
+        self.__queue.append(self.__init(
+            next(self.__iterator), len(self.__queue)))
+
+    def __fill_to(self, index=None):
+        """Populate the queue through ``index`` when possible."""
+        while index is None or len(self.__queue) <= index:
+            try:
+                self.__append_next()
+            except StopIteration:
+                return False
+        return True
+
     # noinspection PyPep8Naming
     def hasNext(self, n=1):
         """Returns whether or not there is another element."""
@@ -444,15 +458,15 @@ class Buffer:
         try:
             if isinstance(j, int):
                 return self[self.__i + j]
-            return self[self.__i + j[0]:self.__i + j[1]]
+            stop = None if j[1] is None else self.__i + j[1]
+            return self[self.__i + j[0]:stop]
         except IndexError:
             return None
 
     def __next__(self):
         """Implements next."""
         while self.__i >= len(self.__queue):
-            self.__queue.append(self.__init(
-                next(self.__iterator), self.__i))
+            self.__append_next()
         self.__i += 1
         return self.__queue[self.__i - 1]
 
@@ -476,18 +490,13 @@ class Buffer:
         'asdf'
         """
         if isinstance(i, int):
-            old, j = self.__i, i
-        else:
-            old, j = self.__i, i.stop
-
-        while j is None or self.__i <= j:
-            try:
-                next(self)
-            except StopIteration:
-                break
-        self.__i = old
-        if isinstance(i, int):
+            if i >= 0:
+                self.__fill_to(i)
             return self.__queue[i]
+        if i.stop is None:
+            self.__fill_to()
+        elif i.stop > 0:
+            self.__fill_to(i.stop - 1)
         return self.__join(self.__queue[i])
 
     def __iter__(self):

@@ -262,7 +262,7 @@ def parse_args(argv=None, default_backends=None):
         '--command-timeout-seconds',
         type=int,
         default=30,
-        help='Timeout for external command backends such as latexml and latex2html.',
+        help='Timeout for external command backends such as latexml and latex2html. Use 0 to disable the timeout.',
     )
     return parser.parse_args(argv)
 
@@ -694,7 +694,9 @@ def configure_backends(args):
         'latexml_perl5lib': args.latexml_perl5lib or detect_built_latexml_perl5lib(),
         'latex2html_bin': latex2html_bin,
         'latex2html_dir': latex2html_dir,
-        'command_timeout_seconds': args.command_timeout_seconds,
+        'command_timeout_seconds': (
+            None if args.command_timeout_seconds <= 0 else args.command_timeout_seconds
+        ),
     })
 
 
