@@ -261,6 +261,9 @@ def test_tokenize_punctuation_command_names():
     soup = TexSoup(r"""$\big\lfloor x \big\rfloor$""")
     assert str(list(soup.descendants)[1]) == r'\big\lfloor', 'wrong punctuation'
     assert str(list(soup.descendants)[3]) == r'\big\rfloor', 'wrong punctuation'
+    # overlapping prefixes should prefer the longest punctuation command
+    soup = TexSoup(r"""$\left. x \right.|_{0}^{1}$""")
+    assert str(list(soup.descendants)[3]) == r'\right.|', 'wrong punctuation'
 
 
 def test_item_parsing():

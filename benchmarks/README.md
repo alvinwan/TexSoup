@@ -63,30 +63,33 @@ expanded arXiv sources:
 
 ## Current Results
 
-These numbers were collected with `--repeats 1 --warmups 0`. The `latexml`
-column is an end-to-end command runtime with `--command-timeout-seconds 0`, so
-it reflects full conversion cost rather than pure parse cost.
+`texsoup` and `latexwalker` below are the median of `5` timed runs after `1`
+warmup, and the summary row reports the mean of those per-paper medians.
+`plastex` and `latexml` are from the latest completed local pass on the same
+10-paper set with `--repeats 1 --warmups 0`. The `latexml` column is an
+end-to-end command runtime with `--command-timeout-seconds 0`, so it reflects
+full conversion cost rather than pure parse cost.
 
 | Backend | Success Rate | Mean Time |
 | --- | ---: | ---: |
-| TexSoup | `10/10` | `1,376 ms` |
-| latexwalker | `10/10` | `253 ms` |
+| TexSoup | `10/10` | `937 ms` |
+| latexwalker | `10/10` | `276 ms` |
 | plasTeX | `3/10` | `1,661 ms` on successes |
 | LaTeXML | `9/10` | `151,521 ms` on successes |
 | latex2html | `0/10` | local install broken |
 
 | Paper | Chars | TexSoup | latexwalker | plasTeX | LaTeXML |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| FBNetV2 `2004.05565` | `53,962` | `677 ms` | `140 ms` | fail | `35,218 ms` |
-| Transformer `1706.03762` | `73,870` | `819 ms` | `137 ms` | fail | `50,986 ms` |
-| ResNet `1512.03385` | `78,331` | `1,181 ms` | `299 ms` | `1,381 ms` | `78,464 ms` |
-| BERT `1810.04805` | `85,622` | `1,021 ms` | `228 ms` | `2,699 ms` | `180,916 ms` |
-| GPT-4 `2303.08774` | `124,947` | `1,497 ms` | `310 ms` | `902 ms` | `914,143 ms` |
-| CLIP `2103.00020` | `252,082` | `4,570 ms` | `741 ms` | fail | `20,195 ms` |
-| ViT `2010.11929` | `82,089` | `1,434 ms` | `229 ms` | fail | fail |
-| VAE `1312.6114` | `51,535` | `1,030 ms` | `146 ms` | fail | `67,071 ms` |
-| GAN `1406.2661` | `49,699` | `659 ms` | `115 ms` | fail | `7,506 ms` |
-| VGG `1409.1556` | `71,509` | `870 ms` | `186 ms` | fail | `9,189 ms` |
+| FBNetV2 `2004.05565` | `53,962` | `478 ms` | `145 ms` | fail | `35,218 ms` |
+| Transformer `1706.03762` | `73,870` | `731 ms` | `184 ms` | fail | `50,986 ms` |
+| ResNet `1512.03385` | `78,331` | `777 ms` | `222 ms` | `1,381 ms` | `78,464 ms` |
+| BERT `1810.04805` | `85,622` | `755 ms` | `243 ms` | `2,699 ms` | `180,916 ms` |
+| GPT-4 `2303.08774` | `124,947` | `1,164 ms` | `326 ms` | `902 ms` | `914,143 ms` |
+| CLIP `2103.00020` | `252,082` | `2,910 ms` | `939 ms` | fail | `20,195 ms` |
+| ViT `2010.11929` | `82,089` | `883 ms` | `238 ms` | fail | fail |
+| VAE `1312.6114` | `51,535` | `573 ms` | `151 ms` | fail | `67,071 ms` |
+| GAN `1406.2661` | `49,699` | `462 ms` | `120 ms` | fail | `7,506 ms` |
+| VGG `1409.1556` | `71,509` | `635 ms` | `190 ms` | fail | `9,189 ms` |
 
 ## Notes
 
