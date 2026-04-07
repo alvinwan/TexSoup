@@ -50,14 +50,13 @@ BACKENDS = (
 )
 
 WIDTH = 980
-HEIGHT = 440
-PADDING = 36
-TITLE_Y = 32
-SUBTITLE_Y = 54
-PANEL_GAP = 28
-PANEL_TOP = 90
-PANEL_HEIGHT = 290
-PANEL_WIDTH = (WIDTH - PADDING * 2 - PANEL_GAP) / 2
+HEIGHT = 360
+X_PADDING = 0
+Y_PADDING = 12
+PANEL_GAP = 16
+PANEL_TOP = 12
+PANEL_HEIGHT = HEIGHT - PANEL_TOP - Y_PADDING
+PANEL_WIDTH = (WIDTH - X_PADDING * 2 - PANEL_GAP) / 2
 BAR_WIDTH = 74
 BAR_GAP = 42
 ROUND = 10
@@ -127,7 +126,7 @@ def svg_rect(x, y, width, height, fill, rx=8, stroke='none', stroke_width=1, das
 
 
 def panel_origin(index):
-    return PADDING + index * (PANEL_WIDTH + PANEL_GAP), PANEL_TOP
+    return X_PADDING + index * (PANEL_WIDTH + PANEL_GAP), PANEL_TOP
 
 
 def draw_panel_frame(elements, x, y, title, subtitle):
@@ -340,14 +339,6 @@ def build_svg():
         *pattern_defs(),
         '</defs>',
         svg_rect(0, 0, WIDTH, HEIGHT, BG, rx=0),
-        svg_text(PADDING, TITLE_Y, 'TexSoup Robustness and Speed', size=24, weight='700'),
-        svg_text(
-            PADDING,
-            SUBTITLE_Y,
-            '50 AI/ML arXiv papers; all benchmarks use a 10-second timeout and speed is computed on successful papers only',
-            size=13,
-            fill=MUTED,
-        ),
     ]
     draw_correctness_panel(elements)
     draw_speed_panel(elements)
