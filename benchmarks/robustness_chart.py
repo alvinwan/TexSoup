@@ -75,6 +75,8 @@ LEGEND_TIMEOUT_FILL = 'var(--legend-timeout-fill)'
 LEGEND_TIMEOUT_STROKE = 'var(--legend-timeout-stroke)'
 LEGEND_OTHER_FILL = 'var(--legend-other-fill)'
 LEGEND_OTHER_STROKE = 'var(--legend-other-stroke)'
+SEGMENT_TIMEOUT_FILL = 'var(--segment-timeout-fill)'
+SEGMENT_OTHER_FILL = 'var(--segment-other-fill)'
 
 
 def parse_args() -> argparse.Namespace:
@@ -206,18 +208,16 @@ def draw_correctness_panel(elements):
                 elements.append(svg_rect(bar_x, y0, BAR_WIDTH, height, backend['color'], rx=0, clip_path=clip_id))
                 draw_count_label(elements, bar_x + BAR_WIDTH / 2, centers[kind] + 4, value, fill='#ffffff')
             elif kind == 'timeout':
-                timeout_fill = mix(backend['color'], 0.88)
                 timeout_stroke = mix(backend['color'], 0.45)
-                elements.append(svg_rect(bar_x, y0, BAR_WIDTH, height, timeout_fill, rx=0, clip_path=clip_id))
+                elements.append(svg_rect(bar_x, y0, BAR_WIDTH, height, SEGMENT_TIMEOUT_FILL, rx=0, clip_path=clip_id))
                 elements.append(svg_rect(bar_x, y0, BAR_WIDTH, height, f'url(#timeout-pattern-{backend["name"]})',
                                          rx=0, clip_path=clip_id))
                 elements.append(svg_rect(bar_x, y0, BAR_WIDTH, height, 'none', rx=0,
                                          stroke=timeout_stroke, stroke_width=1.5, dash='6 4', clip_path=clip_id))
                 draw_count_label(elements, bar_x + BAR_WIDTH / 2, centers[kind] + 4, value)
             else:
-                other_fill = mix(backend['color'], 0.94)
                 other_stroke = mix(backend['color'], 0.68)
-                elements.append(svg_rect(bar_x, y0, BAR_WIDTH, height, other_fill, rx=0, clip_path=clip_id))
+                elements.append(svg_rect(bar_x, y0, BAR_WIDTH, height, SEGMENT_OTHER_FILL, rx=0, clip_path=clip_id))
                 elements.append(svg_rect(bar_x, y0, BAR_WIDTH, height, 'none', rx=0,
                                          stroke=other_stroke, stroke_width=1.5, dash='6 4', clip_path=clip_id))
                 draw_count_label(elements, bar_x + BAR_WIDTH / 2, centers[kind] + 4, value)
@@ -285,12 +285,14 @@ def style_block():
     --axis: #d5d8df;
     --text: #1c1f24;
     --muted: #5d6674;
-    --legend-success: #6b7280;
-    --legend-timeout-fill: #eef2f7;
-    --legend-timeout-stroke: #7b8797;
-    --legend-other-fill: #f7f8fa;
-    --legend-other-stroke: #9ca3af;
-  }
+      --legend-success: #6b7280;
+      --legend-timeout-fill: rgba(0, 0, 0, 0.08);
+      --legend-timeout-stroke: #7b8797;
+      --legend-other-fill: rgba(0, 0, 0, 0.04);
+      --legend-other-stroke: #9ca3af;
+      --segment-timeout-fill: rgba(0, 0, 0, 0.08);
+      --segment-other-fill: rgba(0, 0, 0, 0.04);
+    }
 
   @media (prefers-color-scheme: dark) {
     svg {
@@ -302,10 +304,12 @@ def style_block():
       --text: #f3f5f8;
       --muted: #b7bfcb;
       --legend-success: #cbd5e1;
-      --legend-timeout-fill: #202734;
+      --legend-timeout-fill: rgba(255, 255, 255, 0.08);
       --legend-timeout-stroke: #aab6c8;
-      --legend-other-fill: #1b202a;
+      --legend-other-fill: rgba(255, 255, 255, 0.04);
       --legend-other-stroke: #8f9bad;
+      --segment-timeout-fill: rgba(255, 255, 255, 0.08);
+      --segment-other-fill: rgba(255, 255, 255, 0.04);
     }
   }
 </style>""".strip()
