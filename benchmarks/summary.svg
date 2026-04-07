@@ -44,79 +44,79 @@
 <pattern id="timeout-pattern-LaTeXML" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" stroke="#dcae95" stroke-width="1.7" /></pattern>
 </defs>
 <rect x="0" y="0" width="980" height="360" rx="0" fill="var(--bg)" stroke="none" stroke-width="1" />
-<rect x="12.0" y="12" width="470.0" height="336" rx="14" fill="var(--panel)" stroke="var(--panel-stroke)" stroke-width="1" />
-<text x="30.0" y="40" fill="var(--text)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="16" font-weight="600" text-anchor="start">Robustness</text>
-<text x="30.0" y="60" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="12" font-weight="400" text-anchor="start">Stacked outcomes on 50 AI/ML arXiv papers</text>
-<rect x="30.0" y="70" width="12" height="12" rx="3" fill="var(--legend-success)" stroke="var(--legend-success)" stroke-width="1" />
-<text x="48.0" y="80" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="start">Success</text>
-<rect x="114.19999999999999" y="70" width="12" height="12" rx="3" fill="var(--legend-timeout-fill)" stroke="var(--legend-timeout-stroke)" stroke-width="1" stroke-dasharray="4 3" />
-<rect x="114.19999999999999" y="70" width="12" height="12" rx="3" fill="url(#legend-timeout-pattern)" stroke="none" stroke-width="1" />
-<text x="132.2" y="80" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="start">Timed out</text>
-<rect x="211.6" y="70" width="12" height="12" rx="3" fill="var(--legend-other-fill)" stroke="var(--legend-other-stroke)" stroke-width="1" stroke-dasharray="4 3" />
-<text x="229.6" y="80" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="start">Other failure</text>
-<line x1="66.0" y1="296.0" x2="466.0" y2="296.0" stroke="var(--grid)" />
-<text x="56.0" y="300.0" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="end">0</text>
-<line x1="66.0" y1="259.6" x2="466.0" y2="259.6" stroke="var(--grid)" />
-<text x="56.0" y="263.6" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="end">10</text>
-<line x1="66.0" y1="223.2" x2="466.0" y2="223.2" stroke="var(--grid)" />
-<text x="56.0" y="227.2" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="end">20</text>
-<line x1="66.0" y1="186.8" x2="466.0" y2="186.8" stroke="var(--grid)" />
-<text x="56.0" y="190.8" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="end">30</text>
-<line x1="66.0" y1="150.4" x2="466.0" y2="150.4" stroke="var(--grid)" />
-<text x="56.0" y="154.4" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="end">40</text>
-<line x1="66.0" y1="114.0" x2="466.0" y2="114.0" stroke="var(--grid)" />
-<text x="56.0" y="118.0" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="end">50</text>
-<line x1="66.0" y1="114" x2="66.0" y2="296" stroke="var(--axis)" />
-<line x1="66.0" y1="296" x2="466.0" y2="296" stroke="var(--axis)" />
-<clipPath id="clip-TexSoup"><rect x="113.0" y="114" width="74" height="182" rx="10" /></clipPath>
-<rect x="113.0" y="114" width="74" height="182.0" rx="0" fill="#1f7a5a" stroke="none" stroke-width="1" clip-path="url(#clip-TexSoup)" />
-<text x="150.0" y="209.0" fill="#ffffff" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="600" text-anchor="middle">50</text>
-<rect x="113.0" y="114" width="74" height="182" rx="10" fill="none" stroke="#1f7a5a" stroke-width="1.5" />
-<text x="150.0" y="316" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="middle">TexSoup</text>
-<clipPath id="clip-plasTeX"><rect x="229.0" y="114" width="74" height="182" rx="10" /></clipPath>
-<rect x="229.0" y="114" width="74" height="109.2" rx="0" fill="var(--segment-other-fill)" stroke="none" stroke-width="1" clip-path="url(#clip-plasTeX)" />
-<rect x="229.0" y="114" width="74" height="109.2" rx="0" fill="none" stroke="#d1d5dc" stroke-width="1.5" stroke-dasharray="6 4" clip-path="url(#clip-plasTeX)" />
-<text x="266.0" y="172.6" fill="var(--text)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="600" text-anchor="middle">30</text>
-<rect x="229.0" y="223.2" width="74" height="32.76" rx="0" fill="var(--segment-timeout-fill)" stroke="none" stroke-width="1" clip-path="url(#clip-plasTeX)" />
-<rect x="229.0" y="223.2" width="74" height="32.76" rx="0" fill="url(#timeout-pattern-plasTeX)" stroke="none" stroke-width="1" clip-path="url(#clip-plasTeX)" />
-<rect x="229.0" y="223.2" width="74" height="32.76" rx="0" fill="none" stroke="#afb7c2" stroke-width="1.5" stroke-dasharray="6 4" clip-path="url(#clip-plasTeX)" />
-<text x="266.0" y="243.57999999999998" fill="var(--text)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="600" text-anchor="middle">9</text>
-<rect x="229.0" y="255.95999999999998" width="74" height="40.04" rx="0" fill="#6e7c91" stroke="none" stroke-width="1" clip-path="url(#clip-plasTeX)" />
-<text x="266.0" y="279.97999999999996" fill="#ffffff" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="600" text-anchor="middle">11</text>
-<rect x="229.0" y="114" width="74" height="182" rx="10" fill="none" stroke="#6e7c91" stroke-width="1.5" />
-<text x="266.0" y="316" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="middle">plasTeX</text>
-<clipPath id="clip-LaTeXML"><rect x="345.0" y="114" width="74" height="182" rx="10" /></clipPath>
-<rect x="345.0" y="114" width="74" height="25.480000000000004" rx="0" fill="var(--segment-other-fill)" stroke="none" stroke-width="1" clip-path="url(#clip-LaTeXML)" />
-<rect x="345.0" y="114" width="74" height="25.480000000000004" rx="0" fill="none" stroke="#ebd0c1" stroke-width="1.5" stroke-dasharray="6 4" clip-path="url(#clip-LaTeXML)" />
-<text x="382.0" y="130.74" fill="var(--text)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="600" text-anchor="middle">7</text>
-<rect x="345.0" y="139.48000000000002" width="74" height="50.96000000000001" rx="0" fill="var(--segment-timeout-fill)" stroke="none" stroke-width="1" clip-path="url(#clip-LaTeXML)" />
-<rect x="345.0" y="139.48000000000002" width="74" height="50.96000000000001" rx="0" fill="url(#timeout-pattern-LaTeXML)" stroke="none" stroke-width="1" clip-path="url(#clip-LaTeXML)" />
-<rect x="345.0" y="139.48000000000002" width="74" height="50.96000000000001" rx="0" fill="none" stroke="#dcae95" stroke-width="1.5" stroke-dasharray="6 4" clip-path="url(#clip-LaTeXML)" />
-<text x="382.0" y="168.96000000000004" fill="var(--text)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="600" text-anchor="middle">14</text>
-<rect x="345.0" y="190.44000000000003" width="74" height="105.55999999999999" rx="0" fill="#c06b3e" stroke="none" stroke-width="1" clip-path="url(#clip-LaTeXML)" />
-<text x="382.0" y="247.22000000000003" fill="#ffffff" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="600" text-anchor="middle">29</text>
-<rect x="345.0" y="114" width="74" height="182" rx="10" fill="none" stroke="#c06b3e" stroke-width="1.5" />
-<text x="382.0" y="316" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="middle">LaTeXML</text>
-<rect x="498.0" y="12" width="470.0" height="336" rx="14" fill="var(--panel)" stroke="var(--panel-stroke)" stroke-width="1" />
+<rect x="0.0" y="12" width="482.0" height="336" rx="14" fill="var(--panel)" stroke="var(--panel-stroke)" stroke-width="1" />
+<text x="18.0" y="40" fill="var(--text)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="16" font-weight="600" text-anchor="start">Robustness</text>
+<text x="18.0" y="60" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="12" font-weight="400" text-anchor="start">Stacked outcomes on 50 AI/ML arXiv papers</text>
+<rect x="18.0" y="70" width="12" height="12" rx="3" fill="var(--legend-success)" stroke="var(--legend-success)" stroke-width="1" />
+<text x="36.0" y="80" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="start">Success</text>
+<rect x="102.19999999999999" y="70" width="12" height="12" rx="3" fill="var(--legend-timeout-fill)" stroke="var(--legend-timeout-stroke)" stroke-width="1" stroke-dasharray="4 3" />
+<rect x="102.19999999999999" y="70" width="12" height="12" rx="3" fill="url(#legend-timeout-pattern)" stroke="none" stroke-width="1" />
+<text x="120.19999999999999" y="80" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="start">Timed out</text>
+<rect x="199.6" y="70" width="12" height="12" rx="3" fill="var(--legend-other-fill)" stroke="var(--legend-other-stroke)" stroke-width="1" stroke-dasharray="4 3" />
+<text x="217.6" y="80" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="start">Other failure</text>
+<line x1="54.0" y1="296.0" x2="466.0" y2="296.0" stroke="var(--grid)" />
+<text x="44.0" y="300.0" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="end">0</text>
+<line x1="54.0" y1="259.6" x2="466.0" y2="259.6" stroke="var(--grid)" />
+<text x="44.0" y="263.6" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="end">10</text>
+<line x1="54.0" y1="223.2" x2="466.0" y2="223.2" stroke="var(--grid)" />
+<text x="44.0" y="227.2" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="end">20</text>
+<line x1="54.0" y1="186.8" x2="466.0" y2="186.8" stroke="var(--grid)" />
+<text x="44.0" y="190.8" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="end">30</text>
+<line x1="54.0" y1="150.4" x2="466.0" y2="150.4" stroke="var(--grid)" />
+<text x="44.0" y="154.4" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="end">40</text>
+<line x1="54.0" y1="114.0" x2="466.0" y2="114.0" stroke="var(--grid)" />
+<text x="44.0" y="118.0" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="end">50</text>
+<line x1="54.0" y1="114" x2="54.0" y2="296" stroke="var(--axis)" />
+<line x1="54.0" y1="296" x2="466.0" y2="296" stroke="var(--axis)" />
+<clipPath id="clip-TexSoup"><rect x="107.0" y="114" width="74" height="182" rx="10" /></clipPath>
+<rect x="107.0" y="114" width="74" height="182.0" rx="0" fill="#1f7a5a" stroke="none" stroke-width="1" clip-path="url(#clip-TexSoup)" />
+<text x="144.0" y="209.0" fill="#ffffff" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="600" text-anchor="middle">50</text>
+<rect x="107.0" y="114" width="74" height="182" rx="10" fill="none" stroke="#1f7a5a" stroke-width="1.5" />
+<text x="144.0" y="316" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="middle">TexSoup</text>
+<clipPath id="clip-plasTeX"><rect x="223.0" y="114" width="74" height="182" rx="10" /></clipPath>
+<rect x="223.0" y="114" width="74" height="109.2" rx="0" fill="var(--segment-other-fill)" stroke="none" stroke-width="1" clip-path="url(#clip-plasTeX)" />
+<rect x="223.0" y="114" width="74" height="109.2" rx="0" fill="none" stroke="#d1d5dc" stroke-width="1.5" stroke-dasharray="6 4" clip-path="url(#clip-plasTeX)" />
+<text x="260.0" y="172.6" fill="var(--text)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="600" text-anchor="middle">30</text>
+<rect x="223.0" y="223.2" width="74" height="32.76" rx="0" fill="var(--segment-timeout-fill)" stroke="none" stroke-width="1" clip-path="url(#clip-plasTeX)" />
+<rect x="223.0" y="223.2" width="74" height="32.76" rx="0" fill="url(#timeout-pattern-plasTeX)" stroke="none" stroke-width="1" clip-path="url(#clip-plasTeX)" />
+<rect x="223.0" y="223.2" width="74" height="32.76" rx="0" fill="none" stroke="#afb7c2" stroke-width="1.5" stroke-dasharray="6 4" clip-path="url(#clip-plasTeX)" />
+<text x="260.0" y="243.57999999999998" fill="var(--text)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="600" text-anchor="middle">9</text>
+<rect x="223.0" y="255.95999999999998" width="74" height="40.04" rx="0" fill="#6e7c91" stroke="none" stroke-width="1" clip-path="url(#clip-plasTeX)" />
+<text x="260.0" y="279.97999999999996" fill="#ffffff" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="600" text-anchor="middle">11</text>
+<rect x="223.0" y="114" width="74" height="182" rx="10" fill="none" stroke="#6e7c91" stroke-width="1.5" />
+<text x="260.0" y="316" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="middle">plasTeX</text>
+<clipPath id="clip-LaTeXML"><rect x="339.0" y="114" width="74" height="182" rx="10" /></clipPath>
+<rect x="339.0" y="114" width="74" height="25.480000000000004" rx="0" fill="var(--segment-other-fill)" stroke="none" stroke-width="1" clip-path="url(#clip-LaTeXML)" />
+<rect x="339.0" y="114" width="74" height="25.480000000000004" rx="0" fill="none" stroke="#ebd0c1" stroke-width="1.5" stroke-dasharray="6 4" clip-path="url(#clip-LaTeXML)" />
+<text x="376.0" y="130.74" fill="var(--text)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="600" text-anchor="middle">7</text>
+<rect x="339.0" y="139.48000000000002" width="74" height="50.96000000000001" rx="0" fill="var(--segment-timeout-fill)" stroke="none" stroke-width="1" clip-path="url(#clip-LaTeXML)" />
+<rect x="339.0" y="139.48000000000002" width="74" height="50.96000000000001" rx="0" fill="url(#timeout-pattern-LaTeXML)" stroke="none" stroke-width="1" clip-path="url(#clip-LaTeXML)" />
+<rect x="339.0" y="139.48000000000002" width="74" height="50.96000000000001" rx="0" fill="none" stroke="#dcae95" stroke-width="1.5" stroke-dasharray="6 4" clip-path="url(#clip-LaTeXML)" />
+<text x="376.0" y="168.96000000000004" fill="var(--text)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="600" text-anchor="middle">14</text>
+<rect x="339.0" y="190.44000000000003" width="74" height="105.55999999999999" rx="0" fill="#c06b3e" stroke="none" stroke-width="1" clip-path="url(#clip-LaTeXML)" />
+<text x="376.0" y="247.22000000000003" fill="#ffffff" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="600" text-anchor="middle">29</text>
+<rect x="339.0" y="114" width="74" height="182" rx="10" fill="none" stroke="#c06b3e" stroke-width="1.5" />
+<text x="376.0" y="316" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="middle">LaTeXML</text>
+<rect x="498.0" y="12" width="482.0" height="336" rx="14" fill="var(--panel)" stroke="var(--panel-stroke)" stroke-width="1" />
 <text x="516.0" y="40" fill="var(--text)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="16" font-weight="600" text-anchor="start">Speed</text>
 <text x="516.0" y="60" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="12" font-weight="400" text-anchor="start">Mean runtime on successful papers only (linear scale)</text>
-<line x1="552.0" y1="296.0" x2="952.0" y2="296.0" stroke="var(--grid)" />
+<line x1="552.0" y1="296.0" x2="964.0" y2="296.0" stroke="var(--grid)" />
 <text x="542.0" y="300.0" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="end">0</text>
-<line x1="552.0" y1="228.66666666666669" x2="952.0" y2="228.66666666666669" stroke="var(--grid)" />
+<line x1="552.0" y1="228.66666666666669" x2="964.0" y2="228.66666666666669" stroke="var(--grid)" />
 <text x="542.0" y="232.66666666666669" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="end">2k ms</text>
-<line x1="552.0" y1="161.33333333333334" x2="952.0" y2="161.33333333333334" stroke="var(--grid)" />
+<line x1="552.0" y1="161.33333333333334" x2="964.0" y2="161.33333333333334" stroke="var(--grid)" />
 <text x="542.0" y="165.33333333333334" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="end">4k ms</text>
-<line x1="552.0" y1="94.0" x2="952.0" y2="94.0" stroke="var(--grid)" />
+<line x1="552.0" y1="94.0" x2="964.0" y2="94.0" stroke="var(--grid)" />
 <text x="542.0" y="98.0" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="end">6k ms</text>
 <line x1="552.0" y1="94" x2="552.0" y2="296" stroke="var(--axis)" />
-<line x1="552.0" y1="296" x2="952.0" y2="296" stroke="var(--axis)" />
-<rect x="599.0" y="264.62266666666665" width="74" height="31.377333333333333" rx="10" fill="#1f7a5a" stroke="none" stroke-width="1" />
-<text x="636.0" y="254.62266666666665" fill="var(--text)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="600" text-anchor="middle">932 ms</text>
-<text x="636.0" y="316" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="middle">TexSoup</text>
-<rect x="715.0" y="268.0903333333333" width="74" height="27.909666666666666" rx="10" fill="#6e7c91" stroke="none" stroke-width="1" />
-<text x="752.0" y="258.0903333333333" fill="var(--text)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="600" text-anchor="middle">829 ms</text>
-<text x="752.0" y="316" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="middle">plasTeX</text>
-<rect x="831.0" y="119.88966666666667" width="74" height="176.11033333333333" rx="10" fill="#c06b3e" stroke="none" stroke-width="1" />
-<text x="868.0" y="109.88966666666667" fill="var(--text)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="600" text-anchor="middle">5,231 ms</text>
-<text x="868.0" y="316" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="middle">LaTeXML</text>
+<line x1="552.0" y1="296" x2="964.0" y2="296" stroke="var(--axis)" />
+<rect x="605.0" y="264.62266666666665" width="74" height="31.377333333333333" rx="10" fill="#1f7a5a" stroke="none" stroke-width="1" />
+<text x="642.0" y="254.62266666666665" fill="var(--text)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="600" text-anchor="middle">932 ms</text>
+<text x="642.0" y="316" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="middle">TexSoup</text>
+<rect x="721.0" y="268.0903333333333" width="74" height="27.909666666666666" rx="10" fill="#6e7c91" stroke="none" stroke-width="1" />
+<text x="758.0" y="258.0903333333333" fill="var(--text)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="600" text-anchor="middle">829 ms</text>
+<text x="758.0" y="316" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="middle">plasTeX</text>
+<rect x="837.0" y="119.88966666666667" width="74" height="176.11033333333333" rx="10" fill="#c06b3e" stroke="none" stroke-width="1" />
+<text x="874.0" y="109.88966666666667" fill="var(--text)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="600" text-anchor="middle">5,231 ms</text>
+<text x="874.0" y="316" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="middle">LaTeXML</text>
 </svg>
