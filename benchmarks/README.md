@@ -45,24 +45,6 @@ These are intentionally lumped together in one harness, but they are not doing
 the exact same job. `latexwalker` is a lightweight syntax walker, while
 `latexml` and `latex2html` are full document converters.
 
-## Dataset
-
-The current README numbers were measured locally on April 5, 2026 against these
-expanded arXiv sources:
-
-- `2004.05565` (`FBNetV2`), `53,962` characters after expansion
-- `1706.03762` (`Attention Is All You Need`), `73,870` characters after expansion
-- `1512.03385` (`Deep Residual Learning for Image Recognition`), `78,331` characters after expansion
-- `1810.04805` (`BERT`), `85,622` characters after expansion
-- `2303.08774` (`GPT-4 Technical Report`), `124,947` characters after expansion
-- `2103.00020` (`CLIP`), `252,082` characters after expansion
-- `2010.11929` (`Vision Transformer`), `82,089` characters after expansion
-- `1312.6114` (`Auto-Encoding Variational Bayes`), `51,535` characters after expansion
-- `1406.2661` (`Generative Adversarial Nets`), `49,699` characters after expansion
-- `1409.1556` (`VGG`), `71,509` characters after expansion
-
-## Current Results
-
 ## 50-Paper Snapshot
 
 ![TexSoup robustness and speed](robustness_50.svg)
@@ -72,55 +54,81 @@ AI/ML arXiv set. The robustness panel breaks outcomes into successes,
 timeouts, and other failures, and the speed panel reports mean runtime on
 successful papers only.
 
-`texsoup` and `latexwalker` below are the median of `5` timed runs after `1`
-warmup, and the summary row reports the mean of those per-paper medians.
-`plastex` and `latexml` are from the latest completed local pass on the same
-10-paper set with `--repeats 1 --warmups 0`. The `latexml` column is an
-end-to-end command runtime with `--command-timeout-seconds 0`, so it reflects
-full conversion cost rather than pure parse cost.
+The 50-paper chart uses a `10` second timeout for all tools, and the speed
+panel reports mean runtime on successful papers only. The raw per-paper results
+below come directly from the latest completed local runs on April 7, 2026.
 
 | Backend | Success Rate | Mean Time |
 | --- | ---: | ---: |
-| TexSoup | `10/10` | `937 ms` |
-| latexwalker | `10/10` | `276 ms` |
-| plasTeX | `3/10` | `1,661 ms` on successes |
-| LaTeXML | `9/10` | `151,521 ms` on successes |
-| latex2html | `0/10` | local install broken |
+| TexSoup | `50/50` | `932 ms` on successes |
+| plasTeX | `11/50` | `829 ms` on successes |
+| LaTeXML | `29/50` | `5,231 ms` on successes |
 
-| Paper | Chars | TexSoup | latexwalker | plasTeX | LaTeXML |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| FBNetV2 `2004.05565` | `53,962` | `478 ms` | `145 ms` | fail | `35,218 ms` |
-| Transformer `1706.03762` | `73,870` | `731 ms` | `184 ms` | fail | `50,986 ms` |
-| ResNet `1512.03385` | `78,331` | `777 ms` | `222 ms` | `1,381 ms` | `78,464 ms` |
-| BERT `1810.04805` | `85,622` | `755 ms` | `243 ms` | `2,699 ms` | `180,916 ms` |
-| GPT-4 `2303.08774` | `124,947` | `1,164 ms` | `326 ms` | `902 ms` | `914,143 ms` |
-| CLIP `2103.00020` | `252,082` | `2,910 ms` | `939 ms` | fail | `20,195 ms` |
-| ViT `2010.11929` | `82,089` | `883 ms` | `238 ms` | fail | fail |
-| VAE `1312.6114` | `51,535` | `573 ms` | `151 ms` | fail | `67,071 ms` |
-| GAN `1406.2661` | `49,699` | `462 ms` | `120 ms` | fail | `7,506 ms` |
-| VGG `1409.1556` | `71,509` | `635 ms` | `190 ms` | fail | `9,189 ms` |
+## 50-Paper Raw Results
+
+| Paper | Chars | TexSoup | plasTeX | LaTeXML |
+| --- | ---: | ---: | ---: | ---: |
+| `1706.03762` | `73,870` | `1156 ms` | `fail` | `4839 ms` |
+| `1810.04805` | `85,622` | `1031 ms` | `1599 ms` | `timeout` |
+| `1512.03385` | `78,331` | `756 ms` | `812 ms` | `timeout` |
+| `1409.1556` | `71,509` | `1446 ms` | `fail` | `5143 ms` |
+| `1406.2661` | `49,699` | `563 ms` | `timeout` | `4300 ms` |
+| `1312.6114` | `51,535` | `590 ms` | `fail` | `timeout` |
+| `2004.05565` | `53,962` | `438 ms` | `timeout` | `4534 ms` |
+| `2006.02049` | `72,438` | `656 ms` | `fail` | `5991 ms` |
+| `2004.00221` | `78,325` | `700 ms` | `fail` | `fail` |
+| `2103.00020` | `252,082` | `2353 ms` | `fail` | `timeout` |
+| `2010.11929` | `82,089` | `726 ms` | `fail` | `fail` |
+| `2303.08774` | `124,947` | `1757 ms` | `507 ms` | `timeout` |
+| `1905.11946` | `63,805` | `1827 ms` | `fail` | `4664 ms` |
+| `1908.09791` | `58,817` | `1201 ms` | `fail` | `fail` |
+| `1905.02244` | `64,484` | `546 ms` | `timeout` | `4915 ms` |
+| `1801.04381` | `75,774` | `2290 ms` | `fail` | `5568 ms` |
+| `1704.04861` | `51,317` | `436 ms` | `fail` | `4122 ms` |
+| `1608.06993` | `77,726` | `605 ms` | `fail` | `4063 ms` |
+| `1512.02325` | `66,067` | `571 ms` | `1276 ms` | `4523 ms` |
+| `1506.01497` | `76,206` | `608 ms` | `fail` | `8008 ms` |
+| `1506.02640` | `58,295` | `447 ms` | `fail` | `4752 ms` |
+| `1703.06870` | `72,928` | `655 ms` | `timeout` | `8761 ms` |
+| `1612.03144` | `60,386` | `470 ms` | `timeout` | `9296 ms` |
+| `1708.02002` | `63,902` | `517 ms` | `timeout` | `8292 ms` |
+| `1709.01507` | `84,505` | `1047 ms` | `306 ms` | `6218 ms` |
+| `1511.08458` | `29,311` | `190 ms` | `1356 ms` | `timeout` |
+| `1505.04597` | `25,168` | `185 ms` | `fail` | `2521 ms` |
+| `1312.5602` | `63,103` | `452 ms` | `fail` | `4410 ms` |
+| `1509.02971` | `56,329` | `398 ms` | `fail` | `4845 ms` |
+| `1707.06347` | `220` | `3 ms` | `606 ms` | `1684 ms` |
+| `1802.05365` | `96,706` | `1162 ms` | `1205 ms` | `5253 ms` |
+| `1907.11692` | `48,059` | `447 ms` | `fail` | `timeout` |
+| `1910.10683` | `267,488` | `2209 ms` | `timeout` | `fail` |
+| `1909.11942` | `74,016` | `791 ms` | `fail` | `fail` |
+| `2003.10555` | `81,025` | `667 ms` | `fail` | `6913 ms` |
+| `2002.04745` | `91,201` | `1243 ms` | `fail` | `timeout` |
+| `1804.02767` | `15,660` | `151 ms` | `timeout` | `2565 ms` |
+| `1605.07146` | `50,810` | `1170 ms` | `fail` | `4394 ms` |
+| `1607.06450` | `57,796` | `1623 ms` | `fail` | `fail` |
+| `1609.03499` | `44,649` | `362 ms` | `fail` | `4054 ms` |
+| `2006.11239` | `86,175` | `842 ms` | `488 ms` | `timeout` |
+| `2010.02502` | `82,089` | `1997 ms` | `fail` | `fail` |
+| `2106.08254` | `74,190` | `1946 ms` | `462 ms` | `timeout` |
+| `2012.12877` | `58,706` | `1798 ms` | `fail` | `timeout` |
+| `2201.03545` | `95,601` | `1179 ms` | `fail` | `timeout` |
+| `2111.06377` | `86,386` | `721 ms` | `fail` | `8948 ms` |
+| `2002.05709` | `105,789` | `895 ms` | `fail` | `timeout` |
+| `2006.10029` | `80,661` | `626 ms` | `505 ms` | `5773 ms` |
+| `2104.14294` | `18,696` | `137 ms` | `timeout` | `2340 ms` |
+| `2112.10752` | `211,624` | `1994 ms` | `fail` | `timeout` |
 
 ## Notes
 
-- `latexwalker` remains much faster than TexSoup, but it is a lighter syntax
-  walker rather than a fault-tolerant tree/editing parser.
-- LaTeXML completed `9/10` papers with no timeout, but the unrestricted run can
-  take a very long time. The GPT-4 technical report alone took about
-  `914,143 ms` (`15.2 min`).
-- `plasTeX` numbers above are from the latest completed local pass on the same
-  10-paper dataset. Reruns on this machine were not always stable.
-- `latex2html` failed immediately in this local setup with
-  `Error: No such image type ''` and a broken install-path warning, so it is
-  not a meaningful baseline here.
+- TexSoup parsed all `50/50` papers in this batch.
+- plasTeX finished `11/50` papers: `9` timed out and `30` failed before the timeout.
+- LaTeXML finished `29/50` papers: `14` timed out and `7` failed before the timeout.
+- The speed panel intentionally reports successful-paper runtimes only; otherwise,
+  plasTeX and LaTeXML timeout behavior would dominate the chart.
 
 ## Failure Notes
 
-- `plasTeX` failed on `2004.05565` and `1406.2661` with
-  `TypeError: sequence item 12: expected str instance, @enumctr found`.
-- `plasTeX` failed on `1706.03762`, `2010.11929`, and `1312.6114` with
-  `ValueError: I/O operation on closed file`.
-- `plasTeX` failed on `2103.00020` with
-  `TypeError: sequence item 11: expected str instance, bgroup found`.
-- `plasTeX` failed on `1409.1556` with
-  `TypeError: sequence item 8: expected str instance, string found`.
-- LaTeXML failed on `2010.11929` with `latexml failed with exit code 1`.
+- Most LaTeXML failures in this 50-paper batch were practical `10` second timeouts
+  rather than hard converter crashes.
+- Most plasTeX failures were hard parse/runtime errors rather than timeouts.
