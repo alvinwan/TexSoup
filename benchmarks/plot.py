@@ -5,8 +5,8 @@ This emits a plain SVG so the chart can be regenerated without adding plotting
 dependencies to the repository.
 
 Usage:
-    python3 benchmarks/robustness_chart.py
-    python3 benchmarks/robustness_chart.py --output benchmarks/robustness_50.svg
+    python3 benchmarks/plot.py
+    python3 benchmarks/plot.py --output benchmarks/summary.svg
 """
 
 from __future__ import annotations
@@ -84,7 +84,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         '--output',
         type=Path,
-        default=Path('benchmarks/robustness_50.svg'),
+        default=Path('benchmarks/summary.svg'),
         help='Where to write the SVG chart.',
     )
     return parser.parse_args()

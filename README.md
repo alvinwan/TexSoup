@@ -81,7 +81,7 @@ Links:
 
 # Benchmarks
 
-![TexSoup robustness and speed](benchmarks/robustness_50.svg)
+![TexSoup robustness and speed](benchmarks/summary.svg)
 
 TexSoup parsed all `50/50` papers in our current AI/ML arXiv benchmark set,
 while plasTeX parsed `11/50` and LaTeXML parsed `29/50` under the same
