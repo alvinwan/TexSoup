@@ -79,6 +79,15 @@ Links:
 - [Example Use Cases: counting references, resolving imports, and more](https://github.com/alvinwan/TexSoup/tree/master/examples)
 - [arXiv Benchmarks: reproducible parser and converter comparisons](https://github.com/alvinwan/TexSoup/tree/master/benchmarks)
 
+# Benchmarks
+
+![TexSoup robustness and speed](benchmarks/summary.svg)
+
+TexSoup parsed all `50/50` papers in our current AI/ML arXiv benchmark set,
+while plasTeX parsed `11/50` and LaTeXML parsed `29/50` under the same
+10-second timeout. See the full [benchmark breakdown](https://github.com/alvinwan/TexSoup/tree/master/benchmarks)
+for raw per-paper results and reproduction details.
+
 # Installation
 
 ## Pip
