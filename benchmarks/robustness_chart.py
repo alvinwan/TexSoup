@@ -231,21 +231,24 @@ def draw_correctness_panel(elements):
 
 def draw_speed_panel(elements):
     x, y = panel_origin(1)
-    draw_panel_frame(elements, x, y, 'Speed', 'Mean runtime on successful papers only (log scale)')
+    draw_panel_frame(elements, x, y, 'Speed', 'Mean runtime on successful papers only (linear scale)')
 
     axis_left = x + 54
     axis_right = x + PANEL_WIDTH - 16
     axis_top = y + 82
     axis_bottom = y + PANEL_HEIGHT - 52
     axis_height = axis_bottom - axis_top
-    log_min = math.log10(100)
-    log_max = math.log10(10_000)
+    max_ms = max(backend['mean_ms'] for backend in BACKENDS)
+    axis_max = math.ceil(max_ms / 1000) * 1000
+    tick_step = max(1000, axis_max // 3)
 
-    for tick in (100, 300, 1_000, 3_000, 10_000):
-        fraction = (math.log10(tick) - log_min) / (log_max - log_min)
+    for tick in range(0, axis_max + 1, tick_step):
+        fraction = tick / axis_max if axis_max else 0
         tick_y = axis_bottom - axis_height * fraction
         elements.append(f'<line x1="{axis_left}" y1="{tick_y}" x2="{axis_right}" y2="{tick_y}" stroke="{GRID}" />')
-        if tick >= 1000 and tick % 1000 == 0:
+        if tick == 0:
+            label = '0'
+        elif tick >= 1000 and tick % 1000 == 0:
             label = f'{tick // 1000}k ms'
         elif tick >= 1000:
             label = f'{tick / 1000:.1f}k ms'
@@ -260,7 +263,7 @@ def draw_speed_panel(elements):
     start_x = axis_left + (axis_right - axis_left - total_width) / 2
     for index, backend in enumerate(BACKENDS):
         bar_x = start_x + index * (BAR_WIDTH + BAR_GAP)
-        fraction = (math.log10(backend['mean_ms']) - log_min) / (log_max - log_min)
+        fraction = backend['mean_ms'] / axis_max if axis_max else 0
         bar_height = max(axis_height * fraction, 4)
         bar_y = axis_bottom - bar_height
         elements.append(svg_rect(bar_x, bar_y, BAR_WIDTH, bar_height, backend['color'], rx=10))
