@@ -63,6 +63,21 @@ expanded arXiv sources:
 
 ## Current Results
 
+![Benchmark summary](summary.svg)
+
+This summary lives as one figure with two panels rather than one shared axis:
+correctness stays linear on the left, while runtime uses a log scale on the
+right.
+
+## 50-Paper Snapshot
+
+![TexSoup robustness and speed](robustness_50.svg)
+
+This larger snapshot compares TexSoup, plasTeX, and LaTeXML on a 50-paper
+AI/ML arXiv set. The robustness panel breaks outcomes into successes,
+timeouts, and other failures, and the speed panel reports mean runtime on
+successful papers only.
+
 `texsoup` and `latexwalker` below are the median of `5` timed runs after `1`
 warmup, and the summary row reports the mean of those per-paper medians.
 `plastex` and `latexml` are from the latest completed local pass on the same
