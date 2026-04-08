@@ -23,8 +23,8 @@ BACKENDS = (
         'timeouts': 0,
         'other_failures': 0,
         'total': 50,
-        'mean_ms': 932,
-        'label': '932 ms',
+        'mean_ms': 668,
+        'label': '668 ms',
         'color': '#1f7a5a',
     },
     {
