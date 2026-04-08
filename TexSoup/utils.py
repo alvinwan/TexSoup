@@ -110,17 +110,14 @@ class Token(str):
         >>> Token('asdf', 0) == Token('asd', 0)
         False
         """
-        if isinstance(other, Token):
-            return self.text == other.text
-        else:
-            return self.text == other
+        return str.__eq__(self, other)
 
     def __hash__(self):
         """
         >>> hash(Token('asf')) == hash('asf')
         True
         """
-        return hash(self.text)
+        return str.__hash__(self)
 
     def __add__(self, other):
         """Implements addition in the form of TextWithPosition(...) + (obj).
@@ -346,11 +343,15 @@ class Buffer:
 
     # noinspection PyPep8Naming
     def hasNext(self, n=1):
-        """Returns whether or not there is another element."""
-        try:
-            return bool(self.__lookahead(n - 1))
-        except IndexError:
-            return False
+        """Returns whether or not there is another element.
+
+        >>> Buffer([0]).hasNext()
+        True
+        """
+        index = self.__i + n - 1
+        if index < 0:
+            return True
+        return self.__fill_to(index)
 
     def startswith(self, s):
         """Check if iterator starts with s, beginning from the current

@@ -33,6 +33,12 @@ CATEGORY_CODES = {
     CC.ParenEnd:    ')'
 }
 
+CHAR_CATEGORY_CODES = {
+    char: cc
+    for cc, values in CATEGORY_CODES.items()
+    for char in values
+}
+
 
 @to_buffer()
 def categorize(text):
@@ -64,14 +70,4 @@ def categorize(text):
     <CategoryCodes.EndOfLine: 6>
     """
     for position, char in enumerate(text):
-
-        value = None
-        for cc, values in CATEGORY_CODES.items():
-            if char in values:
-                value = char
-                break
-
-        if value is None:
-            yield Token(char, position, CC.Other)
-        else:
-            yield Token(char, position, cc)
+        yield Token(char, position, CHAR_CATEGORY_CODES.get(char, CC.Other))

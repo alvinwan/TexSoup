@@ -110,8 +110,8 @@
 <text x="542.0" y="98.0" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="end">6k ms</text>
 <line x1="552.0" y1="94" x2="552.0" y2="296" stroke="var(--axis)" />
 <line x1="552.0" y1="296" x2="964.0" y2="296" stroke="var(--axis)" />
-<rect x="605.0" y="264.62266666666665" width="74" height="31.377333333333333" rx="10" fill="#1f7a5a" stroke="none" stroke-width="1" />
-<text x="642.0" y="254.62266666666665" fill="var(--text)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="600" text-anchor="middle">932 ms</text>
+<rect x="605.0" y="273.5106666666667" width="74" height="22.489333333333335" rx="10" fill="#1f7a5a" stroke="none" stroke-width="1" />
+<text x="642.0" y="263.5106666666667" fill="var(--text)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="600" text-anchor="middle">668 ms</text>
 <text x="642.0" y="316" fill="var(--muted)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="400" text-anchor="middle">TexSoup</text>
 <rect x="721.0" y="268.0903333333333" width="74" height="27.909666666666666" rx="10" fill="#6e7c91" stroke="none" stroke-width="1" />
 <text x="758.0" y="258.0903333333333" fill="var(--text)" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11" font-weight="600" text-anchor="middle">829 ms</text>
