@@ -35,7 +35,7 @@ BACKENDS = (
         'total': 50,
         'mean_ms': 829,
         'label': '829 ms',
-        'color': '#6e7c91',
+        'color': '#5f6368',
     },
     {
         'name': 'LaTeXML',
@@ -45,7 +45,7 @@ BACKENDS = (
         'total': 50,
         'mean_ms': 5231,
         'label': '5,231 ms',
-        'color': '#c06b3e',
+        'color': '#8b9096',
     },
 )
 
