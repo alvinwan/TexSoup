@@ -603,7 +603,8 @@ def read_arg_required(
                 src, next(src), tolerance=tolerance, mode=mode))
             n_required -= 1
             continue
-        elif src.hasNext() and n_required > 0:
+        elif (src.hasNext() and n_required > 0
+                and src.peek().category not in (TC.GroupEnd, TC.BracketEnd)):
             next_token = next(src)
             if next_token.category == TC.Escape:
                 name, _ = read_command(

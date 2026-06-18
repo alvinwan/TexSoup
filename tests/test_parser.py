@@ -778,3 +778,13 @@ def test_tabular_column_spec_raw():
     soup = TexSoup(r"$\begin{array}{l >{$}r<{$}} x & 1 \end{array}$")
     assert soup.array
     assert str(soup.array.args[0]) == r"{l >{$}r<{$}}"
+
+
+def test_known_command_missing_arg_at_group_end():
+    r"""A known command with a required arg should not crash when its argument
+    is absent because it ends a group. See Issue #189."""
+    soup = TexSoup(r"{\label}")
+    assert str(soup) == r"{\label}"
+
+    soup = TexSoup(r"\node[muxdemux] (north) at (3,3) {\label};")
+    assert soup.find('label') is not None
