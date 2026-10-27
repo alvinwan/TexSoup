@@ -778,3 +778,19 @@ def test_tabular_column_spec_raw():
     soup = TexSoup(r"$\begin{array}{l >{$}r<{$}} x & 1 \end{array}$")
     assert soup.array
     assert str(soup.array.args[0]) == r"{l >{$}r<{$}}"
+
+
+@pytest.mark.parametrize('command', ['newenvironment', 'renewenvironment',
+                                     'newenvironment*', 'renewenvironment*'])
+@pytest.mark.parametrize('options', ['', '[1]', '[2][default]'])
+def test_environment_definition_bodies(command, options):
+    source = ('\\' + command + '{Solution}' + options +
+              r'{\begin{color}{blue}Solution :\par}{\end{color}}')
+    soup = TexSoup(source + r'\begin{Solution}body\end{Solution}')
+    definition = soup.find(command)
+    assert str(definition) == source
+    assert [str(arg) for arg in definition.args] == (
+        ['{Solution}'] + ([options] if options == '[1]' else
+                         ['[2]', '[default]'] if options else []) +
+        [r'{\begin{color}{blue}Solution :\par}', r'{\end{color}}'])
+    assert soup.Solution.string == 'body'
