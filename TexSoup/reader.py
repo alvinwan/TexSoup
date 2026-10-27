@@ -36,6 +36,11 @@ SPECIAL_COMMAND_SIGNATURE = (
     (ARG_OPTIONAL, 2),
     (ARG_REQUIRED, 1),
 )
+ENVIRONMENT_COMMAND_SIGNATURE = (
+    (ARG_REQUIRED, 1),
+    (ARG_OPTIONAL, 2),
+    (ARG_REQUIRED, 2),
+)
 SIGNATURES = {
     'def': ((ARG_REQUIRED, 2),),
     'textbf': ((ARG_REQUIRED, 1),),
@@ -50,6 +55,10 @@ SIGNATURES = {
     'newcommand': SPECIAL_COMMAND_SIGNATURE,
     'renewcommand': SPECIAL_COMMAND_SIGNATURE,
     'providecommand': SPECIAL_COMMAND_SIGNATURE,
+    'newenvironment': ENVIRONMENT_COMMAND_SIGNATURE,
+    'renewenvironment': ENVIRONMENT_COMMAND_SIGNATURE,
+    'newenvironment*': ENVIRONMENT_COMMAND_SIGNATURE,
+    'renewenvironment*': ENVIRONMENT_COMMAND_SIGNATURE,
 }
 SIGNATURE_MODES = {name: MODE_SPECIAL for name in SPECIAL_COMMANDS}
 

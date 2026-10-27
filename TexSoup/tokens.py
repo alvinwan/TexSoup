@@ -18,7 +18,10 @@ MATH_ENV_NAMES = (
     'eqnarray*', 'equation', 'equation*', 'flalign', 'flalign*', 'gather',
     'gather*', 'math', 'multline', 'multline*', 'split'
 )
-SPECIAL_COMMANDS = {'newcommand', 'renewcommand', 'providecommand'}
+SPECIAL_COMMANDS = {
+    'newcommand', 'renewcommand', 'providecommand',
+    'newenvironment', 'renewenvironment', 'newenvironment*', 'renewenvironment*',
+}
 BRACKETS_DELIMITERS = {
     '(', ')', '<', '>', '[', ']', '{', '}', r'\{', r'\}', '.' '|', r'\langle',
     r'\rangle', r'\lfloor', r'\rfloor', r'\lceil', r'\rceil', r'\ulcorner',
