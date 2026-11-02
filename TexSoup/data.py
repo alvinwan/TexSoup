@@ -629,7 +629,7 @@ class TexExpr(object):
     """General abstraction for a TeX expression.
 
     An expression may be a command or an environment and is identified
-    by a name, arguments, and place in the parse tree. This is an
+    by a name, arguments, and place in the raw TeX source. This is an
     abstract and is not directly instantiated.
     """
 
